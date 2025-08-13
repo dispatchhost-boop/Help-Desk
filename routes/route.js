@@ -13,6 +13,9 @@ const axios = require('axios')
 // ======================
 // HELPDESK ROUTES
 // ======================
+
+
+route.get('/support/categories', userController.getSupportCategories);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
 
@@ -2871,6 +2874,5 @@ route.get('/material', (req, res, next) => {
 route.get('/dark-topbar', (req, res, next) => {
   res.render('layouts/dark-topbar', { title: 'Metrica', layout: 'partials/layout-vertical2' })
 })
-
 
 module.exports = route;   

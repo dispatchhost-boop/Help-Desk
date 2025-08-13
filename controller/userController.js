@@ -1,3 +1,4 @@
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField } = require('../models/index.js');
 
 const { mySqlQury } = require('../middleware/db');
 const jwt = require('jsonwebtoken');
@@ -15,7 +16,7 @@ const FormData = require('form-data');
 const csv = require('fast-csv');
 const fs = require('fs');
 const xlsx = require('xlsx');
-const { Console } = require('console');
+const { Console, log } = require('console');
 const { CONNREFUSED } = require('dns');
 const moment = require('moment');
 
@@ -50,6 +51,106 @@ const {findRateAggrigator, findRateAggrigatorEcom} = require('../services/findRa
 const fetchExpressBeesToken = require('../services/fetchExpressBeesToken.js');
 const checkServiceability = require('../services/checkServiceability.js');
 const calculateAdditionalCharges = require('../services/calculateAdditionalCharges.js');
+const sequelize = require('../config/sequelize.js');
+const supportService = require('../services/supportService');
+
+
+// async function getSupportCategories(req, res) {
+//   try {
+//     await sequelize.authenticate();
+//     const { raised_from = 'ucp' } = req.query;
+
+//     const categories = await Category.findAll({
+//       where: { raised_from },
+//       attributes: ['id', 'name'],
+//       include: [
+//         {
+//           model: SubCategory,
+//           as: 'sub_categories',
+//           attributes: ['id', 'name', 'self_help'],
+//           include: [
+//             { association: 'add_fields', attributes: ['field_name'] },
+//             { association: 'mandatory_fields', attributes: ['field_name'] }
+//           ]
+//         }
+//       ],
+//       order: [
+//         ['id', 'ASC'],
+//         [{ model: SubCategory, as: 'sub_categories' }, 'id', 'ASC']
+//       ]
+//     });
+
+//     // Define categories that should have a default empty subcategory
+//     const categoriesWithDefaultSubcategory = [
+//       'Self collect / drop',
+//       'Cancel delivery / pickup',
+//       'Behaviour complaint against staff'
+//     ];
+
+//     const formattedResponse = {
+//       category_list: (categories || []).map(category => {
+//         let subCategoryList = category.sub_categories || [];
+        
+//         // Add default subcategory if needed
+//         if (subCategoryList.length === 0 && categoriesWithDefaultSubcategory.includes(category.name)) {
+//           subCategoryList = [{
+//             name: "",
+//             self_help: null,
+//             add_fields: [{ field_name: "list_awb" }],
+//             mandatory_fields: [
+//               { field_name: "waybill number" },
+//               ...(category.name === "Behaviour complaint against staff" ? [{ field_name: "Description" }] : [])
+//             ]
+//           }];
+//         }
+
+//         return {
+//           name: category.name,
+//           sub_category_list: subCategoryList.map(subCategory => ({
+//             name: subCategory.name,
+//             self_help: subCategory.self_help === 'incorrect_or_missing_pod' ? 'incorrect_or_missing_pod' : 
+//                       subCategory.self_help === 'damage_shipment' ? 'damage_shipment' :
+//                       subCategory.self_help === 'missing_shipment' ? 'missing_shipment' :
+//                       subCategory.self_help === 'mismatch_shipment' ? 'mismatch_shipment' :
+//                       subCategory.self_help === 'raise_claim' ? 'raise_claim' :
+//                       subCategory.self_help === 'weight_dispute' ? 'weight_dispute' :
+//                       subCategory.self_help === 'download_invoices_cn' ? 'download_invoices_cn' :
+//                       subCategory.self_help === 'bank_account_details' ? 'bank_account_details' : null,
+//             add_fields: (subCategory.add_fields || []).map(f => f.field_name),
+//             mandatory_fields: (subCategory.mandatory_fields || []).map(f => f.field_name)
+//           }))
+//         };
+//       })
+//     };
+
+//     res.json(formattedResponse);
+//   } catch (error) {
+//     console.error('Error in getSupportCategories:', {
+//       message: error.message,
+//       stack: error.stack
+//     });
+//     res.status(500).json({
+//       error: 'Internal server error',
+//       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// }
+
+
+async function getSupportCategories(req, res) {
+  try {
+    const { raised_from = 'ucp' } = req.query;
+
+    const response = await supportService.getSupportCategories(raised_from);
+
+    return res.json(response);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'userController--->getSupportCategories',
+      details: error.message
+    });
+  }
+}
 
 
 const loginPage = (req, res, next) => {
@@ -28711,7 +28812,7 @@ const validateExpressBulkOrderData = (order, orderIndex) => {
   };
 };
 
-const `createOrderExpressBulk=async (req, res, next) => {
+const createOrderExpressBulk=async (req, res, next) => {
   console.log("req body",req.body)
   console.log("req files",req.files) // Check what files are uploaded
   
@@ -30118,5 +30219,6 @@ module.exports = {
   helpdeskAgents,
   getAddressesEcom,
   apiPackageExpressRateList,
-  apiPackageEcomRateList
+  apiPackageEcomRateList,
+  getSupportCategories,
 }
