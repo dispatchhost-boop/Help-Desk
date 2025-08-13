@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+      /* Make modal open from top */
+  .modal-dialog {
+    margin-top: 12px !important;
+  }
+
+  /* Full-width and 12px margin around */
+  .modal-content {
+    width: 100%;
+    margin: 0;
+  }
+
+  @media (min-width: 576px) {
+    .modal-dialog {
+      max-width: 100%;
+    }
+  }
+  </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Dashboard</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item active">Dashboard</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Dashboard Content -->
+      
+            <div class="row g-3" style="animation: fadeIn 0.5s ease-out;">
+                <!-- Main Content Left -->
+                <div class="col-lg-8">
+                    <section>
+                        <h1 id="greeting-text" class="fw-bold" style="font-size: 1.5rem; line-height: 1.2; margin-bottom: 1.25rem; position: relative; display: inline-block;">
+                            
+                            <span style="content: ''; position: absolute; bottom: -8px; left: 0; width: 60px; height: 3px; background: #5b80f7; border-radius: 9999px;"></span>
+                        </h1>
+                        <div class="row g-3" style="animation: slideUp 0.4s ease-out; animation-delay: 0.1s;">
+                            <div class="col-md-12">
+                                <div id="actions-card" class="card border-0 shadow-sm h-100" style="border-radius: 0.5rem; border-left: 4px solid #5b80f7; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    <div class="card-body d-flex flex-column gap-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div id="actions-icon" style="background-color: rgba(91, 128, 247, 0.1); border-radius: 0.375rem; height: 2.5rem; width: 2.5rem; display: inline-flex; align-items: center; justify-content: center; color: #5b80f7; font-size: 1.1rem;">
+                                                    <i class="fas fa-truck"></i>
+                                                </div>
+                                                <h3 class="card-title mb-0 fw-semibold" style="font-size: 1.125rem; color: #3d445c;">Actions</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-2 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="orders-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span><%= unprocessedCount %></span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">Orders</span>
+                                                    <a  id="popupBtn"  class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                       View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="ready-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span><%= unprocessedCount %></span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">Unprocessed Orders</span>
+                                                    <a href="/unprocessed-orders" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #dc2626; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="deliveredintransit-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>10</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">Ready To Dispatch</span>
+                                                    <a href="/ready_to_dispatch_assinged_lr" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="rto-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>11</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">Cancelled Orders</span>
+                                                    <a href="/cancelled-orders" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="ndr-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>12</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">Delivered</span>
+                                                    <a href="/order-delivered" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="all-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>13</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">In-Transit</span>
+                                                    <a href="/In-Transitl" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="all-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>13</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">RTO</span>
+                                                    <a href="/In-Transitl" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-stretch">
+                                                <div class="d-flex flex-column align-items-center gap-1 w-100">
+                                                    <span id="all-value" class="fw-bold d-block text-center" style="font-size: 1.875rem; line-height: 1; color: #3d445c; position: relative;">
+                                                        <span>13</span>
+                                                        <span style="content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 100%; height: 3px; background: linear-gradient(90deg, #5b80f7, transparent); border-radius: 9999px; opacity: 0.5;"></span>
+                                                    </span>
+                                                    <span class="fw-medium text-center" style="font-size: 0.875rem; color: #525b7a;">NDR</span>
+                                                    <a href="/In-Transitl" class="btn btn-link p-0 mt-2 text-decoration-none text-center" style="color: #5b80f7; font-weight: 500;">
+                                                        View
+                                                        <span style="content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: currentColor; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </section>
+                    <section style="animation: slideUp 0.4s ease-out; animation-delay: 0.3s;">
+                        <div id="pickups-card" class="card border-0 shadow-sm" style="border-radius: 0.5rem; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center" style="padding: 1.5rem 1.5rem 0;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div id="pickups-icon" style="background-color: rgba(91, 128, 247, 0.1); border-radius: 0.375rem; height: 2.5rem; width: 2.5rem; display: inline-flex; align-items: center; justify-content: center; color: #5b80f7; font-size: 1.1rem;">
+                                        <i class="fas fa-calendar-day"></i>
+                                    </div>
+                                    <h3 class="card-title mb-0 fw-semibold" style="font-size: 1.125rem; color: #3d445c;">Upcoming Pickups</h3>
+                                </div>
+                                <button class="btn btn-primary btn-sm" style="padding: 0.5rem 1.25rem; border-radius: 0.25rem; font-weight: 500;">View All &gt;</button>
+                            </div>
+                            <div id="pickups-container" class="d-flex gap-3 p-4" style="flex-wrap: wrap;">
+                                <div class="card border" style="flex: 1 1 0; min-width: 220px; border-radius: 0.375rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-column gap-2">
+                                            <h4 class="fw-semibold mb-0 text-truncate" style="font-size: 1rem; color: #3d445c;">GNV COMMODITIES PVT LTD.</h4>
+                                            <div class="d-flex align-items-center gap-2" style="font-size: 0.8125rem; color: #525b7a;">
+                                                <i class="fas fa-calendar-clock" style="color: #a3aac2; font-size: 0.875rem;"></i>
+                                                <span>Today</span>
+                                                <span style="width: 4px; height: 4px; background: #a3aac2; border-radius: 50%; opacity: 0.7;"></span>
+                                                <i class="fas fa-boxes-stacked" style="color: #a3aac2; font-size: 0.875rem;"></i>
+                                                <span>37 AWBs</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2 mt-2">
+                                                <span class="d-inline-flex align-items-center gap-1 fw-medium px-3 py-1" style="font-size: 0.75rem; border-radius: 9999px; background-color: rgba(5, 150, 105, 0.1); color: #059669;">
+                                                    <i class="fas fa-person-carry-box"></i>
+                                                    <span>Out For Pickup</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card border" style="flex: 1 1 0; min-width: 220px; border-radius: 0.375rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    <div class="card-body">
+                                        <div class="d-flex flex-column gap-2">
+                                            <h4 class="fw-semibold mb-0 text-truncate" style="font-size: 1rem; color: #3d445c;">GNV COMMODITIES PVT. LTD</h4>
+                                            <div class="d-flex align-items-center gap-2" style="font-size: 0.8125rem; color: #525b7a;">
+                                                <i class="fas fa-calendar-clock" style="color: #a3aac2; font-size: 0.875rem;"></i>
+                                                <span>Today</span>
+                                                <span style="width: 4px; height: 4px; background: #a3aac2; border-radius: 50%; opacity: 0.7;"></span>
+                                                <i class="fas fa-boxes-stacked" style="color: #a3aac2; font-size: 0.875rem;"></i>
+                                                <span>17 AWBs</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2 mt-2">
+                                                <span class="d-inline-flex align-items-center gap-1 fw-medium px-3 py-1" style="font-size: 0.75rem; border-radius: 9999px; background-color: rgba(5, 150, 105, 0.1); color: #059669;">
+                                                    <i class="fas fa-person-carry-box"></i>
+                                                    <span>Out For Pickup</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-light p-3 d-flex align-items-center gap-2 border-top" style="font-size: 0.8125rem; color: #525b7a;">
+                                <i class="fas fa-circle-info" style="color: #5b80f7; font-size: 1rem;"></i>
+                                <span>Pickup will be attempted during the selected Pickup Slot. Check <a href="#" class="text-decoration-none" style="color: #5b80f7; font-weight: 500;">guidelines</a> to keep your shipment ready for pickup</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <!-- Sidebar Right -->
+                <div class="col-sm-4  mt-4">
+                    <div id="sidebar" class="d-flex flex-column gap-3" style="width: 100%; flex-shrink: 0;">
+                        <div id="wallet-card" class="card border-0 shadow-sm p-4 d-flex align-items-center justify-content-between" style="border-radius: 0.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); animation: slideUp 0.4s ease-out; animation-delay: 0.4s; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), transparent);"></div>
+                            <div class="d-flex flex-row align-items-center justify-content-between gap-3 w-100">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="wallet-icon" style="background-color: rgba(220, 38, 38, 0.1); border-radius: 0.375rem; height: 2.75rem; width: 2.75rem; display: flex; align-items: center; justify-content: center; color: #dc2626; font-size: 1.2rem;">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <span style="font-size: 0.8125rem; color: #525b7a;">Wallet Balance</span>
+                                </div>
+                                <span id="wallet-balance" class="fw-bold" style="font-size: 1.375rem; color: #dc2626;">₹0.00</span>
+                            <button class="btn btn-primary btn-sm z-1" style="padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: 500; white-space: nowrap;">Recharge</button>
+
+                            </div>
+                        </div>
+                        <div class="row g-2" style="animation: slideUp 0.4s ease-out; animation-delay: 0.5s;">
+                            <div class="col-md-6">
+                                <a id="knowledge-base-link" href="https://help.delhivery.com" target="_blank" class="card border-0 shadow-sm text-decoration-none h-100" style="border-radius: 0.375rem; padding: 1.25rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: inherit;">
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        <div id="knowledge-icon" style="height: 2.5rem; width: 2.5rem; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; background-color: rgba(8, 145, 178, 0.1); color: #0891b2;">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                        <span class="fw-medium text-center" style="font-size: 0.9375rem;">Knowledge Base</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a id="rate-calculator-link" href="/information-center/serviceability-and-rate-calculator" class="card border-0 shadow-sm text-decoration-none h-100" style="border-radius: 0.375rem; padding: 1.25rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: inherit;">
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        <div id="calculator-icon" style="height: 2.5rem; width: 2.5rem; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; background-color: rgba(217, 119, 6, 0.1); color: #d97706;">
+                                            <i class="fas fa-calculator"></i>
+                                        </div>
+                                        <span class="fw-medium text-center" style="font-size: 0.9375rem;">Rate Calculator</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<!-- Modal -->
+<div class="modal " id="popupModal" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" style="margin: 12px; max-width: 100%;">
+      <div class="modal-content shadow" style="width: 100%; margin-top: 0;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="popupModalLabel">Welcome!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <div class="table-responsive mb-5">
+              <table class="table my-table" id="datatable_2">
+                <caption class="text-left"></caption>
+                <thead>
+                  <tr style="text-transform: uppercase;white-space: nowrap;">
+                    <th class="text-align: left;" style="padding: 10px;white-space: nowrap;">
+                      <input type="checkbox" id="select-all" />
+                      <span style="font-size: 12px;">
+
+                      </th>
+                      <th class="text-left">Order Id & PO No</th>
+                      <th class="text-left">Order Date</th>
+                      <th>Customer Details</th>
+                      <th class="text-left">Pickup & Delivery Address</th>
+                      <th class="text-left">Box Count</th>
+                      <th class="text-left">Payment Type</th>
+                      <th class="text-left">Actions</th>
+
+                    </tr>
+                  </thead>
+                  <tbody id="table-body" class="mb-5">
+                    <% data.forEach((item) => { %>
+                    <tr data-client-id="<%= item.client_id %>"
+                      data-payment-type="<%= item.payment_type %>"
+                      data-client-name="<%= item.company_name %>">
+                      <td style="text-align: left; padding: 8px;"><input
+                          type="checkbox" class="row-checkbox"
+                          onchange="updateSelectedOrder()" /></td>
+                      <td class="text-left">
+                        <span class="order-id"
+                          data-bs-toggle="offcanvas"
+                          data-bs-target="#orderDetailsCanvas"
+                          aria-controls="orderDetailsCanvas"
+                          style="color: #1e6bd7; font-size: 12px; cursor: pointer;">
+                          <%= item.order_id %>
+                        </span><br>
+                        <span class="po-no"
+                          style="font-size: 12px; color: #555;">
+                          <%= item.po_no %>
+                        </span>
+                      </td>
+                      <td class="text-left"
+                        style="font-size: 12px; color: #555;">
+                        <%= new Date(item.order_date).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        }) %>
+                        <br>
+                        <%= new Date(item.order_date).toLocaleTimeString('en-GB', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true
+                        }) %>
+                      </td>
+                      <td class="text-left">
+                        <div class="customer-details">
+                          <span class="customer-name"
+                            style="font-size: 12px; color: #555;">
+                            <%= item.consignee_name %>
+                          </span><br>
+                          <span class="customer-phone"
+                            style="font-size: 12px; color: #555;">
+                            <%= item.consignee_phone %>
+                          </span><br>
+                          <% if (item.consignee_alternate_mobile !== 'NA') { %>
+                            <span class="customer-phone-alternative" style="font-size: 12px; color: #555;">
+                              <%= item.consignee_alternate_mobile %>
+                            </span>
+                          <% } %>
+                        </td>
+
+                        <td class="text-left"
+                          style="font-size: 12px; color: #555;">
+
+                          <div class="milestone-container ">
+                            <!-- Origin and Destination Text -->
+
+                            <div class="origin">
+                              <%= item.warehouse_address %>
+                              <!-- Dynamic origin -->
+                            </div>
+                            <div class="destination">
+                              <%= item.consignee_address %>
+
+                            </div>
+
+                            <!-- Dotted Milestone Line -->
+                            <div class="milestone-line">
+
+                              <!-- Origin and Destination Truck Icons -->
+                              <div class="truck-icon origin">
+                                <i class="fa-solid fa-shop"
+                                  style="font-size: 10px;"></i>
+                              </div>
+                              <div class="truck-icon destination">
+                                <i class="fas fa-truck"
+                                  style="font-size: 10px;"></i>
+                              </div>
+                            </div>
+                          </div>
+
+                        </td>
+                        <td class="text-left"
+                          style="font-size: 12px; color: #555;">
+                          <%= item.total_boxes || 0 %>
+                        </td>
+                        <td class="text-left">
+                          <%= item.payment_type %> <br>
+                          <h5 style="font-size: 12px; color: #1f50b5;">
+                            ₹
+                            <% if (item.payment_type === "cod" ||
+                            item.payment_type === "COD") { %>
+                            <%= item.Amount != null ? item.Amount : 'N/A' %>
+                            <% } else if (item.payment_type === "prepaid") { %>
+                            <%= item.Invoice_amount != null ?
+                            item.Invoice_amount
+                            : 'N/A' %>
+                            <% } else { %>
+                            N/A
+                            <% } %>
+                          </h5>
+                        </td>
+
+                        <td class="text-left p-0"
+                          style="padding: 0px !important;">
+                          <% if (activeTopicIds.includes(9)) { %>
+                          <!-- Replace 20 with the relevant topic_id -->
+                          <div
+                            style="padding: 0px !important;display: flex;justify-content: space-around;align-items: center;flex-direction: row;flex-wrap: nowrap;">
+                            <button
+                              class="btn-assign-lr btn  btn-square"
+                              style="font-size: 12px; display: flex;flex-direction: row;flex-wrap: nowrap;align-content: center;justify-content: space-around;align-items: center;">
+                              <i class="ti ti-truck menu-icon"
+                                style="font-size: 12px; color: #009d60;"></i>&nbsp;&nbsp;Assign
+                              LR
+                            </button>
+
+                            <% } %>
+                            <button
+                              class="btn  btn-square "
+                              onclick="deleteOrder('<%= item.po_no %>')"> <i
+                                class="fa-solid fa-trash"
+                                style="color: #ff7070;"></i></button>
+                          </div>
+
+                        </td>
+
+                      </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+
+                </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+<script>
+  // JavaScript to trigger modal on button click
+  const popupBtn = document.getElementById('popupBtn');
+  const popupModal = new bootstrap.Modal(document.getElementById('popupModal'));
+
+  popupBtn.addEventListener('click', () => {
+    popupModal.show();
+  });
+</script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn, [class*="btn-"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple-effect';
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                button.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Card click handlers
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+                card.style.transform = 'translateY(-1px)';
+                card.style.boxShadow = '0 6px 12px -2px rgba(0,0,0,0.1)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                    card.style.boxShadow = card.id === 'pickups-card'
+                        ? '0 1px 3px rgba(0,0,0,0.1)'
+                        : '0 4px 6px -1px rgba(0,0,0,0.1)';
+                }, 200);
+            });
+        });
+
+        // Simulate loading data
+        setTimeout(() => {
+            const stats = [
+                { el: document.getElementById('awaiting-value'), target: 9 },
+                { el: document.getElementById('transit-value'), target: 152 },
+                { el: document.getElementById('exceptions-value'), target: 34 }
+            ];
+            stats.forEach(stat => {
+                if (!stat.el) return;
+                let current = 0;
+                const increment = stat.target / 20;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= stat.target) {
+                        stat.el.textContent = stat.target;
+                        clearInterval(timer);
+                    } else {
+                        stat.el.textContent = Math.floor(current);
+                    }
+                }, 50);
+            });
+        }, 500);
+
+        // Add animation to sidebar items on hover
+        [
+            { el: document.getElementById('knowledge-base-link'), icon: document.getElementById('knowledge-icon') },
+            { el: document.getElementById('rate-calculator-link'), icon: document.getElementById('calculator-icon') }
+        ].forEach(item => {
+            if (!item.el || !item.icon) return;
+            item.el.addEventListener('mouseenter', () => {
+                item.icon.style.transform = 'rotate(5deg) scale(1.1)';
+            });
+            item.el.addEventListener('mouseleave', () => {
+                item.icon.style.transform = '';
+            });
+        });
+
+        // Update greeting with time of day
+        const greeting = document.getElementById('greeting-text');
+        if (greeting) {
+            const now = new Date();
+            const hours = now.getHours();
+            let timeOfDay = hours < 12 ? 'Morning' : (hours < 18 ? 'Afternoon' : 'Evening');
+            greeting.textContent = `Good ${timeOfDay}, Krishna`;
+            greeting.innerHTML += '<span style="content: \'\'; position: absolute; bottom: -8px; left: 0; width: 80px; height: 3px; background: #5b80f7; border-radius: 9999px;"></span>';
+        }
+
+        // Hover effects for cards
+        [
+            document.getElementById('actions-card'),
+            document.getElementById('shortcuts-card'),
+            document.getElementById('pickups-card'),
+            document.getElementById('wallet-card'),
+            document.getElementById('knowledge-base-link'),
+            document.getElementById('rate-calculator-link')
+        ].forEach(card => {
+            if (!card) return;
+            card.addEventListener('mouseenter', () => {
+                if (card.id === 'pickups-card') {
+                    card.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)';
+                } else {
+                    card.style.transform = 'translateY(-3px)';
+                    card.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                if (card.id === 'pickups-card') {
+                    card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                } else {
+                    card.style.transform = '';
+                    card.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)';
+                }
+            });
+        });
+
+        // Hover effects for shortcut icons
+        [
+            document.getElementById('create-order-icon'),
+            document.getElementById('create-pickup-icon')
+        ].forEach(icon => {
+            if (!icon || !icon.parentElement || !icon.parentElement.parentElement) return;
+            const parent = icon.parentElement.parentElement;
+            parent.addEventListener('mouseenter', () => {
+                icon.style.backgroundColor = 'rgba(91,128,247,0.2)';
+                icon.style.transform = 'scale(1.05)';
+            });
+            parent.addEventListener('mouseleave', () => {
+                icon.style.backgroundColor = 'rgba(91,128,247,0.1)';
+                icon.style.transform = '';
+            });
+        });
+    });
+    </script>
+
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+ <!-- Bootstrap JavaScript and jQuery -->
+
+    <script src="/js/main.js"></script>
+    
+  
+  </body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Bootstrap JavaScript and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JavaScript and jQuery -->
+<style>
+  
+  table.dataTable tbody tr {
+    background-color: #ffffff00 !important;
+  }
+  
+  table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 18px;
+    border-bottom: 1px solid #11111127;
+  }
+  
+  table.dataTable.no-footer {
+    border-bottom: 1px solid #11111127;
+  }
+ 
+  .dataTables_length label {
+    font-weight: 600;
+    margin-right: 10px;
+  }
+
+  .dataTables_paginate .paginate_button {
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+  
+  .table-responsive {
+    max-width: 100%;
+    overflow-x: auto !important;
+  }
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Billing Section</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">COD</li>
+                  <li class="breadcrumb-item active">Remitted</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+          
+          
+            <div class="row mb-3 p-2">
+              <form class="col-md-3">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="search-input"
+                    placeholder="Search" aria-label="Search"
+                    aria-describedby="button-addon2">
+                  <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+              <div class="p-2">
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table id="datatable_2" class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Bank Name</th>
+                          <th>Branch name</th>
+                          <th>IFSC Code</th>
+                          <th>Transaction Date</th>
+                          <th>UTR Number</th>
+                          <th>Order Date</th>
+                          <th>Lr Number</th>
+                          <th>Po Number</th>
+                          <th>Client Name</th>
+                          <th>Delivery Date</th>
+                          <th>Total Remittance Amount</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% if (result && result.length > 0) { %>
+                          <% result.forEach(row => { %>
+                            <tr>
+                              <td><%= row.bank_name %></td>
+                              <td><%= row.branch_name %></td>
+                              <td><%= row.ifsc_code %></td>
+                              <td><%= row.transaction_date %></td>
+                              <td><%= row.utr_number %></td>
+                              <td><%= row.Order_Date %></td>
+                              <td><%= row.lr_no %></td>
+                              <td><%= row.po_id %></td>
+                              <td><%= row.client_name %></td>
+                              <td><%= row.Delivery_Date %></td>
+                              <td><%= row.total_remittance_amount %></td>
+                              <td>
+                                <button class="btn btn-sm view-details">
+                                  <i class="fas fa-eye"></i> 
+                                </button>
+                              </td>
+                            </tr>
+                          <% }); %>
+                        <% } else { %>
+                          <tr>
+                            <td colspan="12" class="text-center">No Data Found</td>
+                          </tr>
+                        <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+           
+          </div>
+          
+          <!-- Scripts -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+          <script>
+          $(document).ready(function() {
+            // Initialize DataTable with improved configuration
+            var table = $('#datatable_2').DataTable({
+              ordering: false, // Disable column sorting
+              searching: true, // Enable search
+              lengthChange: true, // Hide length change dropdown 
+              info: true,
+              paging: true,
+              pageLength: 10,
+              autoWidth: false,
+              responsive: true,
+              dom: '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+              language: {
+                lengthMenu: `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'>
+                  <option value='10'>10</option>
+                  <option value='25'>25</option>
+                  <option value='50'>50</option>
+                  <option value='100'>100</option>
+                </select> of Total Entries</div>`,
+                info: "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+              },
+              pagingType: "full_numbers",
+              drawCallback: function() {
+                $('.paginate_button').addClass('btn btn-sm').css({
+                  'background-color': '#e3f2fd',
+                  'border-color': '#90caf9', 
+                  'color': '#1976d2',
+                  'margin': '0 2px',
+                  'border-radius': '4px'
+                });
+                
+                $('.paginate_button.current').css({
+                  'background-color': '#1976d2',
+                  'color': '#fff',
+                  'border-color': '#1976d2'
+                });
+          
+                $('.paginate_button.disabled').css({
+                  'opacity': '0.5',
+                  'cursor': 'not-allowed'
+                });
+              }
+            });
+          
+            // Custom search functionality when user types
+            $('#search-input').on('keyup', function() {
+              table.search($(this).val()).draw();
+            });
+          
+            // Search button click handler
+            $('#button-addon2').on('click', function(e) {
+              e.preventDefault();
+              table.search($('#search-input').val()).draw();
+            });
+          
+            // View button click handler
+            $('#datatable_2').on('click', '.view-details', function() {
+              const row = $(this).closest('tr');
+              const bank = row.find('td:eq(0)').text().trim();
+              const utr = row.find('td:eq(4)').text().trim();
+              const amount = row.find('td:eq(10)').text().trim();
+              
+              Swal.fire({
+            title: '<h4 class="text-primary fw-bold">Transaction Details</h4>',
+            html: `
+              <div class="text-start p-4 rounded-3 shadow-sm" style="background: #f8f9fa;">
+                <div class="mb-3">
+                  <label class="text-muted small fw-semibold">Bank Details</label>
+                  <div class="p-2 rounded-2" style="background: #e3f2fd;">
+                    <h5 class="text-primary mb-0 fw-bold">${bank}</h5>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="text-muted small fw-semibold">UTR Number</label>
+                  <div class="p-2 rounded-2" style="background: #e8f5e9;">
+                    <h5 class="text-success mb-0 fw-bold">${utr}</h5>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="text-muted small fw-semibold">Transaction Amount</label>
+                  <div class="p-2 rounded-2" style="background: #fff3cd;">
+                    <h5 class="text-warning mb-0 fw-bold">₹ ${amount}</h5>
+                  </div>
+                </div>
+              </div>
+            `,
+            icon: 'info',
+            showCloseButton: true,
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#1976d2',
+            customClass: {
+              popup: 'swal-wide' // Custom class for width adjustment
+            }
+          });
+          
+            });
+          });
+          </script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

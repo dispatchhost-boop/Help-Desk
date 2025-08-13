@@ -1,0 +1,3633 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Include Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+    <!-- Include Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+      .shipping-option.active {
+        border: 2px solid #198754 !important;
+        box-shadow: 0 2px 8px rgba(25, 135, 84, 0.10);
+      }
+
+
+
+      .order-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 16px rgba(13, 110, 253, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .order-card:hover {
+        box-shadow: 0 6px 24px rgba(13, 110, 253, 0.1);
+      }
+
+      .order-id {
+        font-weight: 600;
+        color: var(--primary-blue);
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .order-id:hover {
+        text-decoration: underline;
+      }
+
+      .text-small {
+        font-size: 13px;
+      }
+
+      .timeline-section {
+        min-height: 140px;
+      }
+
+      .timeline-line {
+        height: 48%;
+        top: 25px;
+        left: 20px;
+        transform: translateX(-50%);
+        opacity: 1;
+        border: 1px dashed #0e6efd;
+      }
+
+      .timeline-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+        margin-left: -25px;
+        color: #0052ff !important;
+      }
+
+      .btn-outline-dark:hover {
+        background-color: var(--primary-blue);
+        color: #fff;
+      }
+
+      .badge {
+        font-size: 13px;
+        padding: 5px 10px;
+        border-radius: 8px;
+      }
+
+      .modal-content {
+        border-radius: 12px;
+      }
+
+      .filter-bar .form-select,
+      .filter-bar .form-control {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+      }
+
+      .filter-bar .input-group-text {
+        background-color: #f9f9f9;
+        border: none;
+      }
+
+      .filter-bar .dropdown-toggle::after {
+        margin-left: 0.5rem;
+      }
+
+      .filter-bar i {
+        font-size: 14px;
+      }
+
+      .filter-bar .form-label {
+        font-size: 13px;
+        margin-bottom: 0.25rem;
+      }
+
+      .filter-bar .form-select,
+      .filter-bar .form-control {
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .filter-bar .input-group-text {
+        background-color: #f1f3f5;
+      }
+
+      @media (max-width: 768px) {
+        .order-card .row>div {
+          margin-bottom: 1rem;
+        }
+
+        .filter-bar .col {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      .filter-bar .input-group-text {
+        background-color: #f0f0f0;
+        border-right: 0;
+      }
+
+      .filter-bar .form-select,
+      .filter-bar .form-control {
+        border-radius: 0 0.375rem 0.375rem 0;
+      }
+
+      @media (max-width: 768px) {
+        .filter-bar .input-group {
+          flex-direction: column;
+        }
+      }
+
+      body {
+        background-color: #f8f9fc;
+        font-size: 0.875rem;
+      }
+
+      .tab-btns button {
+        border: none;
+        background: none;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #0d6efd;
+        margin-right: 0.3rem;
+      }
+
+      .tab-btns button.active {
+        background-color: #e9f2ff;
+        border-radius: 6px;
+      }
+
+      .tab-btns .fa-box {
+        margin-right: 4px;
+      }
+
+      .box-card {
+        border: 1px solid #e2e8f0;
+        background-color: #f8f9fc;
+        border-radius: 12px;
+        padding: 1.25rem;
+      }
+
+      .input-group input {
+        max-width: 80px;
+      }
+
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      }
+
+      .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #343a40;
+      }
+
+      .form-label {
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+
+      /* .shipping-option { border-radius: 0.75rem; padding: 0.8rem; text-align: center; border: 1px solid #e0e0e0; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
+            .shipping-option.active { border: 2px solid #198754; background: #ffffff; } */
+      .order-section {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        background-color: #fff;
+      }
+
+      .order-section h6 {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+
+      .fw-medium {
+        font-weight: 500;
+      }
+
+      @media (max-width: 576px) {
+        .tab-btns {
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+      }
+    </style>
+
+</head>
+
+
+
+
+        <!-- mani page content body part -->
+
+        <body data-theme="light" class="font-nunito">
+
+          <div id="wrapper" class="theme-cyan">
+
+            <%- include('../../partials/header') %>
+            <%- include('../../partials/left-sidebar') %>
+              <%- include('../../partials/right-iconbar') %>
+
+            <div id="main-content">
+              <div class="container-fluid">
+                <div class="block-header">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                      <h2>Unprocessed Orders</h2>
+                      <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>
+                        <li class="breadcrumb-item">Order Management</li>
+                        <li class="breadcrumb-item active">Unprocessed Orders</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="container py-5">
+
+                <!-- Filter Bar (from screenshot) -->
+                <div class="row filter-bar g-2 align-items-center mb-4 bg-white rounded-4 shadow-sm p-3">
+                  <!-- Search (Order ID / AWB / PO) -->
+                  <div class="col-md-3 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-search"></i></span>
+                      <select class="form-select w-25" id="searchType" onchange="filterOrders()">
+                        <option value="orderId">Order ID</option>
+                        <option value="awb">AWB</option>
+                        <option value="ref_number">Ref No.</option>
+                      </select>
+                      <input type="text" class="form-control" id="filterOrderInput" placeholder="Search..."
+                        oninput="filterOrders()">
+                    </div>
+                  </div>
+
+                  <!-- Quick Date -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-calendar-day"></i></span>
+                      <select class="form-select" id="filterQuickDate" onchange="filterOrders()">
+                        <option value="">Date</option>
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="last7">Last 7 Days</option>
+                        <option value="last30">Last 30 Days</option>
+                        <option value="thisMonth">This Month</option>
+                        <option value="lastMonth">Last Month</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- From Date -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-calendar-plus"></i></span>
+                      <input type="text" class="form-control" id="filterFromDate" placeholder="From">
+                    </div>
+                  </div>
+
+                  <!-- To Date -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-calendar-check"></i></span>
+                      <input type="text" class="form-control" id="filterToDate" placeholder="To">
+                    </div>
+                  </div>
+
+                  <!-- Pickup Location -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
+                      <select class="form-select" id="filterPickup" onchange="filterOrders()">
+                        <option value="">Pickup</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Gurgaon">Gurgaon</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Mode -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-truck-fast"></i></span>
+                      <select class="form-select" id="filterMode" onchange="filterOrders()">
+                        <option value="">Mode</option>
+                        <option value="cod">COD</option>
+                        <option value="prepaid">PREPAID</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Zone -->
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-layer-group"></i></span>
+                      <select class="form-select" id="filterZone" onchange="filterOrders()">
+                        <option value="">Zone</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C2">C2</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-2 col-sm-6">
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fa fa-user"></i></span>
+                      <select class="form-select" id="filterClient" onchange="filterOrders()">
+                        <option value="">Client</option>
+                        <% clients.forEach(client=> { %>
+                          <option value="<%= client.client_id %>">
+                            <%= client.company_name %>
+                          </option>
+                          <% }); %>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Reset Button -->
+                  <div class="col-md-2 col-sm-6">
+                    <button class="btn btn-outline-danger w-100" onclick="clearFilters()">
+                      <i class="fa fa-times-circle me-1"></i> Reset
+                    </button>
+                  </div>
+                </div>
+                <!-- Controls -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleAll(this)" />
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                  </div>
+                  <!-- <input type="text" id="searchBox" onkeyup="filterOrders()" placeholder="Search orders..." class="form-control w-50 shadow-sm" /> -->
+                  <button class="btn btn-outline-dark btn-sm shadow-sm" onclick="exportSelected()">
+                    <i class="fa fa-download me-1"></i> Export
+                  </button>
+                  <select id="itemsPerPageSelect" class="form-select w-auto" onchange="changeItemsPerPage(this.value)">
+                    <option value="2">2 per page</option>
+                    <option value="5" selected>5 per page</option>
+                    <option value="10">10 per page</option>
+                  </select>
+                </div>
+
+                <!-- Orders List -->
+                <div id="ordersContainer"></div>
+                <nav>
+                  <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+              </div>
+              <!-- AWB Modal -->
+              <div class="modal fade" id="awbModal" tabindex="-1" aria-labelledby="awbModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-uppercase" id="awbModalLabel">Order Details</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                      <div id="awbModalContent"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="awbLoadingOverlay"
+                style="display:none; position:fixed; z-index:2000; top:0; left:0; width:100vw; height:100vh; background:rgba(255,255,255,0.7); align-items:center; justify-content:center;">
+                <div class="spinner-border text-primary" style="width:3rem; height:3rem;" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+
+              <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+              <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+              <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+              <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+              <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+              <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+              <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
+
+
+
+
+
+             
+              <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+
+
+              
+             
+             
+              <script>
+                let orderDetails = [];
+                let boxDimensionsInCaseBulk = [];
+
+                const bulkAssignedLrBtn = document.getElementById("bulkAssignedLrBtn");
+                if (bulkAssignedLrBtn) {
+                  bulkAssignedLrBtn.addEventListener("click", async function (event) {
+                  const checkboxes = document.querySelectorAll(".row-checkbox:checked"); // Get checked checkboxes
+                  const poNumbers = [];
+
+                  // If no checkboxes are checked, show an alert
+                  if (checkboxes.length === 0) {
+                    event.preventDefault(); // Prevent the button's default behavior
+                    alert("Please select at least one checkbox before opening the modal.");
+                    return;
+                  }
+
+                  // Collect the PO numbers from the selected checkboxes
+                  checkboxes.forEach(checkbox => {
+                    const row = checkbox.closest('tr');
+                    const po_no = row.querySelector('.po-no').textContent.trim(); // Assuming PO number is in a cell with class 'po-no'
+                    poNumbers.push(po_no);
+                  });
+
+                  // Create a comma-separated string of PO numbers
+                  const poNumbersQuery = poNumbers.join(',');
+
+                  // Check if the clinetAggrigator is not defined or empty
+                  if (!clientAggrigator) {
+                    alert("Aggregator client ID is not available.");
+                    return; // Stop further execution if clinetAggrigator is missing
+                  }
+
+                  try {
+                    // Fetch bulk order details
+                    const response = await axios.get(`/get_bulk_order_details?po_no=${poNumbersQuery}`);
+                    console.log("Bulk Order Details Response:", response.data.data);
+                    orderDetails = response.data.data;
+                    boxDimensionsInCaseBulk = response.data.data[0].box_dimensions;
+                    console.log("Box Dimensions in Case Bulk:", boxDimensionsInCaseBulk);
+                    clientAggrigator = response.data.data[0].client_id;
+
+                    // Prepare orders data for rate calculation
+                    // Create a Map to store unique orders by PO number
+                    const uniqueOrdersMap = new Map();
+
+                    // Iterate through orders and only keep latest entry for each PO
+                    orderDetails.forEach(order => {
+                      uniqueOrdersMap.set(order.po_no, {
+                        po_no: order.po_no,
+                        total_weight: order.total_weight,
+                        total_boxes: order.total_boxes,
+                        weight_unit: order.weight_unit,
+                        destination_pincode: order.destination_pincode,
+                        origin_pincode: order.origin_pincode,
+                        payment_type: order.payment_type,
+                        box_dimensions: order.box_dimensions,
+                        client_base_value: order.Amount,
+                        cod_amount: order.payment_type === 'COD' ? order.Invoice_amount : 0
+                      });
+                    });
+
+                    // Convert Map values back to array for calculation
+                    const ordersForCalculation = Array.from(uniqueOrdersMap.values());
+
+                    // Show loading indicator before making API calls
+                    Swal.fire({
+                      title: "Processing... Please wait",
+                      html: "Fetching aggregator rates and generating LR numbers...",
+                      allowOutsideClick: false,
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      },
+                      didOpen: () => {
+                        Swal.showLoading();
+                      },
+                    });
+
+                    // Track successful and failed PO numbers from the already selected poNumbers array
+                    const successfulPOs = [];
+                    const failedPOs = [];
+
+                    // First check which POs from poNumbers array are valid
+                    console.log("Selected PO numbers:", poNumbers);
+
+                    const aggregatorResponse = await axios.get(`/get-aggregators/${clientAggrigator}`, {
+                      params: {
+                        orders: JSON.stringify(ordersForCalculation)
+                      }
+                    });
+
+                    console.log("Aggregator Details Response:", aggregatorResponse.data);
+
+                    // Filter results to only include valid forwarder details and tagged API
+                    const filteredResults = aggregatorResponse.data.results.map(result => {
+                      let cheapestRate = Infinity;
+                      let cheapestRateData = null;
+
+                      // Check if this result's PO is in our selected poNumbers array
+                      if (!poNumbers.includes(result.po_no)) {
+                        return null;
+                      }
+
+                      // Only process rates that have valid forwarder details and tagged API
+                      Object.keys(result.rates || {}).forEach(serviceType => {
+                        result.rates[serviceType].forEach(rate => {
+                          if (rate.forwarderTotalRateAndDetails &&
+                            !Array.isArray(rate.forwarderTotalRateAndDetails) &&
+                            Object.keys(rate.forwarderTotalRateAndDetails).length > 0 &&
+                            rate.TaggedApi &&
+                            rate.forwarderTotalRateAndDetails.Totalrate < cheapestRate) {
+                            cheapestRate = rate.forwarderTotalRateAndDetails.Totalrate;
+                            cheapestRateData = rate;
+                          }
+                        });
+                      });
+
+                      // Only return results with valid rates and forwarder details
+                      if (cheapestRateData) {
+                        successfulPOs.push(result.po_no);
+                        return {
+                          po_no: result.po_no,
+                          rates: {
+                            [cheapestRateData.service_type]: [cheapestRateData]
+                          }
+                        };
+                      }
+                      failedPOs.push(result.po_no);
+                      return null;
+                    }).filter(result => result !== null);
+
+                    // Find any POs that weren't processed at all
+                    const unprocessedPOs = poNumbers.filter(po =>
+                      !successfulPOs.includes(po) && !failedPOs.includes(po)
+                    );
+                    failedPOs.push(...unprocessedPOs);
+
+                    console.log("Filtered Results with valid forwarder details and cheapest rates:", filteredResults);
+                    console.log("Successfully processed POs:", successfulPOs);
+                    console.log("Failed to process POs:", failedPOs);
+
+                    // Calculate total rate from valid cheapest rates
+                    let totalRateForAllPOs = 0;
+                    filteredResults.forEach(result => {
+                      const serviceType = Object.keys(result.rates)[0];
+                      const rate = result.rates[serviceType][0].rate;
+                      const baseRate = parseFloat(rate);
+                      const gst = baseRate * 0.18;
+                      totalRateForAllPOs += baseRate + gst;
+                    });
+
+                    console.log("totalRateForAllPOs", totalRateForAllPOs);
+
+                    // Check wallet balance
+                    const checkWalletResponse = await axios.get(`/check-wallet-amount?clientId=${clientAggrigator}`);
+                    const walletBalance = checkWalletResponse.data.total_amount;
+                    const clientGstResponse = await axios.get('/api/client-gst-number', {
+                      params: { clientId: clientAggrigator }
+                    });
+
+                    // Store GST and payment_system in variables
+                    let clientGst = null;
+                    let clientPaymentSystem = null;
+
+                    // Check if response data exists and assign values
+                    if (clientGstResponse.data) {
+                      clientGst = clientGstResponse.data.gst || null;
+                      clientPaymentSystem = clientGstResponse.data.payment_system || null;
+                      clientpaymentMode = clientPaymentSystem || null;
+                    }
+                    console.log("paymentmode", clientpaymentMode);
+
+                    if (clientpaymentMode !== 'postpaid' && walletBalance < totalRateForAllPOs) {
+                      Swal.fire({
+                        title: 'Insufficient Funds!',
+                        html: `1. Insufficient wallet balance.<br>2. Selected POs: ${poNumbers.join(', ')}<br>3. Will be processed: ${successfulPOs.join(', ')}<br>4. Failed to process because of the lack of TaggedApi or no forwarder rate details: ${failedPOs.join(', ')}`,
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                          container: 'swal-high-zindex'
+                        }
+                      }).then(() => {
+                        window.location.href = "/unprocessed-orders";
+                      });
+                      return;
+                    }
+                    // console.log("wallet check completed");
+
+                    // Create array to store all LR data
+                    const allLrData = [];
+                    const ListOfPo = [...failedPOs]; // Initialize with already failed POs
+
+                    // Process each result and collect LR data
+                    const processResults = filteredResults.map(async (result) => {
+                      // Find matching order details for this PO number
+                      const matchingOrder = orderDetails.find(order => order.po_no === result.po_no);
+
+                      if (!matchingOrder) {
+                        console.error(`No matching order found for PO: ${result.po_no}`);
+                        if (!ListOfPo.includes(result.po_no)) {
+                          ListOfPo.push(result.po_no); // Add failed PO to list if not already there
+                        }
+                        return null;
+                      }
+
+                      const storeResponse = await storeOrderDetailsAndAggregator(result, clientAggrigator, orderDetails);
+                      if (storeResponse && storeResponse.lrData) {
+                        // Attach complete order details to each LR data
+                        storeResponse.lrData.forEach(lr => {
+                          lr.orderData = {
+                            ...matchingOrder,
+                            ...lr.orderData,
+                            Amount: matchingOrder.Amount,
+                            Invoice_amount: matchingOrder.Invoice_amount,
+                            consignee_name: matchingOrder.consignee_name,
+                            consignee_address: matchingOrder.consignee_address,
+                            consignee_phone: matchingOrder.consignee_phone,
+                            destination_city: matchingOrder.destination_city,
+                            destination_state: matchingOrder.destination_state,
+                            invoice_no: matchingOrder.invoice_no,
+                            origin: matchingOrder.origin,
+                            origin_city: matchingOrder.origin_city,
+                            origin_state: matchingOrder.origin_state,
+                            warehouse_address: matchingOrder.warehouse_address,
+                            warehouse_contact_person: matchingOrder.warehouse_contact_person
+                          };
+                        });
+                        allLrData.push(...storeResponse.lrData);
+                      } else {
+                        if (!ListOfPo.includes(result.po_no)) {
+                          ListOfPo.push(result.po_no); // Add failed PO to list if not already there
+                        }
+                      }
+                      return storeResponse;
+                    });
+
+                    // Wait for all results to be processed
+                    await Promise.all(processResults);
+
+                    // After all results are processed, save bulk LR data
+                    if (allLrData.length > 0) {
+                      const saveResponse = await axios.post("/save_bulk_lr_automatic", { lrData: allLrData, clientID: clientAggrigator, clientPaymentSystem: clientpaymentMode });
+                      console.log("Save response:", saveResponse.data);
+
+                      // Get the successfully processed POs from the API response
+                      const successfullyProcessedPOs = saveResponse.data.ListOfPo || [];
+
+                      // Determine which POs were actually successful based on API response
+                      const actualSuccessfulPOs = successfulPOs.filter(po => successfullyProcessedPOs.includes(po));
+
+                      // Determine which POs failed during processing
+                      const actualFailedPOs = poNumbers.filter(po => !successfullyProcessedPOs.includes(po));
+
+                      // Prepare message based on success/failure
+                      let message = '';
+                      if (actualSuccessfulPOs.length === poNumbers.length) {
+                        message = `All POs were successfully processed!\nSelected POs: ${poNumbers.join(', ')}`;
+                      } else {
+                        message = `Selected POs: ${poNumbers.join(', ')}\n`;
+
+                        if (actualSuccessfulPOs.length > 0) {
+                          message += `Successfully processed: ${actualSuccessfulPOs.join(', ')}\n`;
+                        }
+
+                        if (actualFailedPOs.length > 0) {
+                          message += `Failed to generate LR for PO numbers: ${actualFailedPOs.join(', ')}`;
+                        }
+                      }
+
+                      Swal.fire({
+                        title: "Success!",
+                        text: message,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        customClass: {
+                          container: 'swal-high-zindex'
+                        }
+                      }).then(() => {
+                        window.location.href = '/unprocessed-orders'
+                      });
+                    } else {
+                      // Close the loading indicator and show warning if no LR data
+                      Swal.fire({
+                        title: "Warning",
+                        text: `No valid LR data was generated to save.
+                       Selected POs: ${poNumbers.join(', ')}
+                       Failed PO numbers: ${ListOfPo.join(', ')}`,
+                        icon: "warning",
+                        confirmButtonText: "OK",
+                        customClass: {
+                          container: 'swal-high-zindex'
+                        }
+                      });
+                    }
+
+                    console.log("All LR data saved successfully");
+                    console.log("Failed PO numbers:", ListOfPo);
+
+                  } catch (error) {
+                    console.error("Error in bulk operation:", error);
+                    // Close the loading indicator and show error message
+                    Swal.fire({
+                      title: "Error",
+                      text: "An error occurred during the bulk operation.",
+                      icon: "error",
+                      confirmButtonText: "OK",
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                  }
+                });
+                const requestBodies = [];
+                const referenceNumbers = {};
+
+                // Function to store order details and selected aggregator ID
+                async function storeOrderDetailsAndAggregator(result, clientAggrigator, orderDetails) {
+                  console.log("Store order details", result);
+
+                  // Find the cheapest rate across all service types
+                  let cheapestRate = Infinity;
+                  let cheapestRateData = null;
+                  let selectedServiceType = null;
+
+                  // Check each service type (LTL, Standard, etc.) 
+                  if (result.rates) {
+                    Object.keys(result.rates).forEach(sType => {
+                      // Check each rate within the service type
+                      result.rates[sType].forEach(rate => {
+                        if (rate.forwarderTotalRateAndDetails &&
+                          !Array.isArray(rate.forwarderTotalRateAndDetails) &&
+                          Object.keys(rate.forwarderTotalRateAndDetails).length > 0 &&
+                          rate.TaggedApi &&
+                          rate.forwarderTotalRateAndDetails.Totalrate < cheapestRate) {
+                          cheapestRate = rate.forwarderTotalRateAndDetails.Totalrate;
+                          cheapestRateData = rate;
+                          selectedServiceType = sType;
+                        }
+                      });
+                    });
+                  }
+
+                  if (!cheapestRateData) {
+                    console.log(`No valid rates found for PO ${result.po_no}`);
+                    return;
+                  }
+
+                  console.log(`Selected cheapest rate for PO ${result.po_no}:`, cheapestRateData);
+
+                  // Extract required data from the cheapest rate
+                  const selectedAggregatorName = cheapestRateData.Aggrigator;
+                  const selectedAggregatorId = cheapestRateData.Aggrigator_id;
+                  const selectedTaggedApi = cheapestRateData.TaggedApi;
+                  const selectedCategory = cheapestRateData.category;
+                  const forwarderDetails = cheapestRateData.forwarderTotalRateAndDetails;
+                  const aggrigatorOda = cheapestRateData.aggrigatorOdaFactor;
+                  console.log("forwarder details", forwarderDetails)
+
+                  const poResult = [{
+                    po_no: result.po_no,
+                    rates: { "cheapestRate": [cheapestRateData] },
+                    forwarderDetails: forwarderDetails
+                  }];
+
+                  console.log("poResult with cheapest rate:", poResult);
+
+                  // Call the appropriate function based on taggedApi parameter
+                  if (selectedTaggedApi) {
+                    console.log(`Processing PO ${result.po_no} with AutomaticBulkLR`);
+                    return await AutomaticBulkLR(
+                      { data: poResult, bindedWithForwarder: true },
+                      selectedTaggedApi,
+                      poResult,
+                      selectedAggregatorName,
+                      selectedCategory,
+                      selectedServiceType,
+                      selectedAggregatorId,
+                      clientAggrigator,
+                      orderDetails,
+                      aggrigatorOda
+                    );
+                  } else {
+                    console.log(`Processing PO ${result.po_no} with ManualBulkLR - no tagged API`);
+                    return await ManualBulkLR(
+                      { data: poResult, bindedWithForwarder: false },
+                      poResult,
+                      selectedAggregatorName,
+                      selectedCategory,
+                      selectedServiceType,
+                      selectedAggregatorId,
+                      clientAggrigator,
+                      orderDetails
+                    );
+                  }
+                }
+                async function AutomaticBulkLR(responseData, taggedApi, filteredResults, aggregatorName, aggrigatorCategory, serviceType, aggregatorId, clientAggrigator, orderDetails, aggrigatorOda) {
+                  console.log("Automatic Bulk LR Function for", responseData);
+
+                  console.log("reponse data", responseData.data[0])
+                  console.log("Tagged API:", taggedApi);
+                  console.log("Aggregator Name:", aggregatorName);
+                  console.log("Aggregator Category:", aggrigatorCategory);
+                  console.log("Service Type:", serviceType);
+                  console.log("Aggregator ID:", aggregatorId);
+                  console.log("Client Aggrigator:", clientAggrigator);
+                  console.log("Response Data:", responseData.data[0].rates.cheapestRate[0]);
+                  console.log("forwarder allocation servise id", responseData.data[0].rates.cheapestRate[0].forwarder_servise_id)
+                  const originZone = responseData.data[0].rates.cheapestRate[0].zones.origin;
+                  const destinationZone = responseData.data[0].rates.cheapestRate[0].zones.destination;
+                  console.log("zones", responseData.data[0].rates.cheapestRate[0].zones)
+                  console.log("origin", responseData.data[0].rates.cheapestRate[0].zones.origin)
+                  console.log("destination", responseData.data[0].rates.cheapestRate[0].zones.destination)
+
+                  let apiKey = null;
+                  let customerCode = null;
+                  let allocation = aggrigatorCategory === "LTL-surface" ? "Surface" : responseData.data[0].rates.cheapestRate[0].forwarder_servise_id;
+                  let lrDataArray = [];
+                  let errorCount = 0;
+
+                  // Get API keys and customer codes based on allocation type
+                  if (allocation === "Surface") {
+                    apiKey = apiKeyLtl;
+                    customerCode = customerCodeLtl;
+                    console.log("allocation", allocation)
+                    console.log("apiKey", apiKey)
+                    console.log("standard api key", apiKeyStd)
+                    console.log("customer code stanard", customerCodeStd)
+                  } else {
+                    apiKey = apiKeyStd;
+                    customerCode = customerCodeStd;
+                    console.log("allocation", allocation)
+                    console.log("apiKey", apiKey)
+                    console.log("standard api key", apiKeyStd)
+                    console.log("customer code stanard", customerCodeStd)
+                  }
+
+                  try {
+                    const poData = responseData.data[0];
+                    const po_no = poData.po_no;
+                    const cheapestRateData = responseData.data[0].rates.cheapestRate[0];
+                    const totalRate = cheapestRateData.rate;
+                    const chargableWeight = cheapestRateData.chargableWeight;
+                    const originZone = cheapestRateData.zones?.origin || '';
+                    const destinationZone = cheapestRateData.zones?.destination || '';
+                    // const specificOrder = responseData.data[0].order_details || {};
+                    const baseRate = cheapestRateData.baserate;
+                    const additionalCharges = cheapestRateData.additionalCharges;
+                    const weightUnit = cheapestRateData.weight_unit;
+                    const tat = cheapestRateData.days;
+                    const shipmentType = cheapestRateData.shipmentType;
+
+                    // Prepare request body once outside the API-specific logic
+                    const specificOrder = orderDetails.filter(order => order.po_no === po_no);
+                    console.log("specific order", specificOrder)
+                    const boxDimension = specificOrder.map(order => order.box_dimensions);
+                    console.log("box dimension", boxDimension)
+
+                    const requestBody = await prepareRequestBody(taggedApi, specificOrder[0], allocation, customerCode, boxDimension[0], serviceType, clientAggrigator);
+                    console.log("request body from the prepareRequestBody method", requestBody)
+                    // console.log("request body prepared");
+
+
+                    // Process based on tagged API
+                    if (taggedApi === "DTDC" && serviceType === "LTL") {
+
+                      // Check serviceability for origin and destination pincodes
+                      const serviceabilityCheckResponse = await axios.get("/dtdc/pincode-check", {
+                        params: {
+                          origin: specificOrder.origin_pincode,
+                          destination: specificOrder.destination_pincode
+                        }
+                      });
+                      if (!serviceabilityCheckResponse.data.serviceable) {
+                        throw new Error("Origin or destination pincode is not serviceable");
+                      }
+
+
+                      const dtdcResponse = await axios.post("https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata", requestBody, {
+                        headers: { "Content-Type": "application/json", "api-key": apiKey },
+                      });
+
+                      if (dtdcResponse?.data?.data?.[0]?.reference_number) {
+                        const referenceNumber = dtdcResponse.data.data[0].reference_number;
+                        referenceNumbers[po_no] = referenceNumber;
+
+                        // Add only order data and LR number to array
+                        lrDataArray.push({
+                          orderData: cheapestRateData,
+                          lr_number: referenceNumber
+                        });
+
+                        // Update wallet for the client if payment mode is prepaid
+
+                        // try {
+                        //     await axios.post("/update-wallet", {
+                        //         clientId: clientAggrigator,
+                        //         totalRate: totalRate,
+                        //         po_no: po_no,
+                        //         lr_no: referenceNumber,
+                        //         originZone: originZone,
+                        //         destinationZone: destinationZone,
+                        //         description: "DTDC Standard",
+                        //         Totalweight: chargableWeight,
+                        //         unitweight: weightUnit || 'gm'
+                        //     });
+                        // } catch (walletError) {
+                        //     console.error("Error updating wallet:", walletError);
+                        // }
+
+                      } else {
+                        throw new Error("Invalid DTDC response structure");
+                      }
+
+                    } else if (taggedApi === "Delhivery" && serviceType == "LTL") {
+                      const delhiveryResponse = await axios.post("/call-delhivery-api", { delhiveryData: JSON.stringify(requestBody) }, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                      });
+
+                      if (delhiveryResponse?.data?.success) {
+                        const token = delhiveryResponse.data.token;
+                        const jobId = delhiveryResponse.data.jobId;
+
+                        const lrNumber = await fetchDelhiveryManifest(jobId, token);
+                        referenceNumbers[po_no] = lrNumber;
+
+                        // Add only order data and LR number to array
+                        lrDataArray.push({
+                          orderData: responseData.data[0],
+                          lr_number: lrNumber
+                        });
+
+                        // Update wallet for the client if payment mode is prepaid
+
+                        // try {
+                        //     await axios.post("/update-wallet", {
+                        //         clientId: specificOrder.client_id,
+                        //         totalRate: totalRate,
+                        //         po_no: po_no,
+                        //         lr_no: lrNumber,
+                        //         originZone: originZone,
+                        //         destinationZone: destinationZone,
+                        //         description: "Delhivery Standard",
+                        //         Totalweight: chargableWeight,
+                        //         unitweight: weightUnit || 'gm'
+                        //     });
+                        // } catch (walletError) {
+                        //     console.error("Error updating wallet:", walletError);
+                        // }
+
+                      } else {
+                        throw new Error("Invalid Delhivery response structure");
+                      }
+                    } else if (taggedApi === "expressbees") {
+                      console.log("Calling Express Bees API");
+
+
+                      try {
+                        const tokenResponse = await axios.get('/api-token-for-expressbees');
+                        const token = tokenResponse.data.token;
+                        console.log("Express Bees Token:", token);
+
+                        const response = await axios.post('https://shipment.xpressbees.com/api/shipments2', requestBody, {
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                          }
+                        });
+                        // const response = {
+                        //   data: {
+                        //     data: {
+                        //       awb_number: Math.floor(1000000000 + Math.random() * 9000000000).toString()
+                        //     }
+                        //   }
+                        // }
+
+                        console.log("Express Bees Response:", response.data);
+
+                        if (response.data?.data?.awb_number) {
+                          const referenceNumber = response.data.data.awb_number;
+                          referenceNumbers[po_no] = referenceNumber;
+
+                          lrDataArray.push({
+                            orderData: cheapestRateData,
+                            lr_number: referenceNumber
+                          });
+
+
+                          // try {
+                          //     await axios.post("/update-wallet", {
+                          //         clientId: clientAggrigator,
+                          //         totalRate: totalRate,
+                          //         po_no: po_no,
+                          //         lr_no: referenceNumber,
+                          //         originZone: originZone,
+                          //         destinationZone: destinationZone,
+                          //         description: "Express Bees",
+                          //         Totalweight: chargableWeight,
+                          //         unitweight: weightUnit || 'gm'
+                          //     });
+                          // } catch (walletError) {
+                          //     console.error("Error updating wallet:", walletError);
+                          // }
+
+                        } else {
+                          throw new Error("Invalid Express Bees response structure");
+                        }
+                      } catch (error) {
+                        console.error("Error with Express Bees API request:", error);
+                        throw error;
+                      }
+                    } else if (taggedApi === "Delhivery" && (serviceType === "Standard" || serviceType === "standard")) {
+                      console.log("Calling Delhivery API");
+
+                      try {
+
+                        const response = await axios.post('/api/delhivery-create-order', { data: requestBody });
+                        console.log('Delhivery API Response:', response.data.packages);
+
+                        const packages = response.data.packages || [];
+                        const waybillNumbers = packages.map(pkg => pkg.waybill);
+
+                        if (waybillNumbers.length > 0) {
+                          const referenceNumber = waybillNumbers[0];
+                          referenceNumbers[po_no] = referenceNumber;
+
+                          lrDataArray.push({
+                            orderData: cheapestRateData,
+                            lr_number: referenceNumber
+                          });
+
+                          // try {
+                          //     await axios.post("/update-wallet", {
+                          //         clientId: clientAggrigator,
+                          //         totalRate: totalRate,
+                          //         po_no: po_no,
+                          //         order_id: cheapestRateData.order_id,
+                          //         lr_no: referenceNumber,
+                          //         originZone: originZone,
+                          //         destinationZone: destinationZone,
+                          //         description: "Delhivery",
+                          //         Totalweight: chargableWeight,
+                          //         unitweight: weightUnit || 'gm'
+                          //     });
+                          // } catch (walletError) {
+                          //     console.error("Error updating wallet:", walletError);
+                          // }
+                        } else {
+                          throw new Error("No waybill numbers returned from Delhivery API");
+                        }
+                      } catch (error) {
+                        console.error("Error with Delhivery API request:", error);
+                        throw error;
+                      }
+                    } else if (taggedApi === "DTDC" && serviceType === "Standard") {
+
+
+                      const dtdcResponse = await axios.post("https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata", requestBody, {
+                        headers: { "Content-Type": "application/json", "api-key": apiKey },
+                      });
+
+                      if (dtdcResponse?.data?.data?.[0]?.reference_number) {
+                        const referenceNumber = dtdcResponse.data.data[0].reference_number;
+                        referenceNumbers[po_no] = referenceNumber;
+
+                        // Add only order data and LR number to array
+                        lrDataArray.push({
+                          orderData: cheapestRateData,
+                          lr_number: referenceNumber
+                        });
+
+                        // Update wallet for the client if payment mode is prepaid
+
+                        // try {
+                        //     await axios.post("/update-wallet", {
+                        //         clientId: clientAggrigator,
+                        //         totalRate: totalRate,
+                        //         po_no: po_no,
+                        //         lr_no: referenceNumber,
+                        //         originZone: originZone,
+                        //         destinationZone: destinationZone,
+                        //         description: "DTDC Standard",
+                        //         Totalweight: chargableWeight,
+                        //         unitweight: weightUnit || 'gm'
+                        //     });
+                        // } catch (walletError) {
+                        //     console.error("Error updating wallet:", walletError);
+                        // }
+
+                      } else {
+                        throw new Error("Invalid DTDC response structure");
+                      }
+                    }
+
+                    // Return LR data instead of saving it immediately
+                    return { lrData: lrDataArray };
+
+                    Swal.fire({
+                      title: "Processing Complete",
+                      html: `Successfully processed order.`,
+                      icon: "success",
+                      confirmButtonText: "OK",
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    }).then(() => {
+                      // Refresh the page or update the UI
+                      location.reload();
+                    });
+                  } catch (error) {
+                    console.error("Error in processing:", error);
+                    errorCount++;
+
+                    Swal.fire({
+                      title: "Error",
+                      html: "An error occurred during processing. Please try again.",
+                      icon: "error",
+                      confirmButtonText: "OK",
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                  }
+
+                  console.log("Processing complete. Reference Numbers:", referenceNumbers);
+                  console.log("LR Data Array:", lrDataArray);
+                }
+
+
+
+
+                async function ManualBulkLR(responseData, orderDetails, aggregatorName, aggregatorCategory, aggregatorService, aggregatorId, clientAggrigator) {
+                  const poNumbers = responseData.data;
+                  let errorCount = 0; // Track errors
+                  const lrDataForBulkInsert = [];
+
+                  // Fetch the tagged API using aggregatorId
+                  console.log("Fetching manual LR with params:", aggregatorId, orderDetails, aggregatorCategory);
+                  // console.log("category check");
+                  let aggid = aggregatorId
+                  const taggedApiResponse = await axios.get(`/getTaggedApi`, { params: { aggid } });
+                  let taggedApi = taggedApiResponse.data.Tagged_api;
+                  console.log("Tagged API response:", taggedApi);
+
+
+
+                  // Function to collect PO details based on the active tab in the modal
+
+
+                  console.log("Manual Bulk LR Function");
+                  console.log("Response Data:", responseData);
+                  console.log("PO Numbers details:", poNumbers);
+
+                  // Filter out PO numbers that are not in PO_Orders
+                  const filteredPONumbers = poNumbers.filter(poData =>
+                    PO_Orders.some(order => order.po_no === poData.po_no)
+                  );
+
+                  // Log the filtered PO numbers
+                  console.log("Filtered PO Numbers:", filteredPONumbers);
+
+                  try {
+                    for (const poData of filteredPONumbers) {
+                      const po_no = poData.po_no;
+                      const aggregatorTat = poData.aggregatorTat;
+                      const aggregatorTotalRate = poData.aggregatorTotalRate;
+
+                      // Fetch order details for each PO
+                      const response = await axios.get("/get_unprocessed_order_details", {
+                        params: { po_no: po_no.toString() },
+                      });
+
+                      const data = response.data;
+                      const specificOrder = data.unprocessedOrders[0];
+                      const boxDimensions = data.boxDimensions;
+
+                      // Fetch volumetric data and calculate chargeable weight
+                      const url2 = `/fetch-volumetric-data?aggid=${aggregatorId}&poNo=${po_no}`;
+                      const responseUrl2 = await axios.get(url2);
+                      console.log("Response URL2:", responseUrl2);
+
+                      const volumetricWeight = responseUrl2.data.totalVolumetricWeight;
+                      console.log("Volumetric Weight:", volumetricWeight);
+
+                      // Set the volumetric weight in the respective input field
+
+
+                      // Get the actual weight from the form input
+                      const actualWeight = specificOrder.total_weight;
+
+                      // Calculate the chargeable weight (maximum of actual and volumetric weight)
+                      const chargeableWeight = Math.max(actualWeight, volumetricWeight);
+                      console.log("Chargeable Weight:", chargeableWeight);
+
+                      // Fetch dynamic LR/AWB number for each PO
+                      const lrUrl = `/get-manual-lr?aggid=${aggregatorId}&clientId=${specificOrder.client_id}&taggedApi=${taggedApi}&category=${aggregatorCategory}`;
+                      const lrResponse = await axios.get(lrUrl);
+                      const lrData = lrResponse.data;
+                      const lrNumber = lrData[0].Lr_Awb_no;
+                      const { fod, billclient, owner_risk, carrier_risk } = lrData[0];// Assuming the first entry in the response contains the LR/AWB number
+
+                      // Prepare data for bulk LR insertion with your structure
+                      const lrDataForInsert = {
+                        po_no: po_no,
+                        lrNo: lrNumber,  // Dynamically assigned LR number
+                        AggrigatorId: aggregatorId,
+                        AggrigatorName: aggregatorName,
+                        orderID: specificOrder.order_id,
+                        TaggedApi: taggedApi,
+                        category: aggregatorCategory,
+                        servise: aggregatorService,
+                        consigneeName: specificOrder.consignee_name,
+                        pickupPincode: specificOrder.origin_pincode,
+                        destinationPincode: specificOrder.destination_pincode,
+                        pickupAdd: specificOrder.warehouse_address,
+                        destinationAdd: specificOrder.consignee_address,
+                        totalWeight: specificOrder.total_weight,
+                        totalBox: specificOrder.total_boxes,
+                        modeOfPayment: specificOrder.payment_type,
+                        invoiceValue: specificOrder.Invoice_amount,
+                        invoiceNo: specificOrder.invoice_no,
+                        clientID: specificOrder.client_id,
+                        fod: fod,
+                        billClient: billclient,
+                        ownerRisk: owner_risk,
+                        carrierRisk: carrier_risk,
+                        aggregatorTat: aggregatorTat,
+                        aggregatorTotalRate: aggregatorTotalRate,
+                        chargeableWeight: chargeableWeight,
+                        totalVolumetricWeight: volumetricWeight// Add chargeable weight to the data
+                      };
+
+                      // Add lrData to the array for bulk insertion
+                      lrDataForBulkInsert.push(lrDataForInsert);
+                    }
+
+                    // Send bulk LR data to the server
+                    await axios.post('/create_bulk_lr_manual', { lrData: lrDataForBulkInsert });
+
+                    // Update the inner HTML of the respective tab
+                    const tabId = aggregatorService === 'LTL' ? 'ltl' : 'standard';
+                    const tabContentDiv = document.getElementById(tabId);
+                    tabContentDiv.innerHTML = `<p>LR Assigned to all POs</p>`;
+                    const badgeElement = document.querySelector(`#${tabId}-tab .badge`);
+                    if (badgeElement) {
+                      badgeElement.textContent = '0'; // Set the badge count to 0
+                    }
+
+                    // Success alert
+                    Swal.fire({
+                      title: "Processing Complete!",
+                      text: "All LR numbers have been successfully fetched and saved.",
+                      icon: "success",
+                      confirmButtonText: "OK",
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                  } catch (error) {
+                    // Error handling
+                    Swal.fire({
+                      title: "Error",
+                      text: "Failed to save LR numbers in the database.",
+                      icon: "error",
+                      confirmButtonText: "OK",
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                    console.error("Error saving LR numbers:", error.message);
+                  }
+                }
+
+
+                async function fetchDelhiveryManifest(jobId, token) {
+                  try {
+                    // Retry function to check the availability of jobId
+                    const fetchWithRetry = async (jobId, token, retries = 10, delay = 5000) => {
+                      let attempt = 0;
+                      while (attempt < retries) {
+                        try {
+                          // Wait for the delay before making a request
+                          await new Promise(resolve => setTimeout(resolve, delay));
+
+                          // Attempt to fetch the manifest
+                          //  const manifestResponse = await axios.get('https://ltl-clients-api-dev.delhivery.com/manifest', {
+                          const manifestResponse = await axios.get('https://ltl-clients-api.delhivery.com/manifest', {
+                            headers: { 'Authorization': `Bearer ${token}` },
+                            params: { job_id: jobId },
+                          });
+
+                          // Check if the response contains the `lrnum` field
+                          if (manifestResponse.data?.data?.lrnum) {
+                            console.log("Manifest response:", manifestResponse.data.data.lrnum);
+                            return manifestResponse.data.data.lrnum; // Successfully fetched LR number
+                          } else {
+                            throw new Error("LR number not yet available.");
+                          }
+                        } catch (error) {
+                          console.error(`Attempt ${attempt + 1} failed:`, error.message);
+                        }
+                        attempt++;
+                      }
+                      throw new Error('Failed to fetch LR number after multiple retries');
+                    };
+
+                    // Call the retry function
+                    return await fetchWithRetry(jobId, token);
+                  } catch (error) {
+                    console.error("Error fetching manifest:", error.message);
+                    throw error; // Re-throw the error to be handled by the caller
+                  }
+                }
+
+                async function prepareRequestBody(taggedApi, specificOrder, aggrigatorCategory, customerCode, boxDimensions, serviceType, clientAggrigator) {
+                  let requestBody = {};
+                  console.log("in the prepareRequestBody method", specificOrder, aggrigatorCategory, customerCode, boxDimensions);
+                  const [length, breadth, height] = specificOrder.box_dimensions[0]?.DIMENSION ?
+                    specificOrder.box_dimensions[0].DIMENSION.split('X').map(Number) :
+                    [10, 10, 10];
+                  console.log("length, breadth, height", length, breadth, height)
+
+                  // Prepare the payload for DTDC
+                  if (taggedApi === "DTDC") {
+                    console.log("in prepareRequestBody in DTDc")
+                    let allocation = aggrigatorCategory;
+                    if (aggrigatorCategory === "LTL-surface") {
+                      allocation = 'Surface';
+                    }
+                    // console.log("allocation type", allocation);
+                    console.log("allocation type", allocation)
+                    console.log("specific order befor the request body", specificOrder)
+                    console.log("specific order box dimensions", specificOrder.box_dimensions)
+
+                    // console.log("specific order");
+                    console.log("consignee details", specificOrder.consignee_name)
+                    if (taggedApi === "DTDC" && (serviceType === "Standard" || serviceType === "standard")) {
+                      requestBody = {
+                        consignments: [
+                          {
+                            origin_details: {
+                              name: specificOrder.warehouse_address,
+                              phone: specificOrder.warehouse_contact_person,
+                              alternate_phone: specificOrder.warehouse_contact_person,
+                              address_line_1: specificOrder.origin,
+                              address_line_2: specificOrder.origin2 || specificOrder.origin,
+                              state: specificOrder.origin_state,
+                              city: specificOrder.origin_city,
+                              pincode: specificOrder.origin_pincode
+                            },
+                            destination_details: {
+                              name: specificOrder.consignee_name,
+                              phone: specificOrder.consignee_phone,
+                              address_line_1: specificOrder.consignee_address,
+                              address_line_2: specificOrder.consignee_address,
+                              state: specificOrder.destination_state,
+                              city: specificOrder.destination_city,
+                              pincode: specificOrder.destination_pincode
+                            },
+                            pay_basis: "TBB",
+                            dimension_unit: "cm",
+                            length: length,
+                            width: breadth,
+                            height: height,
+                            weight_unit: "kg",
+                            weight: specificOrder.weight_unit === 'gm' ? (specificOrder.total_weight / 1000) : specificOrder.total_weight,
+                            declared_value: specificOrder.Amount || specificOrder.Check_Amount || "",
+                            service_type_id: allocation,
+                            is_risk_surcharge_applicable: false,
+                            commodity_name: specificOrder.product_name || "mixed",
+                            num_pieces: specificOrder.total_boxes,
+                            reference_number: "",
+                            customer_reference_number: specificOrder.po_no,
+                            customer_code: customerCode,
+                            // ?\  pieces_detail: bulkLrpieces(boxDimensions) this is appliacable when there is more boxes than 1
+                          }
+                        ]
+                      };
+                    }
+                    if (taggedApi === "DTDC" && serviceType === "LTL") {
+                      requestBody = {
+                        consignments: [
+                          {
+                            origin_details: {
+                              name: specificOrder.warehouse_address,
+                              phone: specificOrder.warehouse_contact_person,
+                              alternate_phone: specificOrder.warehouse_contact_person,
+                              address_line_1: specificOrder.origin,
+                              address_line_2: specificOrder.origin2 || specificOrder.origin,
+                              state: specificOrder.origin_state,
+                              city: specificOrder.origin_city,
+                              pincode: specificOrder.origin_pincode
+                            },
+                            destination_details: {
+                              name: specificOrder.consignee_name,
+                              phone: specificOrder.consignee_phone,
+                              address_line_1: specificOrder.consignee_address,
+                              address_line_2: specificOrder.consignee_address,
+                              state: specificOrder.destination_state,
+                              city: specificOrder.destination_city,
+                              pincode: specificOrder.destination_pincode
+                            },
+                            pay_basis: "TBB",
+                            dimension_unit: "cm",
+                            length: length,
+                            width: breadth,
+                            height: height,
+                            weight_unit: "kg",
+                            weight: specificOrder.weight_unit === 'gm' ? (specificOrder.total_weight / 1000) : specificOrder.total_weight,
+                            declared_value: specificOrder.Amount || specificOrder.Check_Amount || "",
+                            service_type_id: allocation,
+                            is_risk_surcharge_applicable: false,
+                            commodity_name: specificOrder.product_name || "mixed",
+                            num_pieces: specificOrder.total_boxes,
+                            reference_number: "",
+                            customer_reference_number: specificOrder.po_no,
+                            customer_code: customerCode,
+                            // ?\  pieces_detail: bulkLrpieces(boxDimensions) this is appliacable when there is more boxes than 1
+                          }
+                        ]
+                      };
+                    }
+                  }
+                  // Prepare the payload for Delhivery
+                  else if (taggedApi === "Delhivery" && serviceType !== "Standard" && serviceType !== "standard") {
+
+
+                    requestBody = {
+                      pickup_location_name: specificOrder.warehouse_name,
+                      payment_mode: specificOrder.payment_type || "prepaid",
+                      cod_amount: specificOrder.Amount || "0",
+                      weight: specificOrder.total_weight || "1000",
+                      rov_insurance: "Yes",
+                      invoices: [
+                        {
+                          ewaybill: specificOrder.ewaybill || "",
+                          inv_num: specificOrder.invoice_number || "INV12345",
+                          inv_amt: specificOrder.Amount || "5000",
+                          inv_qr_code: specificOrder.inv_qr_code || ""
+                        }
+                      ],
+                      shipment_details: [
+                        {
+                          order_id: specificOrder.po_no || "3054",
+                          box_count: specificOrder.total_boxes || 1,
+                          description: specificOrder.description || "Default description",
+                          weight: specificOrder.total_weight || 1000,
+                          waybills: specificOrder.waybills || []
+                        }
+                      ],
+                      dimensions: [
+                        {
+                          box_count: specificOrder.total_boxes || 1,
+                          length: specificOrder.box_length || 10,
+                          width: specificOrder.box_width || 10,
+                          height: specificOrder.box_height || 10
+                        }
+                      ],
+                      dropoff_location: {
+                        name: specificOrder.consignee_name || "Default Name",
+                        phone: specificOrder.consignee_phone || "9999999999",
+                        address_line_1: specificOrder.consignee_address || "Default Address",
+                        address_line_2: specificOrder.consignee_address || "",
+                        state: specificOrder.destination_state || "Default State",
+                        city: specificOrder.destination_city || "Default City",
+                        pincode: specificOrder.destination_pincode || "000001"
+                      }
+                    };
+                  }
+                  // Prepare the payload for Delhivery Standard
+                  else if (taggedApi === "Delhivery" && (serviceType === "Standard" || serviceType === "standard")) {
+
+                    const sellerResponse = await axios.get(`/sellerDetails/${clientAggrigator}`);
+                    const sellerDetails = sellerResponse.data;
+                    console.log("Seller Details:", sellerDetails);
+                    console.log("specific order", specificOrder)
+
+
+                    requestBody = {
+                      "pickup_location": {
+                        "add": specificOrder.warehouse_address,
+                        "country": "India",
+                        "pin": specificOrder.origin_pincode,
+                        "phone": specificOrder.warehouse_contact_person,
+                        "alternate_phone": specificOrder.warehouse_contact_person,
+                        "city": specificOrder.origin_city,
+                        "name": specificOrder.warehouse_name,
+                        "state": specificOrder.origin_state
+                      },
+                      shipments: [
+                        {
+                          country: "India",
+                          city: specificOrder.destination_city,
+                          seller_add: specificOrder.warehouse_address,
+                          cod_amount: (specificOrder.payment_type.toLowerCase() === 'cod') ? specificOrder.Amount : "0",
+                          return_phone: specificOrder.warehouse_contact_person,
+                          seller_inv_date: specificOrder.order_date,
+                          seller_name: sellerDetails.company_name,
+                          pin: specificOrder.destination_pincode,
+                          seller_inv: specificOrder.invoice_no,
+                          state: specificOrder.destination_state,
+                          return_name: specificOrder.warehouse_name,
+                          order: specificOrder.po_no,
+                          add: specificOrder.consignee_address,
+                          payment_mode: specificOrder.payment_type === 'prepaid' ? "Prepaid" : specificOrder.payment_type,
+                          quantity: specificOrder.total_boxes,
+                          return_add: specificOrder.warehouse_address,
+                          seller_cst: sellerDetails.cst || "",
+                          seller_tin: "",
+                          phone: specificOrder.consignee_phone,
+                          total_amount: specificOrder.Invoice_amount,
+                          name: specificOrder.consignee_name,
+                          return_country: "India",
+                          return_city: specificOrder.origin_city,
+                          return_state: specificOrder.origin_state,
+                          return_pin: specificOrder.origin_pincode,
+                        }
+                      ]
+                    };
+                  }
+                  // Prepare the payload for Express Bees
+                  else if (taggedApi === "expressbees") {
+                    // const [length, breadth, height] = boxDimensions ? boxDimensions.split('X') : [10, 10, 10];
+
+
+                    let courierId;
+                    const totalWeight = specificOrder.total_weight;
+                    if (totalWeight <= 500) {
+                      if (aggrigatorCategory === "Standard-Air") {
+                        courierId = "6";
+                      } else {
+                        courierId = "1";
+                      }
+                    } else if (totalWeight > 500 && totalWeight <= 1000) {
+                      courierId = "12298";
+                    } else if (totalWeight > 1000 && totalWeight <= 2000) {
+                      courierId = "2000";
+                    } else if (totalWeight > 2000 && totalWeight <= 10000) {
+                      courierId = "4";
+                    }
+
+                    requestBody = {
+                      order_number: specificOrder.po_no,
+                      unique_order_number: "yes",
+                      payment_type: specificOrder.payment_type === "prepaid" ? "prepaid" : "cod",
+                      order_amount: specificOrder.payment_type === "prepaid" ? specificOrder.Invoice_amount : specificOrder.Amount,
+                      collectable_amount: specificOrder.payment_type === "prepaid" ? 0 : specificOrder.Amount,
+                      package_weight: Math.ceil(specificOrder.total_weight),
+                      package_length: length || 10,
+                      package_breadth: breadth || 10,
+                      package_height: height || 10,
+                      request_auto_pickup: "yes",
+                      consignee: {
+                        name: specificOrder.consignee_name,
+                        address: specificOrder.consignee_address,
+                        address_2: specificOrder.consignee_address_2 || "",
+                        city: specificOrder.destination_city,
+                        state: specificOrder.destination_state,
+                        pincode: specificOrder.destination_pincode,
+                        phone: specificOrder.consignee_phone || ""
+                      },
+                      pickup: {
+                        warehouse_name: specificOrder.warehouse_name.slice(0, 30),
+                        name: specificOrder.warehouse_name,
+                        address: specificOrder.warehouse_address,
+                        address_2: specificOrder.warehouse_address_2 || specificOrder.warehouse_address,
+                        city: specificOrder.origin_city,
+                        state: specificOrder.origin_state,
+                        pincode: specificOrder.origin_pincode,
+                        phone: specificOrder.warehouse_contact_person ?
+                          specificOrder.warehouse_contact_person.replace(/^(\+91|91|0)/, '').slice(-10) : ""
+                      },
+                      order_items: specificOrder.products ? specificOrder.products.map(product => ({
+                        name: product.product_name,
+                        qty: product.quantity.toString(),
+                        price: product.order_value,
+                        sku: product.hsn_id
+                      })) : [],
+                      courier_id: courierId
+                    };
+                  }
+
+                  console.log("console.log req body", requestBody)
+                  return requestBody;
+                }
+              </script>
+              <script>
+                $(document).ready(function () {
+                  // Initialize DataTable if not already initialized
+                  if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+                    var table = $('#datatable_2').DataTable({
+                      "ordering": false,
+                      "searching": true,
+                      "lengthChange": true,
+                      "info": true,
+                      "paging": true,
+                      "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                      "language": {
+                        "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                        "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                      },
+                      "pagingType": "full_numbers",
+                      "pageLength": 10,
+                      "drawCallback": function () {
+                        // Pagination styling
+                        $('.paginate_button').addClass('btn btn-sm').css({
+                          'background-color': '#e3f2fd',
+                          'border-color': '#90caf9',
+                          'color': '#1976d2',
+                          'margin': '0 2px',
+                          'border-radius': '4px'
+                        });
+
+                        $('.paginate_button.current').css({
+                          'background-color': '#1976d2',
+                          'color': '#fff',
+                          'border-color': '#1976d2'
+                        });
+
+                        $('.paginate_button.disabled').css({
+                          'opacity': '0.5',
+                          'cursor': 'not-allowed'
+                        });
+                      }
+                    });
+                  }
+
+                  // Function to update active filters display
+                  function updateActiveFilters() {
+                    const selectedClientId = $('#client_select').val();
+                    const selectedPaymentType = $('#dropdownMenuLink').text().trim();
+                    const startDate = $('#min-date').val();
+                    const endDate = $('#max-date').val();
+
+                    // Clear existing filter badges
+                    $('#active-filters-container').empty();
+
+                    let hasFilters = false;
+
+                    // Add client filter badge if selected
+                    if (selectedClientId && selectedClientId !== "Select Client") {
+                      const clientName = $('#client_select option:selected').text();
+                      $('#active-filters-container').append(`
+          <div class="badge bg-light text-dark p-2 me-2 mb-2">
+            Client: ${clientName}
+            <button type="button" class="btn-close ms-2" data-filter-type="client" aria-label="Close"></button>
+          </div>
+        `);
+                      hasFilters = true;
+                    }
+
+                    // Add payment filter badge if selected
+                    if (selectedPaymentType !== "Select Filters") {
+                      $('#active-filters-container').append(`
+          <div class="badge bg-light text-dark p-2 me-2 mb-2">
+            Payment: ${selectedPaymentType}
+            <button type="button" class="btn-close ms-2" data-filter-type="payment" aria-label="Close"></button>
+          </div>
+        `);
+                      hasFilters = true;
+                    }
+
+                    // Add date range filter badge if selected
+                    if (startDate && endDate) {
+                      $('#active-filters-container').append(`
+          <div class="badge bg-light text-dark p-2 me-2 mb-2">
+            Date: ${startDate} to ${endDate}
+            <button type="button" class="btn-close ms-2" data-filter-type="date" aria-label="Close"></button>
+          </div>
+        `);
+                      hasFilters = true;
+                    }
+
+                    // Show or hide the active filters section
+                    if (hasFilters) {
+                      $('#active-filters').show();
+                    } else {
+                      $('#active-filters').hide();
+                    }
+
+                    // Add event listeners to close buttons
+                    $('.btn-close').on('click', function () {
+                      const filterType = $(this).data('filter-type');
+
+                      if (filterType === 'client') {
+                        $('#client_select').val('');
+                      } else if (filterType === 'payment') {
+                        $('#dropdownMenuLink').text('Select Filters');
+                        $('#dropdownMenuLink').html('<i class="fas fa-filter me-2"></i>Select Filters');
+                      } else if (filterType === 'date') {
+                        $('#min-date').val('');
+                        $('#max-date').val('');
+                      }
+
+                      applyFilters();
+                    });
+                  }
+
+                  // Function to apply all filters
+                  function applyFilters() {
+                    const table = $('#datatable_2').DataTable();
+                    const selectedClientId = $('#client_select').val();
+                    const selectedPaymentType = $('#dropdownMenuLink').data('payment-filter');
+                    const startDate = $('#min-date').val();
+                    const endDate = $('#max-date').val();
+
+                    // Clear existing filters
+                    table.search('').columns().search('');
+                    $.fn.dataTable.ext.search = [];
+
+                    // Add custom filter based on data attributes
+                    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                      const row = table.row(dataIndex).node();
+                      const rowClientId = $(row).data('client-id');
+                      const rowPaymentType = $(row).data('payment-type');
+
+                      // Client filter
+                      const clientMatch = !selectedClientId || selectedClientId === "Select Client" || rowClientId == selectedClientId;
+
+                      // Payment type filter
+                      let paymentMatch = true;
+                      if (selectedPaymentType && selectedPaymentType !== "") {
+                        paymentMatch = rowPaymentType && rowPaymentType.toLowerCase() === selectedPaymentType.toLowerCase();
+                      }
+
+                      // Date range filter
+                      // Date range filter
+                      let dateMatch = true;
+                      if (startDate && endDate) {
+                        const orderDateCell = data[2]; // Assuming order date is in the 3rd column (index 2)
+                        if (orderDateCell) {
+                          // Extract date from the formatted string (assuming format like "25 Apr 2023, 12:30:45 PM")
+                          const dateParts = orderDateCell.split(',')[0].split(' ');
+                          const day = parseInt(dateParts[0]);
+                          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                          const month = monthNames.indexOf(dateParts[1]);
+                          const year = parseInt(dateParts[2]);
+
+                          const orderDate = new Date(year, month, day);
+                          const filterStartDate = new Date(startDate);
+                          const filterEndDate = new Date(endDate);
+
+                          // Set start date to beginning of day (00:00:00)
+                          filterStartDate.setHours(0, 0, 0, 0);
+
+                          // Set end date to end of day (23:59:59.999)
+                          filterEndDate.setHours(23, 59, 59, 999);
+
+                          dateMatch = orderDate >= filterStartDate && orderDate <= filterEndDate;
+                        }
+                      }
+
+                      return clientMatch && paymentMatch && dateMatch;
+                    });
+
+                    table.draw();
+                    updateActiveFilters();
+                  }
+
+                  // Client filter functionality
+                  $('#client_select').on('change', function () {
+                    applyFilters();
+                  });
+
+                  // Payment mode filter functionality
+                  $('.dropdown-menu .dropdown-item[data-payment-type]').on('click', function (e) {
+                    e.preventDefault();
+                    const paymentType = $(this).text();
+                    const paymentTypeValue = $(this).data('payment-type');
+                    const icon = $(this).find('i').clone();
+
+                    $('#dropdownMenuLink').html('');
+                    $('#dropdownMenuLink').append(icon).append(' ' + paymentType);
+
+                    // Store the actual filter value as a data attribute
+                    $('#dropdownMenuLink').data('payment-filter', paymentTypeValue);
+                    var dropdown = bootstrap.Dropdown.getOrCreateInstance(document.getElementById('dropdownMenuLink'));
+                    dropdown.hide();
+
+
+                    applyFilters();
+                  });
+
+                  // Date range filter functionality
+                  $('#min-date, #max-date').on('change', function () {
+                    applyFilters();
+                  });
+
+                  // Quick date range functionality
+                  $('.date-range-option').on('click', function (e) {
+                    e.preventDefault();
+                    const range = $(this).data('range');
+                    const today = new Date();
+                    let startDate = new Date();
+                    let endDate = new Date();
+
+                    switch (range) {
+                      case 'today':
+                        // Start and end are already today
+                        break;
+                      case 'yesterday':
+                        startDate.setDate(today.getDate() - 1);
+                        endDate.setDate(today.getDate() - 1);
+                        break;
+                      case 'last7days':
+                        startDate.setDate(today.getDate() - 6);
+                        break;
+                      case 'last30days':
+                        startDate.setDate(today.getDate() - 29);
+                        break;
+                      case 'thisMonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        break;
+                      case 'lastMonth':
+                        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                        break;
+                    }
+
+                    // Format dates for input fields (YYYY-MM-DD)
+                    const formatDate = (date) => {
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                      const day = String(date.getDate()).padStart(2, '0');
+                      return `${year}-${month}-${day}`;
+                    };
+
+                    $('#min-date').val(formatDate(startDate));
+                    $('#max-date').val(formatDate(endDate));
+                    var dropdown = bootstrap.Dropdown.getOrCreateInstance(document.getElementById('dropdownMenuLink'));
+                    dropdown.hide();
+
+
+                    applyFilters();
+                  });
+
+                  // Clear all filters
+                  $('#clear-filters').on('click', function () {
+                    $('#client_select').val('');
+                    $('#dropdownMenuLink').html('<i class="fas fa-filter me-2"></i>Select Filters');
+                    $('#search-input').val('');
+                    $('#min-date').val('');
+                    $('#max-date').val('');
+
+                    const table = $('#datatable_2').DataTable();
+                    table.search('').columns().search('');
+                    $.fn.dataTable.ext.search = [];
+                    table.draw();
+
+                    $('#active-filters').hide();
+                  });
+
+                  // Unified search functionality
+                  const handleSearch = function () {
+                    const searchValue = $('#search-input').val();
+                    const table = $('#datatable_2').DataTable();
+
+                    // Reset filters
+                    $('#client_select').val('');
+                    $('#dropdownMenuLink').html('<i class="fas fa-filter me-2"></i>Select Filters');
+                    $('#min-date').val('');
+                    $('#max-date').val('');
+                    $.fn.dataTable.ext.search = [];
+
+                    table.search(searchValue).draw();
+
+                    // Show search term as an active filter if present
+                    if (searchValue) {
+                      $('#active-filters').show();
+                      $('#active-filters-container').html(`
+          <div class="badge bg-light text-dark p-2 me-2 mb-2">
+            Search: "${searchValue}"
+            <button type="button" class="btn-close ms-2" id="clear-search" aria-label="Close"></button>
+          </div>
+        `);
+
+                      $('#clear-search').on('click', function () {
+                        $('#search-input').val('');
+                        handleSearch();
+                      });
+                    } else {
+                      $('#active-filters').hide();
+                    }
+                  };
+
+                  // Search events
+                  $('#search-input').on('keyup', function (e) {
+                    if (e.key === 'Enter' || !$(this).val()) {
+                      handleSearch();
+                    }
+                  });
+
+                  $('#button-addon2').on('click', handleSearch);
+
+                  // Populate client dropdown from table data (for admin users)
+                  function populateClientDropdown() {
+                    const table = $('#datatable_2').DataTable();
+                    const clientMap = new Map();
+
+                    // Collect unique clients from the table
+                    table.rows().every(function () {
+                      const row = this.node();
+                      const clientId = $(row).data('client-id');
+                      const clientName = $(row).data('client-name');
+
+                      if (clientId && clientName && !clientMap.has(clientId)) {
+                        clientMap.set(clientId, clientName);
+                      }
+                    });
+
+                    // Add options to the dropdown
+                    clientMap.forEach((name, id) => {
+                      $('#client_select').append(`<option value="${id}">${name}</option>`);
+                    });
+                  }
+
+                  // Call this function after DataTable is initialized
+                  populateClientDropdown();
+                  });
+                }
+              </script>
+
+           
+            
+              
+
+
+
+            </div>
+            <%- include('../../partials/footer') %>
+          </div>
+
+          
+
+          <script>
+
+            const orders = <%- JSON.stringify(data) %>;
+            console.log("orders details", orders);
+            console.log("orders type:", typeof orders);
+            console.log("orders length:", orders ? orders.length : 'orders is null/undefined');
+            console.log("orders is array:", Array.isArray(orders));
+            let apiKeyLtl = "<%= apiLTL %>";
+            let apiKeyStd = "<%= apiSTD %>";
+            // below is the the customer code?of staging
+            // let customerCodeLtl = "C0002001";
+            // let customerCodeStd = "GL017";
+            let customerCodeLtl = "GL8553";
+            let customerCodeStd = "GL9412";  // customer code may be standard
+            let itemsPerPage = 5;
+            let currentPage = 1;
+
+            function getSpeedClass(days) {
+              const num = parseInt(days);
+              if (num <= 1) return 'bg-success text-white';
+              if (num <= 2) return 'bg-primary text-white';
+              return 'bg-warning text-dark';
+            }
+
+            function getStatusBadge(status) {
+              const map = {
+                'Delivered': 'bg-success text-white',
+                'In Transit': 'bg-info text-dark',
+                'Failed': 'bg-danger text-white'
+              };
+              return `<span class="badge ${map[status] || 'bg-secondary'}">${status}</span>`;
+            }
+            function renderOrders(data) {
+              console.log("calling the renderOrders function", data);
+
+              // Add validation for data
+              if (!data) {
+                console.error("renderOrders: data is null or undefined");
+                return;
+              }
+
+              if (!Array.isArray(data)) {
+                console.error("renderOrders: data is not an array, it is:", typeof data);
+                return;
+              }
+
+              if (data.length === 0) {
+                console.warn("renderOrders: data array is empty");
+                const container = document.getElementById("ordersContainer");
+                container.innerHTML = '<div class="alert alert-info text-center">No orders found</div>';
+                return;
+              }
+
+              const container = document.getElementById("ordersContainer");
+              container.innerHTML = '';
+              const start = (currentPage - 1) * itemsPerPage;
+              const paginated = data.slice(start, start + itemsPerPage);
+              paginated.forEach(order => {
+                const categories = (order.products || [])
+                  .map(p => p.category)
+                  .filter(c => c) // remove empty/null
+                  .filter((value, index, self) => self.indexOf(value) === index) // unique
+                  .join(', ')
+                  .toUpperCase();
+                console.log("categories", categories)
+                container.innerHTML += `
+      <div class="order-card">
+        <div class="row align-items-start">
+          <div class="col-md-1">
+            <input class="form-check-input" type="checkbox" data-id="${order.orderid || 'N/A'}">
+          </div>
+          <div class="col-md-3 d-flex flex-column">
+            <div class="order-id">
+          ${order.orderid || 'N/A'}
+          ${order.box_qty > 1 ? `<span style="color: #ffc107; font-weight: 600;">&nbsp;MSP</span>` : ''}
+        </div>
+             <div class="order-id">${order.ref_number || 'N/A'}</div>
+            <small class="text-muted">${order.created_at ? new Date(order.created_at).toLocaleDateString() : 'No Date'}</small>
+            <button class="btn btn-outline-secondary btn-sm mt-2">Act To Prevent Return</button>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex flex-column align-items-start position-relative timeline-section ps-4">
+              <div class="position-absolute timeline-line"></div>
+              <div class="d-flex align-items-center mb-4" style="z-index: 1;">
+                <div class="text-black d-flex align-items-center justify-content-center me-3 timeline-icon"><i class="fa fa-truck"></i></div>
+                <div>
+  <div class="fw-semibold">Pickup</div>
+  <div class="text-muted text-small">
+    ${order?.warehouse?.warehouse_name || 'ANNU MITTAL JWEL'} 
+    (${order?.warehouse?.warehouse_city || 'Delhi'})
+  </div>
+</div>
+
+              </div>
+              <div class="d-flex align-items-center" style="z-index: 1;">
+                <div class="text-black d-flex align-items-center justify-content-center me-3 timeline-icon"><i class="fa fa-home"></i></div>
+                <div>
+                  <div class="fw-semibold">Delivery</div>
+                  <div class="text-muted text-small">${order.consignee
+                    .first_name || 'RITESH KUMAR'} (${order.consignee
+                      .city || 'LUCKNOW'})</div>
+                  <div class="text-muted text-small">${order.consignee
+                    .phone || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 text-small">
+                        <strong>${categories || 'JEWELLERY'}</strong><br>₹${order.grand_total || 1600} ${(order.payment_mode === 'cod' ? '| COD' : 'PREPAID').toUpperCase()}
+
+            <div>Pkg: ${order.total_weight || 1500} ${order.weight_unit || 'gm'}</div>
+            <div>Box: ${order.box_qty || '--'}</div>
+           
+          </div>
+          <div class="col-md-2 text-end text-small">
+            <div class="mb-1">
+              <span class="badge bg-info text-dark">${order.is_unprocessed ? 'Unprocessed' : 'Processed'}</span>
+            </div>
+            <div>
+              
+              <button class="btn btn-outline-dark btn-sm my-4" onclick="openAWB('${order.orderid || ''}', '${categories || ''}')">Get AWB</button>
+              <button
+                class="btn btn-square ms-0"
+                onclick="deleteOrder('${order.orderid || ''}')">
+                <i class="fa-solid fa-trash" style="color: #ff7070;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+              });
+              renderPagination(data.length);
+            }
+            function renderPagination(totalItems) {
+              const pageCount = Math.ceil(totalItems / itemsPerPage);
+              const pagination = document.getElementById("pagination");
+              pagination.innerHTML = '';
+
+              if (pageCount <= 1) return; // No pagination needed
+
+              let pageLinks = [];
+
+              // Always show first page
+              if (currentPage > 3) {
+                pageLinks.push(`<li class="page-item"><a class="page-link" onclick="changePage(1)">1</a></li>`);
+                if (currentPage > 4) {
+                  pageLinks.push(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+              }
+
+              // Show pages around current page
+              for (let i = Math.max(1, currentPage - 2); i <= Math.min(pageCount, currentPage + 2); i++) {
+                pageLinks.push(`<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" onclick="changePage(${i})">${i}</a></li>`);
+              }
+
+              // Always show last page
+              if (currentPage < pageCount - 2) {
+                if (currentPage < pageCount - 3) {
+                  pageLinks.push(`<li class="page-item disabled"><span class="page-link">...</span></li>`);
+                }
+                pageLinks.push(`<li class="page-item"><a class="page-link" onclick="changePage(${pageCount})">${pageCount}</a></li>`);
+              }
+
+              pagination.innerHTML = pageLinks.join('');
+            }
+
+            function changePage(page) {
+              currentPage = page;
+              filterOrders();
+            }
+
+            function toggleAll(cb) {
+              document.querySelectorAll('#ordersContainer input[type="checkbox"]').forEach(c => c.checked = cb.checked);
+            }
+            function toggleGroup(groupId) {
+              document.querySelectorAll(`.courier-card[data-group="${groupId}"].child-card`).forEach(card => {
+                card.style.display = card.style.display === 'none' ? 'block' : 'none';
+              });
+            }
+
+            function exportSelected() {
+              const selected = Array.from(document.querySelectorAll('#ordersContainer input[type="checkbox"]:checked')).map(cb => cb.getAttribute('data-id'));
+              if (selected.length === 0) return alert("Select orders to export.");
+              const csv = [['Order ID', 'Product', 'Pickup', 'Delivery']];
+              selected.forEach(id => {
+                const o = orders.find(o => o.id === id);
+                csv.push([o.id, o.product, o.pickup, o.delivery]);
+              });
+              const blob = new Blob([csv.map(row => row.join(',')).join('\n')], { type: 'text/csv' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = "selected_orders.csv";
+              link.click();
+            }
+            let box_dimensions = [];
+            let clientGst = null;
+            let clientPaymentSystem = null;
+            let clientpaymentMode = null;
+            let walletBalance = 0;
+
+            // ✅ Full working version of openAWB using async/await with full HTML and logic
+            async function openAWB(orderId, categories) {
+              document.getElementById('awbLoadingOverlay').style.display = 'flex';
+              console.log("ordr id ", orderId)
+
+              const o = orders.find(o => o.orderid === orderId) || {};
+              specificOrder = o;
+              console.log("order details", o)
+
+              const refNumber = o?.id ?? 'NULL';
+              const category = o?.category_name ?? 'NULL';
+              const totalQty = o?.box_qty ?? 'NULL';
+              const totalAmount = o?.grand_total ?? 'NULL';
+              const weight = o?.total_weight ?? 'NULL';
+              const weightUnit = o?.weight_unit ?? 'NULL';
+              const paymentMode = o?.payment_mode ?? 'NULL';
+              const address = o?.consignee_address ?? 'NULL';
+              const city = o?.destination_city ?? 'NULL';
+              const warehouseName = o?.warehouse?.warehouse_name ?? 'NULL';
+              const companyName = o?.company_name ?? 'DISPATCH SOLUTIONS';
+              const consigneeName = o?.consignee_name ?? 'NULL';
+              document.getElementById('awbModalLabel').innerText = `ORDER DETAILS: ${o.orderid}`
+              const modalHtml = `
+ <div class="container py-4">
+  <div class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+      <!-- Package Details -->
+      <section class="order-section">
+        <h5 class="mb-3 text-uppercase fw-bold"><i class="fas fa-box-open me-2"></i>Package Details</h5>
+
+        <!-- Order Summary -->
+        <div class="border rounded-3 p-3 mb-3 bg-light-subtle">
+          <p class="mb-1 small"><strong>Invoice No:</strong> <span class="text-uppercase">${o.invoice_no ?? 'NULL'}</span></p>
+          <p class="mb-1 small"><strong>Order ID:</strong> <span class="text-uppercase">${o.orderid ?? 'NULL'}</span></p>
+          <p class="mb-0 small"><strong>Reference No:</strong> <span class="text-uppercase">${refNumber ?? 'NULL'}</span></p>
+        </div>
+
+        <!-- Product Table -->
+        <div class="border rounded p-3 small mb-3 bg-white shadow-sm" style="max-height: 240px; overflow-y: auto;">
+          ${Array.isArray(o?.products) && o.products.length > 0 ? `
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th class="text-end">Qty</th>
+                  <th class="text-end">Price</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${o.products.map((item) => {
+                const qty = item?.quantity ?? 0;
+                const price = parseFloat(item?.price ?? 0);
+                const total = qty * price;
+                return `
+                    <tr>
+                      <td>
+                        <div class="fw-semibold">${item?.name ?? 'Unnamed'}</div>
+                        <div class="text-muted small">${item?.sku ? `SKU: ${item.sku}` : ''}</div>
+                      </td>
+                      <td class="text-end">${qty}</td>
+                      <td class="text-end">₹${price.toFixed(2)}</td>
+                      <td class="text-end fw-semibold">₹${total.toFixed(2)}</td>
+                    </tr>`;
+              }).join('')}
+              </tbody>
+            </table>
+          ` : '<div class="text-muted">No products found.</div>'}
+        </div>
+
+        <!-- Total -->
+        ${Array.isArray(o?.products) && o.products.length > 0 ? `
+          <div class="text-end fw-bold fs-6">
+            Total: ₹${o.products.reduce((sum, item) => sum + (parseFloat(item?.price ?? 0) * (item?.quantity ?? 0)), 0).toFixed(2)}
+          </div>
+        ` : ''}
+
+        <!-- Fragile -->
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" id="fragile" />
+          <label class="form-check-label small" for="fragile">This package contains fragile items</label>
+        </div>
+      </section>
+
+      <!-- Payment Section -->
+      <section class="order-section">
+        <h5 class="text-uppercase fw-bold mb-3"><i class="fas fa-wallet me-2"></i>Payment & Billing</h5>
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Billing Address -->
+              <div class="col-md-6">
+                <h6 class="fw-semibold text-muted mb-2">Billing Address</h6>
+                <div class="text-capitalize small">
+                  <div>${o.consignee.billing_first_name ?? 'NULL'} ${o.consignee.billing_last_name ?? ''}</div>
+                  <div>${o.consignee.billing_address_line1 ?? 'NULL'}</div>
+                  <div>${o.consignee.billing_address_line2 ?? ''}</div>
+                  <div>${o.consignee.billing_landmark ?? ''}</div>
+                  <div>${o.consignee.billing_city ?? 'NULL'}, ${o.consignee.billing_state ?? ''} - ${o.consignee.billing_pincode ?? ''}</div>
+                  <div>${o.consignee.billing_country ?? ''}</div>
+                </div>
+                <div class="mt-2 text-muted small">
+                  <div><strong>Phone:</strong> ${o.consignee.billing_phone ?? 'NULL'}</div>
+                  <div><strong>Alt:</strong> ${o.consignee.billing_alternate_phone ?? ''}</div>
+                  <div><strong>Email:</strong> ${o.consignee.billing_email ?? ''}</div>
+                </div>
+              </div>
+              <!-- Payment Info -->
+              <div class="col-md-6 text-md-end">
+                <h6 class="fw-semibold text-muted mb-2">Payment Summary</h6>
+                <div class="small mb-2">
+                  <div class="fw-medium text-muted">Payment Mode</div>
+                  <div class="text-capitalize"><i class="fas fa-money-bill-wave me-1 text-success"></i>${paymentMode ?? 'NULL'}</div>
+                </div>
+                <div class="small">
+                  <div class="fw-medium text-muted">Shipment Value</div>
+                  <div class="fw-bold fs-6">₹${totalAmount}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Shipping Panel -->
+      <section class="order-section mt-4">
+        <h5 class="fw-bold mb-3 text-uppercase"><i class="fas fa-shipping-fast me-2"></i>Shipping Summary</h5>
+      
+        <div id="shippingSummary" class="mb-3 small text-muted" style="display: none; " ></div>
+        <div class="row g-2 mb-3" id="shippingOptionsRow" style="display: flex;flex-wrap: wrap;justify-content: space-around;align-items: center;align-content: space-around;"></div>
+        
+      </section>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body p-4 small">
+          <h6 class="fw-bold mb-3 text-uppercase"><i class="fas fa-map-marker-alt me-2"></i>Delivery Details</h6>
+
+          <!-- Warehouse -->
+          <div class="mb-3">
+            <h6 class="fw-semibold mb-1 text-muted"><i class="fas fa-warehouse me-2"></i>Pickup Location</h6>
+            <p class="mb-0 fw-bold">${warehouseName}</p>
+            <p class="mb-0 text-muted">${o?.warehouse?.warehouse_address ?? 'NULL'}</p>
+            <p class="mb-0 text-muted">${o?.warehouse?.warehouse_city ?? 'NULL'}, ${o?.warehouse?.warehouse_state ?? ''} - ${o?.warehouse?.warehouse_pincode ?? ''}</p>
+          </div>
+
+          <hr class="my-3" />
+
+          <!-- Consignee -->
+          <div class="mb-3">
+            <h6 class="fw-semibold mb-1 text-muted"><i class="fas fa-user me-2"></i>Shipping Address</h6>
+            <p class="mb-0 fw-bold">${o?.consignee?.first_name ?? ''} ${o?.consignee?.last_name ?? ''}</p>
+            <p class="mb-0 text-muted">${o?.consignee?.address_line2 ?? 'NULL'}</p>
+            <p class="mb-0 text-muted">${o?.consignee?.city ?? 'NULL'}, ${o?.consignee?.state ?? ''} - ${o?.consignee?.pincode ?? ''}</p>
+            <p class="mb-0 text-muted">${o?.consignee?.country ?? ''}</p>
+            <p class="mb-0 text-muted">Phone: ${o?.consignee?.phone ?? 'NULL'}</p>
+            <p class="mb-0 text-muted">Email: ${o?.consignee?.email ?? 'NULL'}</p>
+          </div>
+
+          <hr class="my-3" />
+
+          <p class="mb-0"><strong>SELLER:</strong> ${companyName}</p>
+        </div>
+      </div>
+
+      <!-- Box Details -->
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4 small">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0 text-uppercase"><i class="fas fa-box me-2"></i>Box Details</h6>
+          </div>
+          <div class="tab-btns d-flex align-items-center mb-3" id="boxTabs"></div>
+          <div id="boxContentArea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+`;
+
+              document.getElementById("awbModalContent").innerHTML = modalHtml;
+
+              let boxData = [];
+              let activeBoxIndex = 0;
+
+
+
+              try {
+                // Step 1: Check Wallet Balance
+                const checkWalletResponse = await axios.get(`/check-wallet-amount`, {
+                  params: { clientId: o.client_id }
+                });
+                walletBalance = checkWalletResponse.data.total_amount || 0;
+                console.log("Wallet Balance:", walletBalance);
+
+                // Step 2: Fetch GST & Payment System
+                const clientGstResponse = await axios.get('/api/client-gst-number', {
+                  params: { clientId: o.client_id }
+                });
+
+                if (clientGstResponse.data) {
+                  clientGst = clientGstResponse.data.gst || null;
+                  clientPaymentSystem = clientGstResponse.data.payment_system || null;
+                  clientpaymentMode = clientPaymentSystem;
+                  console.log("Client GST:", clientGst);
+                  console.log("Client Payment Mode:", clientpaymentMode);
+                }
+
+                // Step 3: Check if prepaid and insufficient wallet balance
+                const estimatedRate = o.Invoice_amount || 0; // You can replace with actual calculated totalRate if needed
+                if (clientpaymentMode !== 'postpaid' && walletBalance < estimatedRate) {
+                  document.getElementById('awbLoadingOverlay').style.display = 'none';
+                  Swal.fire({
+                    title: 'Insufficient Wallet Balance!',
+                    html: `
+        1. Insufficient wallet balance.<br>
+        2. Required: ₹${estimatedRate}<br>
+        3. Available: ₹${walletBalance}<br>
+        4. Payment Mode: ${clientpaymentMode || 'Unknown'}
+      `,
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                      container: 'swal-high-zindex'
+                    }
+                  }).then(() => {
+                    document.getElementById('awbLoadingOverlay').style.display = 'none';
+                    window.location.href = "/unprocessed-orders";
+                  });
+                  return;
+                }
+
+              } catch (error) {
+                console.error("Error during wallet check or GST fetch:", error);
+              }
+              // document.getElementById('awbLoadingOverlay').style.display = 'flex';
+
+              try {
+                console.log("in gsts box dimension data")
+                const boxResponse = await axios.get(`/api/box-dimensions/${refNumber}`);
+                if (boxResponse.data.success && boxResponse.data.data.length > 0) {
+                  box_dimensions = boxResponse.data.data;
+
+                  boxData = box_dimensions.map((row, index) => ({
+                    id: index + 1,
+                    type: "Cardboard Box",
+                    size: [Number(row.length), Number(row.breadth), Number(row.height)],
+                    weight: o.total_weight || 1100,
+                    unit: row.dimension_unit || 'cm',
+                    weight_unit: o.weight_unit || 'gm'
+                  }));
+                } else {
+                  boxData = [{ id: 1, type: "Cardboard Box", size: [10, 10, 10], weight: 500, unit: 'cm', weight_unit: o.weight_unit || 'gm' }];
+                }
+              } catch (error) {
+                console.error("Error fetching box dimensions:", error);
+                boxData = [{ id: 1, type: "Cardboard Box", size: [10, 10, 10], weight: 500, unit: 'cm', weight_unit: o.weight_unit || 'gm' }];
+              }
+
+              const clientBaseValue = o.grand_total || 0;
+              const shippingParams = {
+                type: o.shipmentType,
+                clientId: o.client_id,
+                pickupPincode: o.warehouse?.warehouse_pincode,
+                destinationPincode: o.consignee.pincode,
+                total_boxes: o.box_qty,
+                total_weight: o.total_weight,
+                paymentType: o.payment_mode,
+                clientBaseValue,
+                boxDimensions: box_dimensions,
+                cod: o.cod,
+                weight_unit: o.weight_unit
+              };
+              try {
+                const shippingResponse = await axios.get('/api/calculate-express-rate', { params: shippingParams });
+                const rawRates = shippingResponse.data.rates || [];
+
+                window.shippingRates = rawRates.filter(rate => rate.TaggedApi);
+                const container = document.getElementById('shippingOptionsRow');
+
+                if (window.shippingRates.length === 0) {
+                  container.innerHTML = '<div class="col-12 text-muted">No shipping options available</div>';
+                  return;
+                }
+
+                // Sort all rates globally by rate (cheapest first)
+                window.shippingRates.sort((a, b) => a.rate - b.rate);
+
+                const groupedRates = {};
+                for (const rate of window.shippingRates) {
+                  const key = rate.TaggedApi || 'Courier Partner';
+                  if (!groupedRates[key]) groupedRates[key] = [];
+                  groupedRates[key].push(rate);
+                }
+
+                let groupIndex = 0;
+                container.innerHTML = '';
+
+                let globalRateIndex = 0; // Track the global index across all rates
+                for (const [partnerName, group] of Object.entries(groupedRates)) {
+                  const groupHtml = [];
+                  const groupId = `group-${groupIndex}`;
+                  let innerIndex = 0;
+
+                  for (const rate of group) {
+                    let cgst = 0, sgst = 0, igst = 0, oda_charge = 0;
+
+                    if (rate.aggrigatorOdaFactor && rate.aggrigatorOdaFactor !== 0) {
+                      try {
+                        const odaResponse = await axios.get('/api/get-oda-charges', {
+                          params: {
+                            aggrigatorId: rate.Aggrigator_id,
+                            odaFactor: rate.aggrigatorOdaFactor,
+                            total_weight: shippingParams.total_weight,
+                            total_boxes: shippingParams.total_boxes,
+                            paymentType: shippingParams.paymentType,
+                            rate: rate.agrrigatorrate,
+                            base_value: rate.base_value,
+                            clientBaseValue,
+                            cod_amount: shippingParams.cod
+                          }
+                        });
+                        oda_charge = odaResponse.data?.oda_charge ? Number(odaResponse.data.oda_charge) : 0;
+                      } catch (err) {
+                        console.error("ODA API error", err);
+                      }
+                    }
+
+                    const clientGstPrefix = clientGst?.substring(0, 2);
+                    const aggregatorGstPrefix = "019CEFA8738P1ZM".substring(0, 2);
+                    if (clientGstPrefix === aggregatorGstPrefix) {
+                      cgst = (0.09 * rate.rate).toFixed(2);
+                      sgst = (0.09 * rate.rate).toFixed(2);
+                      igst = 0;
+                    } else {
+                      igst = (0.18 * rate.rate).toFixed(2);
+                    }
+
+                    const baseRate = Number(rate.baserate || 0);
+                    const totalRate = (
+                      Number(rate.rate) +
+                      Number(cgst) + Number(sgst) + Number(igst) +
+                      Number(oda_charge)
+                    ).toFixed(2);
+
+                    const addRate = Number(rate.rate) - baseRate;
+                    const chargeableWeight = rate.chargableWeight || rate.chargeableWeight || 'N/A';
+                    const tat = rate.days || 'N/A';
+                    const courierName = (rate.TaggedApi || '').toLowerCase();
+
+                    let logoPath = 'assets/images/logos/logo-dark.png';
+                    if (courierName.includes('delhivery')) logoPath = '/assets/images/logos/delhivery.png';
+                    else if (courierName.includes('xpress') || courierName.includes('expressbees')) logoPath = '/assets/images/logos/expressbees.png';
+                    else if (courierName.includes('dtdc')) logoPath = '/assets/images/logos/dtdc.png';
+                    else if (courierName.includes('bluedart')) logoPath = '/assets/images/BlueDart.png';
+                    else if (courierName.includes('fedex')) logoPath = '/assets/images/FedEx.png';
+
+                    const logo = `<img src="${logoPath}" alt="${partnerName}" style="height:15px;vertical-align:middle;margin-right:6px;">`;
+
+                    const isPrimary = innerIndex === 0;
+                    const cardStyle = isPrimary ? '' : 'display:none;';
+
+                                        const cardHtml = `
+        <div class="col-auto courier-card ${isPrimary ? '' : 'child-card'}" data-group="${groupId}" style="${cardStyle};">
+          <div class="card shipping-option border-0 shadow position-relative"
+               style="border-radius: 20px; width: 340px; height: 200px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 70%, #cbd5e1 100%);
+                      box-shadow: 0 8px 25px rgba(58, 58, 58, 0.12), 0 3px 10px rgba(58, 58, 58, 0.08);
+                      border: 1px solid rgba(58, 58, 58, 0.1);
+                      backdrop-filter: blur(10px);">
+            
+            <!-- Professional Decorative Elements -->
+            <div class="position-absolute" style="top: -30px; right: -30px; width: 120px; height: 120px; 
+                 background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(58, 58, 58, 0.04) 70%); 
+                 border-radius: 50%; opacity: 0.7;"></div>
+            <div class="position-absolute" style="bottom: -40px; left: -40px; width: 140px; height: 140px; 
+                 background: radial-gradient(circle, rgba(58, 58, 58, 0.05) 0%, rgba(59, 130, 246, 0.06) 70%); 
+                 border-radius: 50%; opacity: 0.6;"></div>
+            
+            <!-- Professional accent line -->
+            <div class="position-absolute" style="top: 0; left: 0; width: 100%; height: 4px; 
+                 background: linear-gradient(90deg, #3b82f6 0%, #1e40af 50%, #3a3a3a 100%); 
+                 border-radius: 20px 20px 0 0;"></div>
+            
+            <!-- Card Content -->
+            <div class="h-100 d-flex flex-column p-4 position-relative" style="z-index: 2;">
+              
+              <!-- Header: Logo and Badge -->
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="courier-logo d-flex align-items-center">
+                  <div style="background: rgba(255, 255, 255, 0.9); padding: 6px; border-radius: 8px; 
+                              backdrop-filter: blur(5px); border: 1px solid rgba(59, 130, 246, 0.2);">
+                    ${logo}
+                  </div>
+                </div>
+                <div class="badge rounded-pill px-3 py-2" 
+                     style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.15)); 
+                            color: #3a3a3a; font-size: 10px; font-weight: 600; 
+                            border: 1px solid rgba(59, 130, 246, 0.3);">
+                  <i class="fas fa-clock me-1"></i>${tat} days
+                </div>
+              </div>
+
+              <!-- Service Name -->
+              <div class="mb-1">
+                <h6 class="fw-bold mb-0" style="font-size: 12px; color: #3a3a3a; line-height: 1.3; letter-spacing: 0.3px;">
+                  ${rate.Aggrigator ? rate.Aggrigator.split(' ').slice(1).join(' ') : partnerName}
+                </h6>
+              </div>
+
+              <!-- Weight Information Card -->
+              <div class="mb-1">
+                <div class="rounded-3 p-2" 
+                     style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(248, 250, 252, 0.8)); 
+                            border: 1px solid rgba(59, 130, 246, 0.2); backdrop-filter: blur(5px);">
+                  <div class="row g-1 text-center" style="font-size: 9px;">
+                    <div class="col-4">
+                      <div style="color: #6b7280; font-weight: 500;">Actual</div>
+                      <div class="fw-bold" style="color: #3a3a3a; font-size: 10px;">
+                        ${Number(shippingParams.total_weight).toFixed(2)} ${weightUnit}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div style="color: #6b7280; font-weight: 500;">Vol</div>
+                      <div class="fw-bold" style="color: #3a3a3a; font-size: 10px;">
+                        ${rate.volumetricWeight ? Number(rate.volumetricWeight).toFixed(2) : 'N/A'} ${weightUnit}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div style="color: #6b7280; font-weight: 500;">Chg</div>
+                      <div class="fw-bold" style="color: #3b82f6; font-size: 10px;">
+                        ${chargeableWeight !== 'N/A' ? Number(chargeableWeight).toFixed(2) : 'N/A'} ${weightUnit}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Price Display and AWB Button in Same Row -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Price Display -->
+                <div class="text-start">
+                  <div class="fw-bold" style="font-size: 18px; color: #3a3a3a; text-shadow: 0 1px 3px rgba(58, 58, 58, 0.2);">
+                    ₹${totalRate}
+                  </div>
+                  <div style="font-size: 8px; color: #6b7280; line-height: 1.3;">
+                    <div>Shipping: ₹${(baseRate + addRate + oda_charge).toFixed(2)}</div>
+                    <div>GST (18%): ₹${(Number(cgst) + Number(sgst) + Number(igst)).toFixed(2)}</div>
+                  </div>
+                </div>
+
+                <!-- AWB BUTTON -->
+                <div style="margin-left: 15px;">
+                  <button type="button"
+                          style="width: fit-content;
+                                 font-size: 12px; 
+                                 font-weight: bold;
+                                 border: none; 
+                                 border-radius: 5px;
+                                 color: #02063d;
+                                 padding: 10px;
+                                 cursor: pointer;
+                                 background: linear-gradient(135deg, #ffffff, #f8fafc);
+                                 border: none);
+                                 box-shadow: 0 2px 8px rgba(58, 58, 58, 0.1);
+                                 transition: all 0.3s ease;"
+                          onclick="event.stopPropagation(); getAWBForRate(${globalRateIndex}, ${cgst}, ${sgst}, ${igst}, '${orderId}', '${rate.delhiveryApiVariant}', '${rate.TaggedApi}'); console.log('AWB button clicked for rate:', ${globalRateIndex});"
+                          onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(2, 6, 61, 0.3)'"
+                          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(2, 6, 61, 0.2)'">
+                    GET AWB
+                  </button>
+                </div>
+              </div>
+
+              ${isPrimary && group.length > 1 ? `
+                <div class="position-absolute" style="top: 12px; right: 12px;">
+                  <span class="badge rounded-circle d-flex align-items-center justify-content-center" 
+                        style="width: 24px; height: 24px; font-size: 8px; cursor: pointer; font-weight: 600;
+                               background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(30, 64, 175, 0.9)); 
+                               color: white; border: 1px solid rgba(255, 255, 255, 0.8);" 
+                        onclick="toggleGroup('${groupId}')" title="+${group.length - 1} more options">
+                    +${group.length - 1}
+                  </span>
+                </div>` : ''}
+            </div>
+
+            <!-- Card Hover Effect -->
+            <div class="position-absolute top-0 start-0 w-100 h-100" 
+                 style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(99, 102, 241, 0.03)); 
+                        opacity: 0; transition: opacity 0.3s ease; pointer-events: none; border-radius: 20px;"
+                 onmouseover="this.style.opacity='1'; this.parentElement.style.transform='translateY(-5px) scale(1.02)'; this.parentElement.style.boxShadow='0 15px 35px rgba(0, 0, 0, 0.12), 0 6px 15px rgba(0, 0, 0, 0.08)'"
+                 onmouseout="this.style.opacity='0'; this.parentElement.style.transform='translateY(0) scale(1)'; this.parentElement.style.boxShadow='0 8px 25px rgba(0, 0, 0, 0.08), 0 3px 10px rgba(0, 0, 0, 0.04)'">
+            </div>
+
+            <!-- Shimmer Effect -->
+            <div class="position-absolute top-0 start-0 w-100 h-100" 
+                 style="transform: translateX(-100%); transition: transform 0.8s ease; pointer-events: none; border-radius: 20px;"
+                 onmouseover="this.style.transform='translateX(100%)'" onmouseout="this.style.transform='translateX(-100%)'">
+            </div>
+          </div>
+        </div>
+      `;
+
+                    groupHtml.push(cardHtml);
+                    innerIndex++;
+                    globalRateIndex++; // Increment the global rate index
+                  }
+
+                  // Add all courier cards horizontally in one row (scrollable)
+                  const horizontalScrollRow = `
+    
+        ${groupHtml.join('')}
+   
+    `;
+
+                  container.innerHTML += horizontalScrollRow;
+                  groupIndex++;
+                }
+
+                // Calculate and display summary
+                let allRatesWithTotal = [];
+                for (const rate of window.shippingRates) {
+                  let cgst = 0, sgst = 0, igst = 0, oda_charge = 0;
+                  
+                  if (rate.aggrigatorOdaFactor && rate.aggrigatorOdaFactor !== 0) {
+                    try {
+                      const odaResponse = await axios.get('/api/get-oda-charges', {
+                        params: {
+                          aggrigatorId: rate.Aggrigator_id,
+                          odaFactor: rate.aggrigatorOdaFactor,
+                          total_weight: shippingParams.total_weight,
+                          total_boxes: shippingParams.total_boxes,
+                          paymentType: shippingParams.paymentType,
+                          rate: rate.agrrigatorrate,
+                          base_value: rate.base_value,
+                          clientBaseValue,
+                          cod_amount: shippingParams.cod
+                        }
+                      });
+                      oda_charge = odaResponse.data?.oda_charge ? Number(odaResponse.data.oda_charge) : 0;
+                    } catch (err) {
+                      console.error("ODA API error", err);
+                    }
+                  }
+
+                  const clientGstPrefix = clientGst?.substring(0, 2);
+                  const aggregatorGstPrefix = "019CEFA8738P1ZM".substring(0, 2);
+                  if (clientGstPrefix === aggregatorGstPrefix) {
+                    cgst = (0.09 * rate.rate).toFixed(2);
+                    sgst = (0.09 * rate.rate).toFixed(2);
+                    igst = 0;
+                  } else {
+                    igst = (0.18 * rate.rate).toFixed(2);
+                  }
+
+                  const totalRate = Number(rate.rate) + Number(cgst) + Number(sgst) + Number(igst) + Number(oda_charge);
+                  allRatesWithTotal.push(totalRate);
+                }
+
+                const totalCarriers = window.shippingRates.length;
+                const cheapestRate = Math.min(...allRatesWithTotal);
+                
+                document.getElementById('shippingSummary').innerHTML = `
+                  <strong>${totalCarriers} carriers • Cheapest ₹${cheapestRate.toFixed(2)}</strong>
+                `;
+                document.getElementById('shippingSummary').style.display = 'block';
+
+                window.selectedShippingRateIndex = 0;
+
+              } catch (error) {
+                console.log("error", error?.response?.data?.error);
+                const errorMessage = error?.response?.data?.error || "An unexpected error occurred";
+                document.getElementById('shippingOptionsRow').innerHTML = `<div class="col-12 text-danger">${errorMessage}</div>`;
+                window.shippingRates = [];
+                window.selectedShippingRateIndex = null;
+              }
+
+
+
+              // window.renderTabs = function () { /* tab rendering */ }
+              // window.renderBoxContent = function () { /* box content rendering */ }
+              window.renderTabs = function () {
+                const tabContainer = document.getElementById("boxTabs");
+                tabContainer.innerHTML = "";
+                boxData.forEach((box, index) => {
+                  const tab = document.createElement("button");
+                  tab.innerHTML = `<i class="fas fa-box"></i> ${index + 1}`;
+                  tab.classList.toggle("active", index === activeBoxIndex);
+                  tab.onclick = () => {
+                    activeBoxIndex = index;
+                    renderTabs();
+                    renderBoxContent();
+                  };
+                  tabContainer.appendChild(tab);
+                });
+
+              };
+
+              window.renderBoxContent = function () {
+                const box = boxData[activeBoxIndex];
+                const container = document.getElementById("boxContentArea");
+                container.innerHTML = `
+      <div class="box-card">
+        <div class="d-flex justify-content-between mb-2 align-items-center">
+          <span class="fw-medium">BOX ${activeBoxIndex + 1}</span>
+          
+        </div>
+        <div class="mb-3">
+          
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Size</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control text-center " value="${box.size[0]}" onchange="updateSize(${activeBoxIndex}, 0, this.value)" readonly />
+            <input type="number" class="form-control text-center" value="${box.size[1]}" onchange="updateSize(${activeBoxIndex}, 1, this.value)" readonly />
+            <input type="number" class="form-control text-center" value="${box.size[2]}" onchange="updateSize(${activeBoxIndex}, 2, this.value)" readonly />
+            <span class="input-group-text">${box.unit || 'cm'}</span>
+          </div>
+          <small class="text-muted">Length + Breadth + Height should be at least 15 cm</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Package weight</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control text-center" value="${box.weight}" onchange="updateWeight(${activeBoxIndex}, this.value)" readonly/>
+            <span class="input-group-text">${box.weight_unit || 'gm'}</span>
+          </div>
+          <small class="text-muted">Packaged weight should be at least 50 grams</small>
+        </div>
+        <div class="alert alert-primary-subtle border border-primary text-muted small mt-4 mb-0 rounded-3">
+          <i class="fas fa-info-circle me-1"></i>
+          The estimated cost may vary from the final shipping cost based on the packaged dimensions & weight measured before delivery.
+        </div>
+      </div>
+    `;
+              };
+
+              window.updateSize = function (index, dimension, value) { boxData[index].size[dimension] = parseInt(value); }
+              window.updateWeight = function (index, value) { boxData[index].weight = parseInt(value); }
+              window.selectShippingMode = function (el, idx) {
+                let card = el;
+                if (!card.classList.contains('shipping-option')) card = card.previousElementSibling;
+                document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('active'));
+                card.classList.add('active');
+              }
+
+              renderTabs();
+              renderBoxContent();
+              document.getElementById('awbLoadingOverlay').style.display = 'none';
+              new bootstrap.Modal(document.getElementById('awbModal')).show();
+            }
+
+
+
+
+
+            window.updateSize = function (index, dimension, value) {
+              boxData[index].size[dimension] = parseInt(value);
+            };
+
+            // window.updateWeight = function(index, value) {
+            //   boxData[index].weight = parseInt(value);
+            // };
+
+            // window.deleteBox = function(index) {
+            //   if (boxData.length === 1) return;
+            //   boxData.splice(index, 1);
+            //   if (activeBoxIndex >= boxData.length) activeBoxIndex = boxData.length - 1;
+            //   renderTabs();
+            //   renderBoxContent();
+            // };
+
+            window.selectShippingMode = function (el, idx) {
+              // Always get the card element
+              let card = el;
+              // If the element is the button, get the previous sibling (the card)
+              if (!card.classList.contains('shipping-option')) {
+                card = card.previousElementSibling;
+              }
+              // Remove 'active' from all cards
+              document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('active'));
+              // Add 'active' to the selected card
+              card.classList.add('active');
+            };
+
+            // renderTabs();
+            // renderBoxContent();
+
+
+
+
+            function changeItemsPerPage(value) {
+              itemsPerPage = parseInt(value);
+              currentPage = 1;
+              filterOrders();
+            }
+            function filterOrders() {
+              console.log("infiltered orders")
+              const searchType = document.getElementById("searchType").value;
+              const searchText = document.getElementById("filterOrderInput").value.toLowerCase();
+              const quickRange = document.getElementById("filterQuickDate").value;
+              const pickup = document.getElementById("filterPickup").value.toLowerCase();
+              const mode = document.getElementById("filterMode").value;
+              const zone = document.getElementById("filterZone").value;
+              const fromDate = document.getElementById("filterFromDate").value;
+              const toDate = document.getElementById("filterToDate").value;
+              let client;
+              if (clientIdLogin === "0" || clientIdLogin === 0) {
+                client = document.getElementById("filterClient").value;
+              } else {
+                client = clientIdLogin;
+              }
+
+              const now = new Date();
+              const today = new Date(now.toDateString());
+              const yesterday = new Date(today);
+              yesterday.setDate(today.getDate() - 1);
+              const firstOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+              const firstOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+              const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+              console.log("order index 0", orders[0])
+
+              const filtered = orders.filter(order => {
+                const createdDate = new Date(order.order_date);
+
+
+                let matchesQuick = true;
+                if (quickRange === "today") matchesQuick = createdDate.toDateString() === today.toDateString();
+                else if (quickRange === "yesterday") matchesQuick = createdDate.toDateString() === yesterday.toDateString();
+                else if (quickRange === "last7") matchesQuick = (now - createdDate) / (1000 * 60 * 60 * 24) <= 7;
+                else if (quickRange === "last30") matchesQuick = (now - createdDate) / (1000 * 60 * 60 * 24) <= 30;
+                else if (quickRange === "thisMonth") matchesQuick = createdDate >= firstOfThisMonth;
+                else if (quickRange === "lastMonth") matchesQuick = createdDate >= firstOfLastMonth && createdDate <= endOfLastMonth;
+
+                let matchesCustomRange = true;
+                if (fromDate && toDate) {
+                  const from = new Date(fromDate);
+                  const to = new Date(toDate);
+                  matchesCustomRange = createdDate >= from && createdDate <= to;
+                }
+
+                const matchesClient = client === '' || String(order.client_id || '') === client;
+                const matchesText =
+                  (searchType === 'orderId' && (order.orderid || '').toLowerCase().includes(searchText)) ||
+                  (searchType === 'awb' && (order.awb || '').toLowerCase().includes(searchText)) ||
+                  (searchType === 'ref_number' && (order.ref_number || '').toLowerCase().includes(searchText));
+
+                const matchesPickup = pickup === '' || (order.origin || '').toLowerCase().includes(pickup);
+                const matchesMode = mode === '' || (order.payment_mode || '') === mode;
+                const matchesZone = zone === '' || (order.zone || '') === zone;
+
+                return matchesText && matchesQuick && matchesCustomRange && matchesPickup && matchesMode && matchesZone && matchesClient;
+              });
+
+              renderOrders(filtered);
+            }
+            function clearFilters() {
+              document.getElementById("filterOrderInput").value = '';
+              document.getElementById("searchType").value = 'orderId';
+              document.getElementById("filterQuickDate").value = '';
+              document.getElementById("filterPickup").value = '';
+              document.getElementById("filterMode").value = '';
+              document.getElementById("filterZone").value = '';
+              document.getElementById("filterClient").value = '';
+              document.getElementById("filterFromDate")._flatpickr.clear();
+              document.getElementById("filterToDate")._flatpickr.clear();
+
+              filterOrders();
+            }
+
+            window.onload = () => {
+              console.log("Window loaded, initializing page with orders:", orders);
+
+              try {
+                renderOrders(orders);
+                flatpickr("#filterFromDate", { dateFormat: "d M, Y", onChange: filterOrders });
+                flatpickr("#filterToDate", { dateFormat: "d M, Y", onChange: filterOrders });
+              } catch (error) {
+                console.error("Error during page initialization:", error);
+              }
+            };
+            async function getAWBForRate(idx, cgst, sgst, igst, orderId, delhiveryApiVariant, taggedApi) {
+              console.log("getAWBForRate called with idx:", idx, "orderId:", orderId);
+              console.log("window.shippingRates length:", window.shippingRates.length);
+              console.log("window.shippingRates:", window.shippingRates);
+              
+              const rate = window.shippingRates[idx];
+              console.log("Selected rate:", rate);
+              console.log("Rate Aggrigator_id:", rate?.Aggrigator_id);
+              console.log("Rate TaggedApi:", rate?.TaggedApi);
+              
+              if (!rate) {
+                console.error("No rate found for index:", idx);
+                return;
+              }
+              console.log("delivery api variant", delhiveryApiVariant)
+
+              // Get the specific order data for this orderId
+              const currentOrder = orders.find(o => o.orderid === orderId) || specificOrder;
+              console.log("currentOrder for AWB:", currentOrder);
+
+              // Disable all AWB buttons (optional if needed)
+
+              // Final LR trigger
+              if (rate.TaggedApi === null) {
+                console.log("Tagged API is null, running manualLR.");
+                apiLr = false;
+                manualLRfn(Id, clientId, manualLrForwarder, Category);
+              } else {
+                console.log("Tagged API is present, running automaticLR.");
+                console.log("Using TaggedApi:", taggedApi);
+                const LR = await automaticNewLr(rate, cgst, sgst, igst, currentOrder, delhiveryApiVariant, taggedApi);
+                console.log("LR generated:", LR);
+              }
+            }
+            const manualLRfn = () => {
+              alert("kdhjskdhksd manula lrfn")
+            }
+            // const automaticNewLr = ()=>{
+            //   alert("dksdksdksd automatic lr fn")
+            // }
+            async function handleDelhiveryAWB(serviceType, specificOrder, payload, rate, cgst, sgst, igst, idPk) {
+              console.log("in the delivery standard", clientpaymentMode);
+
+              try {
+                const response = await axios.post(
+                  '/api/delhivery-create-order',
+                  { data: payload, rate: rate, cgst: cgst, sgst: sgst, igst: igst, idPk: idPk, client_id: client_id, clientpaymentMode: clientpaymentMode },
+                  { headers: { 'Content-Type': 'application/json' } }
+                );
+                console.log("Delhivery Standard API Response:", response.data);
+
+                const packages = response.data.packages || [];
+                const waybillNumbers = packages.map(pkg => pkg.waybill);
+
+                if (waybillNumbers.length > 0 && waybillNumbers[0] !== '') {
+                  
+                 
+
+                  // Show success alert for LR generation
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: `LR is saved with the generated LR: ${waybillNumbers[0]}`,
+                    customClass: {
+                      container: 'swal-high-zindex'
+                    }
+                  });
+                }
+
+                return waybillNumbers.join(', ') || null;
+              } catch (error) {
+                console.error("Error in Delhivery AWB:", error);
+                // Show error alert
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error!',
+                  text: 'Failed to create Delhivery order.',
+                  customClass: {
+                    container: 'swal-high-zindex'
+                  }
+                });
+              }
+            }
+            async function automaticNewLr(rate, cgst, sgst, igst, order, delhiveryApiVariant, taggedApi) {
+              console.log("data coming from automaticNewLr", rate, cgst, sgst, igst, order, delhiveryApiVariant);
+
+              const serviceType = rate.service_type;
+              // const TaggedApi = rate.TaggedApi;
+              // console.log("TaggedApi", TaggedApi)
+
+              let customerCode = customerCodeStd;
+              let dtdcApiKey = apiKeyStd;
+              let serviceTypeId = rate.forwarderServiceType;
+
+              console.log("serviceTypeId", serviceTypeId);
+              console.log("customerCode", customerCode);
+              console.log("dtdcApiKey", dtdcApiKey);
+
+              const sellerDetails = await fetchSellerDetails(order.client_id);
+
+              const options = {
+                codAmount: order.collectable_amount || order.grand_total || order.Check_Amount || order.Invoice_amount || 0,
+                allocation: rate.forwarderServiceType || '',
+                customerCode: customerCode,
+                pickHubCode: rate.pickHubCode || '',
+                piecesDetails: rate.piecesDetails || [],
+                sellerDetails: sellerDetails,
+                Po_Products: order.products || [],
+                courierId: rate.courierId || '',
+                token: dtdcApiKey || rate.apiToken || '',
+                length: box_dimensions[0].length || 1,
+                breadth: box_dimensions[0].breadth || 1,
+                height: box_dimensions[0].height || 1,
+                aggrigatorName: rate.Aggrigator || '',
+              };
+              console.log("options", options);
+
+              const payload = generateAWBPayload(taggedApi, order, options, customerCode, serviceTypeId);
+              // console.log("tagged api", taggedApi);
+
+              console.log("Generated AWB payload:", payload);
+              console.log("Using TaggedApi from parameter:", taggedApi);
+              const taggedApiLower = taggedApi.toLowerCase();
+              // const taggedApiLower = 'expressbees'
+              let lr = null;
+              let successMessage = '';
+              let errorMessage = '';
+
+              try {
+                switch (taggedApiLower) {
+                  case "dtdc":
+                    lr = await handleDtdcAWB(serviceType, order, payload, dtdcApiKey, rate);
+                    break;
+                  case "delhivery":
+                    const waybillNumbers = await handleDelhiveryAWB(serviceType, order, payload, rate, cgst, sgst, igst, order.id, order.client_id, clientpaymentMode, delhiveryApiVariant);
+
+                    // Check if waybill numbers are returned
+                    if (waybillNumbers.length > 0) {
+                      successMessage = `LR is saved with the generated LR: ${waybillNumbers[0]}`;
+                    } else {
+                      errorMessage = 'No waybill numbers returned.';
+                    }
+                    break;
+                  case "xpressbees":
+                    lr = await handleExpressbeesAWB(serviceType, order, payload, rate, cgst, sgst, igst, order.id, order.client_id, clientpaymentMode);
+                    
+                    // Check if response object is returned
+                    if (lr && lr.awb_number) {
+                      successMessage = lr.message || `ExpressBees LR successfully saved with AWB: ${lr.awb_number}`;
+                    } else {
+                      errorMessage = 'No AWB number returned from ExpressBees.';
+                    }
+                    break;
+                  default:
+                    console.warn("Unsupported forwarder:", taggedApi);
+                    errorMessage = 'Unsupported forwarder.';
+                }
+
+                // Commented out wallet update logic for now
+               
+              } catch (err) {
+                console.error("AWB API Call Failed:", err);
+                console.log("Full error object:", err);
+                console.log("Error response:", err.response);
+                console.log("Error response data:", err.response?.data);
+                
+                // Enhanced error handling with better debugging
+                if (err.response && err.response.data) {
+                  const { error, errorType } = err.response.data;
+                  console.log("Extracted error:", error);
+                  console.log("Extracted errorType:", errorType);
+                  
+                  if (errorType === 'insufficient_balance' || errorType === 'wallet_error') {
+                    // Wallet error - simple message
+                    console.log("Showing wallet error alert");
+                    Swal.fire({
+                      icon: 'warning',
+                      title: 'Wallet Issue',
+                      text: error || 'Wallet related error occurred',
+                      confirmButtonText: 'OK',
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                    return; // Exit function for wallet errors
+                  } else if (errorType === 'delivery_error') {
+                    // Delivery API error
+                    console.log("Showing delivery error alert");
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Delivery API Error',
+                      text: error || 'Delivery API error occurred',
+                      confirmButtonText: 'OK',
+                      customClass: {
+                        container: 'swal-high-zindex'
+                      }
+                    });
+                    return; // Exit function for delivery errors
+                  } else {
+                    console.log("Setting system error message");
+                    errorMessage = error || 'System error occurred'; // System error
+                  }
+                } else if (err.message) {
+                  console.log("Using err.message");
+                  errorMessage = err.message;
+                } else {
+                  console.log("Using default error message");
+                  errorMessage = 'Failed to generate AWB. Please try again.';
+                }
+              }
+
+              // Show SweetAlert notifications based on success or error messages
+              if (successMessage) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success!',
+                  text: successMessage,
+                  customClass: {
+                    container: 'swal-high-zindex'
+                  }
+                });
+                window.location.href = '/express/unprocessed-orders';
+              }
+
+              if (errorMessage) {
+                // Show system error with high z-index
+                Swal.fire({
+                  icon: 'error',
+                  title: 'System Error',
+                  text: errorMessage,
+                  confirmButtonText: 'OK',
+                  customClass: {
+                    container: 'swal-high-zindex'
+                  }
+                });
+              }
+
+              return lr;
+            }
+
+
+            async function handleDtdcAWB(serviceType, specificOrder, payload, dtdcApiKey, rate) {
+              if (serviceType === "LTL") {
+                const serviceabilityCheckResponse = await axios.get("/dtdc/pincode-check", {
+                  params: {
+                    origin: specificOrder.origin_pincode,
+                    destination: specificOrder.destination_pincode
+                  }
+                });
+
+                if (!serviceabilityCheckResponse.data.serviceable) {
+                  await swal({
+                    title: "Error!",
+                    text: serviceabilityCheckResponse.data.message,
+                    icon: "error",
+                    button: " OK",
+                  }).then(() => {
+                    window.location.href = "/unprocessed-orders";
+                  });
+                  return null;
+                }
+
+                await swal({
+                  title: "Success!",
+                  text: "Both origin and destination pincodes are serviceable.",
+                  icon: "success",
+                  button: "OK",
+                });
+              } else if (serviceType === "Standard") {
+                console.log("Handling DTDC Standard service type – skipping pincode check.");
+              }
+
+              const response = await axios.post(
+                'https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata',
+                payload,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'api-key': dtdcApiKey,
+                  }
+                }
+              );
+
+              console.log(serviceType === "Standard" ? "DTDC Standard Response:" : "DTDC Response:", response.data);
+              console.log(serviceType === "LTL" ? "DTDC Standard Response Data:" : "DTDC Response Data:", response.data?.data);
+              const referenceNumber = response.data?.data?.[0]?.reference_number;
+
+              if (referenceNumber && clientpaymentMode !== 'postpaid') {
+                try {
+                  const updateWalletResponse = await axios.post('/update-wallet', {
+                    clientId: specificOrder.client_id,
+                    totalRate: Number(rate.rate),
+                    po_no: specificOrder.po_no,
+                    order_id: specificOrder.order_id,
+                    lr_no: referenceNumber,
+                    description: "DTDC",
+                  });
+                  console.log("Wallet Update Response:", updateWalletResponse.data);
+                } catch (error) {
+                  console.error("Error updating wallet:", error);
+                }
+              }
+
+              return referenceNumber || null;
+            }
+
+
+
+            async function handleDelhiveryAWB(serviceType, specificOrder, payload, rate, cgst, sgst, igst, idPk, client_id, clientpaymentMode, delhiveryApiVariant) {
+              if (serviceType === "LTL") {
+                const originCheck = await axios.get("/delivery_ltl/pincode-check", {
+                  params: { pincode: specificOrder.origin_pincode }
+                });
+                const destCheck = await axios.get("/delivery_ltl/pincode-check", {
+                  params: { pincode: specificOrder.destination_pincode }
+                });
+
+                if (!originCheck.data.serviceable || !destCheck.data.serviceable) {
+                  await Swal.fire({
+                    title: "Error!",
+                    text: !originCheck.data.serviceable ? originCheck.data.message : destCheck.data.message,
+                    icon: "error",
+                    confirmButtonText: "OK",
+                    customClass: {
+                      container: 'swal-high-zindex'
+                    }
+                  }).then(() => {
+                    window.location.href = "/unprocessed-orders";
+                  });
+                  return null;
+                }
+
+                await Swal.fire({
+                  title: "Success!",
+                  text: "Both pincodes are serviceable. Processing LR.",
+                  icon: "success",
+                  confirmButtonText: "Continue",
+                  customClass: {
+                    container: 'swal-high-zindex'
+                  }
+                });
+
+                await Swal.fire({
+                  title: 'Processing...',
+                  text: 'Please wait while we process the Delhivery data.',
+                  allowOutsideClick: false,
+                  showConfirmButton: false,
+                  customClass: {
+                    container: 'swal-high-zindex'
+                  },
+                  didOpen: async () => {
+                    Swal.showLoading();
+                    try {
+                      await processDelhivery(specificOrder.client_id);
+                      await fetchManifestWithDelay();
+                      Swal.close();
+                    } catch (error) {
+                      console.error('Error during Delhivery process:', error);
+                      Swal.fire({
+                        title: 'Error!',
+                        text: 'Something went wrong while processing Delhivery data.',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        customClass: {
+                          container: 'swal-high-zindex'
+                        }
+                      });
+                    }
+                  }
+                });
+                return "PENDING_MANIFEST";
+              } else {
+                console.log("in the delivery standard", clientpaymentMode);
+
+                try {
+                  const response = await axios.post(
+                    '/api/delhivery-create-order',
+                    { data: payload, rate: rate, cgst: cgst, sgst: sgst, igst: igst, idPk: idPk, client_id: client_id, clientpaymentMode: clientpaymentMode, delhiveryApiVariant },
+                    { headers: { 'Content-Type': 'application/json' } }
+                  );
+                  console.log("Delhivery Standard API Response:", response.data.data);
+
+                  const packages = response.data.data.packages || [];
+                  const waybillNumbers = packages.map(pkg => pkg.waybill);
+
+                  // Return waybill numbers for further processing
+                  return waybillNumbers;
+                } catch (error) {
+                  console.error("Error in Delhivery AWB:", error);
+                  // Preserve the original error message and status for better error handling
+                  throw error; // Pass the original error to the calling function
+                }
+              }
+            }
+
+            async function handleExpressbeesAWB(serviceType, specificOrder, payload, rate, cgst, sgst, igst, idPk, client_id, clientpaymentMode) {
+              try {
+                const response = await axios.post(
+                  '/api/expressbees-create-order',
+                  {
+                    data: payload,
+                    rate,
+                    cgst,
+                    sgst,
+                    igst,
+                    idPk,
+                    client_id,
+                    clientpaymentMode
+                  },
+                  {
+                    headers: { 'Content-Type': 'application/json' }
+                  }
+                );
+
+                console.log("✅ ExpressBees API Response:", response.data);
+
+                const awb_number = response.data?.awb_number || null;
+                const successMessage = response.data?.message || null;
+
+                if (awb_number && successMessage) {
+                  return { awb_number, message: successMessage };
+                } else if (awb_number) {
+                  return { awb_number, message: `ExpressBees order created with AWB: ${awb_number}` };
+                } else {
+                  throw new Error('AWB number not generated by ExpressBees');
+                }
+              } catch (error) {
+                console.error('❌ Error calling /api/expressbees-create-order:', error?.response?.data || error.message);
+                // Throw the error instead of returning null so it can be properly handled
+                throw error;
+              }
+            }
+
+
+            function generateAWBPayload(taggedApi, specificOrder, options = {}, customerCode, serviceTypeId) {
+              if (!taggedApi) throw new Error("Tagged API not provided");
+              const tag = taggedApi.toLowerCase();
+              console.log("serviceTypeId", serviceTypeId)
+              console.log("customercode", customerCode)
+              console.log("options dot pocproducts cominf from the generateAWBPayload", options.Po_Products)
+              if (tag.includes("dtdc")) {
+                return {
+                  consignments: [
+                    {
+                      origin_details: {
+                        name: specificOrder.warehouse.warehouse_name,
+                        phone: specificOrder.warehouse.warehouse_contact_person,
+                        alternate_phone: specificOrder.warehouse_contact_person,
+                        address_line_1: specificOrder.warehouse.warehouse_address,
+                        address_line_2: specificOrder.warehouse.warehouse_address,
+                        state: specificOrder.warehouse.warehouse_state,
+                        city: specificOrder.warehouse.warehouse_city,
+                        pincode: specificOrder?.warehouse?.warehouse_pincode
+                      },
+                      destination_details: {
+                        name: `${specificOrder.consignee.first_name} ${specificOrder.consignee.last_name}`.trim() || specificOrder.consignee_name,
+                        phone: specificOrder.consignee.phone || specificOrder.consignee_phone || specificOrder.consignee_name,
+                        address_line_1: specificOrder.consignee.address_line1 || specificOrder.consignee_address,
+                        address_line_2: specificOrder.consignee.address_line2 || specificOrder.consignee.address_line1 || specificOrder.consignee_address || "",
+                        state: specificOrder.consignee.state || specificOrder.destination_state,
+                        city: specificOrder.consignee.city || specificOrder.destination_city,
+                        pincode: specificOrder.consignee.pincode || specificOrder.destination_pincode
+                      },
+                      pay_basis: "TBB",
+                      dimension_unit: "cm",
+                      length: options.length,
+                      width: options.breadth,
+                      height: options.height,
+                      weight_unit: "kg",
+                      weight: specificOrder.weight_unit === 'gm' ? (specificOrder.total_weight / 1000) : specificOrder.total_weight,
+                      declared_value: options.codAmount,
+                      service_type_id: serviceTypeId,
+                      is_risk_surcharge_applicable: false,
+                      commodity_name: options.Po_Products[0].name || "mixed",
+                      num_pieces: specificOrder.box_qty,
+                      reference_number: "",
+                      customer_reference_number: specificOrder.orderid,
+                      Pickup_hub_code: options.pickHubCode,
+                      customer_code: customerCode,
+                    }
+                  ]
+                };
+              } else if (tag.includes("delhivery")) {
+
+                const seller_inv_date = isoUtcToIstMySQL(specificOrder.created_at);
+                console.log("data in correct format", seller_inv_date)
+                console.log("specific order in delivery payload", specificOrder)
+
+                return {
+                  pickup_location: {
+                    add: specificOrder.warehouse.warehouse_address,
+                    country: "India",
+                    pin: specificOrder.warehouse?.warehouse_pincode
+                    ,
+                    phone: specificOrder.warehouse.warehouse_contact_person,
+                    alternate_phone: specificOrder.warehouse.warehouse_contact_person,
+                    city: specificOrder.warehouse.warehouse_city,
+                    name: specificOrder.warehouse.warehouse_name
+                    ,
+                    state: specificOrder.warehouse.warehouse_state
+                  },
+                  shipments: [
+                    {
+                      country: "India",
+                      city: specificOrder.consignee.city,
+                      seller_add: specificOrder.warehouse.warehouse_address,
+                      cod_amount: specificOrder.payment_type?.toLowerCase() === 'cod' ? specificOrder.Amount : "0",
+                      return_phone: specificOrder.warehouse.warehouse_contact_person,
+                      seller_inv_date: seller_inv_date,
+                      seller_name: options.sellerDetails.company_name,
+                      pin: specificOrder.consignee.pincode,
+                      seller_inv: specificOrder.invoice_no || "",
+                      state: specificOrder.consignee.state,
+                      return_name: specificOrder.warehouse.warehouse_name,
+                      order: specificOrder.orderid,
+                      add: specificOrder.consignee.address_line1,
+                      payment_mode: specificOrder.payment_type === 'prepaid' ? "Prepaid" : specificOrder.payment_type,
+                      quantity: specificOrder.box_qty,
+                      return_add: specificOrder.warehouse.warehouse_address,
+                      seller_cst: options.sellerDetails.cst || "",
+                      seller_tin: "",
+                      phone: specificOrder.consignee.phone,
+                      total_amount: specificOrder.Invoice_amount,
+                      name: `${specificOrder.consignee.first_name} ${specificOrder.consignee.last_name}`,
+                      return_country: "India",
+                      return_city: specificOrder.warehouse.warehouse_city,
+                      return_state: specificOrder.warehouse.warehouse_state,
+                      return_pin: specificOrder.warehouse?.warehouse_pincode,
+                    }
+                  ]
+                };
+              } else if (tag.includes("xpressbees")) {
+                const totalWeight = specificOrder.total_weight;
+                const aggregatorName = (options.aggrigatorName || '').toLowerCase();
+                console.log("aggregatorName", aggregatorName)
+
+
+
+                let Category = aggregatorName.includes('air') ? 'Standard-Air' : 'Standard-Surface';
+                console.log("category", Category)
+                let courierId;
+
+                if (totalWeight <= 500) {
+                  courierId = Category === "Standard-Air" ? "6" : "1";
+                } else if (totalWeight <= 1000) {
+                  courierId = "12298";
+                } else if (totalWeight <= 2000) {
+                  courierId = "2000";
+                } else if (totalWeight <= 10000) {
+                  courierId = "4";
+                }
+                return {
+                  order_number: specificOrder.orderid,
+                  unique_order_number: "yes",
+                  payment_type: specificOrder.payment_type === "prepaid" ? "prepaid" : "cod",
+                  order_amount: specificOrder.payment_type === "prepaid"
+                    ? specificOrder.grand_total
+
+                    : specificOrder.grand_total,
+                  collectable_amount: specificOrder.payment_type === "prepaid"
+                    ? 0
+                    : options.codAmount,
+                  package_weight: Math.ceil(specificOrder.total_weight),
+                  package_length: options.length,
+                  package_breadth: options.breadth,
+                  package_height: options.height,
+                  request_auto_pickup: "yes",
+                  consignee: {
+                    name: `${specificOrder.consignee.first_name} ${specificOrder.consignee.last_name}`,
+                    address: specificOrder.consignee.address_line1,
+                    address_2: specificOrder.consignee.address_line2 || specificOrder.consignee.address_line1 || "",
+                    city: specificOrder.consignee.city || specificOrder.destination_city,
+                    state: specificOrder.consignee.state || specificOrder.destination_state,
+                    pincode: specificOrder.consignee.pincode || specificOrder.destination_pincode,
+                    phone: specificOrder.consignee.phone || specificOrder.consignee_phone || ""
+                  },
+                  pickup: {
+                    warehouse_name: specificOrder.warehouse.warehouse_name?.slice(0, 30) || specificOrder.warehouse_name?.slice(0, 30),
+                    name: specificOrder.warehouse.warehouse_name || specificOrder.warehouse_name,
+                    address: specificOrder.warehouse.warehouse_address || specificOrder.warehouse_address,
+                    address_2: specificOrder.warehouse.warehouse_address ? specificOrder.origin2 : specificOrder.origin,
+                    city: specificOrder.warehouse.warehouse_city || specificOrder.origin_city,
+                    state: specificOrder.warehouse.warehouse_state || specificOrder.origin_state,
+                    pincode: specificOrder.warehouse.warehouse_pincode || specificOrder.origin_pincode,
+                    phone: specificOrder.warehouse.warehouse_contact_person
+                  },
+                  order_items: (options.Po_Products || []).map(product => ({
+                    name: product.name,
+                    qty: product.quantity?.toString(),
+                    price: product.price,
+                    sku: product.sku
+                  })),
+                  courier_id: courierId,
+                  collectable_amount: specificOrder.payment_type === "prepaid" ? 0 : options.codAmount
+                };
+              }
+
+              throw new Error("Unsupported Tagged API: " + taggedApi);
+            }
+            function isoUtcToIstMySQL(isoUtc) {
+              if (!isoUtc) return null;
+              const utc = new Date(isoUtc);                 // e.g., "2025-07-31T10:56:00.000Z" (UTC)
+              const istMs = utc.getTime() + 5.5 * 60 * 60 * 1000; // add +05:30 offset
+              const ist = new Date(istMs);
+
+              const pad = n => String(n).padStart(2, '0');
+              const yyyy = ist.getUTCFullYear();
+              const mm = pad(ist.getUTCMonth() + 1);
+              const dd = pad(ist.getUTCDate());
+              const HH = pad(ist.getUTCHours());
+              const mi = pad(ist.getUTCMinutes());
+              const ss = pad(ist.getUTCSeconds());
+              return `${yyyy}-${mm}-${dd} ${HH}:${mi}:${ss}`;
+            }
+
+            async function fetchSellerDetails(clientId) {
+              try {
+                const response = await axios.get(`/sellerDetails/${clientId}`);
+                return response.data || {};
+              } catch (error) {
+                console.error("Failed to fetch seller details:", error);
+                return {};
+              }
+            }
+
+          </script>
+          
+          <style>
+            /* Enhanced SweetAlert styling */
+            .swal-error-popup {
+              border-radius: 16px !important;
+              box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .swal-confirm-btn {
+              border-radius: 25px !important;
+              padding: 10px 20px !important;
+              font-weight: 600 !important;
+            }
+            
+            /* SweetAlert should appear above modals but not block them */
+            .swal2-container {
+              z-index: 10500 !important;
+            }
+            
+            .swal2-popup {
+              z-index: 10500 !important;
+            }
+            
+            .swal2-backdrop-show {
+              z-index: 10400 !important;
+            }
+            
+            /* Custom class for high z-index */
+            .swal-high-zindex {
+              z-index: 10500 !important;
+            }
+            
+            /* Ensure modals can still open properly */
+            .modal {
+              z-index: 10000 !important;
+            }
+            
+            .modal-backdrop {
+              z-index: 9900 !important;
+            }
+            
+            /* Fix for SweetAlert button styling */
+            .swal2-actions button {
+              margin: 0 5px !important;
+            }
+          </style>
+
+         
+
+        </body>
+
+</html>

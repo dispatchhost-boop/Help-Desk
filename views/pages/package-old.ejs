@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../partials/head') %>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <style>
+      /* Active card style */
+      .active-card {
+        border: 3px solid #007bff;
+        box-shadow: 0px 0px 15px rgba(0, 123, 255, 0.5);
+        transition: all 0.3s ease;
+      }
+
+      .offcanvas {
+        width: 85% !important;
+        /* Adjust the width as needed */
+      }
+
+      .offcanvas-body {
+        padding: 20px;
+      }
+
+      /* Inactive (grayscale) style */
+      .inactive-card {
+        filter: grayscale(100%);
+        transition: all 0.3s ease;
+      }
+
+      .row-hover:hover {
+        background-color: #dcff8b;
+        /* Change background color on hover */
+      }
+
+      .row-active-cd {
+        background-color: #dcff8b;
+        /* Change background color on hover */
+      }
+
+      .row-hover {
+        transition: background-color 0.3s ease;
+      }
+    </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+    <!-- HEADER -->
+    <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %> <%- include('../partials/right-iconbar') %>
+
+          <!-- MAIN CONTENT -->
+          <div id="main-content">
+            <div class="container-fluid">
+              <div class="container card py-5 p-4">
+                <h2 class="fw-bold mb-4">Client Package Manager</h2>
+                <div class="mb-4">
+                  
+                 
+                </div>
+                <div id="packageCards" class="row g-4"></div>
+                <div id="courierSection"></div>
+                <div class="col-md-12 mb-1" id="rateEntryBox">
+                  <!-- Dynamically fill with LTL or Express rate UI -->
+                </div>
+              </div>
+
+              <!-- Offcanvas for package couriers -->
+              <div class="offcanvas offcanvas-end" tabindex="-1" id="courierOffcanvas">
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="offcanvasTitle">Couriers</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <div class="d-flex justify-content-between mb-3">
+                    <input id="courierSearch" type="text" class="form-control me-2" placeholder="Search couriers..."
+                      oninput="renderCourierList()" />
+                    <button class="btn btn-success" onclick="addCourier()">
+                      Add Courier
+                    </button>
+                  </div>
+                  <div class="mb-2">
+                    <select class="form-select" onchange="sortCouriers(this.value)">
+                      <option value="">Sort by...</option>
+                      <option value="name">Name</option>
+                      <option value="status">Status</option>
+                    </select>
+                  </div>
+                  <div id="courierList"></div>
+
+                </div>
+              </div>
+
+              <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+              <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+              <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+              <script>
+                const packageColors = {
+                  'basic': '#4e73df',
+                  'basic-lite': '#36b9cc',
+                  'lite-pro': '#5bc0de',
+                  'premium': '#1cc88a',
+                  'advance': '#f6c23e',
+                  'advance-pro': '#e74a3b',
+                  'enterprise': '#858796'
+                };
+                
+
+
+                let currentPackage = '';
+                async function loadClientPackages(clientId = null) {
+  const container = document.getElementById('packageCards');
+  const courierSection = document.getElementById('courierSection');
+  const ratebox  = document.getElementById("rateEntryBox");
+
+  ratebox.innerHTML= '';
+  courierSection.innerHTML = '';
+  container.innerHTML = '';
+
+  // Build endpoint depending on mode
+  const endpoint = clientId ? `/package/client/${clientId}` : `/package/client`;
+
+  try {
+    const response = await axios.get(endpoint);
+    const data = response.data;
+
+    const onePackages = data.onePackages || [];
+    const customPackages = data.customPackages || [];
+    const courierData = data.courierData || {};
+
+    // Wrappers
+    const onePkgWrapper = document.createElement('div');
+    onePkgWrapper.className = 'row mb-4';
+    const customPkgWrapper = document.createElement('div');
+    customPkgWrapper.className = 'row';
+
+    // One Packages
+    onePackages.forEach(pkg => {
+      const col = document.createElement('div');
+      col.className = 'col-md-4 mb-3';
+
+      const card = document.createElement('div');
+      card.className = 'package-card card';
+      card.style.borderLeftColor = packageColors[pkg] || '#0d6efd';
+      card.onclick = () => openPackage(pkg, courierData);
+
+      const activeCount = (courierData[pkg] || []).filter(c => c.active).length;
+      const inactiveCount = (courierData[pkg] || []).length - activeCount;
+
+      card.innerHTML = `
+        <div class="card-body">
+          <h5 class="package-title">${pkg.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h5>
+          <div class="package-count">${activeCount} Active / ${inactiveCount} Inactive</div>
+          <span class="badge bg-primary me-1">One Package</span>
+        </div>
+      `;
+
+      col.appendChild(card);
+      onePkgWrapper.appendChild(col);
+    });
+
+    // Custom Packages
+    if (customPackages.length > 0) {
+      const allCustomCouriers = [];
+      customPackages.forEach(pkg => {
+        if (courierData[pkg]) {
+          allCustomCouriers.push(...courierData[pkg]);
+        }
+      });
+
+      const activeCount = allCustomCouriers.filter(c => c.active).length;
+      const inactiveCount = allCustomCouriers.length - activeCount;
+
+      const col = document.createElement('div');
+      col.className = 'col-md-4 mb-3';
+
+      const card = document.createElement('div');
+      card.className = 'package-card card';
+      card.style.borderLeftColor = '#6c757d';
+      card.onclick = () => openCustomPackage(customPackages, courierData);
+
+      card.innerHTML = `
+        <div class="card-body">
+          <h5 class="package-title">Custom Packages</h5>
+          <div class="package-count">${activeCount} Active / ${inactiveCount} Inactive</div>
+          <span class="badge bg-warning text-dark me-1">Custom Package</span>
+        </div>
+      `;
+
+      col.appendChild(card);
+      customPkgWrapper.appendChild(col);
+    }
+
+    // Headers + Wrappers
+    if (onePkgWrapper.children.length > 0) {
+      const oneHeader = document.createElement('h4');
+      oneHeader.textContent = 'One Packages';
+      container.appendChild(oneHeader);
+      container.appendChild(onePkgWrapper);
+    }
+
+    if (customPkgWrapper.children.length > 0) {
+      const customHeader = document.createElement('h4');
+      customHeader.textContent = 'Custom Packages';
+      container.appendChild(customHeader);
+      container.appendChild(customPkgWrapper);
+    }
+
+    // Store globally
+    window.currentCourierData = courierData;
+    window.currentCustomPackages = customPackages;
+
+  } catch (err) {
+    console.error('Failed to load package data:', err);
+    container.innerHTML = '<div class="alert alert-danger">Failed to load package data.</div>';
+  }
+}
+
+// Run on DOM load (no ID)
+document.addEventListener('DOMContentLoaded', function() {
+  loadClientPackages();
+});
+
+// Run on dropdown change (with ID)
+document.getElementById('clientSelect')?.addEventListener('change', function() {
+  const selectedId = this.value;
+  loadClientPackages(selectedId);
+});
+
+                function openPackage(pkg, courierData) {
+  window.currentPackage = pkg;
+  window.currentCourierData = courierData;
+  document.getElementById('courierSection').innerHTML = `
+    <div class="container card py-4 p-3 mt-4">
+      <h5 class="fw-bold mb-3">Couriers for ${pkg.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h5>
+      <input type="text" id="courierSearch" class="form-control mb-3" placeholder="Search courier..." oninput="renderCourierList()">
+      <div id="courierList" class="row"></div>
+    </div>
+  `;
+  renderCourierList();
+}
+
+function openCustomPackage(packageList, courierData) {
+  window.currentPackage = null;
+  window.currentCourierData = courierData;
+  let combined = [];
+  packageList.forEach(pkg => {
+    if (courierData[pkg]) {
+      combined.push(...courierData[pkg]);
+    }
+  });
+  courierData['__custom_combined__'] = combined;
+  window.currentPackage = '__custom_combined__';
+
+  document.getElementById('courierSection').innerHTML = `
+    <div class="container card py-4 p-3 mt-4">
+      <h5 class="fw-bold mb-3">Couriers for Custom Packages</h5>
+      <input type="text" id="courierSearch" class="form-control mb-3" placeholder="Search courier..." oninput="renderCourierList()">
+      <div id="courierList" class="row"></div>
+    </div>
+  `;
+  renderCourierList();
+}
+
+                function renderCourierList() {
+  const listContainer = document.getElementById('courierList');
+  listContainer.innerHTML = '';
+  const filter = document.getElementById('courierSearch').value.toLowerCase();
+  const couriers = window.currentCourierData[window.currentPackage] || [];
+
+  if (couriers.length === 0) {
+    listContainer.innerHTML = `
+      <div class="col-12 text-center py-4 text-muted">
+        <i class="fas fa-box-open fa-2x mb-2"></i>
+        <div>No couriers found.</div>
+      </div>
+    `;
+    return;
+  }
+
+  couriers
+    .filter(c => c.name.toLowerCase().includes(filter))
+    .forEach((courier, index) => {
+      const row = document.createElement('div');
+      row.className = 'col-12 row-hover mb-2 p-2 bg-white rounded shadow-sm';
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      let actionHtml = '';
+if (window.currentPackage === '__custom_combined__') {
+  // Custom package: show "Custom Price"
+  actionHtml = `
+    <button class="btn btn-sm btn-light border me-2" title="Custom Price"
+      onclick="editCourier('${courier.client_id}', '${courier.aggrigator_id}', ${index}, false)">
+      <i class="fas fa-rupee-sign" style="color:#5a99fc"></i> Edit
+    </button>
+  `;
+} else {
+  // One package: show "Edit"
+  actionHtml = `
+    <button class="btn btn-sm btn-light border me-2" title="Edit"
+      onclick="editCourier('${courier.client_id}', '${courier.aggrigator_id}', ${index}, true)">
+      <i class="fas fa-edit" style="color:#5a99fc"></i> Custom Price
+    </button>
+  `;
+}
+      row.innerHTML = `
+        <div class="d-flex align-items-center" style="flex:2">
+          <img src="https://via.placeholder.com/48" class="rounded border" style="width:48px;height:48px;object-fit:contain;margin-right:12px;">
+          <div>
+            <h6 class="mb-1 fw-bold">${courier.name}</h6>
+            <div class="text-muted small">${courier.aggrigator_id ? 'Aggregator: ' + courier.aggrigator_id : ''}</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-center" style="flex:1">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox"
+              id="statusToggle${index}"
+              ${courier.active ? 'checked' : ''}
+              onchange="toggleCourier('${courier.client_id}', '${courier.aggrigator_id}', ${index})">
+            <label class="form-check-label ms-2" for="statusToggle${index}">
+              ${courier.active ? 'Active' : 'Inactive'}
+            </label>
+          </div>
+        </div>
+${actionHtml}
+      `;
+      listContainer.appendChild(row);
+    });
+}
+
+                async function toggleCourier(clientId, aggrigatorId, index) {
+  const newStatus = !window.currentCourierData[window.currentPackage][index].active;
+  try {
+    await axios.post('/api/courier/toggle', {
+      client_id: clientId,
+      aggrigator_id: aggrigatorId,
+      active: newStatus ? 1 : 0
+    });
+    window.currentCourierData[window.currentPackage][index].active = newStatus;
+    renderCourierList();
+    loadClientPackages();
+  } catch (err) {
+    alert('Failed to update status!');
+  }
+}
+
+async function editCourier(clientId, aggrigatorId, index, isCopy = false) {
+  try {
+    // Fetch data from backend
+    const { data: expressData } = await axios.get(`/api/express-lp-rate-list/${clientId}/${aggrigatorId}`);
+
+    // Correct variable used here
+    renderExpressRateUI(expressData, isCopy,clientId,aggrigatorId);
+  } catch (err) {
+    console.error('Error fetching express data:', err);
+    alert('Failed to fetch courier data!');
+  }
+}
+
+function openCourierEditForm(courierData, isCopy) {
+  // Show modal or inline form
+  // Pre-fill fields with courierData
+  // If isCopy, set form mode to "create" and clear ID
+  document.getElementById('courierNameInput').value = courierData.name;
+  // ... other fields
+
+  if (isCopy) {
+    document.getElementById('formMode').value = 'copy';
+    // Optionally clear ID or set a flag
+  } else {
+    document.getElementById('formMode').value = 'edit';
+    document.getElementById('courierIdInput').value = courierData.id;
+  }
+
+  // Show the form/modal
+  $('#courierEditModal').modal('show');
+}
+
+async function saveCourier() {
+  const mode = document.getElementById('formMode').value;
+  const data = {
+    name: document.getElementById('courierNameInput').value,
+    // ...other fields
+  };
+
+  if (mode === 'edit') {
+    // Update existing
+    const id = document.getElementById('courierIdInput').value;
+    await axios.put(`/api/courier/${id}`, data);
+  } else if (mode === 'copy') {
+    // Create new
+    await axios.post('/api/courier', data);
+  }
+  // Refresh list, close modal, etc.
+}
+
+                function deleteCourier(clientId, aggrigatorId, index) {
+                  if (confirm('Are you sure you want to delete this courier?')) {
+                    // Use clientId and aggrigatorId for your backend API call
+                    window.currentCourierData[window.currentPackage].splice(index, 1);
+                    renderCourierList();
+                    loadClientPackages();
+                  }
+                }
+
+                function addCourier() {
+                  const name = prompt('Enter courier name:');
+                  if (name) {
+                    if (!courierData[currentPackage]) courierData[currentPackage] = [];
+                    courierData[currentPackage].push({ name, active: true });
+                    renderCourierList();
+                    loadClientPackages();
+                  }
+                }
+
+                function sortCouriers(type) {
+                  const list = window.currentCourierData[window.currentPackage];
+                  if (!list) return;
+                  if (type === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+                  if (type === 'status') list.sort((a, b) => b.active - a.active);
+                  renderCourierList();
+                }
+                 // 1. Function Signature and Data Check
+        function renderExpressRateUI(data,isCopy,clientId,logisticsId) {
+          console.log("api",isCopy,clientId)
+          // Accepts the full response object: { slabs: [...], express_additional_charges: [...], volumetric_factor, min_chargeable_weight }
+          if (!data || !Array.isArray(data.slabs) || data.slabs.length === 0) {
+            rateEntryBox.innerHTML = `<div class="alert alert-warning">No rate data found.</div>`;
+            return;
+          }
+          const slabs = data.slabs;
+          const expressAdditionalCharges = Array.isArray(
+            data.express_additional_charges
+          )
+            ? data.express_additional_charges
+            : [];
+          const volumetricFactor = data.volumetric_factor || "-";
+          // const minChargeableWeight = data.min_chargeable_weight || "-";
+
+          // 0. Volumetric Factor & Min Chargeable Weight UI (above global additional charges)
+          let volumetricAndMinHtml = `
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="alert alert-info mb-0">
+            <strong>Volumetric Factor:</strong> ${volumetricFactor}
+            <input type="text" class="form-control form-control-sm d-inline-block ms-2" style="width:120px;vertical-align:middle;" name="volumetric_factor_input" placeholder="Enter value">
+          </div>
+        </div>
+       
+      </div>
+    `;
+
+          // 4. Add Global Express Additional Charges UI (before the tabs)
+          let expressAdditionalChargesHtml = `
+      <div class="card border mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+          <span>Global Express Additional Charges</span>
+          <button type="button" class="btn btn-outline-success btn-sm add-global-additional-charge-btn" style="
+    background-color: #198754 !important;
+    color: white !important;
+    border-color: #198754 !important;
+  ">
+            <i class="fas fa-plus me-1"></i>Add New Additional Charge
+          </button>
+        </div>
+        <div class="card-body" id="globalAdditionalChargesContainer">
+          ${
+            expressAdditionalCharges.length > 0
+              ? expressAdditionalCharges
+                  .map((charge) =>
+                    getGlobalExpressAdditionalChargeRowHTML(charge)
+                  )
+                  .join("")
+              : getGlobalExpressAdditionalChargeRowHTML()
+          }
+        </div>
+      </div>
+    `;
+
+          // 2. Per-slab Additional Charges (table only, no per-slab add/remove UI)
+          let tabNav = `<ul class="nav nav-tabs mb-3" id="slabTab-priority" role="tablist">`;
+          let tabContent = `<div class="tab-content" id="slabTabContent-priority">`;
+
+          slabs.forEach((slab, i) => {
+            const slabId = `slab${i}-priority`;
+            const active = i === 0 ? "active" : "";
+            const show = i === 0 ? "show active" : "";
+
+            // Tab nav
+            tabNav += `
+        <li class="nav-item" role="presentation">
+          <button class="nav-link ${active}" id="${slabId}-tab" data-bs-toggle="tab" data-bs-target="#${slabId}" type="button" role="tab" aria-controls="${slabId}" aria-selected="${
+              i === 0
+            }">
+            ${slab.min_weight}-${slab.max_weight} ${slab.unit}
+          </button>
+        </li>
+      `;
+
+            // Table headers (zones)
+            const zoneKeys = Object.keys(slab.zones);
+            let tableHeaders = `<th class="border-end bg-light">Category</th>`;
+            zoneKeys.forEach((zone) => {
+              tableHeaders += `<th class="border-end bg-light">${zone}</th>`;
+              tableHeaders += `<th class="border-end bg-light">Your Input</th>`;
+            });
+
+            // Table body: base rates
+            let tableBody = `
+        <tr>
+          <td class="fw-bold border-end text-start">Base Rate</td>
+          ${zoneKeys
+            .map(
+              (zone, zidx) => `
+            <td>
+              <input type="text" class="form-control form-control-sm" value="${
+                slab.zones[zone] || ""
+              }" readonly tabindex="-1">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="slabs[${i}][zones_input][${zone}]" placeholder="Enter value" value="${
+                slab.zones[zone] || ""
+              }">
+            </td>
+          `
+            )
+            .join("")}
+        </tr>
+      `;
+
+            // Table body: additional charges (one row per additional charge)
+            if (
+              Array.isArray(slab.slab_additional_charges) &&
+              slab.slab_additional_charges.length > 0
+            ) {
+              slab.slab_additional_charges.forEach((charge, j) => {
+                tableBody += `
+            <tr>
+              <td class="fw-bold border-end text-start">${charge.desc} (${
+                  charge.weight
+                } ${charge.unit})</td>
+              ${zoneKeys
+                .map(
+                  (zone, zidx) => `
+                <td>
+                  <input type="text" class="form-control form-control-sm" value="${
+                    charge.amounts[zone] || ""
+                  }" readonly tabindex="-1">
+                </td>
+                <td>
+                  <input type="text" class="form-control form-control-sm" name="slabs[${i}][slab_additional][${j}][input][${zone}]" placeholder="Enter value"  value="${
+                    charge.amounts[zone] || ""
+                  }">
+                </td>
+              `
+                )
+                .join("")}
+            </tr>
+          `;
+              });
+            }
+
+            // Table HTML
+            const tableHtml = `
+        <div class="table-card mb-4 border rounded p-3 bg-white shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover border">
+              <thead class="bg-primary text-white">
+                <tr>${tableHeaders}</tr>
+              </thead>
+              <tbody>
+                ${tableBody}
+              </tbody>
+            </table>
+          </div>
+        </div>
+         <div class="row mb-5">
+                <div class="col-12 text-end">
+                  <button type="button" id="saveOnboardingBtn" class="btn btn-success">
+                    <i class="fa fa-save"></i> Save
+                  </button>
+                </div>
+              </div>
+      `;
+
+            // Tab content
+            tabContent += `
+        <div class="tab-pane fade ${show}" id="${slabId}" role="tabpanel" aria-labelledby="${slabId}-tab">
+          ${tableHtml}
+        </div>
+      `;
+          });
+
+          tabNav += `</ul>`;
+          tabContent += `</div>`;
+
+          // 5. Render All (Final Output)
+          // Place volumetric/min chargeable above global additional charges
+          rateEntryBox.innerHTML =
+            volumetricAndMinHtml +
+            expressAdditionalChargesHtml +
+            tabNav +
+            tabContent;
+          const saveBtn = document.getElementById("saveOnboardingBtn");
+          if (saveBtn) {
+            saveBtn.addEventListener("click", async function () {
+              // Collect form data
+             
+              const volumetricFactor =
+                document.querySelector('input[name="volumetric_factor_input"]')
+                  ?.value || "";
+              
+             
+
+              // 2. Collect Global Express Additional Charges
+              const additionalCharges = [];
+              document
+                .querySelectorAll(".additional-charge-row")
+                .forEach((row) => {
+                  additionalCharges.push({
+                    charge_name: row.querySelector(".charge-type-input")?.value,
+                    calculation_based_on_min:
+                      row.querySelector(".min-charge-select")?.value,
+                    min_value: row.querySelector(".min-value-user-input")
+                      ?.value,
+                    calculation_based_on_max:
+                      row.querySelector(".max-charge-select")?.value,
+                    max_value: row.querySelector(".max-value-user-input")
+                      ?.value,
+                    condition_based:
+                      row.querySelector(".condition-select")?.value,
+                    chargable_value_type: row.querySelector(
+                      ".chargeable-value-type-input"
+                    )?.value,
+                  });
+                });
+
+              // 3. Collect Per-slab "Your Input" fields
+              const slabInputs = {};
+              document
+                .querySelectorAll('input[name^="slabs"]')
+                .forEach((input) => {
+                  slabInputs[input.name] = input.value;
+                });
+
+              // 4. Build your payload
+              const data = {
+                global_additional_charges: additionalCharges,
+                slab_inputs: slabInputs,
+                volumetric_factor: volumetricFactor,
+               
+              };
+
+              let apiUrl = '';
+    let method = 'post'; // default to POST
+
+    if (!isCopy) {
+      // Edit mode
+      apiUrl = `/api/update/express-lp-rate-list/${logisticsId}/${clientId}`;
+      method = 'put';
+    } else {
+      // Copy mode
+      apiUrl = `/api/copy/express-lp-rate-list/${logisticsId}/${clientId}`;
+      method = 'post';
+    }
+
+    try {
+      const response = await axios({
+        method,
+        url: apiUrl,
+        data
+      });
+                if (response.data && response.data.success) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: response.data.message || "Saved successfully!",
+                    confirmButtonText: "OK",
+                  }).then(() => {
+                    // Redirect after user clicks OK
+                    window.location.href = "/package";
+                  });
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: response.data.message || "Save failed!",
+                    confirmButtonText: "OK",
+                  });
+                }
+              } catch (err) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text:
+                    err.response?.data?.message ||
+                    err.message ||
+                    "An error occurred!",
+                  confirmButtonText: "OK",
+                });
+              }
+            });
+          }
+
+          // 7. Attach Remove/Add Events for Global Additional Charges
+          attachGlobalAdditionalChargeEvents();
+        }
+
+        // 6. Add/Replace the Helper for Global Additional Charges
+        function getGlobalExpressAdditionalChargeRowHTML(charge = {}) {
+          function getOption(val, label) {
+            return `<option value="${val}"${
+              charge.charge_name === val ? " selected" : ""
+            }>${label}</option>`;
+          }
+          return `
+      <div class="row align-items-end mb-2 additional-charge-row border rounded p-2">
+        <div class="col-md-2">
+          <label class="form-label">Charge Name</label>
+          <select class="form-control charge-type-input">
+          <option value="" disabled${
+            !charge.charge_name ? " selected" : ""
+          }>Choose charge name</option>
+          ${getOption("lr", "LR Charges")}
+          ${getOption("fs", "FS Charges")}
+          ${getOption("fm", "FM Charges")}
+          ${getOption("fov_owner", "FOV Charges")}
+          ${getOption("to_pay", "To Pay Charges")}
+          ${getOption("cod", "COD Charges")}
+          ${getOption("check_handling_weight", "Check Handling Charges")}
+          ${getOption("green_tax", "Green Tax Charges")}
+          ${getOption("oda", "ODA Charges")}
+        </select>
+        </div>
+        <div class="col-md-2">
+        <label class="form-label">Min Calculation</label>
+        <select class="form-select min-charge-select">
+          <option value="" disabled${
+            !charge.calculation_based_on_min ? " selected" : ""
+          }>Select charge name</option>
+          <option value="lr"${
+            charge.calculation_based_on_min === "lr" ? " selected" : ""
+          }>LR</option>
+          <option value="kg"${
+            charge.calculation_based_on_min === "kg" ? " selected" : ""
+          }>kg</option>
+          <option value="base_value"${
+            charge.calculation_based_on_min === "base_value" ? " selected" : ""
+          }>Base value(%)</option>
+          <option value="invoice_value"${
+            charge.calculation_based_on_min === "invoice_value"
+              ? " selected"
+              : ""
+          }>Invoice Value(%)</option>
+          <option value="boxes"${
+            charge.calculation_based_on_min === "boxes" ? " selected" : ""
+          }>Boxes</option>
+          <option value="cod"${
+            charge.calculation_based_on_min === "cod" ? " selected" : ""
+          }>cod</option>
+        </select>
+      </div>
+        <div class="col-md-1">
+          <label class="form-label">Min Value</label>
+          <input type="text" class="form-control min-value-input" placeholder="Min Value" value="${
+            charge.min_value || ""
+          }" readonly tabindex="-1">
+          <input type="text" class="form-control min-value-user-input mt-1" placeholder="Enter Min Value">
+        </div>
+        <div class="col-md-2">
+  <label class="form-label">Max Calculation</label>
+  <select class="form-select max-charge-select">
+    <option value="" disabled${
+      !charge.calculation_based_on_max ? " selected" : ""
+    }>Select charge name</option>
+    <option value="lr"${
+      charge.calculation_based_on_max === "lr" ? " selected" : ""
+    }>LR</option>
+    <option value="kg"${
+      charge.calculation_based_on_max === "kg" ? " selected" : ""
+    }>kg</option>
+    <option value="base_value"${
+      charge.calculation_based_on_max === "base_value" ? " selected" : ""
+    }>Base value(%)</option>
+    <option value="invoice_value"${
+      charge.calculation_based_on_max === "invoice_value" ? " selected" : ""
+    }>Invoice Value(%)</option>
+    <option value="boxes"${
+      charge.calculation_based_on_max === "boxes" ? " selected" : ""
+    }>Boxes</option>
+    <option value="cod"${
+      charge.calculation_based_on_max === "cod" ? " selected" : ""
+    }>cod</option>
+  </select>
+</div>
+        <div class="col-md-1">
+          <label class="form-label">Max Value</label>
+          <input type="text" class="form-control max-value-input" placeholder="Max Value" value="${
+            charge.max_value || ""
+          }" readonly tabindex="-1">
+          <input type="text" class="form-control max-value-user-input mt-1" placeholder="Enter Max Value">
+        </div>
+        <div class="col-md-1">
+  <label class="form-label">Condition</label>
+  <select class="form-select condition-select">
+    <option value="" disabled${
+      !charge.condition_based ? " selected" : ""
+    }>Select</option>
+    <option value="and"${
+      charge.condition_based === "and" ? " selected" : ""
+    }>AND</option>
+    <option value="or"${
+      charge.condition_based === "or" ? " selected" : ""
+    }>OR</option>
+  </select>
+</div>
+       <div class="col-md-2 chargeable-value-type-container" style="display: ${
+         charge.condition_based === "or" ? "block" : "none"
+       };">
+  <label class="form-label">Chargeable Value Type</label>
+  <select class="form-select chargeable-value-type-input">
+    <option value="" disabled${
+      !charge.chargable_value_type ? " selected" : ""
+    }>Select</option>
+    <option value="lower"${
+      charge.chargable_value_type === "lower" ? " selected" : ""
+    }>Whichever is lower</option>
+    <option value="higher"${
+      charge.chargable_value_type === "higher" ? " selected" : ""
+    }>Whichever is higher</option>
+  </select>
+</div>
+        
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-danger btn-sm remove-charge-btn" title="Remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div> 
+      </div>
+    `;
+        }
+        function attachGlobalAdditionalChargeEvents() {
+          // Remove event
+          document
+            .querySelectorAll(
+              "#globalAdditionalChargesContainer .remove-charge-btn"
+            )
+            .forEach((btn) => {
+              btn.onclick = function () {
+                this.closest(".additional-charge-row").remove();
+              };
+            });
+          // Add event
+          const addBtn = document.querySelector(
+            ".add-global-additional-charge-btn"
+          );
+          if (addBtn) {
+            addBtn.onclick = function () {
+              document
+                .getElementById("globalAdditionalChargesContainer")
+                .insertAdjacentHTML(
+                  "beforeend",
+                  getGlobalExpressAdditionalChargeRowHTML()
+                );
+              attachGlobalAdditionalChargeEvents();
+            };
+          }
+          document
+            .querySelectorAll(
+              "#globalAdditionalChargesContainer .condition-select"
+            )
+            .forEach((select) => {
+              select.onchange = function () {
+                const container = this.closest(
+                  ".additional-charge-row"
+                ).querySelector(".chargeable-value-type-container");
+                if (this.value === "or") {
+                  container.style.display = "block";
+                } else {
+                  container.style.display = "none";
+                  // Optionally clear the value if hidden
+                  container.querySelector("select").value = "";
+                }
+              };
+              // Trigger on load for existing rows
+              select.onchange();
+            });
+        }
+      
+              </script>
+
+              
+            </div>
+
+            <!-- FOOTER -->
+            <%- include('../partials/footer') %>
+          </div>
+  </div>
+
+  <!-- SCRIPTS (Always at the bottom before </body>) -->
+  <script src="/js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="assets/libs/mobius1-selectr/selectr.min.css" />
+    <link rel="stylesheet" href="assets/libs/huebee/huebee.min.css" />
+    <link rel="stylesheet" href="assets/libs/vanillajs-datepicker/css/datepicker.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <!-- Bootstrap JavaScript and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+    <!-- below is the reason why the topbar logout works? -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>  
+    
+    <!--
+
+<!-- <script src="https://cdn.tailwindcss.com"></script> -->
+<style>
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #333 !important;
+    border: 1px solid #979797;
+    background-color: white;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #dcdcdc));
+    background: -webkit-linear-gradient(top, white 0%, #dcdcdc 100%);
+    background: -moz-linear-gradient(top, white 0%, #dcdcdc 100%);
+    background: -ms-linear-gradient(top, white 0%, #dcdcdc 100%);
+    background: -o-linear-gradient(top, white 0%, #dcdcdc 100%);
+    background: linear-gradient(to bottom, white 0%, #dcdcdc 100%);
+}
+    /* Date Range Picker Styling */
+    #reportrange {
+    background: linear-gradient(135deg, #4a90e2, #007bff);
+    cursor: pointer;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    display: inline-flex
+;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3sease-in-out;
+}
+
+    #reportrange:hover {
+        background: linear-gradient(135deg, #357ac9, #0056b3);
+    }
+
+    .daterangepicker {
+        border-radius: 12px !important;
+        border: none;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .daterangepicker .drp-buttons {
+        padding: 12px !important;
+        border-top: 1px solid #ddd;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .daterangepicker .btn-reset {
+        background: #ff5c5c;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .daterangepicker .btn-reset:hover {
+        background: #e04b4b;
+    }
+
+    .daterangepicker .btn-apply {
+        background: #28a745 !important;
+        color: white !important;
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+
+    .daterangepicker .btn-apply:hover {
+        background: #218838 !important;
+    }
+
+    .daterangepicker td.active,
+    .daterangepicker td.active:hover {
+        background: #007bff !important;
+        color: #fff !important;
+        font-weight: bold;
+        border-radius: 6px;
+    }
+
+    .daterangepicker td.in-range {
+        background: #e3f2fd !important;
+        color: #007bff !important;
+        border-radius: 6px;
+    }
+  
+  table.dataTable.no-footer {
+    border-bottom: 1px solid #e9e9e9 !important;
+  }
+  
+  table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 18px;
+    border-bottom: 1px solid #f0eded !important;
+  }
+  
+  table.dataTable tbody tr {
+    background: linear-gradient(135deg, #fdfcfb 0%, #fbffdc 100%);
+  }
+  
+  .main {
+    background-color: transparent;
+    position: relative;
+    text-align: center;
+    margin: 20px auto;
+    width: 350px;
+  }
+
+  .dc {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+
+  .cc {
+  
+    border-radius: 15px;
+    width: 350px;
+    height: 209px;
+    box-shadow: 1.5px 1.5px 0px #c3c3c3, 4px 4px 4px #95aeef;
+    position: relative;
+  }
+
+  .mc {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+  }
+
+  .logo {
+    width: 100px;
+   
+  }
+
+  .ctyp {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: 500;
+    
+    text-transform: uppercase;
+}
+
+  .cn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .chip {
+    height: 33px;
+    width: 43px;
+  }
+
+  .nfci {
+    width: 30px;
+    height: 30px;
+  }
+  .cno {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 500;
+    font-size: 40px;
+    letter-spacing: 0px;
+    background: linear-gradient(182deg, #8e7e60, #fdce93, #7e6b40);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: end;
+    padding: 0px 20px;
+}
+.exp {
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    font-size: 11px;
+    /* color: black; */
+    margin: 10px 0;
+    background: linear-gradient(182deg, #8e7e60, #fdce93, #7e6b40);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+  .nv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .name {
+    font-family: "Open Sans", sans-serif;
+    background: linear-gradient(167deg, #8e7e60, #fdce93, #7e6b40);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.65px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+  .vsa {
+    width: 30px;
+  
+  }
+
+  .custcare {
+    font-family: "Titillium Web", sans-serif;
+    font-size: 10px;
+    color: #696565;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+  .magstrip {
+    background: black;
+    width: 100%;
+    height: 35px;
+    margin: 10px 0;
+  }
+
+  .sign {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 10px;
+  }
+
+  .signholder {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    margin: 10px 0;
+  }
+
+  .signstrip {
+    width: 280px;
+    height: 28px;
+    background: repeating-linear-gradient(
+      45deg,
+      #ccc,
+      #ccc 10px,
+      #999 10px,
+      #999 20px
+    );
+  }
+
+  .cvv {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    text-align: center;
+    width: 50px;
+    height: 22px;
+    background-color: #eee;
+    line-height: 22px;
+  }
+
+  .descr {
+    display: flex;
+    padding: 0 20px;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .holo {
+    width: 82px;
+    height: 62px;
+  }
+
+  .vbird {
+    width: 100%;
+    height: 100%;
+  }
+
+  .txt {
+    font-family: "Open Sans", sans-serif;
+    font-size: 8px;
+    flex: 1;
+  }
+
+  .notes {
+    margin-top: 30px;
+    text-align: center;
+    font-family: "Sarabun", sans-serif;
+    font-size: 18px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .notes strong {
+    background: #ededed;
+    border-radius: 5px;
+    padding: 2px 5px;
+  }
+
+
+  .page-title-box {
+    margin-bottom: 5px;
+}
+
+
+
+  .search-box {
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .main {
+      transform: scale(0.8);
+    }
+  }
+  .modal-content {
+      font-size: 12px;
+      border: none;
+  }
+  .modal-body .alert {
+      font-size: 12px;
+  }
+  .form-label, .input-group-text, .amount-btn, .payment-btn, #proceedBtn {
+      font-size: 12px;
+  }
+  .amount-btn, .payment-btn {
+      border: none !important;
+      box-shadow: none;
+  }
+  .btn-outline-secondary {
+      background-color: #f8f9fa;
+  }
+  .btn-outline-secondary:hover {
+      background-color: #e2e6ea;
+  }
+  .input-group .form-control {
+      border: none;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+  }
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Billing Section</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">Wallet</li>
+                  <li class="breadcrumb-item active">Domestic Wallet</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+
+          <div>
+           
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; padding: 5px; font-size: 12px;">
+            
+              <div id="reportrange" style="margin-left: 24px;">
+                <h6 style="color: rgb(255, 255, 255);font-size: 12px;margin-top: 6px;margin-left: 10px;">Date Range</h6> 
+                <i class="fas fa-calendar-alt"></i>
+                  <span></span>
+                  <b class="caret"></b>
+              </div>
+              <div>
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rechargeModal" style="background: linear-gradient(339deg, #131c27, #5f6776, #131c27);">
+                      <i class="fa-solid fa-wallet" ></i> Wallet Recharge
+                  </button>
+              </div>
+          </div>
+          
+          
+            <div class="row">
+              <div class="col-md-4">
+                <div class="main mb-3" data-card-type="debit">
+                  <div class="dc">
+                    <!-- Debit Card Front -->
+                    <div class="cc" style="    background: linear-gradient(339deg, #131c27, #5f6776, #131c27);">
+                      <div class="mc">
+                        <div class="bank">
+                          <img src="/assets/images/logo-white.png" alt="Dispatch Logo" title="Dispatch Logo" class="logo">
+                        </div>
+                        <div class="ctyp" style="background: linear-gradient(182deg, #8e7e60, #fdce93, #7e6b40);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;">Wallet Balance</div>
+                      </div>
+                      <div class="cn">
+                        <div class="sci">
+                          <img src="https://i.ibb.co/X5CXKjD/Card-Chip.png" class="chip" alt="Chip">
+                        </div>
+                        <div class="nfc">
+                          <img src="https://i.ibb.co/yBFb2jK/nf" alt="NFC">
+                        </div>
+                      </div>
+                      <div class="cno" >₹ <%= walletData && walletData.total_amount ? walletData.total_amount : 0 %></div>
+                      <div class="exp" style="display: flex;justify-content: space-around;">
+                        <span class="exp-date">ID12345678</span>
+                        <span class="exp-text">EXPIRY 09/35</span>
+                        <span>       <img src="assets/images/icon_dispatch.png" class="vsa" alt="VISA Logo"></span>
+                      </div>
+                      <div class="nv">
+                        <div class="name" style=" white-space: nowrap;"><%= profile.first_name %></div>
+                        <div class="visa"style="
+              display: flex;
+              flex-wrap: wrap;
+              flex-direction: row;
+              align-content: flex-end;
+              justify-content: flex-end;
+          ">
+                   
+                        
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+             
+          
+              <!-- <div class="col-md-4 p-2">
+                <div class="main card shadow-sm mb-3">
+                  <div class="chart-container" style="position: relative; height: 209px; width: 350px;">
+                    <canvas id="transactionChart"></canvas>
+                  </div>
+                </div>
+              </div> -->
+          
+             
+            </div>
+          
+            <!-- tab start -->
+            <div class="row">
+              <ul class="nav nav-tabs unik" id="walletTabs">
+                  <li class="nav-item">
+                      <a class="nav-link active" id="transactions-tab" data-bs-toggle="tab" href="#transactions">
+                          <i class="fas fa-exchange-alt"></i> Transactions
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" id="recharges-tab" data-bs-toggle="tab" href="#recharges">
+                          <i class="fas fa-plus-circle"></i> Recharges
+                      </a>
+                  </li>
+                  <div class="col-md-3 ms-auto">
+                    
+                  </div>
+                    <form class="d-flex">            
+                        <div class="input-group">
+                          <input type="text" class="form-control" id="search-input" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
+                          <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                              <i class="fas fa-search"></i>
+                          </button>
+                      </div>              
+                    </form>
+              </ul>
+                </div>
+            
+              <div class="tab-content mb-5">
+                  <div class="tab-pane fade show active" id="transactions">
+                      <table id="datatable_2" style="border-radius:8px; overflow:hidden; width:100%; border-collapse:collapse; border:1px solid #dee2e6;">
+                          <thead style="background-color:#cfe2ff;">
+                              <tr>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">TRANSACTION ID</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">PO ID</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">LR NO</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">WEIGHT</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">ZONE</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">DESCRIPTION</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">TRANSACTION TYPE</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6;">CREATED AT</th>
+                              </tr>
+                          </thead>
+                          <tbody id="transactionTable">
+                              <% if (walletTransactions && walletTransactions.length > 0) { %>
+                                  <% walletTransactions.forEach(function(transaction) { %>
+                                      <tr style="vertical-align:middle;">
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.TransactionID %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.po_id %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.lr_no %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.weight %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.zone %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6;"><%= transaction.description %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center; font-weight:bold; color:<%= transaction.transaction_type === 'credit' ? '#198754' : '#dc3545' %>;">
+                                              <%= transaction.transaction_type === 'credit' ? '+' : '-' %>₹<%= transaction.amount %>
+                                          </td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center;">
+                                              <%= new Date(transaction.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) %>
+                                          </td>
+                                      </tr>
+                                  <% }); %>
+                              <% } else { %>
+                                  <tr>
+                                      <td colspan="8" style="text-align:center; padding:12px; border:1px solid #dee2e6;">No transaction history available</td>
+                                  </tr>
+                              <% } %>
+                          </tbody>
+                      </table>
+                  </div>
+                  <div class="tab-pane fade" id="recharges">
+                      <table id="datatable_3" style="border-radius:8px; overflow:hidden; width:100%; border-collapse:collapse; border:1px solid #dee2e6;">
+                          <thead style="background-color:#cfe2ff;">
+                              <tr>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">TRANSACTION ID</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">TRANSACTION DATE</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">BANK's TRANSACTION ID</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">STATUS</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">PAYMENT METHOD</th>
+                                  <th style="padding:8px; border:1px solid #dee2e6; text-align:center;">TRANSACTION AMOUNT</th>
+                              </tr>
+                          </thead>
+                          <tbody id="rechargeTable">
+                              <% if(walletHistory && walletHistory.length > 0) { %>
+                                  <% walletHistory.forEach(function(transaction) { %>
+                                      <tr style="vertical-align:middle;">
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center; font-weight:bold;"><%= transaction.transaction_id %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center;"><%= new Date(transaction.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center;"><%= transaction.bank_transaction_id || 'N/A' %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center; color:<%= transaction.state === 'COMPLETED' ? '#198754' : '#dc3545' %>;">
+                                              <%= transaction.state %>
+                                          </td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center;"><%= transaction.payment_method %></td>
+                                          <td style="padding:8px; border:1px solid #dee2e6; text-align:center; font-weight:bold; color:<%= transaction.state === 'COMPLETED' ? '#198754' : '#dc3545' %>;">
+                                              <%= transaction.state === 'COMPLETED' ? '+' : '-' %>₹<%= transaction.amount %>
+                                          </td>
+                                      </tr>
+                                  <% }); %>
+                              <% } else { %>
+                                  <tr>
+                                      <td colspan="6" style="text-align:center; padding:12px; border:1px solid #dee2e6;">No transaction history available</td>
+                                  </tr>
+                              <% } %>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+           </div>
+          
+          
+          
+          <div class="modal fade" id="rechargeModal" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content rounded-lg shadow p-3">
+                <div class="d-flex justify-content-end">
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="text-center pt-2">
+                  <i class="fa-solid fa-wallet" style="font-size: 50px;color: #3786fe;"></i>
+                  <h5 class="mt-2" style="color: gray;">Recharge Wallet</h5>
+                </div>
+                <div class="modal-body">
+                  <div class="alert alert-success text-center mb-4">
+                    <span class="fw-bold">New!</span> Minimum balance required to ship is now
+                    <span class="text-decoration-line-through">₹500</span> ₹100
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="amount">Enter Recharge Amount</label>
+                    <div class="input-group">
+                      <span class="input-group-text">₹</span>
+                      <input class="form-control" id="amount" type="text" value="1000" />
+                    </div>
+                    <p class="text-muted small mt-1">Note: Minimum recharge value ₹500</p>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Select Predefined Amount</label>
+                    <div class="d-flex justify-content-between">
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="1000">₹1000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="2000">₹2000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="3000">₹3000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="4000">₹4000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="5000">₹5000</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn w-100" id="proceedBtn" style="background-color: #5196ff;color: white;">Proceed To Payment</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const amountInput = document.getElementById("amount");
+                const amountButtons = document.querySelectorAll(".amount-btn");
+                let selectedAmount = "";
+          
+                amountButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        amountInput.value = this.dataset.value;
+                        selectedAmount = this.dataset.value;
+                    });
+                });
+          
+                document.getElementById("proceedBtn").addEventListener("click", async function () {
+                    const amount = parseInt(amountInput.value.replace(/[^0-9]/g, ''));
+                    
+                    try {
+                        const response = await axios.post('/api/phonepay/initiate-payment', {
+                            amount: amount,
+                            merchantTransactionId: 'MTDS' + Date.now(),
+                            merchantUserId: 'MUIDDS' + Date.now()
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+          
+                        if (response.data.success) {
+                            // window.location.href = response.data.data.data.instrumentResponse.redirectInfo.url;
+                            window.location.href = response.data.data.redirectUrl;
+                        } else {
+                            alert('Payment initiation failed');
+                        }
+                    } catch (error) {
+                        console.error('Payment error:', error);
+                        alert('Payment initiation failed: ' + error.message);
+                    }
+                });
+            });
+          </script>
+          
+          
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            let currentChart;
+            
+            // Chart configurations
+            const chartConfig = {
+              type: 'line',
+              data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                  label: 'Transactions',
+                  data: [],
+                  fill: false,
+                  borderColor: '#2196F3',
+                  tension: 0.1
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              }
+            };
+          
+            const transactionData = {
+              debit: [65, 59, 80, 81, 56, 55],
+              credit: [28, 48, 40, 19, 86, 27]
+            };
+          
+            // Initialize chart with debit data by default
+            currentChart = new Chart(
+              document.getElementById('transactionChart').getContext('2d'),
+              {
+                ...chartConfig,
+                data: {
+                  ...chartConfig.data,
+                  datasets: [{
+                    ...chartConfig.data.datasets[0],
+                    data: transactionData.debit,
+                    label: 'Debit Transactions'
+                  }]
+                }
+              }
+            );
+          
+            // Click handlers for cards
+            document.querySelectorAll('.main[data-card-type]').forEach(card => {
+              card.addEventListener('click', () => {
+                const cardType = card.dataset.cardType;
+                
+                // Update chart data based on card type
+                currentChart.data.datasets[0].data = transactionData[cardType];
+                currentChart.data.datasets[0].label = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} Transactions`;
+                currentChart.data.datasets[0].borderColor = cardType === 'debit' ? '#2196F3' : '#ff7900';
+                currentChart.update();
+              });
+            });
+          
+            // Responsive design handler
+            function handleResize() {
+              const mainContainers = document.querySelectorAll('.main');
+              const windowWidth = window.innerWidth;
+              
+              mainContainers.forEach(container => {
+                if (windowWidth < 768) {
+                  container.style.transform = 'scale(0.8)';
+                } else {
+                  container.style.transform = 'scale(1)';
+                }
+              });
+            }
+          
+            // Initial call and event listener for resize
+            handleResize();
+            window.addEventListener('resize', handleResize);
+          </script>
+          <script>
+            $(function() {
+                var defaultStart = moment().subtract(7, 'days');
+                var defaultEnd = moment();
+            
+                function updateDateRange(start, end) {
+                    $('#reportrange span').html(start.format('MMM D, YYYY') + ' - ' + end.format('MMM D, YYYY'));
+                }
+            
+                var picker = $('#reportrange').daterangepicker({
+                    startDate: defaultStart,
+                    endDate: defaultEnd,
+                    alwaysShowCalendars: true,
+                    autoApply: false, // Allow users to manually apply the date
+                    showCustomRangeLabel: true,
+                    linkedCalendars: false,
+                    keepCalendarOpeningWithRange: true,
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    }
+                }, function(start, end) {
+                    updateDateRange(start, end);
+                });
+            
+                // Ensure custom range input applies changes
+                $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+                    updateDateRange(picker.startDate, picker.endDate);
+                });
+            
+                // Wait for the daterangepicker to be added to the DOM
+                setTimeout(function() {
+                    if ($('.daterangepicker').length && !$('.daterangepicker .btn-reset').length) {
+                          $('.daterangepicker .drp-buttons').prepend('<button class="btn-reset btn-sm "style="border: none;background-color: #e86c6c;color: white;">Reset</button>');
+                    }
+                    
+                    // Set up observer for future changes
+                    const observer = new MutationObserver(function(mutations) {
+                        if ($('.daterangepicker').length && !$('.daterangepicker .btn-reset').length) {
+                            $('.daterangepicker .drp-buttons').prepend('<button class="btn-reset btn-sm"style="border: none;background-color: #e86c6c;color: white;">Reset</button>');
+                        }
+                    });
+                    
+                    // Start observing the document body for DOM changes
+                    observer.observe(document.body, { childList: true, subtree: true });
+                }, 500);
+            });
+            </script>
+         
+<!-- jQuery (required before Bootstrap and plugins) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Moment.js (for date handling) -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+
+<!-- Daterangepicker (date range picker) -->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+
+<!-- Axios (for HTTP requests) -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- DataTables (for table features) -->
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<!-- Select2 (for enhanced select boxes) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+          <script>
+            $(document).ready(function () {
+              // Check if DataTable is already initialized
+              if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+                // Initialize DataTable only if it's not already initialized
+                var table = $('#datatable_2').DataTable({
+                  "ordering": false,
+                  "searching": true,
+                  "lengthChange": false,
+                  "info": true,
+                  "paging": true,
+                  "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                  "language": {
+                    "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                    "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                  },
+                  "pagingType": "full_numbers",
+                  "pageLength": 10,
+                  "drawCallback": function() {
+                    $('.paginate_button').addClass('btn btn-sm').css({
+                      'background-color': '#e3f2fd',
+                      'border-color': '#90caf9',
+                      'color': '#1976d2',
+                      'margin': '0 2px',
+                      'border-radius': '4px'
+                    });
+                    
+                    $('.paginate_button.current').css({
+                      'background-color': '#1976d2',
+                      'color': '#fff',
+                      'border-color': '#1976d2'
+                    });
+          
+                    $('.paginate_button.disabled').css({
+                      'opacity': '0.5',
+                      'cursor': 'not-allowed'
+                    });
+                  }
+                });
+              }
+          
+              // Custom search functionality when user types in the search input
+              $('#search-input').on('keyup', function () {
+                var searchValue = $(this).val();
+                $('#datatable_2').DataTable().search(searchValue).draw();
+              });
+          
+              // Optional: Search when the search button is clicked
+              $('#button-addon2').on('click', function () {
+                var searchValue = $('#search-input').val();
+                $('#datatable_2').DataTable().search(searchValue).draw();
+              });
+            });
+          </script>
+          <script>
+            $(document).ready(function () {
+              // Check if DataTable is already initialized
+              if (!$.fn.dataTable.isDataTable('#datatable_3')) {
+                // Initialize DataTable only if it's not already initialized
+                var table = $('#datatable_3').DataTable({
+                  "ordering": false,
+                  "searching": true,
+                  "lengthChange": false,
+                  "info": true,
+                  "paging": true,
+                  "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                  "language": {
+                    "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                    "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                  },
+                  "pagingType": "full_numbers",
+                  "pageLength": 10,
+                  "drawCallback": function() {
+                    $('.paginate_button').addClass('btn btn-sm').css({
+                      'background-color': '#e3f2fd',
+                      'border-color': '#90caf9',
+                      'color': '#1976d2',
+                      'margin': '0 2px',
+                      'border-radius': '4px'
+                    });
+                    
+                    $('.paginate_button.current').css({
+                      'background-color': '#1976d2',
+                      'color': '#fff',
+                      'border-color': '#1976d2'
+                    });
+          
+                    $('.paginate_button.disabled').css({
+                      'opacity': '0.5',
+                      'cursor': 'not-allowed'
+                    });
+                  }
+                });
+              }
+          
+              // Custom search functionality when user types in the search input
+              $('#search-input').on('keyup', function () {
+                var searchValue = $(this).val();
+                $('#datatable_3').DataTable().search(searchValue).draw();
+              });
+          
+              // Optional: Search when the search button is clicked
+              $('#button-addon2').on('click', function () {
+                var searchValue = $('#search-input').val();
+                $('#datatable_3').DataTable().search(searchValue).draw();
+              });
+            });
+          </script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

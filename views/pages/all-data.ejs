@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SweetAlert CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- DataTables CSS -->
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+
+      .shipping-option.active {
+      border: 2px solid #198754 !important;
+      box-shadow: 0 2px 8px rgba(25,135,84,0.10);
+    }
+              
+              
+            
+                .order-card {
+                  background: #e9eff1;
+                  border-radius: 16px;
+                  padding: 24px;
+                  margin-bottom: 1.5rem;
+                  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.05);
+                  transition: all 0.3s ease;
+                }
+                .order-card:hover {
+                  box-shadow: 0 6px 24px rgba(13, 110, 253, 0.1);
+                }
+                .order-id {
+                  font-weight: 600;
+                  color: var(--primary-blue);
+                  font-size: 14px;
+                  cursor: pointer;
+                }
+                .order-id:hover {
+                  text-decoration: underline;
+                }
+                .text-small {
+                  font-size: 13px;
+                }
+                .timeline-section {
+                  min-height: 140px;
+                }
+                .timeline-line {
+                  height: 48%;
+                  top: 25px;
+                  left: 20px;
+                  transform: translateX(-50%);
+                  opacity: 1;
+                  border: 1px dashed #0e6efd;
+                }
+                .timeline-icon {
+                  width: 44px;
+                  height: 44px;
+                  font-size: 16px;
+                  margin-left: -25px;
+                  color: #0052ff !important;
+                }
+                .btn-outline-dark:hover {
+                  background-color: var(--primary-blue);
+                  color: #fff;
+                }
+                .badge {
+                  font-size: 13px;
+                  padding: 5px 10px;
+                  border-radius: 8px;
+                }
+                .modal-content {
+                  border-radius: 12px;
+                }
+                .filter-bar .form-select,
+                .filter-bar .form-control {
+                  background-color: #f9f9f9;
+                  border-radius: 10px;
+                  border: 1px solid #ddd;
+                  font-size: 14px;
+                }
+                .filter-bar .input-group-text {
+                  background-color: #f9f9f9;
+                  border: none;
+                }
+                .filter-bar .dropdown-toggle::after {
+                  margin-left: 0.5rem;
+                }
+                .filter-bar i {
+                  font-size: 14px;
+                }
+                .filter-bar .form-label {
+              font-size: 13px;
+              margin-bottom: 0.25rem;
+            }
+            .filter-bar .form-select,
+            .filter-bar .form-control {
+              border-radius: 10px;
+              font-size: 14px;
+            }
+            .filter-bar .input-group-text {
+              background-color: #f1f3f5;
+            }
+                @media (max-width: 768px) {
+                  .order-card .row > div {
+                    margin-bottom: 1rem;
+                  }
+                  .filter-bar .col {
+                    margin-bottom: 0.5rem;
+                  }
+                }
+                .filter-bar .input-group-text {
+              background-color: #f0f0f0;
+              border-right: 0;
+            }
+            .filter-bar .form-select, .filter-bar .form-control {
+              border-radius: 0 0.375rem 0.375rem 0;
+            }
+            @media (max-width: 768px) {
+              .filter-bar .input-group {
+                flex-direction: column;
+              }
+            }
+            body { background-color: #f8f9fc; font-size: 0.875rem; }
+                .tab-btns button { border: none; background: none; padding: 0.3rem 0.6rem; font-size: 0.85rem; font-weight: 500; color: #0d6efd; margin-right: 0.3rem; }
+                .tab-btns button.active { background-color: #e9f2ff; border-radius: 6px; }
+                .tab-btns .fa-box { margin-right: 4px; }
+                .box-card { border: 1px solid #e2e8f0; background-color: #f8f9fc; border-radius: 12px; padding: 1.25rem; }
+                .input-group input { max-width: 80px; }
+                .card { border-radius: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04); }
+                .section-title { font-size: 1rem; font-weight: 600; color: #343a40; }
+                .form-label { font-weight: 500; font-size: 0.875rem; }
+                /* .shipping-option { border-radius: 0.75rem; padding: 0.8rem; text-align: center; border: 1px solid #e0e0e0; cursor: pointer; transition: 0.3s; font-size: 0.8rem; }
+                .shipping-option.active { border: 2px solid #198754; background: #ffffff; } */
+                .order-section { border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; background-color: #fff; }
+                .order-section h6 { font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem; }
+                .fw-medium { font-weight: 500; }
+                @media (max-width: 576px) {
+                  .tab-btns { flex-wrap: wrap; gap: 0.5rem; }
+                }
+              </style>
+    <style>
+      /* Add these styles for the tracking interface */
+      .app-wrapper {
+        max-width: 1200px;
+        margin: 24px auto;
+        background: #fff;
+        border-radius: 24px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: 0 0 0 12px #d9dbdb;
+        min-height: 720px;
+      }
+
+      .tracking-container {
+        width: 100%;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+      }
+
+      .tracking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eaeaea;
+      }
+
+      .tracking-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .tracking-status {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .status-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e6f7ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+      }
+
+      .status-icon i {
+        color: #5a99f7;
+        font-size: 24px;
+      }
+
+      .status-info {
+        flex: 1;
+      }
+
+      .status-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .status-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .tracking-timeline {
+        position: relative;
+        margin-left: 24px;
+        padding-left: 28px;
+      }
+
+      /* .timeline-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #eaeaea;
+      } */
+
+      .timeline-step {
+        position: relative;
+        padding-bottom: 30px;
+      }
+
+      .timeline-step:last-child {
+        padding-bottom: 0;
+      }
+
+      .step-icon {
+        position: absolute;
+        left: -38px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #5a99f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+      }
+
+      .step-icon.completed {
+        background: #52c41a;
+      }
+
+      .step-icon.current {
+        background: #5a99f7;
+        width: 24px;
+        height: 24px;
+        left: -40px;
+      }
+
+      .step-icon.pending {
+        background: #d9d9d9;
+      }
+
+      .step-icon i {
+        color: #fff;
+        font-size: 12px;
+      }
+
+      .step-content {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+      }
+
+      .step-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .step-date {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .step-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .package {
+        background: #fff;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .package .order-id {
+        font-weight: 600;
+        margin: 5px 0;
+      }
+
+      .package .status {
+        color: #5a99f7;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .package .status.ready {
+        color: #faad14;
+      }
+
+      .package .status.transit {
+        color: #5a99f7;
+      }
+
+      .package .status.delivered {
+        color: #52c41a;
+      }
+
+      .package .details {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        font-size: 14px;
+      }
+
+      .package .details div {
+        flex: 1;
+      }
+
+      .package .progress-bar {
+        height: 4px;
+        background: #5a99f7;
+        margin: 10px 0;
+        border-radius: 2px;
+      }
+
+      .info-icon {
+        cursor: pointer;
+        position: relative;
+      }
+
+      .details-balloon {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 250px;
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+      }
+
+      .close-details {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .summary-item {
+        margin-bottom: 15px;
+      }
+
+      .summary-label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .summary-value {
+        color: #666;
+      }
+
+      .summary-subitem {
+        padding-left: 15px;
+        margin-top: 5px;
+        color: #666;
+      }
+    </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+          <!-- MAIN CONTENT -->
+          <div id="main-content">
+            <div class="container-fluid">
+              <div class="block-header">
+                <div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <h2>Order In Transit</h2>
+                    <ul class="breadcrumb">
+                      <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>
+                      <li class="breadcrumb-item">Order Management</li>
+                      <li class="breadcrumb-item active">Order In Transit</li>
+                    </ul>
+                  </div>
+                  <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                  <div class="d-flex flex-row-reverse">
+                      <div class="page_action">
+                          <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> Download report</button>
+                          <button type="button" class="btn btn-secondary"><i class="fa fa-plus"></i> Add new</button>
+                      </div>
+                      <div class="p-2 d-flex">
+                          
+                      </div>
+                  </div>
+              </div> -->
+                </div>
+              </div>
+
+              <!-- Add your page-specific content here -->
+         
+                  <!-- Card-based layout instead of table -->
+                  <div id="ordersContainer">
+  <% 
+    const statusMap = {
+      1: { label: 'Ready to Dispatch', color: 'bg-warning text-dark' },
+      2: { label: 'Unprocessed', color: 'bg-secondary text-white' },
+      3: { label: 'In Transit', color: 'bg-info text-dark' },
+      4: { label: 'Delivered', color: 'bg-success text-white' },
+      5: { label: 'RTO Initiated', color: 'bg-danger text-white' },
+      6: { label: 'NDR', color: 'bg-primary text-white' },
+      7: { label: 'RTO Delivered', color: 'bg-dark text-white' },
+      8: { label: 'NDR Delivered', color: 'bg-primary text-white' },
+      9: { label: 'Cancelled', color: 'bg-danger text-white' },
+    };
+
+    const getStatusDetails = (status) => statusMap[+status] || { label: 'Unknown', color: 'bg-light text-muted' };
+
+    const formatDate = (dateStr) => {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-IN', {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+        timeZone: 'Asia/Kolkata'
+      });
+    };
+  %>
+
+  <% result.forEach(function(order) { %>
+    <div class="order-card mb-3 p-3 border rounded shadow-sm" data-client="<%= order.client_id %>">
+      <div class="row align-items-center">
+        <!-- Checkbox -->
+        <div class="col-md-1">
+          <input class="form-check-input rowCheckbox" type="checkbox" data-id="<%= order.lr_no %>" style="box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+        </div>
+
+        <!-- Order / LR Info -->
+        <div class="col-md-2">
+          <div class="order-id lrNo" 
+               data-bs-toggle="offcanvas"
+               data-bs-target="#orderDetailsCanvas" 
+               aria-controls="orderDetailsCanvas"
+               data-lrno="<%= order.lr_no %>"
+               data-vendor-type="<%= order.tagged_api %>" 
+               data-orderid="<%= order.order_id %>">
+            <strong>LR No:</strong> <%= order.lr_no || 'N/A' %>
+          </div>
+          <small class="text-muted d-block">LR Date: <%= formatDate(order.created_at) %></small>
+
+          <div class="order-id mt-2">
+            <strong>Order:</strong> <%= order.orderid || 'N/A' %>
+          </div>
+          <small class="text-muted d-block">Order Date: <%= formatDate(order.order_date) %></small>
+
+          <div class="mt-2">
+            <button class="btn btn-outline-success btn-sm">Track Order</button>
+          </div>
+        </div>
+
+        <!-- Company & Consignee -->
+        <div class="col-md-3">
+          <div class="d-flex flex-column align-items-start position-relative timeline-section ps-4">
+            <div class="position-absolute timeline-line"></div>
+
+            <!-- Company -->
+            <div class="d-flex align-items-center mb-2" style="z-index: 1;">
+              <div class="text-black d-flex align-items-center justify-content-center me-3 timeline-icon">
+                <i class="fa fa-building"></i>
+              </div>
+              <div>
+                <div class="fw-semibold">Company</div>
+                <div class="text-muted text-small">
+                  <%= order.company_name || 'N/A' %>
+                </div>
+                <div class="text-muted text-small">
+                  Pincode: <%= order.warehouse_pincode || 'N/A' %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Consignee -->
+            <div class="d-flex align-items-center" style="z-index: 1;">
+              <div class="text-black d-flex align-items-center justify-content-center me-3 timeline-icon">
+                <i class="fa fa-user"></i>
+              </div>
+              <div>
+                <div class="fw-semibold">Consignee</div>
+                <div class="text-muted text-small">
+                  <%= order.consignee_first_name || 'N/A' %> <%= order.consignee_last_name || '' %>
+                  (<%= order.consignee_city || 'N/A' %>)
+                </div>
+                <div class="text-muted text-small">
+                  Phone: <%= order.consignee_phone || 'N/A' %>
+                </div>
+                <div class="text-muted text-small">
+                  Alternate: <%= order.consignee_alternate_mobile || 'N/A' %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weight & Rate -->
+        <div class="col-md-2 text-small">
+          <strong>Weight Details</strong><br>
+          Chargeable: <%= order.chargable_weight || 'N/A' %><br>
+          Volumetric: <%= order.volumetric_weight || 'N/A' %><br>
+          <div class="mt-2">
+            <strong>Rate Details</strong><br>
+            Base: ₹<%= order.base_rate || 'N/A' %><br>
+            Additional: ₹<%= order.total_additional || 'N/A' %><br>
+            GST: ₹<%= order.total_gst || 'N/A' %><br>
+            Total: ₹<%= order.total_lr_charges || 'N/A' %>
+          </div>
+        </div>
+
+        <!-- Courier & Mode -->
+        <div class="col-md-1 text-center">
+          <% 
+            const courierName = (order.tagged_api || '').toLowerCase();
+            let logoPath = '/assets/images/logos/logo-dark.png';
+            if (courierName.includes('delhivery')) logoPath = '/assets/images/logos/delhivery.png';
+            else if (courierName.includes('express')) logoPath = '/assets/images/logos/expressbees.png';
+            else if (courierName.includes('dtdc')) logoPath = '/assets/images/logos/dtdc.png';
+            else if (courierName.includes('bluedart')) logoPath = '/assets/images/BlueDart.png';
+            else if (courierName.includes('fedex')) logoPath = '/assets/images/FedEx.png';
+          %>
+          <img src="<%= logoPath %>" alt="<%= order.tagged_api || 'Courier' %>" 
+               style="width: 67px;height: 76px;object-fit: contain;">
+          <div class="text-muted text-small mt-1">
+            <% if (order.forwarder_product_type && order.forwarder_product_type.toLowerCase().includes('air')) { %>
+              <i class="fas fa-plane text-primary" style="font-size: x-large;"></i>
+            <% } else { %>
+              <i class="fas fa-truck text-primary" style="font-size: x-large;"></i>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Status & ETA -->
+        <div class="col-md-1 text-end">
+          <% const statusDetails = getStatusDetails(order.status); %>
+          <span class="badge px-3 py-2 <%= statusDetails.color %>" style="font-size: 12px;">
+            <%= statusDetails.label %>
+          </span>
+          <% if (order.eta) { %>
+            <div class="text-muted mt-1">ETA: <%= order.eta %></div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+</div>
+
+                  
+
+              <!-- jQuery -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <!-- FOOTER -->
+            <%- include('../partials/footer') %>
+          </div>
+  </div>
+
+  <!-- SCRIPTS (Always at the bottom before </body>) -->
+  <script src="/js/main.js"></script>
+</body>
+
+</html>

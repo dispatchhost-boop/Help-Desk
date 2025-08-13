@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Setup - ShipRocket</title>
+     <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    video, canvas {
+      border-radius: 0.375rem; /* rounded-md */
+      border: 1px solid #d1d5db; /* border-gray-300 */
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+  
+</head>
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+    <!-- HEADER SECTION -->
+    <%- include('../partials/header') %>
+
+      <!-- SIDEBAR SECTIONS -->
+      <%- include('../partials/left-sidebar') %>
+        <%- include('../partials/right-iconbar') %>
+
+          <!-- MAIN CONTENT AREA -->
+          <div id="main-content">
+            <div class="container-fluid">
+                    <div class="flex flex-1 flex-col md:flex-row p-6 md:p-10 lg:p-14 xl:p-16 max-w-[1280px] mx-auto w-full">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-[220px] border border-gray-200 rounded-xl p-6 mb-8 md:mb-0 flex flex-col">
+      <h2 class="text-xs font-semibold text-gray-400 mb-6 tracking-widest">CLIENT ONBOARDING</h2>
+      <nav class="flex flex-col gap-2" role="tablist" aria-orientation="vertical">
+        <button id="tab-client-details" role="tab" aria-selected="true" aria-controls="panel-client-details" tabindex="0" class="text-purple-600 bg-purple-100 rounded-lg px-5 py-3 text-sm font-semibold flex items-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <i class="fas fa-user-circle"></i> Client Details
+        </button>
+        <button id="tab-kyc-documents" role="tab" aria-selected="false" aria-controls="panel-kyc-documents" tabindex="-1" class="text-gray-800 hover:bg-gray-50 rounded-lg px-5 py-3 text-sm font-medium flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <i class="fas fa-file-alt"></i> KYC Documents
+        </button>
+        <button id="tab-subscription-plan" role="tab" aria-selected="false" aria-controls="panel-subscription-plan" tabindex="-1" class="text-gray-800 hover:bg-gray-50 rounded-lg px-5 py-3 text-sm font-medium flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-600">
+          <i class="fas fa-clipboard-list"></i> Subscription Plan
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-0 md:ml-10">
+      <section class="max-w-4xl mx-auto" tabindex="0">
+        <!-- Client Details Panel -->
+        <div id="panel-client-details" role="tabpanel" aria-labelledby="tab-client-details" tabindex="0" class="tab-panel">
+          <h3 class="text-lg font-semibold mb-2 text-gray-900">Client Details</h3>
+          <p class="text-sm text-gray-600 mb-8">Fill and submit all the required information to onboard the client.</p>
+
+          <!-- <form id="clientForm" class="border border-gray-200 rounded-xl p-8 space-y-12" action="#" method="POST" novalidate> -->
+            <!-- Section 1: Client Details -->
+          <form id="kycForm" class="border border-gray-200 rounded-xl p-6 space-y-10" action="#" method="POST" enctype="multipart/form-data" novalidate>
+            <section>
+              <h4 class="text-base font-semibold mb-6 text-gray-900 border-b border-gray-300 pb-3">Client Details</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col gap-6 md:col-span-2">
+                  <div>
+                    <label for="clientName" class="block text-xs font-semibold text-gray-600 mb-1">Client Name <span class="text-red-500">*</span></label>
+                    <input id="clientName" disabled name="clientName" type="text" value="<%= userData.first_name %>" required aria-required="true" aria-describedby="clientNameError" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none invalid:ring-red-500" />
+                    <p id="clientNameError" class="text-red-600 text-xs mt-1 hidden"><%= userData.first_name %></p>
+                  </div>
+                  <div>
+                    <label for="clientEmail" class="block text-xs font-semibold text-gray-600 mb-1">Email Address <span class="text-red-500">*</span></label>
+                    <input id="clientEmail" disabled name="clientEmail" type="email" value="<%= userData.email %>" required aria-required="true" aria-describedby="clientEmailError" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none invalid:ring-red-500" />
+                    <p id="clientEmailError" class="text-red-600 text-xs mt-1 hidden"><%= userData.email %></p>
+                  </div>
+                  <div>
+                    <label for="clientPhone" class="block text-xs font-semibold text-gray-600 mb-1">Phone Number <span class="text-red-500">*</span></label>
+                    <input id="clientPhone" disabled value="<%= userData.phone_no%>" name="clientPhone" type="tel" placeholder="<%= userData.phone_no %>" pattern="^\d{10}$" required aria-required="true" aria-describedby="clientPhoneError" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none invalid:ring-red-500" />
+                    <p id="clientPhoneError" class="text-red-600 text-xs mt-1 hidden">Please enter a valid 10-digit phone number.</p>
+                  </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="flex flex-col items-center gap-3 border border-dashed border-purple-600 rounded-md p-4 w-28 h-28 justify-center self-start relative">
+                  <label for="clientLogo" class="flex flex-col items-center gap-1 cursor-pointer text-purple-600 text-xs select-none" aria-label="Upload client logo">
+                    <i class="fas fa-upload text-lg"></i> Upload
+                  </label>
+                  <input type="file" id="clientLogo" name="clientLogo" accept="image/*" aria-describedby="clientLogoHelp" class="hidden" />
+                  <p id="clientLogoHelp" class="text-[9px] text-gray-400 text-center leading-tight pointer-events-none select-none">Max 1 MB<br /><span class="text-[8px]">(250×150px)</span></p>
+                  <img id="previewLogo" alt="Preview of uploaded client logo" class="absolute inset-0 object-contain w-full h-full rounded-md hidden" />
+                </div>
+              </div>
+
+              <!-- Camera Capture -->
+              <div class="mt-8">
+                <label class="block text-xs font-semibold text-gray-600 mb-2">Capture Profile Photo</label>
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                  <div class="flex flex-col items-center gap-2">
+                    <video id="video" autoplay playsinline class="w-48 h-36 bg-gray-100"></video>
+                    <button type="button" id="startCameraBtn" class="bg-purple-600 text-white text-xs font-semibold rounded-md px-6 py-2 hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-600">Start Camera</button>
+                    <button type="button" id="captureBtn" class="bg-green-600 text-white text-xs font-semibold rounded-md px-6 py-2 hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-600 hidden">Capture</button>
+                    <button type="button" id="retakeBtn" class="bg-yellow-600 text-white text-xs font-semibold rounded-md px-6 py-2 hover:bg-yellow-700 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-600 hidden">Retake</button>
+                  </div>
+                  <div class="flex flex-col items-center gap-2">
+                    <canvas id="canvas" class="w-48 h-36 bg-gray-100 hidden"></canvas>
+                    <p id="cameraStatus" class="text-xs text-gray-500"></p>
+                  </div>
+                </div>
+                <input type="hidden" id="capturedImage" name="capturedImage" />
+              </div>
+            </section>
+
+            <!-- Section 2: Company Branding Details -->
+            <section>
+              <h4 class="text-base font-semibold mb-6 text-gray-900 border-b border-gray-300 pb-3">Company Branding Details</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label for="registeredCompanyName" class="block text-xs font-semibold text-gray-600 mb-1">Registered Company Name <span class="text-red-500">*</span></label>
+                  <input id="registeredCompanyName" name="registeredCompanyName" type="text" placeholder="Enter Company Name" required aria-required="true" aria-describedby="registeredCompanyNameError" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none invalid:ring-red-500" />
+                  <p id="registeredCompanyNameError" class="text-red-600 text-xs mt-1 hidden">Please enter the registered company name.</p>
+                </div>
+                <div>
+                  <label for="brandName" class="block text-xs font-semibold text-gray-600 mb-1">Brand Name (Optional)</label>
+                  <input id="brandName" name="brandName" type="text" placeholder="Enter Brand name" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                </div>
+                <div>
+                  <label for="companyEmail" class="block text-xs font-semibold text-gray-600 mb-1">Company Email ID <span class="text-red-500">*</span></label>
+                  <input id="companyEmail" name="companyEmail" type="email" placeholder="superadmin@dispatch.co.in" required aria-required="true" aria-describedby="companyEmailError" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none invalid:ring-red-500" />
+                  <p id="companyEmailError" class="text-red-600 text-xs mt-1 hidden">Please enter a valid company email.</p>
+                </div>
+                <div>
+                  <label for="website" class="block text-xs font-semibold text-gray-600 mb-1">Website (Optional)</label>
+                  <input id="website" name="website" type="url" placeholder="https://example.com" class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                </div>
+              </div>
+            </section>
+
+            <!-- Save Button -->
+            <!-- <div class="flex justify-end">
+              <button id="saveBtn" type="submit" class="bg-purple-600 text-white text-sm font-semibold rounded-md px-10 py-3 hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-1">Save & Continue</button>
+            </div>
+        -->
+        </div>
+
+        <!-- KYC Documents Panel -->
+        <div id="panel-kyc-documents" role="tabpanel" aria-labelledby="tab-kyc-documents" tabindex="0" class="tab-panel hidden">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900">KYC Documents</h3>
+          <p class="text-sm text-gray-600 mb-6">Upload required documents for KYC verification.</p>
+
+          <!-- Company Type Radio Buttons -->
+          <fieldset class="mb-8 border border-gray-300 rounded-lg p-4">
+            <legend class="text-sm font-semibold text-gray-700 mb-3">Choose Company Type:</legend>
+            <div class="flex flex-wrap gap-6">
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="radio" name="companyType" value="Individual" class="form-radio text-purple-600" checked />
+                <span class="ml-2 text-sm text-gray-700 select-none">Individual</span>
+              </label>
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="radio" name="companyType" value="Proprietor" class="form-radio text-purple-600" />
+                <span class="ml-2 text-sm text-gray-700 select-none">Proprietor</span>
+              </label>
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="radio" name="companyType" value="Company" class="form-radio text-purple-600" />
+                <span class="ml-2 text-sm text-gray-700 select-none">Company</span>
+              </label>
+            </div>
+          </fieldset>
+
+            <!-- Aadhaar Section -->
+            <section>
+              <h4 class="text-sm font-semibold mb-4 text-gray-900 border-b border-gray-300 pb-2">Aadhaar</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                <div class="flex flex-col gap-2 sm:col-span-1">
+                  <label for="aadhaarNumber" class="text-xs font-semibold text-gray-600">Aadhaar Number</label>
+                  <input type="text" id="aadhaarNumber" name="aadhaarNumber" placeholder="Enter Aadhaar Number" pattern="^\d{12}$" aria-describedby="aadhaarNumberError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="aadhaarNumberError" class="text-red-600 text-xs mt-1 hidden">Please enter a valid 12-digit Aadhaar number.</p>
+                </div>
+                <div class="flex flex-col gap-2 sm:col-span-2">
+                  <label for="aadhaarUpload" class="text-xs font-semibold text-gray-600">Upload Aadhaar Document</label>
+                  <input type="file" id="aadhaarUpload" name="aadhaarUpload" accept="image/*,application/pdf" aria-describedby="aadhaarUploadError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="aadhaarUploadError" class="text-red-600 text-xs mt-1 hidden">Please upload Aadhaar document.</p>
+                </div>
+              </div>
+            </section>
+
+                <!-- GST Section -->
+              <section>
+                <h4 class="text-sm font-semibold mb-4 text-gray-900 border-b border-gray-300 pb-2">GST</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                  <div class="flex flex-col gap-2 sm:col-span-1">
+                    <label for="gstNo" class="text-xs font-semibold text-gray-600">GST Number</label>
+                    <input type="text" id="gstNo" name="gstNo" maxlength="15" placeholder="Enter GST No"
+                      class="form-control border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                    <input type="hidden" id="hidden_trade_name" name="trade_name">
+                    <input type="hidden" id="hidden_constitution" name="constitution_of_business">
+                    <input type="hidden" id="hidden_nature" name="nature_of_business">
+                    <div id="gstError" class="text-red-600 text-xs mt-1 hidden"></div>
+                    <div id="gstResponse" class="text-xs text-gray-500 mt-1"></div>
+                    <span id="gstSuccess" class="text-green-600 text-sm font-medium hidden">✔</span>
+                  </div>
+                  <div class="flex flex-col gap-2 sm:col-span-2">
+                    <label for="gstdoc" class="text-xs font-semibold text-gray-600">Upload GST Document</label>
+                    <input type="file" id="gstdoc" name="gstdoc" accept="image/*" required disabled
+                      onchange="handleFileUpload(event, 'gstdoc')" class="form-control border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                    <small class="text-gray-500 text-xs">Upload (Max 1MB)</small>
+                  </div>
+                </div>
+              </section>
+
+              <!-- PAN Section -->
+              <section class="mt-6">
+                <h4 class="text-sm font-semibold mb-4 text-gray-900 border-b border-gray-300 pb-2">PAN</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                  <div class="flex flex-col gap-2 sm:col-span-1">
+                    <label for="company_pan" class="text-xs font-semibold text-gray-600">PAN Number</label>
+                    <input type="text" id="company_pan" name="company_pan" maxlength="10" placeholder="Enter PAN"
+                      class="form-control border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                    <input type="hidden" id="hidden_pan_holder_name" name="pan_holder_name">
+                    <div id="pan_error" class="text-red-600 text-xs mt-1 hidden"></div>
+                    <div id="pan_response" class="text-xs text-gray-500 mt-1"></div>
+                  </div>
+                  <div class="flex flex-col gap-2 sm:col-span-2">
+                    <label for="pandoc" class="text-xs font-semibold text-gray-600">Upload PAN Document</label>
+                    <input type="file" id="pandoc" name="pandoc" accept="image/*" required
+                      onchange="handleFileUpload(event, 'pandoc', 'gstdoc')"
+                      class="form-control border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                    <small class="text-gray-500 text-xs">Upload (Max 1MB)</small>
+                  </div>
+                </div>
+              </section>
+            <!-- Company Registration Section -->
+            <section>
+              <h4 class="text-sm font-semibold mb-4 text-gray-900 border-b border-gray-300 pb-2">Company Registration</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                <div class="flex flex-col gap-2 sm:col-span-1">
+                  <label for="companyRegNumber" class="text-xs font-semibold text-gray-600">Company Registration Number</label>
+                  <input type="text" id="companyRegNumber" name="companyRegNumber" placeholder="Enter Company Reg. Number" aria-describedby="companyRegNumberError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="companyRegNumberError" class="text-red-600 text-xs mt-1 hidden">Please enter company registration number.</p>
+                </div>
+                <div class="flex flex-col gap-2 sm:col-span-2">
+                  <label for="companyRegUpload" class="text-xs font-semibold text-gray-600">Upload Company Registration Document</label>
+                  <input type="file" id="companyRegUpload" name="companyRegUpload" accept="image/*,application/pdf" aria-describedby="companyRegUploadError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="companyRegUploadError" class="text-red-600 text-xs mt-1 hidden">Please upload company registration document.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Cancelled Check Section -->
+            <section>
+              <h4 class="text-sm font-semibold mb-4 text-gray-900 border-b border-gray-300 pb-2">Cancelled Check</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+                <div class="flex flex-col gap-2 sm:col-span-1">
+                  <label for="cancelledCheckNumber" class="text-xs font-semibold text-gray-600">Cancelled Check Number</label>
+                  <input type="text" id="cancelledCheckNumber" name="cancelledCheckNumber" placeholder="Enter Cancelled Check Number" aria-describedby="cancelledCheckNumberError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="cancelledCheckNumberError" class="text-red-600 text-xs mt-1 hidden">Please enter cancelled check number.</p>
+                </div>
+                <div class="flex flex-col gap-2 sm:col-span-2">
+                  <label for="cancelledCheckUpload" class="text-xs font-semibold text-gray-600">Upload Cancelled Check Document</label>
+                  <input type="file" id="cancelledCheckUpload" name="cancelledCheckUpload" accept="image/*,application/pdf" aria-describedby="cancelledCheckUploadError" class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none" />
+                  <p id="cancelledCheckUploadError" class="text-red-600 text-xs mt-1 hidden">Please upload cancelled check document.</p>
+                </div>
+              </div>
+            </section>
+
+            <div class="flex justify-end mt-6">
+              <button type="submit" class="bg-purple-600 text-white text-sm font-semibold rounded-md px-10 py-3 hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-1">Upload Documents</button>
+            </div>
+          </form>
+
+          <div id="kycStatusSection" class="mt-10 border border-gray-200 rounded-xl p-6 max-w-4xl mx-auto">
+            <h4 class="text-sm font-semibold mb-5 text-gray-900">KYC Status</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <p class="text-xs font-semibold text-gray-500 mb-2">KYC Status</p>
+                <span id="kycStatus" class="inline-block bg-yellow-100 text-yellow-700 text-xs font-medium px-3 py-1 rounded">Pending</span>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-500 mb-2">Documents Uploaded</p>
+                <span id="kycDocs" class="inline-block bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded">No documents</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscription Plan Panel -->
+        <div id="panel-subscription-plan" role="tabpanel" aria-labelledby="tab-subscription-plan" tabindex="0" class="tab-panel hidden">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900">Subscription Plan</h3>
+          <p class="text-sm text-gray-600 mb-6">View and manage your subscription plan details.</p>
+
+          <div class="border border-gray-200 rounded-xl p-6 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-2">Plan</p>
+              <p id="planName" class="text-sm text-gray-700">Trial</p>
+              <button id="upgradeBtn" type="button" class="text-purple-600 text-xs mt-2 inline-block hover:underline focus:outline-none focus:ring-2 focus:ring-purple-600 rounded">Upgrade</button>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-2">Duration</p>
+              <p id="planDuration" class="text-sm text-gray-700">15 Days</p>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-2">Status</p>
+              <span id="planStatus" class="inline-block bg-green-100 text-green-700 text-xs px-3 py-1 rounded">Active</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+            <!-- SCRIPTS -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+            <!-- FOOTER -->
+            <%- include('../partials/footer') %>
+          </div>
+  </div>
+
+ <script>
+    // Tabs functionality
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+
+    function activateTab(tab) {
+      tabs.forEach(t => {
+        const selected = t === tab;
+        t.setAttribute('aria-selected', selected);
+        t.tabIndex = selected ? 0 : -1;
+        t.classList.toggle('text-purple-600', selected);
+        t.classList.toggle('bg-purple-100', selected);
+        t.classList.toggle('font-semibold', selected);
+        t.classList.toggle('shadow-sm', selected);
+        t.classList.toggle('text-gray-800', !selected);
+        t.classList.toggle('hover:bg-gray-50', !selected);
+        t.classList.toggle('font-medium', !selected);
+      });
+
+      tabPanels.forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      const panelId = tab.getAttribute('aria-controls');
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        panel.classList.remove('hidden');
+        panel.focus();
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateTab(tab);
+      });
+
+      tab.addEventListener('keydown', e => {
+        let index = tabs.indexOf(document.activeElement);
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          index = (index + 1) % tabs.length;
+          tabs[index].focus();
+          activateTab(tabs[index]);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          index = (index - 1 + tabs.length) % tabs.length;
+          tabs[index].focus();
+          activateTab(tabs[index]);
+        }
+      });
+    });
+
+
+    const clientLogo = document.getElementById('clientLogo');
+    const previewLogo = document.getElementById('previewLogo');
+
+    // Subscription plan elements
+    const planName = document.getElementById('planName');
+    const planDuration = document.getElementById('planDuration');
+    const planStatus = document.getElementById('planStatus');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+
+    // Camera elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const cameraStatus = document.getElementById('cameraStatus');
+    const capturedImageInput = document.getElementById('capturedImage');
+
+    let stream = null;
+
+    startCameraBtn.addEventListener('click', async () => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          video.srcObject = stream;
+          cameraStatus.textContent = 'Camera started. Position yourself and click Capture.';
+          startCameraBtn.classList.add('hidden');
+          captureBtn.classList.remove('hidden');
+          retakeBtn.classList.add('hidden');
+          canvas.classList.add('hidden');
+          video.classList.remove('hidden');
+        } catch (err) {
+          alert('Could not access the camera. Please allow camera permissions.');
+          cameraStatus.textContent = '';
+        }
+      } else {
+        alert('Camera API not supported in this browser.');
+      }
+    });
+
+    captureBtn.addEventListener('click', () => {
+      if (!stream) return;
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.classList.remove('hidden');
+      video.classList.add('hidden');
+      cameraStatus.textContent = 'Photo captured.';
+      captureBtn.classList.add('hidden');
+      retakeBtn.classList.remove('hidden');
+
+      // Stop camera stream
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+
+      // Save image data to hidden input as base64
+      const dataUrl = canvas.toDataURL('image/png');
+      capturedImageInput.value = dataUrl;
+    });
+
+    retakeBtn.addEventListener('click', async () => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          video.srcObject = stream;
+          cameraStatus.textContent = 'Camera restarted. Position yourself and click Capture.';
+          startCameraBtn.classList.add('hidden');
+          captureBtn.classList.remove('hidden');
+          retakeBtn.classList.add('hidden');
+          canvas.classList.add('hidden');
+          video.classList.remove('hidden');
+          capturedImageInput.value = '';
+        } catch (err) {
+          alert('Could not access the camera. Please allow camera permissions.');
+          cameraStatus.textContent = '';
+        }
+      } else {
+        alert('Camera API not supported in this browser.');
+      }
+    });
+
+    // Validate input fields
+    // function validateInput(input, errorElem, validatorFn) {
+    //   if (!validatorFn(input.value.trim())) {
+    //     input.classList.add('invalid');
+    //     errorElem.classList.remove('hidden');
+    //     return false;
+    //   } else {
+    //     input.classList.remove('invalid');
+    //     errorElem.classList.add('hidden');
+    //     return true;
+    //   }
+    // }
+
+    // function isNotEmpty(value) {
+    //   return value.length > 0;
+    // }
+
+    // function isValidEmail(value) {
+    //   // Simple email regex
+    //   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    // }
+
+    // function isValidPhone(value) {
+    //   return /^\d{10}$/.test(value);
+    // }
+
+    clientLogo.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 1024 * 1024) {
+          alert('File size exceeds 1 MB. Please select a smaller file.');
+          clientLogo.value = '';
+          previewLogo.src = '';
+          previewLogo.classList.add('hidden');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          previewLogo.src = event.target.result;
+          previewLogo.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewLogo.src = '';
+        previewLogo.classList.add('hidden');
+      }
+    });
+
+    // clientForm.addEventListener('submit', (e) => {
+    //   e.preventDefault();
+
+    //   const validName = validateInput(clientName, clientNameError, isNotEmpty);
+    //   const validEmail = validateInput(clientEmail, clientEmailError, isValidEmail);
+    //   const validPhone = validateInput(clientPhone, clientPhoneError, isValidPhone);
+    //   const validRegCompany = validateInput(registeredCompanyName, registeredCompanyNameError, isNotEmpty);
+    //   const validCompanyEmail = validateInput(companyEmail, companyEmailError, isValidEmail);
+
+    //   if (!validName || !validEmail || !validPhone || !validRegCompany || !validCompanyEmail) {
+    //     return;
+    //   }
+
+    //   alert('Client details saved successfully!');
+    // });
+
+    // KYC and subscription tabs and forms handled in previous code (unchanged)...
+
+    // Tabs initialization
+    activateTab(tabs[0]);
+  </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+            // ========================= PAN VERIFICATION =========================
+      const panInput = document.getElementById('company_pan');
+      const panError = document.getElementById('pan_error');
+      const panResponse = document.getElementById('pan_response');
+      const panFileInput = document.getElementById('pandoc');
+
+      panInput?.addEventListener('blur', async () => {
+        const pan = panInput.value.trim().toUpperCase();
+
+        // Reset UI
+        panError.style.display = 'none';
+        panError.innerText = '';
+        panResponse.innerHTML = '';
+        panFileInput.disabled = true;
+
+        // Format validation
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(pan)) {
+          panError.innerText = "❌ Invalid PAN format";
+          panError.style.display = 'block';
+          return;
+        }
+
+        try {
+          const res = await axios.post('/client-kyc-verification', { docNumber: pan });
+          const msg = res?.data?.data?.msg;
+          const status = res?.data?.data?.status;
+
+          if (status === 1 && msg?.STATUS === "Active") {
+            // PAN is valid and active
+            panError.style.display = 'none';
+            panError.innerText = '';
+
+            panResponse.innerHTML = `
+              <div class="alert alert-success p-2 mb-2">
+                ✅ PAN is <strong>Active</strong> and <strong>Verified</strong><br>
+                Name on Card: <strong>${msg.NameOnTheCard}</strong><br>
+                Status: ${msg.StatusDescription}
+              </div>
+            `;
+
+            panFileInput.disabled = false;
+            // Save PAN name to hidden input
+            const hiddenField = document.getElementById('hidden_pan_holder_name');
+            if (hiddenField) hiddenField.value = msg.NameOnTheCard || '';
+          } else {
+            // PAN inactive or not found
+            panError.innerText = "❌ PAN not active or not valid";
+            panError.style.display = 'block';
+          }
+        } catch (err) {
+          panError.innerText = "❌ Failed to verify PAN. Please try again.";
+          panError.style.display = 'block';
+        }
+      });
+      // ========================= GSTIN VERIFICATION =========================
+      const gstInput = document.getElementById('gstNo');
+      const gstError = document.getElementById('gstError');
+      const gstResponse = document.getElementById('gstResponse');
+      const gstSuccess = document.getElementById('gstSuccess');
+      const gstFileInput = document.getElementById('gstdoc');
+
+      gstInput?.addEventListener('blur', async () => {
+        const gstNumber = gstInput.value.trim();
+        gstError.style.display = 'none';
+        gstResponse.innerHTML = '';
+        gstSuccess.style.display = 'none';
+        if (gstFileInput) gstFileInput.disabled = true;
+
+        if (gstNumber.length !== 15) {
+          gstError.textContent = 'Please enter a valid 15-digit GST number.';
+          gstError.style.display = 'block';
+          return;
+        }
+
+        try {
+          const res = await axios.post('/client-gstin-verification', { gstNumber });
+          if (res.data.success) {
+            const { gstin, tradeName, constitutionOfBusiness, natureOfBusinessActivities } = res.data;
+
+            gstResponse.innerHTML = `
+            <div class="alert alert-success p-2 mb-2">
+            ✅ <strong>GSTIN:</strong> ${gstin}<br>
+            <strong>Trade Name:</strong> ${tradeName}<br>
+            <strong>Constitution of Business:</strong> ${constitutionOfBusiness}<br>
+            <strong>Nature of Business Activities:</strong> ${natureOfBusinessActivities}
+            </div>
+            `;
+            // Set hidden input fields
+            document.getElementById('hidden_trade_name').value = tradeName || '';
+            document.getElementById('hidden_constitution').value = constitutionOfBusiness || '';
+            document.getElementById('hidden_nature').value = natureOfBusinessActivities || '';
+
+            // Enable GST document upload
+            if (gstFileInput) gstFileInput.disabled = false;
+          } else {
+            gstError.textContent = res.data.message || 'Invalid GST number.';
+            gstError.style.display = 'block';
+            if (gstFileInput) gstFileInput.disabled = true;
+          }
+        } catch (error) {
+          gstError.textContent = error?.response?.data?.message || 'Something went wrong!';
+          gstError.style.display = 'block';
+          if (gstFileInput) gstFileInput.disabled = true;
+        }
+      });
+
+    </script>
+
+    <!-- <script>
+document.getElementById("kycForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // 🔍 Step 1: Check if GST and PAN are verified
+  const gstSuccess = document.getElementById("gstSuccess");
+  const panHolderName = document.getElementById("hidden_pan_holder_name").value;
+
+  const gstVerified = gstSuccess && !gstSuccess.classList.contains("hidden");
+  const panVerified = panHolderName !== "";
+
+  // if (!gstVerified || !panVerified) {
+  //   alert("❌ Please verify both GST and PAN before submitting.");
+  //   return;
+  // }
+
+  // 📦 Step 2: Prepare FormData
+  const form = document.getElementById("kycForm");
+  const formData = new FormData();
+
+  // 👤 Client Details
+  formData.append("clientName", document.getElementById("clientName")?.value);
+  formData.append("clientEmail", document.getElementById("clientEmail")?.value);
+  formData.append("clientPhone", document.getElementById("clientPhone")?.value);
+
+  // 📷 Selfie Capture
+  const canvas = document.getElementById("canvas");
+  if (canvas && !canvas.classList.contains("hidden")) {
+    canvas.toBlob((blob) => {
+      formData.append("selfie", blob, "selfie.png");
+      proceedUpload(); // Continue with rest of form upload after selfie blob is ready
+    }, "image/png");
+  } else {
+    proceedUpload(); // If no canvas/selfie, proceed directly
+  }
+
+  // 📤 Function to handle form upload
+  function proceedUpload() {
+    // 🏢 Company Branding
+    formData.append("registeredCompanyName", document.getElementById("registeredCompanyName")?.value);
+    formData.append("brandName", document.getElementById("brandName")?.value);
+    formData.append("companyEmail", document.getElementById("companyEmail")?.value);
+    formData.append("website", document.getElementById("website")?.value);
+
+    // 🏢 Company Type
+    const companyType = document.querySelector('input[name="companyType"]:checked')?.value;
+    formData.append("companyType", companyType);
+
+    // 📄 Aadhaar
+    formData.append("aadhaarNumber", document.getElementById("aadhaarNumber")?.value);
+    if (document.getElementById("aadhaarUpload")?.files[0])
+      formData.append("aadhaarUpload", document.getElementById("aadhaarUpload").files[0]);
+
+    // 💳 PAN
+    formData.append("company_pan", document.getElementById("company_pan")?.value);
+    formData.append("pan_holder_name", panHolderName);
+    if (document.getElementById("pandoc")?.files[0])
+      formData.append("pandoc", document.getElementById("pandoc").files[0]);
+
+    // 🧾 GST
+    formData.append("gstNo", document.getElementById("gstNo")?.value);
+    formData.append("trade_name", document.getElementById("hidden_trade_name").value);
+    formData.append("constitution_of_business", document.getElementById("hidden_constitution").value);
+    formData.append("nature_of_business", document.getElementById("hidden_nature").value);
+    if (document.getElementById("gstdoc")?.files[0])
+      formData.append("gstdoc", document.getElementById("gstdoc").files[0]);
+
+    // 🧾 Company Registration
+    formData.append("companyRegNumber", document.getElementById("companyRegNumber")?.value);
+    if (document.getElementById("companyRegUpload")?.files[0])
+      formData.append("companyRegUpload", document.getElementById("companyRegUpload").files[0]);
+
+    // 🏦 Cancelled Check
+    formData.append("cancelledCheckNumber", document.getElementById("cancelledCheckNumber")?.value);
+    if (document.getElementById("cancelledCheckUpload")?.files[0])
+      formData.append("cancelledCheckUpload", document.getElementById("cancelledCheckUpload").files[0]);
+
+    // 📎 Client Logo
+    if (document.getElementById("clientLogo")?.files[0])
+      formData.append("clientLogo", document.getElementById("clientLogo").files[0]);
+
+    // ✅ Submit via Axios
+    axios.post("/submit-kyc", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((response) => {
+      if (response.data.success) {
+        alert("✅ KYC submitted successfully!");
+        location.reload();
+      } else {
+        alert("❌ Submission failed: " + (response.data.message || "Unknown error"));
+      }
+    })
+    .catch((err) => {
+      console.error("Error:", err);
+      alert("❌ Error submitting KYC. Please try again.");
+    });
+  }
+});
+</script> -->
+<script>
+document.getElementById("kycForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // 🔍 Step 1: Check if GST and PAN are verified
+  const gstSuccess = document.getElementById("gstSuccess");
+  const panHolderName = document.getElementById("hidden_pan_holder_name").value;
+
+  const gstVerified = gstSuccess && !gstSuccess.classList.contains("hidden");
+  const panVerified = panHolderName !== "";
+
+  // if (!gstVerified || !panVerified) {
+  //   alert("❌ Please verify both GST and PAN before submitting.");
+  //   return;
+  // }
+
+  // 📦 Step 2: Prepare FormData
+  const form = document.getElementById("kycForm");
+  const formData = new FormData();
+
+  // 👤 Client Details
+  formData.append("clientName", document.getElementById("clientName")?.value);
+  formData.append("clientEmail", document.getElementById("clientEmail")?.value);
+  formData.append("clientPhone", document.getElementById("clientPhone")?.value);
+
+  // 📷 Selfie Capture
+  const canvas = document.getElementById("canvas");
+  if (canvas && !canvas.classList.contains("hidden")) {
+    canvas.toBlob((blob) => {
+      formData.append("selfie", blob, "selfie.png");
+      proceedUpload(); // Continue with rest of form upload after selfie blob is ready
+    }, "image/png");
+  } else {
+    proceedUpload(); // If no canvas/selfie, proceed directly
+  }
+
+  // 📤 Function to handle form upload
+  function proceedUpload() {
+    // 🏢 Company Branding
+    formData.append("registeredCompanyName", document.getElementById("registeredCompanyName")?.value);
+    formData.append("brandName", document.getElementById("brandName")?.value);
+    formData.append("companyEmail", document.getElementById("companyEmail")?.value);
+    formData.append("website", document.getElementById("website")?.value);
+
+    // 🏢 Company Type
+    const companyType = document.querySelector('input[name="companyType"]:checked')?.value;
+    formData.append("companyType", companyType);
+
+    // 📄 Aadhaar
+    formData.append("aadhaarNumber", document.getElementById("aadhaarNumber")?.value);
+    if (document.getElementById("aadhaarUpload")?.files[0])
+      formData.append("aadhaarUpload", document.getElementById("aadhaarUpload").files[0]);
+
+    // 💳 PAN
+    formData.append("company_pan", document.getElementById("company_pan")?.value);
+    formData.append("pan_holder_name", panHolderName);
+    if (document.getElementById("pandoc")?.files[0])
+      formData.append("pandoc", document.getElementById("pandoc").files[0]);
+
+    // 🧾 GST
+    formData.append("gstNo", document.getElementById("gstNo")?.value);
+    formData.append("trade_name", document.getElementById("hidden_trade_name").value);
+    formData.append("constitution_of_business", document.getElementById("hidden_constitution").value);
+    formData.append("nature_of_business", document.getElementById("hidden_nature").value);
+    if (document.getElementById("gstdoc")?.files[0])
+      formData.append("gstdoc", document.getElementById("gstdoc").files[0]);
+
+    // 🧾 Company Registration
+    formData.append("companyRegNumber", document.getElementById("companyRegNumber")?.value);
+    if (document.getElementById("companyRegUpload")?.files[0])
+      formData.append("companyRegUpload", document.getElementById("companyRegUpload").files[0]);
+
+    // 🏦 Cancelled Check
+    formData.append("cancelledCheckNumber", document.getElementById("cancelledCheckNumber")?.value);
+    if (document.getElementById("cancelledCheckUpload")?.files[0])
+      formData.append("cancelledCheckUpload", document.getElementById("cancelledCheckUpload").files[0]);
+
+    // 📎 Client Logo
+    if (document.getElementById("clientLogo")?.files[0])
+      formData.append("clientLogo", document.getElementById("clientLogo").files[0]);
+
+    // ✅ Submit via Axios
+    axios.post("/submit-kyc", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((response) => {
+      if (response.data.success) {
+        alert("✅ KYC submitted successfully!");
+        location.reload();
+      } else {
+        alert("❌ Submission failed: " + (response.data.message || "Unknown error"));
+      }
+    })
+    .catch((err) => {
+      console.error("Error:", err);
+      alert("❌ Error submitting KYC. Please try again.");
+    });
+  }
+});
+</script>
+
+</body>
+
+</html>

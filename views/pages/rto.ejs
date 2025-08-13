@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="hi">
+    <head>
+        <%- include('../partials/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <%- include('../partials/header') %>
+        <%- include('../partials/left-sidebar') %>
+        <%- include('../partials/right-iconbar') %>
+
+        <!-- mani page content body part -->
+
+        <body data-theme="light" class="font-nunito">
+
+            <div id="wrapper" class="theme-cyan">
+
+ <div id="main-content">
+        <div class="container-fluid">
+            <div class="block-header">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <h2>iOT Dashboard</h2>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>                            
+                            <li class="breadcrumb-item">Dashboard</li>
+                            <li class="breadcrumb-item active">IOT</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="d-flex flex-row-reverse">
+                            <div class="page_action">
+                                <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> Download report</button>
+                                <button type="button" class="btn btn-secondary"><i class="fa fa-send"></i> Send report</button>
+                            </div>
+                            <div class="p-2 d-flex">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix row-deck">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card number-chart">
+                        <div class="body">
+                            <span class="text-uppercase">ENERGY USE</span>
+                            <h4 class="mb-0 mt-2">250 kw/h <i class="fa fa-level-up font-12"></i></h4>
+                            <small class="text-muted">Analytics for last week</small>
+                        </div>
+                        <div class="sparkline" data-type="line" data-spot-Radius="0" data-offset="90" data-width="100%" data-height="95px"
+                        data-line-Width="1" data-line-Color="#39afa6" data-fill-Color="#73cec7">4,1,5,2,7,3,4</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card number-chart">
+                        <div class="body">
+                            <span class="text-uppercase">LIGHTS</span>
+                            <h4 class="mb-0 mt-2">6 Lights are ON</h4>
+                            <small class="text-muted">Analytics for last week</small>
+                        </div>
+                        <div class="sparkline" data-type="line" data-spot-Radius="0" data-offset="90" data-width="100%" data-height="95px"
+                        data-line-Width="1" data-line-Color="#ffa901" data-fill-Color="#efc26b">1,4,2,3,6,2</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card number-chart">
+                        <div class="body">
+                            <span class="text-uppercase">DAILY AVG TEMPRATURE</span>
+                            <h4 class="mb-0 mt-2">20° C</h4>
+                            <small class="text-muted">Analytics for last week</small>
+                        </div>
+                        <div class="sparkline" data-type="line" data-spot-Radius="0" data-offset="90" data-width="100%" data-height="95px"
+                        data-line-Width="1" data-line-Color="#38c172" data-fill-Color="#84d4a6">1,4,2,3,1,5</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card">
+                        <div class="body d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-0">Security System</h6>
+                                <small class="text-success">Triggered</small><small class="text-danger d-none">Loosed</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-danger" type="button">Loose</button>
+                                <button class="btn btn-outline-success d-none" type="button">Trigger</button>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="body d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-0">Main Gate</h6>
+                                <small class="text-success d-none">Closed</small><small class="text-danger">Opened</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-danger d-none" type="button">Open</button>
+                                <button class="btn btn-outline-success" type="button">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix row-deck">
+                <div class="col-lg-5 col-md-12 col-sm-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Spending by Year</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <div id="Google-Analytics-Dashboard" style="height: 210px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="card appliances-grp">
+                        <div class="body clearfix">
+                            <div class="icon"><img alt="" src="assets/images/air-conditioner.png"></div>
+                            <div class="content">
+                                <h6>Air Conditioner <span class="text-success">On</span></h6>
+                                <p>Temprature <span class="text-warning">25° C</span></p>
+                                <p>Status <span class="text-warning">Cooling On</span></p>
+                            </div>
+                        </div>
+                        <div class="body clearfix">
+                            <div class="icon"><img alt="" src="assets/images/fridge.png"></div>
+                            <div class="content">
+                                <h6>Fridge <span class="text-success">On</span></h6>
+                                <p>Temprature <span class="text-primary">10° C</span></p>
+                                <p>Status <span class="text-success">Stand By</span></p>
+                            </div>
+                        </div>
+                        <div class="body clearfix">
+                            <div class="icon"><img alt="" src="assets/images/washing-machine.png"></div>
+                            <div class="content">
+                                <h6>Washing Machine <span class="text-success">On</span></h6>
+                                <p>Remaining Time <span class="text-primary">01:23:21</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Day/Night Use</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <div id="DayNight-Use" style="height: 13rem"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row clearfix row-deck">
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Lights Indoor</h2>
+                            <ul class="header-dropdown m-r--5">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                                        <i class="zmdi zmdi-more-vert"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">All On</a></li>
+                                        <li><a href="javascript:void(0);">All Off</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <ul class="list-group">
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Kitchen</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Dining Room</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Living Room</h6>
+                                    <span class="text-danger">Not Connected</span>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Kitchen</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Bath Room</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Store Room</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Lights Outdoor</h2>
+                            <ul class="header-dropdown m-r--5">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                                        <i class="zmdi zmdi-more-vert"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">All On</a></li>
+                                        <li><a href="javascript:void(0);">All Off</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <ul class="list-group">
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Front Door</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Garage</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Garden</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Back Door</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Pool</h6>
+                                    <span class="text-danger">Fused</span>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Main Door</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Other Appliences</h2>
+                            <ul class="header-dropdown m-r--5">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                                        <i class="zmdi zmdi-more-vert"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">All On</a></li>
+                                        <li><a href="javascript:void(0);">All Off</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <ul class="list-group">
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">TV</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Apple Tv</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Sound Ststem</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Air Conditioner</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Fridge</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                                <li class="d-flex justify-content-between list-group-item align-items-center">
+                                    <h6 class="mb-0">Washing Machine</h6>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked="">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+            <%- include('../partials/footer') %>
+
+            <!-- स्क्रिप्ट्स -->
+            <script src="/js/main.js"></script>
+        </body>
+    </html>

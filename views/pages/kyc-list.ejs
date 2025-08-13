@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('../partials/head') %>
+</head>
+
+<body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+        <%- include('../partials/header') %>
+            <%- include('../partials/left-sidebar') %>
+                <%- include('../partials/right-iconbar') %>
+
+                    <div id="main-content">
+                        <div class="container-fluid">
+                            <div class="block-header">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <h2>KYC Submissions</h2>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/"><i class="fa fa-dashboard"></i></a>
+                                            </li>
+                                            <li class="breadcrumb-item active">KYC Submissions</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container mt-5">
+                                <h2 class="mb-4">Pending KYC Submissions</h2>
+
+                                <% if (typeof error !=='undefined' && error) { %>
+                                    <div class="alert alert-danger">
+                                        <%= error %>
+                                    </div>
+                                <% } %>
+
+                                <% if (!kycList || kycList.length===0) { %>
+                                    <p>No pending KYC submissions found.</p>
+                                <% } else { %>
+                                    <div style="overflow-x: auto;">
+                                        <table class="table table-bordered table-striped" style="min-width: 1200px;">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>User Name</th>
+                                                    <th>User Email</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Business Type</th>
+                                                    <th>Sub Type</th>
+                                                    <th>Selfie</th>
+                                                    <th>Aadhaar Front</th>
+                                                    <th>Aadhaar Back</th>
+                                                    <th>PAN Name</th>
+                                                    <th>PAN Number</th>
+                                                    <th>GST Number</th>
+                                                    <th>GST Trade Name</th>
+                                                    <th>GST Business Type</th>
+                                                    <th>GST Constitution</th>
+                                                    <th>Submitted At</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% kycList.forEach((kyc)=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= kyc.id %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.first_name || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.user_email || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.name || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.email || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.business_type || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.sub_type || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (kyc.selfie_path) { %>
+                                                                <a href="/<%= kyc.selfie_path %>"
+                                                                    target="_blank">View</a>
+                                                            <% } else { %> - <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (kyc.aadhaar_front) { %>
+                                                                <a href="/<%= kyc.aadhaar_front %>"
+                                                                    target="_blank">View</a>
+                                                            <% } else { %> - <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (kyc.aadhaar_back) { %>
+                                                                <a href="/<%= kyc.aadhaar_back %>"
+                                                                    target="_blank">View</a>
+                                                            <% } else { %> - <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.pan_name || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.pan_number || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.gst_number || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.gst_trade_name || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.gst_nature_of_business_activities || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.gst_constitution_of_business || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.submitted_at ? new
+                                                                Date(kyc.submitted_at).toISOString().slice(0,
+                                                                19).replace('T', ' ' ) : '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= kyc.submission_status || '-' %>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-success btn-sm approveKYC"
+                                                                data-id="<%= kyc.user_id %>">Approve</button>
+                                                            <button class="btn btn-danger btn-sm rejectKYC"
+                                                                data-id="<%= kyc.user_id %>">Reject</button>
+                                                            <button class="btn btn-primary btn-sm activateKYC"
+                                                                data-id="<%= kyc.user_id %>">Activate</button>
+                                                            <button class="btn btn-warning btn-sm deactivateKYC"
+                                                                data-id="<%= kyc.user_id %>">Deactivate</button>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                        <%- include('../partials/footer') %>
+                            <script>
+                                function showSuccessAlert(message) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: message || 'Action completed successfully!',
+                                    }).then(() => location.reload());
+                                }
+
+                                function showErrorAlert(message) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: message || 'Something went wrong.',
+                                    });
+                                }
+
+                                // ✅ Approve
+                                $(".approveKYC").click(function () {
+                                    const clientId = $(this).data("id");
+                                    Swal.fire({
+                                        title: 'Approve KYC & Set Payment Mode',
+                                        html: `
+                                            <div class="mb-3">
+                                                <p>Are you sure you want to approve this KYC?</p>
+                                                <label for="paymentMode" class="form-label">Select Payment Mode:</label>
+                                                <select id="paymentMode" class="form-select">
+                                                    <option value="">Choose Payment Mode</option>
+                                                    <option value="prepaid">Prepaid</option>
+                                                    <option value="postpaid">Postpaid</option>
+                                                </select>
+                                            </div>
+                                        `,
+                                        icon: 'question',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, Approve',
+                                        confirmButtonColor: '#28a745',
+                                        preConfirm: () => {
+                                            const paymentMode = document.getElementById('paymentMode').value;
+                                            if (!paymentMode) {
+                                                Swal.showValidationMessage('Please select a payment mode');
+                                                return false;
+                                            }
+                                            return paymentMode;
+                                        }
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            const paymentMode = result.value;
+                                            axios.post('/approve-client-kyc', { 
+                                                client_id: clientId,
+                                                payment_mode: paymentMode 
+                                            })
+                                                .then(res => {
+                                                    showSuccessAlert(res.data.message);
+                                                    // Optionally reload the page to refresh the table
+                                                    setTimeout(() => location.reload(), 1500);
+                                                })
+                                                .catch(err => showErrorAlert(err.response?.data?.error));
+                                        }
+                                    });
+                                });
+
+                                // ❌ Reject
+                                $(".rejectKYC").click(function () {
+                                    const userId = $(this).data("id");
+                                    Swal.fire({
+                                        title: 'Reject KYC?',
+                                        text: 'Do you want to reject this KYC?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, Reject',
+                                        confirmButtonColor: '#dc3545',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            axios.post('/kyc/verify', {
+                                                user_id: userId,
+                                                status: 'rejected'
+                                            })
+                                                .then(() => showSuccessAlert("KYC rejected."))
+                                                .catch(() => showErrorAlert("Failed to reject."));
+                                        }
+                                    });
+                                });
+
+                                // ✅ Activate
+                                $(".activateKYC").click(function () {
+                                    const userId = $(this).data("id");
+                                    Swal.fire({
+                                        title: 'Activate Client?',
+                                        text: 'Do you want to activate this client?',
+                                        icon: 'info',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, Activate',
+                                        confirmButtonColor: '#007bff',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            axios.post('/kyc/verify', {
+                                                user_id: userId,
+                                                status: 'approved'
+                                            })
+                                                .then(() => showSuccessAlert("Client activated."))
+                                                .catch(() => showErrorAlert("Failed to activate."));
+                                        }
+                                    });
+                                });
+
+                                // ❌ Deactivate
+                                $(".deactivateKYC").click(function () {
+                                    const userId = $(this).data("id");
+                                    Swal.fire({
+                                        title: 'Deactivate Client?',
+                                        text: 'Do you want to deactivate this client?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, Deactivate',
+                                        confirmButtonColor: '#ffc107',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            axios.post('/kyc/verify', {
+                                                user_id: userId,
+                                                status: 'deactivated'
+                                            })
+                                                .then(() => showSuccessAlert("Client deactivated."))
+                                                .catch(() => showErrorAlert("Failed to deactivate."));
+                                        }
+                                    });
+                                });
+                            </script>
+
+                    </div>
+    </div>
+
+
+
+
+
+    <script src="/assets/bundles/mainscripts.bundle.js"></script>
+</body>
+
+</html>

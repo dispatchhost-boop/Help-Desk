@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('../../partials/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+        <style>
+           
+
+            .header {
+                display: flex;
+                align-items: center;
+                padding: 0px;
+                font-size: 20px;
+                font-weight: bold;
+                color: #6a6a6a;
+                margin-left: 14px;
+            }
+
+            .bg-light {
+                --bs-bg-opacity: 1;
+                background-color: rgb(237 245 255) !important;
+            }
+
+            .table-container {
+                width: 100%;
+                overflow-x: auto;
+                margin: 0px auto;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                text-align: left;
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 12px;
+                border: 1px solid #ededed;
+            }
+
+            th {
+                background-color: #edf5ff;
+                color: #6e6b6b;
+                text-transform: uppercase;
+            }
+
+            td {
+                vertical-align: top;
+            }
+
+            .mandatory {
+                text-align: center;
+            }
+
+            .mandatory span {
+                display: inline-block;
+                padding: 5px 10px;
+                border-radius: 5px;
+                color: #059669;
+                background-color: #ecfdf5;
+            }
+
+            .mandatory span.no {
+                background-color: #f0f0f0;
+                color: rgb(90, 89, 89);
+                border-radius: 18%;
+            }
+
+            @media (max-width: 768px) {
+
+                th,
+                td {
+                    font-size: 12px;
+                }
+            }
+
+            @media (max-width: 480px) {
+
+                th,
+                td {
+                    font-size: 12px;
+                    padding: 8px;
+                }
+            }
+        </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+        <!-- HEADER -->
+        <%- include('../../partials/header') %>
+
+            <!-- SIDEBAR -->
+            <%- include('../../partials/left-sidebar') %>
+                <%- include('../../partials/right-iconbar') %>
+
+                    <!-- MAIN CONTENT -->
+                    <div id="main-content">
+                        <div class="container-fluid">
+                            <div class="block-header">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <h2>Create Bulk Order</h2>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item">
+                                                <a href="/"><i class="fa fa-dashboard"></i></a>
+                                            </li>
+                                            <li class="breadcrumb-item">Order Management</li>
+                                            <li class="breadcrumb-item active">Create Bulk Order</li>
+                                        </ul>
+                                    </div>
+                                    <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="d-flex flex-row-reverse">
+                                            <div class="page_action">
+                                                <button type="button" class="btn btn-primary">
+                                                    <i class="fa fa-download"></i> Download report
+                                                </button>
+                                                <button type="button" class="btn btn-secondary">
+                                                    <i class="fa fa-plus"></i> Add new
+                                                </button>
+                                            </div>
+                                            <div class="p-2 d-flex"></div>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+
+                            <!-- Add your page-specific content here -->
+                          
+
+
+                            <div class="container-fluid">
+                                <!-- Card Container -->
+                                <div class=" p-2">
+                                    <!-- Row for Upload and Instructions Section -->
+
+                                    <div class="row">
+                                        <!-- Upload Section -->
+                                        <div class="col-sm-8">
+                                            <div class=" p-4 text-center bg-light">
+                                                <div class="row">
+                                                    
+
+                                                                                                                         <div class="col-sm-6">
+                                                                 <label for="pickupLocation"
+                                                                     class="form-label text-start w-100">Select Pickup
+                                                                     Location</label>
+                                                                 <select id="pickupLocation" class="form-select mb-3"
+                                                                     name="choosenWarehouse"
+                                                                     style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
+                                                                     <!-- Dynamic options based on warehouse data -->
+                                                                 </select>
+                                                             </div>
+                                                         </div>
+                                                         
+                                                         
+
+                                                <div class="row mt-4">
+                                                    <!-- Centered Heading and Icon -->
+                                                    <div class="col-12 text-center">
+                                                        <i class="fa-regular fa-file-excel"
+                                                            style="font-size: xx-large;"></i>
+                                                        <p class="text-primary mt-2">Upload Your Data file with list of
+                                                            orders</p>
+                                                    </div>
+
+                                                    <!-- Upload CSV File Section -->
+                                                    <div class="col-12 mt-3">
+                                                        <div class="col-sm-6 offset-sm-3">
+                                                            <label for="csvFile" class="form-label">Upload CSV
+                                                                File:</label>
+                                                            <input type="file" id="excelFile" class="form-control"
+                                                                accept=".xlsx, .xls"
+                                                                style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
+                                                            <button id="uploadBtn" class="btn btn-primary mt-3 w-30"
+                                                                disabled>Upload</button>
+                                                            <p id="uploadStatus" class="text-success mt-2"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Instructions Section -->
+                                        <div class="col-sm-4">
+                                            <div class="p-4 rounded">
+                                                <h5 class="mb-3">Instructions</h5>
+                                                <ol class="list-group list-group-numbered">
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        Download CSV Template
+                                                        <a href="/assets/template/ecomm_bulk_orders.xlsx" download
+                                                            class="btn btn-outline-primary btn-sm"
+                                                            style="margin-left: 30px;">Download Template</a>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        Select Client and Pickup Location, Check Mandatory data and
+                                                        upload
+                                                        <p class="text-secondary mt-2 mb-0">Upload the filled csv file,
+                                                            without changing the row 1 containing the title of each
+                                                            column</p>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        Download Response File
+                                                        <p class="text-secondary mt-2 mb-0">Download the response file
+                                                            from your email</p>
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- table start -->
+                                <div class="mb-5">
+                                    <div class="header fs-5 mt-2"><i class="fa-solid fa-book"></i>
+                                        &nbsp;Glossary</div>
+                                    <div class="table-container">
+                                        <table class="table-responsive" style="font-size: 12px; text-align: left;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Mandatory</th>
+                                                    <th>Description</th>
+                                                    <th class="col-3">Sample</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>store_id</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Either provide the store code that has already been created in
+                                                        our system,
+                                                        or fill in columns F to L as required in the
+                                                        "tbl_Unprocessed_Order" sheet.
+                                                    </td>
+                                                    <td>
+                                                        <strong>Store_id:</strong> 1234 <br>
+                                                        <strong style="margin-left: 35px;">OR</strong> <br>
+                                                        <strong>Consignee Name:</strong> Krishna <br>
+                                                        <strong>Consignee Phone:</strong> 9696968030 <br>
+                                                        <strong>Consignee Email:</strong> krishna@gmail.com <br>
+                                                        <strong>Consignee Address:</strong> Delhi <br>
+                                                        <strong>Destination State:</strong> Delhi <br>
+                                                        <strong>Destination City:</strong>Delhi <br>
+                                                        <strong>Destination Pincode:</strong> 110021
+
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>order_id</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Order ID should be a unique number or any reference number that
+                                                        you use to track your orders or consignments.
+                                                        This should be filled in column B of the "
+                                                        tbl_Unprocessed_Order" sheet.
+                                                    </td>
+                                                    <td>Order ID: 31642973</td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>order_date</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the date when the order was placed. Ensure the format is
+                                                        <strong>DD/MM/YYYY</strong>.
+                                                        This should be filled in column C of the "tbl_Unprocessed_Order"
+                                                        sheet.
+                                                    </td>
+                                                    <td>Order Date: 24/01/2025</td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>po_number</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the unique Purchase Order (PO) number associated with the
+                                                        order. This is a mandatory field and must be a distinct
+                                                        reference number for each purchase.
+                                                        Ensure this is filled in column D of the "tbl_Unprocessed_Order"
+                                                        sheet.
+                                                    </td>
+                                                    <td>PO Number: PO123456</td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>invoice_No. & <br> invoice_amount</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the unique Invoice Number and Invoice Amount for each
+                                                        order. These details should be filled in Column E and R of the
+                                                        tbl_Unprocessed_Order sheet.
+                                                        Ensure the Invoice Number is mandatory, especially for
+                                                        government-related orders.
+                                                    </td>
+                                                    <td>
+                                                        <strong>Example:</strong> <br>
+                                                        Invoice No.: INV123456 <br>
+                                                        Invoice Amount: INR 2500
+                                                    </td>
+                                                </tr>
+
+
+
+
+                                                <tr>
+                                                    <td>payment_details</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the payment status and payment details for each order:
+                                                        <br>
+                                                        <ul>
+                                                            <li>For prepaid, cash on delivery, and cheque on delivery,
+                                                                follow these guidelines:</li>
+                                                            <ul>
+                                                                <li>For prepaid orders, use <strong>Prepaid</strong> in
+                                                                    the "Payment Type" column (Column O).</li>
+                                                                <li>For cash on delivery and cheque on delivery, use
+                                                                    <strong>COD</strong> in the "Payment Type" column
+                                                                    (Column O).</li>
+                                                                <li>For cheque payments, enter the cheque amount in
+                                                                    <strong>Column P</strong>.</li>
+                                                                <li>For cash on delivery payments, enter the COD amount
+                                                                    in <strong>Column Q</strong>.</li>
+                                                            </ul>
+                                                            Ensure all payment details are accurately filled in the
+                                                            <code>tbl_Unprocessed_Order</code> sheet.
+                                                        </ul>
+                                                    </td>
+
+
+
+                                                    <td>
+                                                        <strong>Example:</strong> <br>
+                                                        Payment Status: Paid <br>
+                                                        Payment Type: TXN987654321 <br>
+                                                        Cheque Amount: [Enter Amount Here] <br>
+                                                        cod amount :2300
+                                                    </td>
+                                                </tr>
+
+
+                                                <tr>
+                                                    <td>product_details</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the product details for each order, including the product
+                                                        name, category, quantity, value, and HSN ID. These details
+                                                        should be filled in columns B to F of the "tbl_products" sheet.
+                                                        Ensure that all fields are accurately completed, especially for
+                                                        government-related orders, where product details are mandatory.
+                                                    </td>
+                                                    <td>
+                                                        <strong>Product Name:</strong> [Enter Name] (Column N) <br>
+                                                        <strong>Product Category:</strong> [Enter Category] (Column O)
+                                                        <br>
+                                                        <strong>Product Quantity:</strong> [Enter Quantity] (Column P)
+                                                        <br>
+                                                        <strong>Product Value:</strong> [Enter Value] (Column Q) <br>
+                                                        <strong>Product HSN ID:</strong> [Enter HSN ID] (Column Q)
+                                                    </td>
+                                                </tr>
+
+
+                                                <tr>
+                                                    <td>boxes_details</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>
+                                                        Enter the details of the product boxes, including the number of
+                                                        boxes, dimensions, and unit of measurement. These details should
+                                                        be filled in columns B to D of the "tbl_boxes_dimension" sheet.
+                                                    </td>
+                                                    <td>
+                                                        <strong>Boxes:</strong> [Enter Box Count] (Column R) <br>
+                                                        <strong>Dimension (L x W x H):</strong> [10*10*10] (Column S)
+                                                        <br>
+                                                        <strong>Unit:</strong> [Enter Unit] (Column T)
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>Description</td>
+                                                    <td class="mandatory"><span>Yes</span></td>
+                                                    <td>Enter the product that you are shipping</td>
+                                                    <td></td>
+                                                </tr>
+
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div><!-- container -->
+
+
+                            <script>
+                                document.getElementById('excelFile').addEventListener('change', function (event) {
+                                    const uploadBtn = document.getElementById('uploadBtn');
+                                    const file = event.target.files[0];
+                                    const fileInfo = document.getElementById('fileInfo');
+                                    
+                                    if (file) {
+                                        // Check file type
+                                        if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                                            file.type === 'application/vnd.ms-excel' ||
+                                            file.name.endsWith('.xlsx') || 
+                                            file.name.endsWith('.xls')) {
+                                            
+                                            uploadBtn.disabled = false;
+                                            
+                                            // Show file info
+                                            if (fileInfo) {
+                                                fileInfo.innerHTML = `
+                                                    <div class="alert alert-info">
+                                                        <strong>Selected File:</strong> ${file.name}<br>
+                                                        <strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                                                        <strong>Type:</strong> ${file.type || 'Excel file'}
+                                                    </div>
+                                                `;
+                                                fileInfo.style.display = 'block';
+                                            }
+                                        } else {
+                                            uploadBtn.disabled = true;
+                                            if (fileInfo) {
+                                                fileInfo.innerHTML = `
+                                                    <div class="alert alert-danger">
+                                                        <strong>Invalid File Type!</strong><br>
+                                                        Please select an Excel file (.xlsx or .xls)
+                                                    </div>
+                                                `;
+                                                fileInfo.style.display = 'block';
+                                            }
+                                        }
+                                    } else {
+                                        uploadBtn.disabled = true;
+                                        if (fileInfo) {
+                                            fileInfo.style.display = 'none';
+                                        }
+                                    }
+                                });
+
+                                document.getElementById('uploadBtn').addEventListener('click', function () {
+                                    const fileInput = document.getElementById('excelFile');
+                                    const file = fileInput.files[0];
+                                    const pickupLocation = document.getElementById('pickupLocation').value;
+
+                                    if (!file) {
+                                        alert("Please select an Excel file first.");
+                                        return;
+                                    }
+
+                                    if (!pickupLocation) {
+                                        Swal.fire('Error!', 'Please select a pickup location first.', 'error');
+                                        return;
+                                    }
+
+                                    // Show confirmation dialog before proceeding
+                                    Swal.fire({
+                                        title: 'Confirm Upload',
+                                        text: 'Are you sure you want to upload this bulk order?',
+                                        icon: 'question',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Yes, upload it!',
+                                        cancelButtonText: 'No, cancel'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            const formData = new FormData();
+                                            formData.append('excelFile', file);
+
+                                            const chosenWarehouse = document.getElementById('pickupLocation').value;
+
+                                            // Get client ID either from select dropdown or from route
+                                         
+
+                                                                                         formData.append('choosenWarehouse', chosenWarehouse);
+                                             
+                                             // Channel will be read from Excel sheet data
+                                             // No need to append channel here as it's in the Excel
+
+                                            // Send the file to the server using Axios
+                                            axios
+                                                .post('/api/ecom/create-bulk-order', formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                                })
+                                                .then((response) => {
+                                                    console.log('Form submitted successfully:', response.data);
+                                                    
+                                                    if (response.data.success) {
+                                                        const summary = response.data.summary;
+                                                        const results = response.data.results;
+                                                        
+                                                        // Determine upload status and title
+                                                        let uploadTitle = '';
+                                                        let uploadIcon = 'success';
+                                                        let uploadMessage = '';
+                                                        
+                                                        if (summary.successCount === summary.totalOrders) {
+                                                            // All orders uploaded successfully
+                                                            uploadTitle = '🎉 Bulk Upload Fully Successful!';
+                                                            uploadIcon = 'success';
+                                                            uploadMessage = `All ${summary.totalOrders} orders have been successfully created!`;
+                                                        } else if (summary.successCount > 0) {
+                                                            // Partial success
+                                                            uploadTitle = '⚠️ Bulk Upload Partially Successful';
+                                                            uploadIcon = 'warning';
+                                                            uploadMessage = `Some orders were processed successfully, but there were issues with others.`;
+                                                        } else if (summary.validationErrorCount > 0 && summary.successCount === 0) {
+                                                            // Only validation errors
+                                                            uploadTitle = '🚫 Bulk Upload - Validation Errors';
+                                                            uploadIcon = 'error';
+                                                            uploadMessage = `All orders failed validation. Please check your Excel file format and data.`;
+                                                        } else {
+                                                            // No orders uploaded
+                                                            uploadTitle = '❌ Bulk Upload Failed';
+                                                            uploadIcon = 'error';
+                                                            uploadMessage = `No orders could be processed. Please check your data and try again.`;
+                                                        }
+                                                        
+                                                        // Create detailed message
+                                                        let message = `Total Orders: ${summary.totalOrders}\n`;
+                                                        message += `✅ Successfully Created: ${summary.successCount}\n`;
+                                                        if (summary.skippedCount > 0) {
+                                                            message += `⚠️ Skipped (Already Exist): ${summary.skippedCount}\n`;
+                                                        }
+                                                        if (summary.validationErrorCount > 0) {
+                                                            message += `🚫 Validation Errors: ${summary.validationErrorCount}\n`;
+                                                        }
+                                                        if (summary.errorCount > 0) {
+                                                            message += `❌ Processing Errors: ${summary.errorCount}`;
+                                                        }
+                                                        
+                                                        // Show detailed success alert
+                                                        Swal.fire({
+                                                            title: uploadTitle,
+                                                            html: `<div style="margin-bottom: 15px;">${uploadMessage}</div><div style="text-align: left;">${message.replace(/\n/g, '<br>')}</div>`,
+                                                            icon: uploadIcon,
+                                                            confirmButtonText: 'View Results',
+                                                            showCancelButton: true,
+                                                            cancelButtonText: 'Close'
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                // Show detailed results in a modal
+                                                                let resultsHtml = '<div style="max-height: 400px; overflow-y: auto;">';
+                                                                resultsHtml += '<table class="table table-sm">';
+                                                                resultsHtml += '<thead><tr><th>Order</th><th>Order ID</th><th>Status</th><th>Message</th></tr></thead><tbody>';
+                                                                
+                                                                                                                                 results.forEach(result => {
+                                                                     let statusClass = '';
+                                                                     let statusIcon = '';
+                                                                     let statusText = '';
+                                                                     switch(result.status) {
+                                                                         case 'success':
+                                                                             statusClass = 'text-success';
+                                                                             statusIcon = '✅';
+                                                                             statusText = 'SUCCESS';
+                                                                             break;
+                                                                         case 'skipped':
+                                                                             statusClass = 'text-warning';
+                                                                             statusIcon = '⚠️';
+                                                                             statusText = 'SKIPPED';
+                                                                             break;
+                                                                         case 'validation_error':
+                                                                             statusClass = 'text-danger';
+                                                                             statusIcon = '🚫';
+                                                                             statusText = 'VALIDATION ERROR';
+                                                                             break;
+                                                                         case 'error':
+                                                                             statusClass = 'text-danger';
+                                                                             statusIcon = '❌';
+                                                                             statusText = 'PROCESSING ERROR';
+                                                                             break;
+                                                                     }
+                                                                     
+                                                                     resultsHtml += `<tr class="${statusClass}">`;
+                                                                     resultsHtml += `<td>${result.orderIndex}</td>`;
+                                                                     resultsHtml += `<td>${result.orderId || 'N/A'}</td>`;
+                                                                     resultsHtml += `<td>${statusIcon} ${statusText}</td>`;
+                                                                     resultsHtml += `<td style="white-space: pre-line;">${result.message}</td>`;
+                                                                     resultsHtml += '</tr>';
+                                                                 });
+                                                                
+                                                                resultsHtml += '</tbody></table></div>';
+                                                                
+                                                                Swal.fire({
+                                                                    title: 'Detailed Results',
+                                                                    html: resultsHtml,
+                                                                    width: '800px',
+                                                                    confirmButtonText: 'Go to Orders',
+                                                                    showCancelButton: true,
+                                                                    cancelButtonText: 'Close'
+                                                                }).then((finalResult) => {
+                                                                    if (finalResult.isConfirmed) {
+                                                                        window.location.href = '/ecom/unprocessed-orders';
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
+                                                    } else {
+                                                        // Display the error message from the backend response
+                                                        Swal.fire('Error!', response.data.message || 'There was an issue processing the file. Please try again.', 'error');
+                                                    }
+                                                })
+                                                .catch((error) => {
+                                                    console.error('Error submitting the form:', error);
+                                                    const errorMessage = error.response?.data?.message || 'There was an error submitting your form.';
+                                                    Swal.fire('Error!', errorMessage, 'error');
+                                                });
+                                        }
+                                    });
+                                });
+                            </script>
+                            <script>
+                                // Function to fetch warehouses for a client ID
+                                async function fetchWarehousesForClient(clientId) {
+                                    if (clientId) {
+                                        try {
+                                            const response = await fetch(`/get-warehouses-by-client/ecom?client_id=${clientId}`);
+                                            const data = await response.json();
+
+                                            const pickupLocationDropdown = document.getElementById('pickupLocation');
+                                            pickupLocationDropdown.innerHTML = '<option value="">Select Pickup Location</option>';
+
+                                            data.warehouses.forEach(warehouse => {
+                                                const option = document.createElement('option');
+                                                option.value = warehouse.serial;
+                                                option.textContent = `${warehouse.warehouse_name}`;
+                                                pickupLocationDropdown.appendChild(option);
+                                            });
+                                        } catch (error) {
+                                            console.error('Error fetching warehouses:', error);
+                                        }
+                                    } else {
+                                        document.getElementById('pickupLocation').innerHTML = '<option value="">Select Pickup Location</option>';
+                                    }
+                                }
+
+                                // Get initial client ID from server-side render
+                                const initialClientId = '<%= clientId %>';
+                                console.log("initialClientId", initialClientId);
+
+                                // If client ID was provided from route, fetch warehouses immediately
+                                if (initialClientId) {
+                                    fetchWarehousesForClient(initialClientId);
+                                }
+
+                                // For role 1, handle client select changes
+                                const clientSelect = document.getElementById('client_select');
+                                if (clientSelect) {
+                                    clientSelect.addEventListener('change', function () {
+                                        fetchWarehousesForClient(this.value);
+                                    });
+                                }
+                            </script>
+                            <!-- Add this script at the bottom of the file, before the closing body tag -->
+                         
+                            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                            <script
+                                src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.js"></script>
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+                        </div>
+
+                        <!-- FOOTER -->
+                        <%- include('../../partials/footer') %>
+                    </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+</body>
+
+</html>

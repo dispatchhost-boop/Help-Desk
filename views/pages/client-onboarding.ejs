@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="assets/libs/mobius1-selectr/selectr.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/huebee/huebee.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/vanillajs-datepicker/css/datepicker.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+      <style>
+        .fst {
+          width: 50px;
+          border: none;
+          box-shadow: 2px 2px 2px 2px #cfcbcb;
+          text-align: center;
+          color: #1f51b6;
+          font-weight: 500;
+          font-size: 12px;
+  
+  
+        }
+  
+        .d-flex>.btn {
+          flex: 0px !important;
+        }
+  
+        .lableadc {
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-left: 30%;
+          color: #5a99f7;
+        }
+  
+        .selectadc {
+          padding: 10px;
+          border-radius: 10px;
+          color: #5a99f7;
+          font-weight: 500;
+          letter-spacing: 1px;
+          border-color: #c5e3ff;
+          line-height: 0px;
+          border: none;
+          box-shadow: rgb(166 166 166 / 30%) 0px -0.05px 7.6px 1px;
+        }
+  
+        .h4adc {
+          text-align: center;
+          text-transform: uppercase;
+          font-size: 16px;
+          color: #686868;
+          font-weight: 600;
+  
+        }
+  
+        .h5bg {
+          background: #ffffff;
+          color: rgb(46, 46, 46);
+          padding: 18%;
+  
+  
+        }
+  
+        .zonerow {
+          background: #e4e4e4;
+          padding: 14px;
+          text-transform: uppercase;
+          font-weight: 400;
+          letter-spacing: 1px;
+          text-align: center;
+        }
+  
+        .lrbox {
+          /* border: 1px solid #5a99f75c; */
+          padding: 10px 20px 20px 20px;
+          border-radius: 15px;
+          box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
+          width: 400px;
+        }
+  
+        .select2 {
+          overflow-y: auto;
+          max-height: 80px;
+          /* adjust this value to your desired height */
+        }
+    
+  
+        .zonehead {
+          padding: 25px !important;
+          border: none !important;
+          background: none !important;
+          text-align: center !important;
+          font-size: x-large !important;
+          font-family: monospace !important;
+          font-weight: 500 !important;
+          color: #070606 !important;
+  
+        }
+  
+        .zoncolbg {
+          background: #e4e4e4;
+        }
+        .form-section {
+      background-color: #f0ffff;
+      padding: 1rem;
+      /* margin-bottom: 1rem; */
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+  }
+  
+      
+      </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat App</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">App</li>
+                  <li class="breadcrumb-item active">Chat</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+     
+             <!-- end page title end breadcrumb -->
+             <div class="row">
+               <div class="col-12">
+                 <div class="p-3">         
+                   <div class="card-body m-0 p-0">
+                     <div id="custom-step">
+                       <nav>
+                         <div class="nav nav-tabs" id="nav-tab">
+                           <a class="nav-link active" id="step1-tab" data-bs-toggle="tab" href="#step1">Client Parental
+                             Details</a>
+                           <a class="nav-link" id="step2-tab" data-bs-toggle="tab" href="#step2">Company Contact Details</a>
+                           
+                           <!-- <a class="nav-link" id="step6-tab" data-bs-toggle="tab" href="#step6">Add A New Warehouse</a> -->
+                           <a class="nav-link" id="step3-tab" data-bs-toggle="tab" href="#step3">Confirm Detail</a>
+                         </div>
+                       </nav>
+                       <div class="tab-content" id="nav-tabContent">
+                         <div class="tab-pane active" id="step1">                   
+                             <!-- Parent Card -->
+                             <div class=" custom" style="border-radius: 20px">
+                               <div class="card-header" style="border: none;">
+       
+                                 <form id="basicInfo">
+                                   <div class="row">
+                                     <div class="" style="border-radius: 15px; width: 100%;">
+                                       <!-- new structure design -->
+                                     
+                                         <!-- First Row -->
+                                         <div class="row mb-3">
+                                           <div class="col-md-6 ">
+                                             <div class=" form-section">                                      
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-regular fa-paper-plane p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5>Client Basic Information</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                                <div class="row">
+                                                 <div class="col-sm-6 mb-2">
+                                                   <div class="form-group">
+                                                     <label for="clientName">Contact Person</label>
+                                                     <div class="col-lg-12 mb-2">
+                                                       <input id="clientName" name="clientName" type="text"
+                                                         class="form-control" placeholder="Enter Client Name">
+                                                     </div>
+                                                   </div>
+                                                 </div>
+                                                     <div class="col-sm-6 mb-2">
+                                                     <label for="companyName">Company Name</label>
+                                                     <div class="col-lg-12">
+                                                       <input id="companyName" name="companyName" type="text"
+                                                       class="form-control" placeholder="Enter Company name">
+                                                     </div>
+                                                   </div><!--end col--> 
+                                                   
+                                                   <div class="col-sm-6">
+                                                     <div class="form-group">
+                                                       <label for="client_mobile">Mobile
+                                                         No.</label>
+                                                       <div class="col-lg-12">
+                                                         <input id="client_mobile" name="client_mobile" type="text"
+                                                           class="form-control" placeholder="Enter Your Mobile No.">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   
+                                                   <div class="col-md-6 mb-3">
+                                                     <div class="form-group">
+                                                       <label for="client_Email">Email Address</label>
+                                                       <div class="col-lg-12">
+                                                         <input id="client_Email" name="client_Email" type="text"
+                                                           class="form-control" placeholder="Enter Your Email Id">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   
+                                                    </div>
+                                                 <div class="col-sm-6">
+                                                 <div class="form-group">
+                                                   <label for="website">website
+                                                     </label>
+                                                 
+                                                     <input id="website" name="website" type="text"
+                                                       class="form-control" placeholder="Enter your Website Url">
+                                                  
+                                                 </div>
+                                               </div>
+                                                                                    
+                                                 
+                                                   <div class="col-12 mb-3">
+                                                     <div class="form-group">
+                                                       <label for="companyAddress">Address</label>
+                                                       <div class="col-sm-12">
+                                                         <input id="companyAddress" name="companyAddress" rows="4"
+                                                           class="form-control" placeholder="Enter Your Address"></input>
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div>
+                                                   
+                                                     <div class="col-sm-4 mb-3">
+                                                     <div class="form-group">
+                                                       <label for="companyCountry">Country
+                                                         </label>
+                                                      
+                                                         <input id="companyCountry" name="companyCountry" rows="4"
+                                                           class="form-control" placeholder="Enter Your Country Name"></input>
+                                                       </div>
+                                                     </div>
+                                                     <div class="col-sm-4 mb-3">
+                                                     <div class="form-group">
+                                                       <label for="companyState">State
+                                                         </label>
+                                                      
+                                                         <input id="companyState" name="companyState" rows="4"
+                                                           class="form-control" placeholder="Enter Your State Name"></input>
+                                                       </div>
+                                                     </div>
+                                                     <div class="col-sm-4 mb-3">
+                                                     <div class="form-group">
+                                                       <label for="companyDistrict">City
+                                                         </label>
+                                                     
+                                                         <input id="companyDistrict" name="companyDistrict" rows="4"
+                                                           class="form-control"placeholder="Enter Your City Name"></input>
+                                                       </div>
+                                                     </div>
+                                                   
+       
+                                                   
+       
+                                                 
+                                                   <div class="col-sm-6">
+                                                     <label for="fromDate">Contract From</label>
+                                       
+                                                       <input class="form-control" type="date"
+                                                         id="fromDate" name="fromDate">                                             
+                                                       
+                                                   </div>
+                                                   <div class="col-sm-6">
+                                             
+                                                     <label for="fromTo"
+                                                      >Contract To</label>
+                                                   
+                                                       <input class="form-control" type="date" 
+                                                         id="fromTo" name="fromTo">
+                                                   </div>
+                                                   
+                                               </div><!-- row end -->
+                                               </div>
+                                             </div>
+                                             
+                                           </div>
+                                    
+                                           <div class="col-md-6 form-section">
+                                                 <div class="col-2">
+                                                   <i class="fa-solid fa-sliders p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5>Client Configuration</h5>
+                                                 </div>
+                         
+                                                 <div class="col-md-12">
+                                                   <label for="list_forwarder">Choose Aggrigator</label>
+                                                   <select id="list_forwarder" class="form-control form-select " name="list_forwarder" multiple="multiple" style="border: none;">
+                                                       <% if (result && result.length) { %>
+                                                           <% result.forEach(option => { %>
+                                                               <option value="<%= option.id %>/<%= option.company_name %>/<%= option.type %>/<%= option.Tagged_api %>/<%= option.category %>/<%= option.service_type %>/<%= option.logo_path %>">
+                                                                   <%= option.company_name %>
+                                                               </option>
+                                                           <% }); %>
+                                                       <% } else { %>
+                                                           <option disabled>No options available</option>
+                                                       <% } %>
+                                                   </select>
+                                                 </div>
+       <div class="row">
+                                                 <div class="col-sm-6">
+                                                   <div class="form-group row mb-2">
+                                                     <label for="creditTerms"
+                                                       >Credit Terms</label>
+                                                     <div class="col-lg-12">
+                                                       <input id="creditTerms" name="creditTerms"
+                                                         type="text" class="form-control">
+                                                     </div>
+                                                   </div>
+                                                 </div>
+                                                 <div class="col-sm-6">
+                                                   <div class="form-group row mb-2">
+                                                     <label for="paymentSystem">Payment System</label>
+                                                     <div class="col-lg-12">
+                                                       <select id="paymentSystem" name="paymentSystem" class="form-control form-select">
+                                                         <option value="prepaid">Prepaid</option>
+                                                         <option value="postpaid">Postpaid</option>
+                                                       </select>
+                                                     </div>
+                                                   </div>
+                                                 </div>
+                                                 <div class="col-sm-6 mb-3"
+                                                   style=" margin-top: 10px; align-items: center;">
+                                                   <label class="mb-2" style="margin-right: 10px;">Upload Logo</label>
+                                                   <div class="col-lg-12">
+                                                     <input type="file" class="form-control" id="logoFile" name="logoFile">
+                                                   </div>
+                                                  </div>
+       
+                                                  <div class="col-sm-6 mb-3">
+                                                   <label class="mb-2" style="margin-top: 15px;">Choose VAS</label>
+                                                   <div class="col-lg-12 d-flex">
+                                                     <div class="form-check me-3">
+                                                       <input class="form-check-input" type="radio" name="vasOption" id="vasYes" value=1>
+                                                       <label class="form-check-label" for="vasYes">Yes</label>
+                                                     </div>
+                                                     <div class="form-check">
+                                                       <input class="form-check-input" type="radio" name="vasOption" id="vasNo" value=0>
+                                                       <label class="form-check-label" for="vasNo">No</label>
+                                                     </div>
+                                                   </div>
+                                                  </div>
+                                                   
+                                               </div>
+                                                 
+       
+       
+                                               
+                                             
+                                           </div>
+                                         </div>
+                                     
+                                         <!-- Second Row -->
+                                         <div class="row">
+                                           <div class="col-md-6">
+                                             <div class=" form-section">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5>Client KYC Details</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                              
+                                                 <div class="row">
+                                                   <div class="col-md-6 ">
+                                                     <div class="form-group">
+                                                       <label for="company_pan">PAN
+                                                         Card</label>
+                                                       <div class="col-lg-12">
+                                                         <input id="company_pan" name="company_pan" type="text"
+                                                           class="form-control">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   <div class="col-md-6">
+                                                     <div class="form-group12">
+                                                       <label for="vat"
+                                                        >VAT/TIN No.</label>
+                                                       <div class="col-lg-9">
+                                                         <input id="vat" name="vat" type="text"
+                                                           class="form-control">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                 </div><!--end row-->
+                                                 <div class="row">
+                                                   <div class="col-md-6">
+                                                     <div class="form-group">
+                                                       <label for="gstNo">Gst
+                                                         No.</label>
+                                                       <div class="col-lg-12">
+                                                         <input id="gstNo" name="gstNo" type="text"
+                                                           class="form-control">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   <div class="col-md-6">
+                                                     <div class="form-group">
+                                                       <label for="company_uin">Company
+                                                         UIN</label>
+                                                       <div class="col-lg-9">
+                                                         <input id="company_uin" name="company_uin" type="text"
+                                                           class="form-control">
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                 </div><!--end row-->
+       
+       
+                                               </div>
+                                             </div>
+                                           </div>
+                                           <div class="col-md-6 form-section">
+                                             <div class="">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5>Client Banking Details</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">                                    
+                                                  <div class="row">
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="Bank_account_name">Bank Account
+                                                           Name</label>
+                                                         <div class="col-lg-12">
+                                                           <input id="Bank_account_name" name="Bank_account_name" type="text" class="form-control">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="billingCycle">Billing
+                                                           Cycle</label>
+                                                         <div class="col-lg-12">
+                                                           <select id="billingCycle" name="billingCycle" class="form-select">
+                                                             <option value="weekly">Weekly</option>
+                                                             <option value="fortnight">Fortnight</option>
+                                                             <option value="monthly">Monthly</option>
+                                                           </select>
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                   </div>
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="accountNumber"
+                                                           >Account Number</label>
+                                                         <div class="col-lg-12">
+                                                           <input id="accountNumber" name="accountNumber" type="text"
+                                                             class="form-control">
+                                                         </div>
+                                                       </div>
+                                                      
+                                                     </div><!--end col-->
+                                                     
+                                                   <div class="col-md-6">
+                                                     
+                                                     <div class="form-group row mb-2">
+                                                       <label for="chooseBank">Bank
+                                                         Name</label>
+                                                       <div class="col-lg-12">
+                                                         <select id="chooseBank" name="chooseBank" class="form-select">
+                                                           <option value="State Bank Of India">State Bank Of India</option>
+                                                           <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                                                           <option value="HDFC Bank LTD">HDFC Bank LTD</option>
+                                                         </select>
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   </div>
+                                                   <div class="row">
+                                                   
+                                                     <div class="col-md-6">
+                                                     <div class="form-group row mb-2">
+                                                       <label for="account_type">Account
+                                                         Type</label>
+                                                       <div class="col-lg-12">
+                                                         <select id="account_type" name="account_type" class="form-select">
+                                                           <option value="weekly">Savings</option>
+                                                           <option value="fortnight">Current</option>
+               
+                                                         </select>
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                     </div>
+         
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="ifscCode">IFSC
+                                                           CODE</label>
+                                                         <div class="col-lg-12">
+                                                           <input id="ifscCode" name="ifscCode" type="text"
+                                                             class="form-control">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                       <!-- Credit Terms -->
+                 
+                                                     </div><!--end col-->
+                 
+                                                   </div><!--end row-->
+                                                   </div>                                         
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+                                           
+                                         
+                                       </div>
+       
+                                   </div>
+                                 </form>
+                                 <!-- Additional fields... -->
+                               </div>
+                             </div>
+                          
+                           <div class="">
+                             <button type="button" id="step1Next" class="btn btn-primary float-end">Next</button>
+                           </div>
+                         </div>
+                         <div class="tab-pane" id="step2">
+                       
+                           <div class="custom" style="border-radius: 20px">                   
+                             <div class="card-body">
+                               <form id="contact_tables_data">
+                                 <div class="row">
+                                   <div class="">
+                                     <div class="card-body" >
+                                        <!-- new design start -->
+                                     
+                                         <!-- First Row -->
+                                         <div class="row">
+                                           <div class="col-md-3 form-section">
+                                             <div class="">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5 style="font-size: 14px;">Seles Departments</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                              
+                                                 <div id="sales-section">
+                                                 
+                                                 <div class="row">
+                                                   <div class="col-md-6">
+                                                     <div class="form-group row mb-2">
+                                                       <label for="txtFirstNameBilling"
+                                                        >Name</label>
+                                                       <div class="col-lg-12">
+                                                         <input  name="sales_name[]" type="text"
+                                                           class="form-control" placeholder="Enter Name">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   <div class="col-md-6">
+                                                     <div class="form-group row mb-2">
+                                                       <label for="txtLastNameBilling">Mobile
+                                                         No.</label>
+                                                       <div class="col-lg-12">
+                                                         <input type="text"
+                                                         class="form-control"
+                                                         name="sales_phone[]"
+                                                         placeholder="Enter Phone Number">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                 </div><!--end row-->
+                                                 <div class="row">
+                                                   <div class="col-md-6">
+                                                     <div class="form-group row mb-2">
+                                                       <label 
+                                                       >Designation</label>
+                                                       <div class="col-lg-12">
+                                                         <input  name="sales_designation[]" type="text" placeholder="Enter Designation"
+                                                           class="form-control">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                   </div><!--end col-->
+                                                   <div class="col-md-6">
+                                                     <div class="form-group row mb-2">
+                                                       <label for="txtEmailAddressBilling" >Email
+                                                         Address</label>
+                                                       <div class="col-lg-12">
+                                                         <input type="email"
+                                                         class="form-control"
+                                                         name="sales_email[]"
+                                                         placeholder="Enter Email Address">
+                                                       </div>
+                                                     </div><!--end form-group-->
+                                                     <div id="sales-inputs"></div>
+                                                     
+                                                     <button type="button" class="btn col-md-12 text-end" style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" id="addclientTypeButton"
+                                                      onclick="addContact('sales')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                                   </div><!--end col-->
+                                                 </div><!--end row-->
+                                               </div>
+       
+                                               </div>
+                                             </div>
+                                           </div>
+                                           <div class="col-md-3 form-section">
+                                             <div class="">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5  style="font-size: 14px;">Opreation Departments</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                                 <div id="ops-section">
+                                                  
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtFirstNameBilling"
+                                                           >Name</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="ops_name[]"
+                                                           placeholder="Enter Name">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtLastNameBilling">Mobile
+                                                           No.</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="ops_phone[]"
+                                                           placeholder="Enter Phone Number">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtCompanyBilling"
+                                                           >Designation</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="ops_designation[]"
+                                                           placeholder="Enter Designation">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtEmailAddressBilling">Email
+                                                           Address</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="email"
+                                                           class="form-control"
+                                                           name="ops_email[]"
+                                                           placeholder="Enter Email Address">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                       <div id="ops-inputs"></div>
+                                                       <button type="button" class="btn col-md-12 text-end" style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" id="addclientTypeButton"
+                                                        onclick="addContact('ops')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->  
+                                                 </div> 
+                                               </div>
+                                             </div>
+                                           </div>
+                                           <div class="col-md-3 form-section">
+                                             <div class="">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5  style="font-size: 14px;">Finace Departments</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                                 <div id="accounts-section">
+                                                  
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtFirstNameBilling"
+                                                         >Name</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="accounts_name[]"
+                                                           placeholder="Enter Name">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtLastNameBilling">Mobile
+                                                           No.</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="accounts_phone[]"
+                                                           placeholder="Enter Phone Number">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtCompanyBilling"
+                                                           >Designation</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="accounts_designation[]"
+                                                           placeholder="Enter Designation">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtEmailAddressBilling">Email
+                                                           Address</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="email"
+                                                           class="form-control"
+                                                           name="accounts_email[]"
+                                                           placeholder="Enter Email Address">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                       <div id="accounts-inputs"></div>
+                                                       <button type="button" class="btn col-md-12 text-end" style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" id="addclientTypeButton"
+                                                         onclick="addContact('accounts')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->
+                                                 </div> 
+                                               </div>
+                                             </div>
+                                           </div>
+                                           <div class="col-md-3 from-section">
+                                             <div class="">
+                                               <div class="row p-1" style="display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                                 <div class="col-2" style=" display: flex; align-items: center;justify-content: space-around;">
+                                                   <i class="fa-solid fa-file-signature p-2 ml-2"style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                                   <!-- Location Icon -->
+                                                 </div>
+                                                 <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                                   <h5  style="font-size: 14px;">Support Departments</h5>
+                                                 </div>
+                                               </div>
+                                               <div class="card-body">
+                                                 <div id="rvp-sections">
+                                                 
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtFirstNameBilling"
+                                                          >Name</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="rvp_name[]"
+                                                           placeholder="Enter Name">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtLastNameBilling">Mobile
+                                                           No.</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="rvp_phone[]"
+                                                           placeholder="Enter Phone Number">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->
+                                                   <div class="row">
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtCompanyBilling"
+                                                         >Designation</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="text"
+                                                           class="form-control"
+                                                           name="rvp_designation[]"
+                                                           placeholder="Enter Designation">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                     </div><!--end col-->
+                                                     <div class="col-md-6">
+                                                       <div class="form-group row mb-2">
+                                                         <label for="txtEmailAddressBilling">Email
+                                                           Address</label>
+                                                         <div class="col-lg-12">
+                                                           <input type="email"
+                                                           class="form-control"
+                                                           name="rvp_email[]"
+                                                           placeholder="Enter Email Address">
+                                                         </div>
+                                                       </div><!--end form-group-->
+                                                       <div id="rvp-inputs"></div>
+                                                       <button type="button" class="btn col-md-12 text-end" style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" id="addclientTypeButton"
+                                                         onclick="addContact('rvp')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                                     </div><!--end col-->
+                                                   </div><!--end row-->
+                                                 </div> 
+                                               </div>
+                                             </div>
+                                           </div>
+                                         </div>                              
+                                     <!-- new design end -->
+                                     </div>
+                                   </div>
+                                 </div>
+                               </form>
+                             </div>
+                           </div><!--end row-->
+                           <div>
+                             <button type="button" id="step2Prev" class="btn btn-secondary float-start">Previous</button>
+                             <button type="button" id="step2Next" class="btn btn-primary float-end">Next</button>
+                           </div>
+                         </div>
+                         
+                         
+                         
+                         
+       
+                         <div class="tab-pane form-section" id="step3">
+                           <form >
+                             <label for="client_passsword"
+                                                 class="col-form-label text-end text-black" style="text-transform: uppercase;">Set Client Admin Password</label>
+                                               <div class="col-md-3">
+                                                 <input id="client_passsword" name="client_passsword" type="password"
+                                                   class="form-control">
+                                               </div>
+                             <h4 class="card-title mt-3">Confirm Detail</h4>
+                             <div class="form-check my-2">
+                               <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                               <label class="form-check-label" for="flexCheckDefault">
+                                 I agree with the Terms and Conditions.
+                               </label>
+                             </div>
+                             <div>
+                               <button type="button" id="stepPrev" class="btn btn-secondary float-start">Previous</button>
+                               <button type="button" id="step3Finish" class="btn btn-danger float-end">Finish</button>
+                             </div>
+                           </form>
+                         </div>
+                       </div>
+                     </div><!--end form-->
+                   </div><!--end card-body-->
+                 </div><!--end card-->
+               </div><!--end col-->
+             </div><!--end row-->
+       
+           </div><!-- container -->
+       
+     
+             <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css">
+       
+             <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+       
+             <script src="assets/js/pages/form-wizard.js"></script>
+         
+       
+       
+             <!-- jQuery -->
+       
+       
+       
+             <!-- Selectr -->
+             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.css">
+             <script src="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.js"></script>
+       
+             <!-- Huebee -->
+             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.min.css">
+             <script src="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.pkgd.min.js"></script>
+       
+             <!-- Vanilla JS Datepicker -->
+             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/css/datepicker.min.css">
+             <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker-full.min.js"></script>
+       
+             <!-- Moment.js -->
+             <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+       
+             <!-- IMask -->
+             <script src="https://unpkg.com/imask@6.4.1/dist/imask.min.js"></script>
+       
+       
+       
+             <script src="assets/js/pages/forms-advanced.js"></script>
+       
+       
+       
+             <script>
+               var optionsCount = $('#stateSelectN1 option').length;
+               $('#stateSelectN1').attr('size', optionsCount > 5 ? 5 : optionsCount);
+             </script>
+             <!-- for only ltl here is data -->
+             
+             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+             <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+           <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+             <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+       
+       
+       
+             <!-- JavaScript for dynamic row addition, reset, delete, and data saving -->
+             <script>
+               // Keep track of used dropdown selections
+               var usedSelections = [];
+       
+               // Function to add a new row
+               function addBox() {
+                 var tableBody = document.querySelector("#commercials-table tbody");
+                 var newRow = tableBody.rows[0].cloneNode(true);
+       
+                 // Clear all the input values in the cloned row
+                 var inputs = newRow.querySelectorAll("input");
+                 inputs.forEach(function (input) {
+                   input.value = "";  // Clear input field
+                   input.placeholder = "Enter Value";  // Set placeholder to "Enter Value"
+                 });
+       
+                 // Reset dropdown text in the cloned row
+                 var dropdownText = newRow.querySelector('.dropdown-toggle');
+                 dropdownText.innerHTML = 'Select Commercials <i class="mdi mdi-chevron-down"></i>';
+       
+                 // Re-enable dropdown in cloned row
+                 newRow.querySelector('.dropdown-toggle').classList.remove('disabled');
+       
+                 // Append the new row to the table
+                 tableBody.appendChild(newRow);
+       
+                 // Update dropdown options
+                 updateDropdowns();
+               }
+       
+               // Function to select a commercial from the dropdown
+               function selectCommercial(el) {
+                 var dropdown = el.closest('.dropdown');
+                 var dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+                 var selectedValue = el.textContent;
+       
+                 // Set the selected text to the dropdown and disable it
+                 dropdownToggle.innerHTML = selectedValue + ' <i class="mdi mdi-chevron-down"></i>';
+                 dropdownToggle.classList.add('Enable'); // Disable the dropdown once selected
+       
+                 // Add the selection to the used list
+                 if (!usedSelections.includes(selectedValue)) {
+                   usedSelections.push(selectedValue);
+                 }
+       
+                 // Update dropdown options to prevent multiple selections of the same item
+                 updateDropdowns();
+               }
+       
+               // Function to update dropdowns, show unused items
+               function updateDropdowns() {
+                 var dropdownItems = document.querySelectorAll('.dropdown-menu .dropdown-item');
+       
+                 dropdownItems.forEach(function (item) {
+                   if (usedSelections.includes(item.textContent.trim())) {
+                     item.style.display = 'active';  // Hide used items
+                   } else {
+                     item.style.display = 'block';  // Show unused items
+                   }
+                 });
+               }
+       
+               // Function to reset a row to its default state
+               function resetRow(button) {
+                 var row = button.closest('tr');
+       
+                 // Reset the dropdown
+                 var dropdownToggle = row.querySelector('.dropdown-toggle');
+                 dropdownToggle.innerHTML = 'Select Commercials <i class="mdi mdi-chevron-down"></i>';
+                 dropdownToggle.classList.remove('disabled'); // Re-enable the dropdown
+       
+                 // Remove the selection from the used list if it's not default
+                 var selectedValue = dropdownToggle.textContent.trim();
+                 if (selectedValue !== 'Select Commercials') {
+                   var index = usedSelections.indexOf(selectedValue);
+                   if (index !== -1) {
+                     usedSelections.splice(index, 1); // Remove from used selections
+                   }
+                 }
+       
+                 // Reset the inputs
+                 var inputs = row.querySelectorAll('input');
+                 inputs.forEach(function (input) {
+                   input.value = "";  // Clear input field
+                   input.placeholder = "Enter Value";  // Set placeholder to "Enter Value"
+                 });
+       
+                 // Update dropdown options
+                 updateDropdowns();
+               }
+       
+               // Function to delete a row
+               function deleteRow(button) {
+                 var row = button.closest('tr');
+                 row.remove();
+       
+                 // Update dropdown options after removing the row
+                 updateDropdowns();
+               }
+       
+               // Reset all entries in the form
+               function resetAll() {
+                 var tableBody = document.querySelector("#commercials-table tbody");
+       
+                 // Clear the table except the first row
+                 var rows = tableBody.querySelectorAll("tr");
+                 for (var i = 1; i < rows.length; i++) {
+                   rows[i].remove();
+                 }
+       
+                 // Reset the first row
+                 resetRow(rows[0].querySelector('.btn-warning'));
+       
+                 // Clear used selections and reset dropdowns
+                 usedSelections = [];
+                 updateDropdowns();
+               }
+       
+               // Function to save the table data with validation
+               function saveData() {
+                 var tableBody = document.querySelector("#commercials-table tbody");
+                 var savedDataTable = document.querySelector("#saved-data-table tbody");
+                 savedDataTable.innerHTML = "";  // Clear previous saved data
+       
+                 var isValid = true; // To track if all rows are valid
+       
+                 // Loop through the rows of the main table and save the data
+                 Array.from(tableBody.rows).forEach(function (row) {
+                   var rowData = [];
+                   var isRowValid = true; // Track the validity of the current row
+       
+                   // Get the description from the dropdown
+                   var description = row.querySelector('.dropdown-toggle').textContent.trim();
+                   if (description === 'Select Commercials' || description === '') {
+                     isRowValid = false; // Mark row invalid if no dropdown option selected
+                   }
+                   rowData.push(description);
+       
+                   // Get the input values and validate
+                   row.querySelectorAll('input').forEach(function (input) {
+                     if (input.value.trim() === '') {
+                       isRowValid = false; // Mark row invalid if input is empty
+                     }
+                     rowData.push(input.value.trim());
+                   });
+       
+                   // If row is valid, append to saved data
+                   if (isRowValid) {
+                     var newRow = document.createElement('tr');
+                     rowData.forEach(function (data) {
+                       var newCell = document.createElement('td');
+                       newCell.textContent = data;
+                       newRow.appendChild(newCell);
+                     });
+       
+                     // Add delete button to saved row
+                     var actionsCell = document.createElement('td');
+                     var deleteBtn = document.createElement('button');
+                     deleteBtn.classList.add('btn', 'btn-danger');
+                     deleteBtn.innerHTML = 'Delete';
+                     deleteBtn.onclick = function () {
+                       newRow.remove();
+                     };
+                     actionsCell.appendChild(deleteBtn);
+                     newRow.appendChild(actionsCell);
+       
+                     savedDataTable.appendChild(newRow);
+                   } else {
+                     isValid = false; // At least one invalid row found
+                   }
+                 });
+       
+                 // If the data is invalid (any empty field), show an alert
+                 if (!isValid) {
+                   alert('Please fill in all fields before saving.');
+                 }
+               }
+       
+             </script>
+             <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+             <script>
+               $(document).ready(function () {
+           $("#list_forwarder").select2();
+       });
+                 document.getElementById('step3Finish').addEventListener('click', function () {
+           // Get form data from 'basicInfo'
+           const basicInfoForm = document.getElementById('basicInfo');
+           const basicInfoData = new FormData(basicInfoForm);
+           
+           // Convert FormData to an object
+           const form1 = {};
+           basicInfoData.forEach((value, key) => {
+               form1[key] = value;
+           });
+           const listForwarderElement = document.getElementById('list_forwarder');
+           const selectedForwarders = Array.from(listForwarderElement.selectedOptions).map(option => option.value);
+           form1['list_forwarder'] = selectedForwarders; // Add all selected values as an array
+           console.log("here the data in the form form1",form1)
+           // console.log("dshdsd",dsdhsjdhs)
+       
+           // Get form data from 'contact_tables_data'
+           const contactTablesForm = document.getElementById('contact_tables_data');
+           const contactTablesData = new FormData(contactTablesForm);
+       
+           // Convert FormData to an object
+           const form2 = {};
+           contactTablesData.forEach((value, key) => {
+               form2[key] = value;
+           });
+       
+           // Get the password input value
+           const client_password = document.getElementById('client_passsword').value;
+       
+           // Prepare the payload
+           const payload = {
+               form1,
+               form2,
+               client_password,
+               selectedForwarders
+           };
+       
+           console.log("payload from here",payload)
+           // console.log("payload",dsjhdsjdhsj)
+       
+       
+           // Send the data using axios
+           axios
+               .post('/new_client', payload, {
+                   headers: { 'Content-Type': 'multipart/form-data' },
+               })
+               .then((response) => {
+                   console.log('Form submitted successfully:', response.data);
+                   if (response.data.success) {
+                     Swal.fire({
+                       html: `
+                         <div class="card" style="background: linear-gradient(179deg, rgb(255 255 255 / 26%), rgb(81 110 221 / 47%));
+                             border-radius: 20px;
+                             padding: 20px;
+                             text-align: center;
+                             color: #d1e7f3;
+                             width: 100%;
+                             max-width: max-content;
+                             margin: 0 auto;
+                             display: flex;
+                             justify-content: center;">
+                           <h6 style="font-size: 18px;font-weight: 600;margin-bottom: 10px;text-transform: capitalize;color:#ffffff;"> <i class="fas fa-check-circle"></i> Success!</h6>
+                           <p style="font-size: 10px;font-weight: 400;margin-bottom: 12px;text-align: left;text-transform: capitalize;">
+                             Client created successfully.
+                           </p>
+                           <button class="btn btn-custom" style="background-color: rgba(255, 255, 255, 0.2); border: none; border-radius: 20px; color: #d1e7f3; padding: 10px 20px; width: 100%;" onclick="Swal.close()">
+                             OK
+                           </button>
+                         </div>
+                       `,
+                       showConfirmButton: false,
+                       background: 'rgb(19 36 74)',
+                       customClass: {
+                         popup: 'border-0',
+                         container: 'border-radius: 50px; display: flex !important; justify-content: center;'
+                       }
+                     }).then(() => {
+                       window.location.href = '/client-list';
+                     });
+                   } else {
+                     Swal.fire({
+                       html: `
+                         <div class="card" style="background: linear-gradient(179deg, rgb(255 255 255 / 26%), rgb(81 110 221 / 47%));
+                             border-radius: 20px;
+                             padding: 20px;
+                             text-align: center;
+                             color: #d1e7f3;
+                             width: 100%;
+                             max-width: max-content;
+                             margin: 0 auto;
+                             display: flex;
+                             justify-content: center;">
+                           <h6 style="font-size: 18px;font-weight: 600;margin-bottom: 10px;text-transform: capitalize;color:#ffffff;"> <i class="fas fa-exclamation-circle"></i> Error!</h6>
+                           <p style="font-size: 10px;font-weight: 400;margin-bottom: 12px;text-align: left;text-transform: capitalize;">
+                             There was an issue creating the client.
+                           </p>
+                           <button class="btn btn-custom" style="background-color: rgba(255, 255, 255, 0.2); border: none; border-radius: 20px; color: #d1e7f3; padding: 10px 20px; width: 100%;" onclick="Swal.close()">
+                             OK
+                           </button>
+                         </div>
+                       `,
+                       showConfirmButton: false,
+                       background: 'rgb(19 36 74)',
+                       customClass: {
+                         popup: 'border-0',
+                         container: 'border-radius: 50px; display: flex !important; justify-content: center;'
+                       }
+                     });
+                   }
+               })
+               .catch((error) => {
+                   console.error('Error submitting the form:', error);
+                   
+                   if (error.response && error.response.data && error.response.data.errors) {
+                       const validationErrors = error.response.data.errors.errors;
+                       let errorMessage = '<ul style="text-align: left; list-style-type: none; padding-left: 0;">';
+                       validationErrors.forEach(err => {
+                           errorMessage += `<li>• ${err.message}</li>`;
+                       });
+                       errorMessage += '</ul>';
+       
+                       Swal.fire({
+                           html: `
+                             <div class="card" style="background: linear-gradient(179deg, rgb(255 255 255 / 26%), rgb(81 110 221 / 47%));
+                                 border-radius: 20px;
+                                 padding: 20px;
+                                 text-align: center;
+                                 color: #d1e7f3;
+                                 width: 100%;
+                                 max-width: max-content;
+                                 margin: 0 auto;
+                                 display: flex;
+                                 justify-content: center;">
+                               <h6 style="font-size: 18px;font-weight: 600;margin-bottom: 10px;text-transform: capitalize;color:#ffffff;"> <i class="fas fa-exclamation-circle"></i> Oops! Seems like you missed something</h6>
+                               <p style="font-size: 10px;font-weight: 400;margin-bottom: 12px;text-align: left;text-transform: capitalize;">
+                                 ${errorMessage}
+                               </p>
+                               <button class="btn btn-custom" style="background-color: rgba(255, 255, 255, 0.2); border: none; border-radius: 20px; color: #d1e7f3; padding: 10px 20px; width: 100%;" onclick="Swal.close()">
+                                 OK
+                               </button>
+                             </div>
+                           `,
+                           showConfirmButton: false,
+                           background: 'rgb(19 36 74)',
+                           customClass: {
+                             popup: 'border-0',
+                             container: 'border-radius: 50px; display: flex !important; justify-content: center;'
+                           }
+                       });
+                   } else {
+                       Swal.fire({
+                           html: `
+                             <div class="card" style="background: linear-gradient(179deg, rgb(255 255 255 / 26%), rgb(81 110 221 / 47%));
+                                 border-radius: 20px;
+                                 padding: 20px;
+                                 text-align: center;
+                                 color: #d1e7f3;
+                                 width: 100%;
+                                 max-width: max-content;
+                                 margin: 0 auto;
+                                 display: flex;
+                                 justify-content: center;">
+                               <h6 style="font-size: 18px;font-weight: 600;margin-bottom: 10px;text-transform: capitalize;color:#ffffff;"> <i class="fas fa-exclamation-circle"></i> Error!</h6>
+                               <p style="font-size: 10px;font-weight: 400;margin-bottom: 12px;text-align: left;text-transform: capitalize;">
+                                 There was an error saving the details. Please try again.
+                               </p>
+                               <button class="btn btn-custom" style="background-color: rgba(255, 255, 255, 0.2); border: none; border-radius: 20px; color: #d1e7f3; padding: 10px 20px; width: 100%;" onclick="Swal.close()">
+                                 OK
+                               </button>
+                             </div>
+                           `,
+                           showConfirmButton: false,
+                           background: 'rgb(19 36 74)',
+                           customClass: {
+                             popup: 'border-0',
+                             container: 'border-radius: 50px; display: flex !important; justify-content: center;'
+                           }
+                       });
+                   }
+               });
+       });
+       
+       
+             </script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

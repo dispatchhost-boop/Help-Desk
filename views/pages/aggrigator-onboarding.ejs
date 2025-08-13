@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      href="assets/libs/mobius1-selectr/selectr.min.css"
+      rel="stylesheet"
+      type="text/css" />
+    <link
+      href="assets/libs/huebee/huebee.min.css"
+      rel="stylesheet"
+      type="text/css" />
+    <link
+      href="assets/libs/vanillajs-datepicker/css/datepicker.min.css"
+      rel="stylesheet"
+      type="text/css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
+      rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      .filter-badge {
+        background-color: #e9f5ff;
+        border: 1px solid #b6e0ff;
+        color: #0366d6;
+        padding: 4px 10px;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .filter-badge i {
+        cursor: pointer;
+        color: #0366d6;
+        font-size: 12px;
+      }
+
+      .filter-badge i:hover {
+        color: #023e8a;
+      }
+    </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %> <%-
+      include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Logistics partner On-Boarding</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">Configuration</li>
+                  <li class="breadcrumb-item active">
+                    Logistics partn. Onboarding
+                  </li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+            <form id="logisticForm">
+              <!-- end page title end breadcrumb -->
+              <div class="row g-3 mb-4">
+                <!-- Courier Type -->
+                <div class="col-md-2">
+                  <label class="form-label">Segment Type</label>
+                  <select id="courierType" class="form-select">
+                    <option value>-- Select Courier Type --</option>
+                    <% [...new Set(forwarderList.map(f =>
+                    f.courier_type))].forEach(type => { %>
+                    <option value="<%= type %>"><%= type %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- Business Volume -->
+                <div class="col-md-3" id="businessVolumeGroup">
+                  <label class="form-label">Business Volume</label>
+                  <select id="businessVolume" class="form-select">
+                    <option value>-- Select Volume --</option>
+                    <%
+                    // Show unique plans for business volume (Express/LTL)
+                    const uniquePlans = [];
+                    forwarderList.forEach(f => {
+                    if (!uniquePlans.find(p => p.id === f.plan_id)) {
+                    uniquePlans.push({
+                    id: f.plan_id,
+                    name: f.plan_name,
+                    min: f.min_volume,
+                    max: f.max_volume
+                    });
+                    }
+                    });
+                    uniquePlans.forEach(plan => {
+                    %>
+                    <option value="<%= plan.id %>">
+                      <%= plan.name %>
+                      (<%= plan.min / 1000 %>k - <%= plan.max ? (plan.max /
+                      1000) : '∞' %>k /Month)
+                    </option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- No. of Shipments Per Month (E‑com only) -->
+               <div class="col-md-3" id="shipmentGroup" style="display: none;">
+    <label class="form-label">No. of Shipment Per Month</label>
+    <select id="stepMonthlyParcels" class="form-select">
+        <option value="">Select shipment</option>
+        <!-- Options will be populated by JavaScript -->
+    </select>
+</div>
+
+                <!-- Service Mode -->
+
+                <!-- Courier Partner -->
+
+                <!-- Courier Partner (Tagged API) -->
+                <div class="col-md-3">
+                  <label class="form-label">Courier Partner</label>
+                  <select id="filterTaggedApi" class="form-select">
+                    <option value>-- Select Tagged API --</option>
+                  </select>
+                </div>
+
+                <!-- Forwarder Name -->
+                <div class="col-md-3">
+                  <label class="form-label">Courier Slab</label>
+                  <select id="filterForwarder" class="form-select">
+                    <option value>-- Select Slab Range --</option>
+                  </select>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-12">
+                    <div
+                      id="selectedFilters"
+                      class="d-flex flex-wrap gap-2"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Final Result -->
+              <div class="mt-3">
+                <div
+                  id="finalForwarderBox"
+                  style="display: none"
+                  class="alert alert-info">
+                  Selected Logistic Forwarder:
+                  <strong id="finalForwarder"></strong>
+                </div>
+              </div>
+              <div class="row">
+                <!-- Forwarder Info (already present) -->
+                <!-- <div class="col-md-6" id="forwarderInfoBox">
+                
+              </div> -->
+                <!-- Rate Entry UI -->
+                <div class="col-md-12 mb-1" id="rateEntryBox">
+                  <!-- Dynamically fill with LTL or Express rate UI -->
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- container -->
+
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css" />
+          <script
+            src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+          <script src="assets/js/pages/form-wizard.js"></script>
+          <!-- App js -->
+
+          <!-- jQuery -->
+          <!-- Selectr -->
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.css" />
+          <script
+            src="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.js"></script>
+          <!-- Huebee -->
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.min.css" />
+          <script
+            src="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.pkgd.min.js"></script>
+          <!-- Vanilla JS Datepicker -->
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/css/datepicker.min.css" />
+          <script
+            src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker-full.min.js"></script>
+          <!-- Moment.js -->
+          <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+          <!-- IMask -->
+          <script
+            src="https://unpkg.com/imask@6.4.1/dist/imask.min.js"></script>
+          <script src="assets/js/pages/forms-advanced.js"></script>
+
+          <!-- for only ltl here is data -->
+
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script
+            src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+          <!-- JavaScript for dynamic row addition, reset, delete, and data saving -->
+
+          <script
+            src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+            const forwarderList = <%- JSON.stringify(forwarderList) %>;
+            const shipmentBuckets = <%- JSON.stringify(shipmentBuckets) %>;
+            console.log("shupment dhgdhsgdjh",shipmentBuckets)
+
+document.addEventListener("DOMContentLoaded", () => {
+    const courierTypeEl = document.getElementById("courierType");
+    const volumeEl = document.getElementById("businessVolume");
+    const shipmentEl = document.getElementById("stepMonthlyParcels");
+    const taggedApiEl = document.getElementById("filterTaggedApi");
+    const forwarderEl = document.getElementById("filterForwarder");
+    const finalForwarderBox = document.getElementById("finalForwarderBox");
+    const finalForwarder = document.getElementById("finalForwarder");
+
+    const businessVolumeGroup = document.getElementById("businessVolumeGroup");
+    const shipmentGroup = document.getElementById("shipmentGroup");
+
+    console.log("Forwarder List:", forwarderList); // Debug log
+    console.log("Shipment Buckets:", shipmentBuckets); // Debug log
+
+    // Initialize dropdowns
+    populateTaggedApiDropdown();
+
+    // Courier type change handler
+    courierTypeEl.addEventListener("change", () => {
+        const selectedType = courierTypeEl.value;
+        console.log("Selected courier type:", selectedType); // Debug log
+        
+        // Show/hide appropriate dropdowns
+        if (selectedType === "Express") {
+            businessVolumeGroup.style.display = "block";
+            shipmentGroup.style.display = "none";
+            populateBusinessVolumeDropdown();
+            shipmentEl.value = ""; // Clear shipment selection
+        } else if (selectedType === "Ecom") {
+            businessVolumeGroup.style.display = "none";
+            shipmentGroup.style.display = "block";
+            populateShipmentDropdown(); // Add this function
+            volumeEl.value = ""; // Clear volume selection
+        } else {
+            businessVolumeGroup.style.display = "none";
+            shipmentGroup.style.display = "none";
+            volumeEl.value = "";
+            shipmentEl.value = "";
+        }
+        
+        // Update other dropdowns
+        updateForwarderDropdown();
+        updateFilterBadges();
+    });
+
+    // Other change events
+    [volumeEl, shipmentEl, taggedApiEl].forEach(el => {
+        el.addEventListener("change", () => {
+            updateForwarderDropdown();
+            updateFilterBadges();
+        });
+    });
+
+    forwarderEl.addEventListener("change", () => {
+        const selected = forwarderEl.selectedOptions[0];
+        const name = selected?.getAttribute("data-company");
+        const api = selected?.getAttribute("data-tagged-api");
+
+        if (name && api) {
+            finalForwarder.textContent = `${name} (${api})`;
+            finalForwarderBox.style.display = "block";
+        } else {
+            finalForwarder.textContent = "";
+            finalForwarderBox.style.display = "none";
+        }
+    });
+
+    function populateTaggedApiDropdown() {
+        const allApis = [...new Set(forwarderList.map(f => f.Tagged_api).filter(api => api))];
+        taggedApiEl.innerHTML = '<option value="">-- Select Tagged API --</option>';
+        allApis.forEach(api => {
+            const opt = document.createElement("option");
+            opt.value = api;
+            opt.textContent = api;
+            taggedApiEl.appendChild(opt);
+        });
+    }
+
+    function populateBusinessVolumeDropdown() {
+        // Get unique business volumes for Express
+        const expressForwarders = forwarderList.filter(f => f.courier_type === "Express");
+        const uniquePlans = [];
+        
+        expressForwarders.forEach(f => {
+            if (f.plan_id && !uniquePlans.find(p => p.id === f.plan_id)) {
+                uniquePlans.push({
+                    id: f.plan_id,
+                    name: f.plan_name,
+                    min: f.min_volume,
+                    max: f.max_volume
+                });
+            }
+        });
+
+        volumeEl.innerHTML = '<option value="">-- Select Volume --</option>';
+        uniquePlans.forEach(plan => {
+            const opt = document.createElement("option");
+            opt.value = plan.id;
+            opt.textContent = `${plan.name} (${plan.min / 1000}k - ${plan.max ? (plan.max / 1000) : '∞'}k /Month)`;
+            volumeEl.appendChild(opt);
+        });
+    }
+
+    // NEW: Add function to populate shipment dropdown
+    function populateShipmentDropdown() {
+    shipmentEl.innerHTML = '<option value="">Select shipment</option>';
+    
+    // Check if shipmentBuckets is an array or object
+    let bucketsArray;
+    if (Array.isArray(shipmentBuckets)) {
+        bucketsArray = shipmentBuckets;
+    } else {
+        // Convert object to array
+        bucketsArray = Object.keys(shipmentBuckets).map(key => ({
+            id: parseInt(key),
+            label: shipmentBuckets[key].label
+        }));
+    }
+    
+    bucketsArray.forEach(bucket => {
+        const opt = document.createElement("option");
+        opt.value = bucket.id;
+        opt.textContent = bucket.label;
+        shipmentEl.appendChild(opt);
+    });
+}
+
+    function updateForwarderDropdown() {
+        const type = courierTypeEl.value;
+        const volume = volumeEl.value;
+        const shipment = shipmentEl.value;
+        const api = taggedApiEl.value;
+
+        console.log("Filtering with:", { type, volume, shipment, api }); // Debug log
+
+        let filtered = [...forwarderList];
+
+        // Reset forwarder dropdown
+        forwarderEl.innerHTML = '<option value="">-- Select Forwarder --</option>';
+        forwarderEl.disabled = true;
+        finalForwarderBox.style.display = "none";
+        finalForwarder.textContent = "";
+        document.getElementById("rateEntryBox").innerHTML = ""; // Clear rate entry box
+
+        // Check required fields
+        if (!type || !api) {
+            console.log("Missing required fields"); // Debug log
+            return;
+        }
+
+        // Apply filters
+        filtered = filtered.filter(f => f.courier_type === type);
+        filtered = filtered.filter(f => f.Tagged_api === api);
+
+        console.log("After basic filtering:", filtered); // Debug log
+
+        // Apply specific volume/shipment filters
+        if (type === "Express" && volume) {
+            // For Express, filter by plan_id (business_volume field in database)
+            filtered = filtered.filter(f => f.plan_id == volume);
+        } else if (type === "Ecom" && shipment) {
+            // For ecom, filter by packet_shipment
+            filtered = filtered.filter(f => f.packet_shipment == shipment);
+        }
+
+        console.log("After specific filtering:", filtered); // Debug log
+
+        if (filtered.length > 0) {
+          filtered.forEach(f => {
+            const opt = document.createElement("option");
+            opt.value = f.id;
+            opt.textContent = f.company_name;
+            opt.setAttribute("data-company", f.company_name);
+            opt.setAttribute("data-tagged-api", f.Tagged_api);
+
+            // Set color based on delhivery_api_variant
+            if (f.delhivery_api_variant == 1) {
+              opt.style.backgroundColor = '#0dcaf0';
+              opt.style.color = 'white';
+            } else if (f.delhivery_api_variant == 2) {
+              opt.style.backgroundColor = '#198754';
+              opt.style.color = 'white';
+            }
+
+            forwarderEl.appendChild(opt);
+          });
+            forwarderEl.disabled = false;
+        }
+    }
+
+    // Filter badges functionality
+    const filterIds = {
+        "Courier Type": "courierType",
+        "Business Volume": "businessVolume",
+        "Shipment Volume": "stepMonthlyParcels",
+        "Courier Partner": "filterTaggedApi",
+        "Forwarder": "filterForwarder",
+    };
+
+    function updateFilterBadges() {
+        const container = document.getElementById("selectedFilters");
+        container.innerHTML = "";
+
+        for (const [label, id] of Object.entries(filterIds)) {
+            const el = document.getElementById(id);
+            const selectedOption = el.options[el.selectedIndex];
+            const value = selectedOption?.value;
+            const text = selectedOption?.textContent;
+
+            if (value && (
+                (label === "Business Volume" && courierTypeEl.value === "Express") ||
+                (label === "Shipment Volume" && courierTypeEl.value === "Ecom") ||
+                (label !== "Business Volume" && label !== "Shipment Volume")
+            )) {
+                const badge = document.createElement("span");
+                badge.className = "filter-badge";
+                badge.innerHTML = `
+                    <strong>${label}:</strong> ${text}
+                    <i class="fas fa-times-circle" data-id="${id}" title="Clear"></i>
+                `;
+                container.appendChild(badge);
+            }
+        }
+
+        // Add click handler to clear badge filters
+        container.querySelectorAll("i.fa-times-circle").forEach((icon) => {
+            icon.addEventListener("click", (e) => {
+                const idToClear = e.target.getAttribute("data-id");
+                const el = document.getElementById(idToClear);
+                if (el) {
+                    el.value = "";
+                    el.dispatchEvent(new Event("change"));
+                }
+            });
+        });
+    }
+
+    // Initial setup
+    updateFilterBadges();
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const forwarderEl = document.getElementById("filterForwarder");
+        const courierTypeEl = document.getElementById("courierType");
+        // const forwarderInfoBox = document.getElementById("forwarderInfoBox");
+        const rateEntryBox = document.getElementById("rateEntryBox");
+
+        forwarderEl.addEventListener("change", async () => {
+          const selected = forwarderEl.selectedOptions[0];
+          const courirerId = selected?.value;
+          const segmentType = courierTypeEl.value; // e.g., "LTL" or "Express"
+          console.log("here in the forwarder", courirerId);
+          console.log("segment type",segmentType)
+
+          // // 1. Show forwarder info (you can expand this as needed)
+          // forwarderInfoBox.innerHTML = courirerId
+          //   ? `<div class="alert alert-info">Selected Forwarder ID: <strong>${courirerId}</strong></div>`
+          //   : "";
+          if (!courirerId) {
+            rateEntryBox.innerHTML = "";
+            return;
+          }
+
+           if (segmentType === "LTL" && courirerId) {
+      try {
+        const { data: ltlData } = await axios.get(
+          `/api/ltl-rate-list/${courirerId}`
+        );
+        renderLtlRateUI(ltlData);
+      } catch (err) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load LTL rates.",
+          confirmButtonText: "OK",
+        });
+        rateEntryBox.innerHTML = ""; // Optionally clear the box
+      }
+    } else if (segmentType === "Express" && courirerId) {
+      try {
+        const { data: expressData } = await axios.get(
+          `/api/package/express-rate-list/${courirerId}`
+        );
+        renderExpressRateAndEcomUI(expressData);
+      } catch (err) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load Express rates.",
+          confirmButtonText: "OK",
+        });
+        rateEntryBox.innerHTML = ""; // Optionally clear the box
+      }
+    } else if (segmentType === "Ecom" && courirerId) {
+  try {
+    const { data: ecomData } = await axios.get(
+      `/api/package/ecom-rate-list/${courirerId}`
+    );
+    renderExpressRateAndEcomUI(ecomData); // Use separate ecom function
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Error", 
+      text: "Failed to load Ecom rates.",
+      confirmButtonText: "OK",
+    });
+    rateEntryBox.innerHTML = "";
+  }
+}
+  });
+
+        function renderLtlRateUI(data) {
+          // Example: show LTL rates and additional charges
+          rateEntryBox.innerHTML = `
+      <h5>LTL Rate Entry</h5>
+      <div>
+        <strong>Volumetric Factor:</strong> ${data.volumetric_factor || "-"}<br>
+        <strong>Min Chargeable Weight:</strong> ${
+          data.min_chargeable_weight || "-"
+        }
+      </div>
+      <div>
+        <h6>Rates:</h6>
+        <pre>${JSON.stringify(data.rates, null, 2)}</pre>
+      </div>
+      <!-- Add your LTL additional charges UI here -->
+    `;
+        }
+
+        // 1. Function Signature and Data Check
+        function renderExpressRateAndEcomUI(data) {
+          // Accepts the full response object: { slabs: [...], express_additional_charges: [...], volumetric_factor, min_chargeable_weight }
+          if (!data || !Array.isArray(data.slabs) || data.slabs.length === 0) {
+            rateEntryBox.innerHTML = `<div class="alert alert-warning">No rate data found.</div>`;
+            return;
+          }
+          const slabs = data.slabs;
+          const expressAdditionalCharges = Array.isArray(
+            data.express_additional_charges
+          )
+            ? data.express_additional_charges
+            : [];
+          const volumetricFactor = data.volumetric_factor || "-";
+          // const minChargeableWeight = data.min_chargeable_weight || "-";
+
+          // 0. Volumetric Factor & Min Chargeable Weight UI (above global additional charges)
+          let volumetricAndMinHtml = `
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="alert alert-info mb-0">
+            <strong>Volumetric Factor:</strong> ${volumetricFactor}
+            <input type="text" class="form-control form-control-sm d-inline-block ms-2" style="width:120px;vertical-align:middle;" name="volumetric_factor_input" placeholder="Enter value">
+          </div>
+        </div>
+       
+      </div>
+    `;
+
+          // 4. Add Global Express Additional Charges UI (before the tabs)
+          let expressAdditionalChargesHtml = `
+      <div class="card border mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+          <span>Global Express Additional Charges</span>
+          <button type="button" class="btn btn-outline-success btn-sm add-global-additional-charge-btn" style="
+    background-color: #198754 !important;
+    color: white !important;
+    border-color: #198754 !important;
+  ">
+            <i class="fas fa-plus me-1"></i>Add New Additional Charge
+          </button>
+        </div>
+        <div class="card-body" id="globalAdditionalChargesContainer">
+          ${
+            expressAdditionalCharges.length > 0
+              ? expressAdditionalCharges
+                  .map((charge) =>
+                    getGlobalExpressAdditionalChargeRowHTML(charge)
+                  )
+                  .join("")
+              : getGlobalExpressAdditionalChargeRowHTML()
+          }
+        </div>
+      </div>
+    `;
+
+          // 2. Per-slab Additional Charges (table only, no per-slab add/remove UI)
+          let tabNav = `<ul class="nav nav-tabs mb-3" id="slabTab-priority" role="tablist">`;
+          let tabContent = `<div class="tab-content" id="slabTabContent-priority">`;
+
+          slabs.forEach((slab, i) => {
+            const slabId = `slab${i}-priority`;
+            const active = i === 0 ? "active" : "";
+            const show = i === 0 ? "show active" : "";
+
+            // Tab nav
+            tabNav += `
+        <li class="nav-item" role="presentation">
+          <button class="nav-link ${active}" id="${slabId}-tab" data-bs-toggle="tab" data-bs-target="#${slabId}" type="button" role="tab" aria-controls="${slabId}" aria-selected="${
+              i === 0
+            }">
+            ${slab.min_weight}-${slab.max_weight} ${slab.unit}
+          </button>
+        </li>
+      `;
+
+            // Table headers (zones)
+            const zoneKeys = Object.keys(slab.zones);
+            let tableHeaders = `<th class="border-end bg-light">Category</th>`;
+            zoneKeys.forEach((zone) => {
+              tableHeaders += `<th class="border-end bg-light">${zone}</th>`;
+              tableHeaders += `<th class="border-end bg-light">Your Input</th>`;
+            });
+
+            // Table body: base rates
+            let tableBody = `
+        <tr>
+          <td class="fw-bold border-end text-start">Base Rate</td>
+          ${zoneKeys
+            .map(
+              (zone, zidx) => `
+            <td>
+              <input type="text" class="form-control form-control-sm" value="${
+                slab.zones[zone] || ""
+              }" readonly tabindex="-1">
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="slabs[${i}][zones_input][${zone}]" placeholder="Enter value">
+            </td>
+          `
+            )
+            .join("")}
+        </tr>
+      `;
+
+            // Table body: additional charges (one row per additional charge)
+            if (
+              Array.isArray(slab.slab_additional_charges) &&
+              slab.slab_additional_charges.length > 0
+            ) {
+              slab.slab_additional_charges.forEach((charge, j) => {
+                tableBody += `
+            <tr>
+              <td class="fw-bold border-end text-start">${charge.desc} (${
+                  charge.weight
+                } ${charge.unit})</td>
+              ${zoneKeys
+                .map(
+                  (zone, zidx) => `
+                <td>
+                  <input type="text" class="form-control form-control-sm" value="${
+                    charge.amounts[zone] || ""
+                  }" readonly tabindex="-1">
+                </td>
+                <td>
+                  <input type="text" class="form-control form-control-sm" name="slabs[${i}][slab_additional][${j}][input][${zone}]" placeholder="Enter value">
+                </td>
+              `
+                )
+                .join("")}
+            </tr>
+          `;
+              });
+            }
+
+            // Table HTML
+            const tableHtml = `
+        <div class="table-card mb-4 border rounded p-3 bg-white shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover border">
+              <thead class="bg-primary text-white">
+                <tr>${tableHeaders}</tr>
+              </thead>
+              <tbody>
+                ${tableBody}
+              </tbody>
+            </table>
+          </div>
+        </div>
+         <div class="row mb-5">
+                <div class="col-12 text-end">
+                  <button type="button" id="saveOnboardingBtn" class="btn btn-success">
+                    <i class="fa fa-save"></i> Save
+                  </button>
+                </div>
+              </div>
+      `;
+
+            // Tab content
+            tabContent += `
+        <div class="tab-pane fade ${show}" id="${slabId}" role="tabpanel" aria-labelledby="${slabId}-tab">
+          ${tableHtml}
+        </div>
+      `;
+          });
+
+          tabNav += `</ul>`;
+          tabContent += `</div>`;
+
+          // 5. Render All (Final Output)
+          // Place volumetric/min chargeable above global additional charges
+          rateEntryBox.innerHTML =
+            volumetricAndMinHtml +
+            expressAdditionalChargesHtml +
+            tabNav +
+            tabContent;
+          const saveBtn = document.getElementById("saveOnboardingBtn");
+          if (saveBtn) {
+            saveBtn.addEventListener("click", async function () {
+              // Collect form data
+              const segmentType = document.getElementById("courierType").value;
+              const volumetricFactor =
+                document.querySelector('input[name="volumetric_factor_input"]')
+                  ?.value || "";
+              
+              const courierSelected =
+                document.getElementById("filterForwarder").value;
+
+              // 2. Collect Global Express Additional Charges
+              const additionalCharges = [];
+              document
+                .querySelectorAll(".additional-charge-row")
+                .forEach((row) => {
+                  additionalCharges.push({
+                    charge_name: row.querySelector(".charge-type-input")?.value,
+                    calculation_based_on_min:
+                      row.querySelector(".min-charge-select")?.value,
+                    min_value: row.querySelector(".min-value-user-input")
+                      ?.value,
+                    calculation_based_on_max:
+                      row.querySelector(".max-charge-select")?.value,
+                    max_value: row.querySelector(".max-value-user-input")
+                      ?.value,
+                    condition_based:
+                      row.querySelector(".condition-select")?.value,
+                    chargable_value_type: row.querySelector(
+                      ".chargeable-value-type-input"
+                    )?.value,
+                  });
+                });
+
+              // 3. Collect Per-slab "Your Input" fields
+              const slabInputs = {};
+              document
+                .querySelectorAll('input[name^="slabs"]')
+                .forEach((input) => {
+                  slabInputs[input.name] = input.value;
+                });
+
+                const isEcom = segmentType === 'Ecom';
+const dynamicKey = isEcom ? 'noOfShipment' : 'business_volume';
+const dynamicValue = isEcom
+  ? (document.getElementById('stepMonthlyParcels')?.value || '')
+  : (document.getElementById('businessVolume')?.value || '');
+
+              // 4. Build your payload
+              const data = {
+                global_additional_charges: additionalCharges,
+                slab_inputs: slabInputs,
+                volumetric_factor: volumetricFactor,
+                [dynamicKey]: dynamicValue,
+                courier_id: courierSelected,
+              };
+
+              // Decide API endpoint based on segmentType
+              let apiUrl = "";
+              if (segmentType === "Express") {
+                apiUrl = "/api/logistic-partner/express";
+              } else if (segmentType === "Ecom") {
+                apiUrl = "/api/logistic-partner/ecom";
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "Please select a valid Segment Type (Express or ecom).",
+                  confirmButtonText: "OK",
+                });
+                return;
+              }
+
+              try {
+                const response = await axios.post(apiUrl, data);
+                if (response.data && response.data.success) {
+                  Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: response.data.message || "Saved successfully!",
+                    confirmButtonText: "OK",
+                  }).then(() => {
+                    // Redirect after user clicks OK
+                    window.location.href = "/aggrigator-onboarding";
+                  });
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: response.data.message || "Save failed!",
+                    confirmButtonText: "OK",
+                  });
+                }
+              } catch (err) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text:
+                    err.response?.data?.message ||
+                    err.message ||
+                    "An error occurred!",
+                  confirmButtonText: "OK",
+                });
+              }
+            });
+          }
+
+          // 7. Attach Remove/Add Events for Global Additional Charges
+          attachGlobalAdditionalChargeEvents();
+        }
+
+        // 6. Add/Replace the Helper for Global Additional Charges
+        function getGlobalExpressAdditionalChargeRowHTML(charge = {}) {
+          function getOption(val, label) {
+            return `<option value="${val}"${
+              charge.charge_name === val ? " selected" : ""
+            }>${label}</option>`;
+          }
+          return `
+      <div class="row align-items-end mb-2 additional-charge-row border rounded p-2">
+        <div class="col-md-2">
+          <label class="form-label">Charge Name</label>
+          <select class="form-control charge-type-input">
+          <option value="" disabled${
+            !charge.charge_name ? " selected" : ""
+          }>Choose charge name</option>
+          ${getOption("lr", "LR Charges")}
+          ${getOption("fs", "FS Charges")}
+          ${getOption("fm", "FM Charges")}
+          ${getOption("fov_owner", "FOV Charges")}
+          ${getOption("to_pay", "To Pay Charges")}
+          ${getOption("cod", "COD Charges")}
+          ${getOption("check_handling_weight", "Check Handling Charges")}
+          ${getOption("green_tax", "Green Tax Charges")}
+          ${getOption("oda", "ODA Charges")}
+        </select>
+        </div>
+        <div class="col-md-2">
+        <label class="form-label">Min Calculation</label>
+        <select class="form-select min-charge-select">
+          <option value="" disabled${
+            !charge.calculation_based_on_min ? " selected" : ""
+          }>Select charge name</option>
+          <option value="lr"${
+            charge.calculation_based_on_min === "lr" ? " selected" : ""
+          }>LR</option>
+          <option value="kg"${
+            charge.calculation_based_on_min === "kg" ? " selected" : ""
+          }>kg</option>
+          <option value="base_value"${
+            charge.calculation_based_on_min === "base_value" ? " selected" : ""
+          }>Base value(%)</option>
+          <option value="invoice_value"${
+            charge.calculation_based_on_min === "invoice_value"
+              ? " selected"
+              : ""
+          }>Invoice Value(%)</option>
+          <option value="boxes"${
+            charge.calculation_based_on_min === "boxes" ? " selected" : ""
+          }>Boxes</option>
+          <option value="cod"${
+            charge.calculation_based_on_min === "cod" ? " selected" : ""
+          }>cod</option>
+        </select>
+      </div>
+        <div class="col-md-1">
+          <label class="form-label">Min Value</label>
+          <input type="text" class="form-control min-value-input" placeholder="Min Value" value="${
+            charge.min_value || ""
+          }" readonly tabindex="-1">
+          <input type="text" class="form-control min-value-user-input mt-1" placeholder="Enter Min Value">
+        </div>
+        <div class="col-md-2">
+  <label class="form-label">Max Calculation</label>
+  <select class="form-select max-charge-select">
+    <option value="" disabled${
+      !charge.calculation_based_on_max ? " selected" : ""
+    }>Select charge name</option>
+    <option value="lr"${
+      charge.calculation_based_on_max === "lr" ? " selected" : ""
+    }>LR</option>
+    <option value="kg"${
+      charge.calculation_based_on_max === "kg" ? " selected" : ""
+    }>kg</option>
+    <option value="base_value"${
+      charge.calculation_based_on_max === "base_value" ? " selected" : ""
+    }>Base value(%)</option>
+    <option value="invoice_value"${
+      charge.calculation_based_on_max === "invoice_value" ? " selected" : ""
+    }>Invoice Value(%)</option>
+    <option value="boxes"${
+      charge.calculation_based_on_max === "boxes" ? " selected" : ""
+    }>Boxes</option>
+    <option value="cod"${
+      charge.calculation_based_on_max === "cod" ? " selected" : ""
+    }>cod</option>
+  </select>
+</div>
+        <div class="col-md-1">
+          <label class="form-label">Max Value</label>
+          <input type="text" class="form-control max-value-input" placeholder="Max Value" value="${
+            charge.max_value || ""
+          }" readonly tabindex="-1">
+          <input type="text" class="form-control max-value-user-input mt-1" placeholder="Enter Max Value">
+        </div>
+        <div class="col-md-1">
+  <label class="form-label">Condition</label>
+  <select class="form-select condition-select">
+    <option value="" disabled${
+      !charge.condition_based ? " selected" : ""
+    }>Select</option>
+    <option value="and"${
+      charge.condition_based === "and" ? " selected" : ""
+    }>AND</option>
+    <option value="or"${
+      charge.condition_based === "or" ? " selected" : ""
+    }>OR</option>
+  </select>
+</div>
+       <div class="col-md-2 chargeable-value-type-container" style="display: ${
+         charge.condition_based === "or" ? "block" : "none"
+       };">
+  <label class="form-label">Chargeable Value Type</label>
+  <select class="form-select chargeable-value-type-input">
+    <option value="" disabled${
+      !charge.chargable_value_type ? " selected" : ""
+    }>Select</option>
+    <option value="lower"${
+      charge.chargable_value_type === "lower" ? " selected" : ""
+    }>Whichever is lower</option>
+    <option value="higher"${
+      charge.chargable_value_type === "higher" ? " selected" : ""
+    }>Whichever is higher</option>
+  </select>
+</div>
+        
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-danger btn-sm remove-charge-btn" title="Remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div> 
+      </div>
+    `;
+        }
+        function attachGlobalAdditionalChargeEvents() {
+          // Remove event
+          document
+            .querySelectorAll(
+              "#globalAdditionalChargesContainer .remove-charge-btn"
+            )
+            .forEach((btn) => {
+              btn.onclick = function () {
+                this.closest(".additional-charge-row").remove();
+              };
+            });
+          // Add event
+          const addBtn = document.querySelector(
+            ".add-global-additional-charge-btn"
+          );
+          if (addBtn) {
+            addBtn.onclick = function () {
+              document
+                .getElementById("globalAdditionalChargesContainer")
+                .insertAdjacentHTML(
+                  "beforeend",
+                  getGlobalExpressAdditionalChargeRowHTML()
+                );
+              attachGlobalAdditionalChargeEvents();
+            };
+          }
+          document
+            .querySelectorAll(
+              "#globalAdditionalChargesContainer .condition-select"
+            )
+            .forEach((select) => {
+              select.onchange = function () {
+                const container = this.closest(
+                  ".additional-charge-row"
+                ).querySelector(".chargeable-value-type-container");
+                if (this.value === "or") {
+                  container.style.display = "block";
+                } else {
+                  container.style.display = "none";
+                  // Optionally clear the value if hidden
+                  container.querySelector("select").value = "";
+                }
+              };
+              // Trigger on load for existing rows
+              select.onchange();
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

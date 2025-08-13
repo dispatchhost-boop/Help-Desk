@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<style>
+  .main-container {
+    padding: 20px;
+  }
+
+  .left-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 100%;
+  }
+
+  .right-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-table {
+    width: 100%;
+  }
+
+  .status-table th, .status-table td {
+    vertical-align: middle;
+  }
+
+  .green-text {
+    color: #28a745;
+    font-weight: 600;
+  }
+
+  .bold-blue {
+    font-weight: bold;
+    color: #3366cc;
+    font-size: 1.2rem;
+  }
+
+  .btn-demo {
+    width: 100%;
+  }
+
+  .tabs {
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 15px;
+  }
+
+  .tabs button {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+  }
+
+  .tabs .active {
+    background-color: #e8f0fe;
+    border-radius: 5px 5px 0 0;
+  }
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">Chat</li>
+                  <li class="breadcrumb-item active">Chat Setting</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div class="container-fluid p-0">
+            
+        
+            <div class="container main-container" style="background-color: #f4f7fc;">
+                <!-- Tabs -->
+                <div class="tabs d-flex mb-4">
+                    <button class="active">WhatsApp Communication</button>
+                    <button>Email and SMS Communication</button>
+                </div>
+        
+                <div class="row g-4">
+                    <!-- Left Panel -->
+                    <div class="col-lg-6">
+                      <div class="left-section">
+                        <h5><strong>WhatsApp Communication</strong></h5>
+                        <p>Send live updates to your buyer with <strong>93% read rate</strong></p>
+                        <p class="bold-blue">Rs 0.99/Message 
+                            <span class="text-success ms-3" id="activation-status"><%= subscriberData.length>0 && subscriberData[0].isactive > 0 ? '🟢 Activated' : '🟢 Deactivated' %></span>
+                            <button class="btn btn-primary btn-sm ms-2" id="toggle-activation-button"><%= subscriberData.length > 0 ? (subscriberData[0].isactive ? 'Deactivate' : 'Activate') : 'Activate' %></button>
+                          </p>
+                        <p class="green-text">Hurray welcome offer free for 3 months</p>
+                        <div class="d-flex justify-content-between mb-3">
+                          <div>✔️ Customize no. of messages</div>
+                          <div>✔️ Pay per message</div>
+                          <div>✔️ At low prices</div>
+                        </div>
+                        <hr>
+                        <h6>Experience yourself</h6>
+                        <p>Enter your number to experience live tracking updates on WhatsApp</p>
+                        <input type="text" class="form-control mb-3" placeholder="+91 1234567890">
+                        <button class="btn btn-primary btn-demo">Get demo message</button>
+                        <img src="https://cdni.iconscout.com/illustration/premium/thumb/chat-bot-service-4489056-3731286.png" class="img-fluid mt-4" alt="Demo illustration">
+                      </div>
+                    </div>
+                  
+                    <!-- Right Panel -->
+                    <div class="col-lg-6">
+                        <div class="right-section">
+                          <h5><strong>Select shipment status for communication</strong></h5>
+                          <table class="table status-table">
+                            <thead>
+                              <tr>
+                                <th>Shipment Status</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Packed</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].packed ? 'checked' : '' %> class="form-check-input me-2" data-status="packed">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Picked up</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].pickedup ? 'checked' : '' %> class="form-check-input me-2" data-status="pickedup">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>In transit</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].intransit ? 'checked' : '' %> class="form-check-input me-2" data-status="intransit">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Out for delivery</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].out_for_delivery ? 'checked' : '' %> class="form-check-input me-2" data-status="out_for_delivery">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Delivered</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].delivered ? 'checked' : '' %> class="form-check-input me-2" data-status="delivered">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Undelivered</td>
+                                <td>
+                                  <input type="checkbox" <%= subscriberData.length > 0 && subscriberData[0].undelivered ? 'checked' : '' %> class="form-check-input me-2" data-status="undelivered">
+                                  <i class="bi bi-eye"></i>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <!-- <button class="btn btn-primary" id="saveStatusButton">Save</button> -->
+                        </div>
+                      </div>
+                      
+                      
+                      
+                  </div>
+                  
+            </div>
+        </div>
+        
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+        <!-- modal start -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card-body">
+                    <!-- Modal body starts for users -->
+                    <div class="modal bd-example-modal-lg" id="Adduser"
+                        tabindex="-1" role="dialog"
+                        aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title m-0"
+                                        id="myLargeModalLabel">Add New Users</h6>
+                                    <button type="button" class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div><!--end modal-header-->
+                                <div class=" card modal-body">
+                                    <form class action="/">
+                                        <div class="row mt-0 mb-2" style="
+                                      display: flex;
+                                      align-items: center;
+                                      flex-wrap: nowrap;
+                                      justify-content: space-between;
+                                  ">
+                                            <div class="col-sm-9 dropdown-container"
+                                                style="
+                                        display: flex;
+                                        justify-content: flex-start;
+                                        align-items: center;
+                                        flex-direction: row;
+                                    ">
+                                                <label for="userSelect"
+                                                    class="form-label me-2 mt-2">Select
+                                                    Forwader</label>
+                                                <select class="form-select w-auto"
+                                                    id="userSelect"
+                                                    style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
+                                                    <option selected disabled>Choose
+                                                        Client
+                                                        Name</option>
+                                                    <option value="user1">Christina
+                                                        Willis</option>
+                                                    <option value="user2">John
+                                                        Doe</option>
+                                                    <option value="user3">Jane
+                                                        Smith</option>
+                                                </select>
+                                            </div>
+                                            <div class=" col-sm-3" style="
+                                        display: flex;
+                                        justify-content: flex-end;
+                                    ">
+                                                <button
+                                                    class=" text-end btn btn-primary"
+                                                    id="addRowBtn" type="button">Add
+                                                    Row</button>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <table class="table table-responsive"
+                                                id="datatable_2">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Dispatch Tracking
+                                                            Status</th>
+                                                        <th>Binder Tracking Status</th>
+                                                        <th>Binded</th>
+                                                        <!-- New Binded Column -->
+                                                        <th>Action</th>
+                                                        <!-- Action Column -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Order Created"></td>
+                                                        <td>
+        
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <!-- Binded Status Column -->
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>2</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Order Unprocessed"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>3</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Ready For Dispatch"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>4</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Dispatched"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>5</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="In-Transit"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>6</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Oder Reached At Detination"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>7</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Out For Delivery"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>8</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Faield Delivery Attempt"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>9</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="Delivered "></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>10</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="RTO "></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>11</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="RTO In-Transit"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>12</td>
+                                                        <td><input type="text"
+                                                                class="form-control dispatch-status"
+                                                                value="RTO Delivered"></td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#newStatusModal">
+                                                                Select Binded Status
+                                                            </button>
+                                                        </td>
+                                                        <td class="binded-status"></td>
+                                                        <td class="action-icons">
+        
+                                                            <a href="#"
+                                                                class="text-primary"
+                                                                title="Edit"
+                                                                onclick="editRow(this)">
+                                                                <i
+                                                                    class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="#"
+                                                                class="text-danger"
+                                                                title="Delete"
+                                                                onclick="deleteRow(this)">
+                                                                <i
+                                                                    class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+        
+                                                </tbody>
+                                            </table>
+        
+                                        </div><!--end row-->
+        
+                                        <div class="modal-footer">
+                                            <button type="submit"
+                                                class="btn btn-primary btn-sm">Submit</button>
+                                            <button type="button"
+                                                class="btn btn-secondary btn-sm"
+                                                data-bs-dismiss="modal">Close</button>
+                                        </div><!--end modal-footer-->
+                                    </form><!--end form-->
+                                </div><!--end modal-body-->
+                            </div><!--end modal-content-->
+                        </div><!--end modal-dialog-->
+                    </div><!--end modal-->
+                </div><!--end card-body-->
+            </div><!--end col-12-->
+        </div><!--end row-->
+        
+          <!-- Modal -->
+          <div class="modal" id="newStatusModal" tabindex="-1" aria-labelledby="myNewModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myNewModalLabel">New Modal with Select All</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>
+                                        <input type="checkbox" id="selectAll" class="form-check-input me-2">
+                                        <label for="selectAll" class="form-check-label">Select All</label>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Option 1</td>
+                                    <td>
+                                        <input type="checkbox" name="option1" id="option1" class="form-check-input check-item me-2">
+                                        <label for="option1" class="form-check-label">Select Option 1</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Option 2</td>
+                                    <td>
+                                        <input type="checkbox" name="option2" id="option2" class="form-check-input check-item me-2">
+                                        <label for="option2" class="form-check-label">Select Option 2</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Option 3</td>
+                                    <td>
+                                        <input type="checkbox" name="option3" id="option3" class="form-check-input check-item me-2">
+                                        <label for="option3" class="form-check-label">Select Option 3</label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Option 4</td>
+                                    <td>
+                                        <input type="checkbox" name="option4" id="option4" class="form-check-input check-item me-2">
+                                        <label for="option4" class="form-check-label">Select Option 4</label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="submitSelection">Submitform</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+          <!-- jQuery -->
+  <script>
+    const clientId = "<%= clientId %>"; // Pass the clientId from EJS
+    console.log("client id ",clientId)
+   document.querySelectorAll('.form-check-input').forEach(checkbox => {
+     checkbox.addEventListener('change', async function() {
+       const statusType = this.getAttribute('data-status');
+       const value = this.checked ? 1 : 0; // 1 for checked, 0 for unchecked
+      
+       // console.log("check client id comes",<%= clientId %>)
+       try {
+         const response = await axios.post('/api/whatsapp/update-status', {
+           client_id: clientId,
+           status_type: statusType,
+           value: value
+         });
+ 
+         if (response.data.success) {
+           console.log('Status updated successfully');
+         } else {
+           console.error('Failed to update status:', response.data.message);
+         }
+       } catch (error) {
+         console.error('Error updating status:', error);
+       }
+     });
+   });
+
+
+   document.getElementById('toggle-activation-button').addEventListener('click', async function() {
+   
+   try {
+     const response = await axios.post('/api/whatsapp/toggle-activation', {
+       client_id: clientId
+     });
+     if (response.data.success) {
+       // Update the UI based on the new status
+       const newStatus = response.data.isactive;
+       const statusText = newStatus === 1 ? '🟢 Activated' : '🟢 Deactivated';
+       const buttonText = newStatus === 1 ? 'Deactivate' : 'Activate';
+       document.getElementById('activation-status').innerHTML = statusText;
+       document.getElementById('toggle-activation-button').innerHTML = buttonText;
+     } else {
+       console.error('Failed to toggle activation:', response.data.message);
+     }
+   } catch (error) {
+     console.error('Error toggling activation:', error);
+   }
+ });
+
+ </script>
+   <!-- SCRIPTS (Always at the bottom before </body>) -->
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" />
+  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+ 
+    <script src="/js/main.js"></script>
+  </body>
+</html>

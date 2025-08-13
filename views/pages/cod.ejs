@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="hi">
+    <head>
+        <%- include('../partials/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <%- include('../partials/header') %>
+        <%- include('../partials/left-sidebar') %>
+        <%- include('../partials/right-iconbar') %>
+
+        <!-- mani page content body part -->
+
+        <body data-theme="light" class="font-nunito">
+
+            <div id="wrapper" class="theme-cyan">
+
+  <!-- mani page content body part -->
+    <div id="main-content">
+        <div class="container-fluid">
+            <div class="block-header">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <h2>Project Board</h2>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>                            
+                            <li class="breadcrumb-item">Dashboard</li>
+                            <li class="breadcrumb-item active">Project Board</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="d-flex flex-row-reverse">
+                            <div class="page_action">
+                                <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> Download report</button>
+                                <button type="button" class="btn btn-secondary"><i class="fa fa-send"></i> Send report</button>
+                            </div>
+                            <div class="p-2 d-flex">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row clearfix row-deck">
+                <div class="col-lg-6 col-md-12">
+                    <div class="row clearfix row-deck">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="card number-chart">
+                                <div class="body">
+                                    <span class="text-uppercase">Income Analysis</span>
+                                    <h4 class="mb-0 mt-2">$22,500 <i class="fa fa-level-up font-12"></i></h4>
+                                    <small class="text-muted">8% High then last month</small>
+                                </div>
+                                <div class="sparkline" data-type="line" data-spot-Radius="0" data-offset="90" data-width="100%" data-height="50px"
+                                data-line-Width="1" data-line-Color="#39afa6" data-fill-Color="#73cec7">4,1,5,2,7,3,4</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="card number-chart">
+                                <div class="body">
+                                    <span class="text-uppercase">Sales Income</span>
+                                    <h4 class="mb-0 mt-2">$9,500 <i class="fa fa-level-up font-12"></i></h4>
+                                    <small class="text-muted">12% High then last month</small>
+                                </div>
+                                <div class="sparkline" data-type="line" data-spot-Radius="0" data-offset="90" data-width="100%" data-height="50px"
+                                data-line-Width="1" data-line-Color="#ffa901" data-fill-Color="#efc26b">1,4,2,3,6,2</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="card">
+                                <div class="header">
+                                    <h2>Work report</h2>
+                                    <ul class="header-dropdown">
+                                        <li class="dropdown">
+                                            <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a href="javascript:void(0);">Action</a></li>
+                                                <li><a href="javascript:void(0);">Another Action</a></li>
+                                                <li><a href="javascript:void(0);">Something else</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="body">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <h6 class="d-flex justify-content-between align-items-center">
+                                                <span>54</span>
+                                                <span class="text-muted font-14">Today Works</span>
+                                            </h6>
+                                            <div class="progress progress-xs progress-transparent custom-color-blue">
+                                                <div class="progress-bar" data-transitiongoal="87"></div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <h6 class="d-flex justify-content-between align-items-center">
+                                                <span>27</span>
+                                                <span class="text-muted font-14">Open Tasks</span>
+                                            </h6>
+                                            <div class="progress progress-xs progress-transparent custom-color-purple">
+                                                <div class="progress-bar" data-transitiongoal="34"></div>
+                                            </div>
+                                        </li>                                
+                                        <li>
+                                            <h6 class="d-flex justify-content-between align-items-center">
+                                                <span>102</span>
+                                                <span class="text-muted font-14">Closed Tasks</span>
+                                            </h6>
+                                            <div class="progress progress-xs progress-transparent custom-color-yellow">
+                                                <div class="progress-bar" data-transitiongoal="54"></div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <h6 class="d-flex justify-content-between align-items-center">
+                                                <span>1024 h</span>
+                                                <span class="text-muted font-14">Total spent time</span>
+                                            </h6>
+                                            <div class="progress progress-xs progress-transparent custom-color-green mb-0">
+                                                <div class="progress-bar" data-transitiongoal="67"></div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="card">
+                                <div class="header">
+                                    <h2>Report by Sector</h2>
+                                    <ul class="header-dropdown">
+                                        <li class="dropdown">
+                                            <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a href="javascript:void(0);">Action</a></li>
+                                                <li><a href="javascript:void(0);">Another Action</a></li>
+                                                <li><a href="javascript:void(0);">Something else</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="body">
+                                    <div id="Report-by-Sector" style="height: 200px"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>ToDo List <small>This Month task list</small></h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body todo_list">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Enter here...">
+                                <input type="text" class="form-control" placeholder="Enter label">
+                                <div class="input-group-append">
+                                  <button class="btn btn-primary" type="button" id="button-addon2">Add ToDo</button>
+                                </div>
+                              </div>
+                            <div class="dd nestable-with-handle m-b-15">
+                                <ol class="dd-list">
+                                    <li class="dd-item dd3-item" data-id="1">
+                                        <div class="dd-handle dd3-handle"></div>
+                                        <div class="dd3-content">
+                                            <label class="fancy-checkbox mb-0">
+                                                <input type="checkbox" name="checkbox" checked>
+                                                <span><i class=" icon-calendar m-r-5"></i> Report Panel Usag</span>
+                                            </label>
+                                        </div>
+                                        <ol class="dd-list">
+                                            <li class="dd-item dd3-item" data-id="1">
+                                                <div class="dd-handle dd3-handle"></div>
+                                                <div class="dd3-content">
+                                                    <label class="fancy-checkbox mb-0">
+                                                        <input type="checkbox" name="checkbox">
+                                                        <span>Report Panel Usag</span>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </li>
+                                    <li class="dd-item dd3-item" data-id="1">
+                                        <div class="dd-handle dd3-handle"></div>
+                                        <div class="dd3-content">
+                                            <label class="fancy-checkbox mb-0">
+                                                <input type="checkbox" name="checkbox">
+                                                <span><i class="icon-bell m-r-5"></i> New logo design for InfiniO</span>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="dd-item dd3-item" data-id="1">
+                                        <div class="dd-handle dd3-handle"></div>
+                                        <div class="dd3-content">
+                                            <label class="fancy-checkbox mb-0">
+                                                <input type="checkbox" name="checkbox">
+                                                <span>Design PSD files for InfiniO <span class="badge badge-warning">1 Week</span></span>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="dd-item dd3-item" data-id="1">
+                                        <div class="dd-handle dd3-handle"></div>
+                                        <div class="dd3-content">
+                                            <label class="fancy-checkbox mb-0">
+                                                <input type="checkbox" name="checkbox">
+                                                <span>Deploy existing code to example.com</span>
+                                            </label>
+                                        </div>
+                                    </li>
+                                    <li class="dd-item dd3-item" data-id="1">
+                                        <div class="dd-handle dd3-handle"></div>
+                                        <div class="dd3-content">
+                                            <label class="fancy-checkbox mb-0">
+                                                <input type="checkbox" name="checkbox" checked>
+                                                <span><i class=" icon-calendar m-r-5"></i> Report Panel Usag</span>
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row clearfix row-deck">
+                <div class="col-lg-6 col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Workload by team</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <div id="Workload-by-team" style="height: 280px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Design</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body text-center">
+                            <div class="mb-4">
+                                <input type="text" class="knob" value="73" data-width="120" data-height="120" data-thickness="0.1" data-fgColor="#17a2b8" readonly>
+                            </div>
+                            <div>
+                                <h5 class="text-info">$ 29,012</h5>
+                                <p class="mb-0">Average <span class="font-12 text-muted"><i class="fa fa-level-up"></i> 23%</span></p>
+                                <hr>
+                                <div class="Team_lead">
+                                    <div>Team Lead</div>
+                                    <h6 class="mb-0">@Barbara Kelly</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Development</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body text-center">
+                            <div class="mb-4">
+                                <input type="text" class="knob" value="46" data-width="120" data-height="120" data-thickness="0.1" data-fgColor="#ffc107" readonly>
+                            </div>
+                            <div>
+                                <h5 class="text-warning">$ 1,29,201</h5>
+                                <p class="mb-0">Average <span class="font-12 text-muted"><i class="fa fa-level-up"></i> 14%</span></p>
+                                <hr>
+                                <div class="Team_lead">
+                                    <div>Team Lead</div>
+                                    <h6 class="mb-0">@Orlando Lentz</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>Project List</h2>
+                            <ul class="header-dropdown">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="javascript:void(0);">Action</a></li>
+                                        <li><a href="javascript:void(0);">Another Action</a></li>
+                                        <li><a href="javascript:void(0);">Something else</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body project_report">
+                            <div class="table-responsive">
+                                <table class="table table-hover js-basic-example dataTable table-custom mb-0">
+                                    <thead>
+                                        <tr>                                            
+                                            <th>Project</th>
+                                            <th>Deadline</th>
+                                            <th>Prograss</th>
+                                            <th>Lead</th>
+                                            <th>Team</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>InfiniO 4.1</h6>
+                                                <small>Created 14 July, 2020</small>
+                                            </td>
+                                            <td>8 Aug, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" style="width: 48%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 48%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Avatar" alt="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>Many desktop publishing packages and web</h6>
+                                                <small>Created 18 July, 2020</small>
+                                            </td>
+                                            <td>18 Aug, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" style="width: 78%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 78%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar10.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar7.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar5.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>iNext - One Page Responsive Template</h6>
+                                                <small>Created 14 July, 2020</small>
+                                            </td>
+                                            <td>22 Aug, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar l-slategray" role="progressbar" aria-valuenow="29" aria-valuemin="0" aria-valuemax="100" style="width: 29%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 29%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">                                                
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-default">InActive</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>Massive Event - Conference and Event</h6>
+                                                <small>Created 18 July, 2020</small>
+                                            </td>
+                                            <td>25 Sept, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 100%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar10.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar7.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar5.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-danger">Closed</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>Oakleaf Admin - Bootstrap html5 with SASS</h6>
+                                                <small>Created 18 July, 2020</small>
+                                            </td>
+                                            <td>29 Aug, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="13" aria-valuemin="0" aria-valuemax="100" style="width: 13%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 13%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">                                                
+                                                    <li><img src="assets/images/xs/avatar7.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>InfiniO 4.1</h6>
+                                                <small>Created 14 July, 2020</small>
+                                            </td>
+                                            <td>05 Sept, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" style="width: 48%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 48%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar5.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>Many desktop publishing packages and web</h6>
+                                                <small>Created 18 July, 2020</small>
+                                            </td>
+                                            <td>15 Sept, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" style="width: 78%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 78%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar6.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar10.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar7.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar5.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-success">Active</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>InfiniO 4.2</h6>
+                                                <small>Created 14 July, 2020</small>
+                                            </td>
+                                            <td>25 Sept, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" style="width: 48%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 48%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar2.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-warning">Pending</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="project-title">
+                                                <h6>Startup - OnePage Business Corporate Template</h6>
+                                                <small>Created 14 July, 2020</small>
+                                            </td>
+                                            <td>26 Sept, 2020</td>
+                                            <td>
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" style="width: 56%;"></div>                                                
+                                                </div>
+                                                <small>Completion with: 56%</small>
+                                            </td>
+                                            <td><img src="assets/images/xs/avatar8.jpg" data-toggle="tooltip" data-placement="top" title="Team Lead" alt="Avatar" class="width35 rounded"></td>
+                                            <td>
+                                                <ul class="list-unstyled team-info">
+                                                    <li><img src="assets/images/xs/avatar3.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar1.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar5.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                    <li><img src="assets/images/xs/avatar9.jpg" data-toggle="tooltip" data-placement="top" title="Avatar"></li>
+                                                </ul>
+                                            </td>
+                                            <td><span class="badge badge-warning">Pending</span></td>
+                                            <td class="project-actions">
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary"><i class="icon-eye"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-success"><i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger js-sweetalert" title="Delete" data-type="confirm"><i class="icon-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+            <%- include('../partials/footer') %>
+
+            <!-- स्क्रिप्ट्स -->
+            <script src="/js/main.js"></script>
+        </body>
+    </html>

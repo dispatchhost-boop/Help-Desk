@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Common <head> content -->
+  <%- include('./partials/head') %>
+</head>
+<body class="<%= bodyClass || '' %>">
+  
+  <!-- Page Loader -->
+  <div class="page-loader-wrapper">
+    <%- include('./partials/page-loader') %>
+  </div>
+
+  <div class="wrapper">
+    
+    <!-- Left Sidebar -->
+    <%- include('./partials/left-sidebar') %>
+
+    <!-- Right Icon Bar (optional) -->
+    <%- include('./partials/right-iconbar') %>
+
+    <div class="main-panel">
+      
+      <!-- Top Header / Navbar -->
+      <%- include('./partials/header') %>
+
+      <!-- Page Content Section -->
+      <div class="content">
+        <div class="container-fluid">
+          <!-- Rendered Child Page Content -->
+          <%- include(body) %>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <%- include('./partials/footer') %>
+      
+    </div>
+  </div>
+
+  <!-- Common Scripts (JS files) -->
+  <%- include('./partials/scripts') %>
+
+  <!-- Page Specific Scripts -->
+  <% if (typeof scripts !== 'undefined') { %>
+    <% scripts.forEach(script => { %>
+      <script src="<%= script %>"></script>
+    <% }) %>
+  <% } %>
+  
+ 
+</body>
+</html>

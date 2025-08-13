@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <!-- Add your CSS links here -->
+    <style>
+        /* Fix for dropdown selectors vanishing */
+        .client-user-selector {
+            position: relative;
+            z-index: 9999;
+        }
+
+        .client-user-selector select {
+            position: relative;
+            z-index: 10000;
+        }
+
+        .client-user-selector select:focus {
+            z-index: 10001;
+            box-shadow: 0 0 0 0.2rem rgba(14, 133, 255, 0.25);
+        }
+
+        /* Prevent dropdown menu from closing when interacting with selectors */
+        .dropdown-menu.account {
+            z-index: 9998;
+        }
+
+        .dropdown-menu.account .client-user-selector {
+            pointer-events: auto;
+        }
+
+        /* Ensure select dropdowns appear above other elements */
+        .clientSelect, .userSelect {
+            position: relative;
+            z-index: 10002 !important;
+        }
+
+        /* Prevent event bubbling that closes the dropdown */
+        .client-user-selector * {
+            pointer-events: auto;
+        }
+
+        /* User Account Dropdown Styles */
+        .user-account .dropdown-menu {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-account .dropdown-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-account .dropdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 133, 255, 0.1), transparent);
+            transition: left 0.3s;
+        }
+
+        .user-account .dropdown-item:hover::before {
+            left: 100%;
+        }
+
+        .user-account .dropdown-item:hover {
+            background: #f0f8ff;
+            transform: translateX(4px);
+            border-radius: 8px;
+        }
+
+        .user-account .dropdown-toggle:hover {
+            color: #0d6efd !important;
+        }
+
+        .user-account .dropdown-toggle:hover i {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+        /* Stats hover effects */
+        .user-account .list-unstyled li {
+            transition: all 0.3s ease;
+        }
+
+        .user-account .list-unstyled li:hover {
+            transform: translateY(-2px);
+        }
+
+        .user-account .list-unstyled li:hover div:last-child {
+            color: #0d6efd !important;
+        }
+
+        /* Add these styles to your CSS */
+        .sidebar-nav li.active>a {
+            color: #959595;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav li.active>a.has-arrow::after {
+            color: #727272;
+        }
+
+        .sidebar-nav li ul li.active>a {
+            color: #585858;
+            font-weight: bold;
+        }
+
+        .sidebar-nav li ul {
+            display: none;
+        }
+
+        .sidebar-nav li.active>ul {
+            display: block;
+        }
+
+        .role-allowed {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+
+    <div id="wrapper" class="theme-cyan">
+        <!-- Your sidebar content remains the same until the script -->
+
+        <div id="left-sidebar" class="sidebar">
+            <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-arrow-left"></i></button>
+            <div class="sidebar-scroll">
+                          <div class="user-account" style="padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(14, 133, 255, 0.1); margin-bottom: 20px;">
+
+
+
+    <!-- Welcome Message -->
+    <div style="text-align: center; margin-bottom: 12px;">
+        <div style="font-size: 14px; color: #6b7280;">Welcome</div>
+        <strong style="font-size: 16px; color: #1e293b;"><%= companyName || '' %></strong>
+    </div>
+
+    <!-- Profile Photo + Name with Dropdown -->
+    <div style="display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 16px;">
+        <% if (userLogoPath) { %>
+            <img src="<%= userLogoPath %>" class="rounded-circle user-photo" alt="<%= userFullName || 'User' %>" 
+                style="width: 48px; height: 48px; border: 2px solid #0e85ff; object-fit: cover;">
+        <% } else { %>
+            <div class="rounded-circle user-photo d-flex align-items-center justify-content-center bg-secondary text-white" style="width: 48px; height: 48px;">
+                <%= (userFullName && userFullName[0].toUpperCase()) || '?' %>
+            </div>
+        <% } %>
+
+        <div class="dropdown">
+            <a href="javascript:void(0);" class="dropdown-toggle user-name"
+               id="userDropdownToggle"
+               style="font-size: 14px; color: #0e85ff; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <strong><%= userFullName || '' %></strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end account"
+                style="border-radius: 12px; box-shadow: 0 8px 25px rgba(14, 133, 255, 0.15); padding: 8px; background: white; min-width: 200px;">
+                <li>
+                    <a class="dropdown-item" href="page-profile2.html"
+                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                        <i class="fa fa-user" style="color: #0e85ff; font-size: 12px;"></i> My Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0);"
+                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                        <i class="fa fa-exchange-alt" style="color: #0e85ff; font-size: 12px;"></i> Switch Client
+                    </a>
+                    <div class="client-user-selector" style="padding: 8px 12px;">
+                        <select class="clientSelect form-select"
+                                style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
+                                onclick="event.stopPropagation();"
+                                onfocus="event.stopPropagation();"
+                                onblur="event.stopPropagation();">
+                            <option value="">Select Client</option>
+                        </select>
+                        <select class="userSelect form-select mt-2" disabled
+                                style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
+                                onclick="event.stopPropagation();"
+                                onfocus="event.stopPropagation();"
+                                onblur="event.stopPropagation();">
+                            <option value="">Self (No User)</option>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0);"
+                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                        <i class="fa fa-cog" style="color: #0e85ff; font-size: 12px;"></i> Settings
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider" style="margin: 8px 0; border-color: #e5e7eb;"></li>
+                <li id="sidebar-logout">
+                    <a class="dropdown-item" href="/logout"
+                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #dc2626; font-weight: 500;">
+                        <i class="fa fa-power-off" style="color: #dc2626; font-size: 12px;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div style="background: #f8fafc; border-radius: 8px; padding: 12px;">
+        <ul class="row list-unstyled" style="margin: 0;">
+            <li class="col-4 text-center">
+                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Sales</div>
+                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">500</div>
+            </li>
+            <li class="col-4 text-center">
+                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Order</div>
+                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">920</div>
+            </li>
+            <li class="col-4 text-center">
+                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Revenue</div>
+                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">₹50K</div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs"
+                    style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 2px 8px rgba(14, 133, 255, 0.1); margin-bottom: 20px;">
+                    <li class="nav-item" style="flex: 1;">
+                        <a class="nav-link dsc-tab-link" data-bs-toggle="tab" href="#tab-menu"
+                            style="font-size: 14px; color: #0e85ff; font-weight: 600; padding: 8px 12px; border-radius: 8px; text-align: center; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa fa-bars" style="font-size: 12px;"></i> Menu
+                        </a>
+                    </li>
+                    <li class="nav-item role-allowed admin-only" style="flex: 1; display: none;">
+                        <a class="nav-link dsc-tab-link" data-bs-toggle="tab" href="#tab-chat"
+                            style="font-size: 14px; color: #6b7280; font-weight: 500; padding: 8px 12px; border-radius: 8px; text-align: center; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-comments" style="font-size: 12px;"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item role-allowed admin-only" style="flex: 1; display: none;">
+                        <a class="nav-link dsc-tab-link" data-bs-toggle="tab" href="#tab-setting"
+                            style="font-size: 14px; color: #6b7280; font-weight: 500; padding: 8px 12px; border-radius: 8px; text-align: center; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-cog" style="font-size: 12px;"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item role-allowed admin-only" style="flex: 1; display: none;">
+                        <a class="nav-link dsc-tab-link" data-bs-toggle="tab" href="#tab-question"
+                            style="font-size: 14px; color: #6b7280; font-weight: 500; padding: 8px 12px; border-radius: 8px; text-align: center; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa fa-question-circle" style="font-size: 12px;"></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Nav tabs -->
+
+
+                <!-- Tab panes -->
+                <div class="tab-content padding-0">
+                    <div class="tab-pane fade show active" id="tab-menu">
+                        <nav id="left-sidebar-nav" class="sidebar-nav">
+                            <ul id="main-menu" class="metismenu li_animation_delay">
+                                <!-- Dashboard Section -->
+                                <li class="active">
+                                    <a href="/index" class="has-arrow1">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <span>Analytics</span>
+                                    </a>
+                                    <!-- <ul id="sidebarMenu">
+                                                <li class="active" data-role-name="dashboard-view" class="role-allowed"><a
+                                                        href="/index">Dashboard</a></li>
+                                                <li data-role-name="reports" class="role-allowed"><a href="/cod-reports">COD
+                                                        Analytics</a></li>
+                                                <li data-role-name="service-express" class="role-allowed"><a
+                                                        href="/express">Express</a></li>
+                                                <li data-role-name="service-ecom" class="role-allowed"><a href="/ecom">ecom</a>
+                                                </li>
+                                                <li data-role-name="service-ltl" class="role-allowed"><a href="/ltl">LTL</a>
+                                                </li>
+                                            </ul> -->
+                                </li>
+
+                                <!-- Order Management Section -->
+                                <li>
+                                    <a href="#App" class="has-arrow">
+                                        <i class="fa fa-shopping-bag"></i>
+                                        <span>Order Management</span>
+                                    </a>
+                                    
+                                    <ul >
+                                           <a href="/all-data" class="has-arrow" class="role-allowed admin-only" style="display: none;">
+                                                        <i class="fa fa-shopping-cart"></i>
+                                                        <span>All Data</span>
+                                                    </a>
+                                             
+                                        <!-- Pre-Dispatch Submenu -->
+                                        <li>
+                                            <a href="#Pre-Dispatch" class="has-arrow">
+                                                <i class="fa fa-clipboard-list"></i>
+                                                <span>Pre Dispatch</span>
+                                            </a>
+                                            <ul>
+                                                <li data-role-name="order-create" class="role-allowed"><a
+                                                        href="/create-order">Create Order</a></li>
+                                                <li data-role-name="bulk-order-create" class="role-allowed"><a
+                                                        href="/create-bulk-order">Bulk Order</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/unprocessed-orders">Unprocessed Orders</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/ready_to_dispatch_assinged_lr">Ready To Dispatch</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Post-Dispatch Submenu -->
+                                        <li>
+                                            <a href="#Post-Dispatch" class="has-arrow">
+                                                <i class="fa fa-shipping-fast"></i>
+                                                <span>Post Dispatch</span>
+                                            </a>
+                                            <ul>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/order-In-transit">Order In-Transit</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/out-for-delivery">Out For Delivery</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/order-delivered">Order Delivered</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/order-return">Order Return</a></li>
+                                                <li data-role-name="status-express" class="role-allowed"><a
+                                                        href="/cancelled-orders">Cancelled Orders</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Billing Section -->
+                                <li>
+                                    <a href="#Widgets" class="has-arrow">
+                                        <i class="fa fa-credit-card"></i>
+                                        <span>Billing</span>
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="#"><i class="fa fa-money-bill-wave"></i> COD</a>
+                                            <ul>
+                                                <li data-role-name="cod" class="role-allowed"><a
+                                                        href="/bank-reconsilation">Bank Reconsilation</a></li>
+                                                <li data-role-name="cod" class="role-allowed"><a href="/cod-summary">Cod
+                                                        Summary</a></li>
+                                                <li data-role-name="cod" class="role-allowed"><a
+                                                        href="/to-be-remitted">To Be Remitted</a></li>
+                                                <li data-role-name="cod" class="role-allowed"><a
+                                                        href="/remitted">Remitted</a></li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a href="#"><i class="fa fa-file-invoice"></i> Billing</a>
+                                            <ul>
+                                                <li data-role-name="billing" class="role-allowed"><a
+                                                        href="/billing-reports">Billing Reports</a></li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a href="#"><i class="fa fa-wallet"></i> Wallet</a>
+                                            <ul>
+                                                <li data-role-name="wallet" class="role-allowed"><a
+                                                        href="/domestic-wallet">Domestic Wallet</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- System Settings Section -->
+                                <li>
+                                    <a href="#uiElements" class="has-arrow">
+                                        <i class="fa fa-cogs"></i>
+                                        <span>System Setting</span>
+                                    </a>
+                                    <ul>
+                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/forwarder-onboarding"> Forwarder Onboarding</a></li>
+                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/forwarder-list">Forwarder List</a></li>
+                                        <li data-role-name="aggregator" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/aggrigator-onboarding">Aggrigator Onboarding</a></li>
+                                        <li data-role-name="aggregator" class="role-allowed admin-only" style="display: none;"><a href="/aggrigator-list">
+                                                Aggrigator List</a></li>
+                                        <li  ><a href="/package">
+                                                Package</a></li>
+
+                                        <li data-role-name="tracking" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/tracking-master">Tracking Master</a></li>
+                                        <li data-role-name="client" class="role-allowed admin-only" style="display: none;"><a href="/client-onboarding">
+                                                Client Onboarding</a></li>
+                                        <li data-role-name="client" class="role-allowed admin-only" style="display: none;"><a href="/client-list"> Client
+                                                List</a></li>
+                                        <li data-role-name="warehouse" class="role-allowed"><a
+                                                href="/warehouse">Warehouse</a></li>
+                                        <li data-role-name="reports" class="role-allowed"><a href="/master-docket">
+                                                Docket Master</a></li>
+                                        <li class="ecom-only" style="display: none;"><a href="/ecom/shop-integration"> Eshop Integration</a></li>
+                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/courier-settings">Courier Settings</a></li>
+                                        <li data-role-name="pincode" class="role-allowed admin-only" style="display: none;"><a
+                                                href="/master-pincode   ">Pincode Master</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- VAS Settings Section -->
+                                <li class="role-allowed admin-only" style="display: none;">
+                                    <a href="#charts" class="has-arrow">
+                                        <i class="fa-solid fa-chalkboard-user"></i>
+                                        <span>Vas Setting</span>
+                                    </a>
+                                    <ul>
+                                        <li data-role-name="chat" class="role-allowed"><a href="/chat-ui"> Chat UI</a>
+                                        </li>
+                                        <li data-role-name="chat" class="role-allowed"><a href="/chat-ui-setting"> Chat
+                                                Setting</a></li>
+                                        <li data-role-name="auth-signup" class="role-allowed"><a
+                                                href="/signup">signup</a></li>
+                                        <li data-role-name="kyc" class="role-allowed"><a href="/kyc"> kyc</a></li>
+                                            <li data-role-name="kyc" class="role-allowed"><a href="/kyc-list"> KYC
+                                                    List</a></li>
+
+                                                <li data-role-name="misc" class="role-allowed"><a
+                                                        href="chart-peity.html"> Peity</a></li>
+                                                <li data-role-name="misc" class="role-allowed"><a
+                                                        href="chart-gauges.html"> Gauges</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- Management Section -->
+                                <li class="role-allowed admin-only" style="display: none;">
+                                    <a href="#management" class="has-arrow">
+                                        <i class="fa fa-user-shield"></i>
+                                        <span>Management</span>
+                                    </a>
+                                    <ul>
+                                        <li data-role-name="role-management" class="role-allowed"><a
+                                                href="/role-management"> Role Management</a></li>
+                                    </ul>
+                                    <ul>
+                                        <li data-role-name="user-management" class="role-allowed"><a
+                                                href="/user-management"> User Management</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- NDR Section -->
+                                <li class="role-allowed admin-only" style="display: none;">
+                                    <a href="#forms" class="has-arrow">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        <span>NDR</span>
+                                    </a>
+                                    <ul>
+                                        <li><a href="forms-validation.html">Form Validation</a></li>
+                                        <li><a href="forms-advanced.html"> Advanced Elements</a></li>
+                                        <li><a href="forms-basic.html">Basic Elements</a></li>
+                                        <li><a href="forms-wizard.html">Form Wizard</a></li>
+                                        <li><a href="forms-dragdropupload.html">Drag & Drop Upload</a></li>
+                                        <li><a href="forms-cropping.html">Image Cropping</a></li>
+                                        <li><a href="forms-summernote.html"> Summernote</a></li>
+                                        <li><a href="forms-editors.html"> CKEditor</a></li>
+                                        <li><a href="forms-markdown.html"> Markdown</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- HelpDesk Section -->
+                                <li class="role-allowed admin-only" style="display: none;">
+                                    <a href="#Tables" class="has-arrow">
+                                        <i class="fa fa-headset"></i>
+                                        <span>HelpDesk</span>
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="table-basic.html">Tables Example
+                                                <span class="badge badge-info float-right">New</span>
+                                            </a>
+                                        </li>
+                                        <li><a href="/shipment-tracking">Shipment Tracking</a></li>
+                                        <li><a href="table-jquery-datatable.html">Jquery Datatables</a></li>
+                                        <li><a href="table-editable.html"> Editable Tables</a></li>
+                                        <li><a href="table-color.html"> Tables Color</a></li>
+                                        <li>
+                                            <a href="table-filter.html">Table Filter
+                                                <span class="badge badge-info float-right">New</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="table-dragger.html"> Table dragger
+                                                <span class="badge badge-info float-right">New</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Authentication Section -->
+                                <!-- <li>
+                                            <a href="#Authentication" class="has-arrow">
+                                                <i class="fa fa-lock"></i>
+                                                <span>Authentication</span>
+                                            </a>
+                                            <ul>
+                                                <li><a href="page-login.html">Login</a></li>
+                                                <li><a href="page-register.html">Register</a></li>
+                                                <li><a href="page-lockscreen.html">Lockscreen</a></li>
+                                                <li><a href="page-forgot-password.html">Forgot Password</a></li>
+                                                <li><a href="page-404.html">Page 404</a></li>
+                                                <li><a href="page-403.html">Page 403</a></li>
+                                                <li><a href="page-500.html">Page 500</a></li>
+                                                <li><a href="page-503.html">Page 503</a></li>
+                                            </ul>
+                                        </li> -->
+
+                                <!-- Extra Pages Section -->
+                                <!-- <li>
+                                            <a href="#Pages" class="has-arrow">
+                                                <i class="fa fa-file"></i>
+                                                <span>Extra Pages</span>
+                                            </a>
+                                            <ul>
+                                                <li><a href="page-blank.html">Blank Page</a></li>
+                                                <li>
+                                                    <a href="page-profile.html">
+                                                        Profile
+                                                        <span class="badge badge-default float-right">v1</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="page-profile2.html">
+                                                        Profile
+                                                        <span class="badge badge-warning float-right">v2</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="page-gallery.html">
+                                                        Image Gallery
+                                                        <span class="badge badge-default float-right">v1</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="page-gallery2.html">
+                                                        Image Gallery
+                                                        <span class="badge badge-warning float-right">v2</span>
+                                                    </a>
+                                                </li>
+                                                <li><a href="page-timeline.html">Timeline</a></li>
+                                                <li><a href="page-timeline-h.html">Horizontal Timeline</a></li>
+                                                <li><a href="page-pricing.html">Pricing</a></li>
+                                                <li><a href="page-invoices.html">Invoices</a></li>
+                                                <li>
+                                                    <a href="page-invoices2.html">
+                                                        Invoices
+                                                        <span class="badge badge-warning float-right">v2</span>
+                                                    </a>
+                                                </li>
+                                                <li><a href="page-search-results.html">Search Results</a></li>
+                                                <li><a href="page-helper-class.html">Helper Classes</a></li>
+                                                <li><a href="page-teams-board.html">Teams Board</a></li>
+                                                <li><a href="page-projects-list.html">Projects List</a></li>
+                                                <li><a href="page-maintenance.html">Maintenance</a></li>
+                                                <li><a href="page-testimonials.html">Testimonials</a></li>
+                                                <li><a href="page-faq.html">FAQ</a></li>
+                                            </ul>
+                                        </li> -->
+
+                                <!-- Maps Section -->
+                                <!-- <li>
+                                            <a href="#Maps" class="has-arrow">
+                                                <i class="fa fa-map"></i>
+                                                <span>Maps</span>
+                                            </a>
+                                            <ul>
+                                                <li><a href="map-google.html">Google Map</a></li>
+                                                <li><a href="map-yandex.html">Yandex Map</a></li>
+                                                <li><a href="map-jvectormap.html">jVector Map</a></li>
+                                            </ul>
+                                        </li> -->
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="tab-pane fade" id="tab-chat">
+                        <form>
+                            <div class="input-group m-b-20">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="icon-magnifier"></i></span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Search...">
+                            </div>
+                        </form>
+                        <ul class="right_chat list-unstyled li_animation_delay">
+                            <li>
+                                <a href="javascript:void(0);" class="media">
+                                    <img class="media-object" src="assets/images/xs/avatar1.jpg" alt>
+                                    <div class="media-body">
+                                        <span class="name d-flex justify-content-between">Chris
+                                            Fox <i class="fa fa-heart-o font-12"></i></span>
+                                        <span class="message">chrisfox@gmail.com</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="media">
+                                    <img class="media-object" src="assets/images/xs/avatar2.jpg" alt>
+                                    <div class="media-body">
+                                        <span class="name d-flex justify-content-between">Joge
+                                            Lucky <i class="fa fa-heart-o font-12"></i></span>
+                                        <span class="message">Jogelucky@gmail.com</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="media">
+                                    <img class="media-object" src="assets/images/xs/avatar3.jpg" alt>
+                                    <div class="media-body">
+                                        <span class="name d-flex justify-content-between">Isabella
+                                            <i class="fa fa-heart-o font-12"></i></span>
+                                        <span class="message">Isabella@gmail.com</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="media">
+                                    <img class="media-object" src="assets/images/xs/avatar4.jpg" alt>
+                                    <div class="media-body">
+                                        <span class="name d-flex justify-content-between">Folisise
+                                            Chosielie <i class="fa fa-heart font-12"></i></span>
+                                        <span class="message">FolisiseChosielie@gmail.com</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="media">
+                                    <img class="media-object" src="assets/images/xs/avatar5.jpg" alt>
+                                    <div class="media-body">
+                                        <span class="name d-flex justify-content-between">Alexander
+                                            <i class="fa fa-heart-o font-12"></i></span>
+                                        <span class="message">Alexander@gmail.com</span>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="tab-setting">
+                        <h6>Choose Skin</h6>
+                        <ul class="choose-skin list-unstyled">
+                            <li data-theme="purple">
+                                <div class="purple"></div>
+                            </li>
+                            <li data-theme="blue">
+                                <div class="blue"></div>
+                            </li>
+                            <li data-theme="cyan" class="active">
+                                <div class="cyan"></div>
+                            </li>
+                            <li data-theme="green">
+                                <div class="green"></div>
+                            </li>
+                            <li data-theme="orange">
+                                <div class="orange"></div>
+                            </li>
+                            <li data-theme="blush">
+                                <div class="blush"></div>
+                            </li>
+                            <li data-theme="red">
+                                <div class="red"></div>
+                            </li>
+                        </ul>
+
+                        <ul class="list-unstyled font_setting mt-3">
+                            <li>
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" name="font" value="font-nunito"
+                                        checked>
+                                    <span class="custom-control-label">Nunito
+                                        Google Font</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" name="font" value="font-ubuntu">
+                                    <span class="custom-control-label">Ubuntu
+                                        Font</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" name="font" value="font-raleway">
+                                    <span class="custom-control-label">Raleway
+                                        Google Font</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" name="font" value="font-IBMplex">
+                                    <span class="custom-control-label">IBM
+                                        Plex Google Font</span>
+                                </label>
+                            </li>
+                        </ul>
+
+                        <ul class="list-unstyled mt-3">
+                            <li class="d-flex align-items-center mb-2">
+                                <label class="toggle-switch theme-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                                <span class="ml-3">Enable Dark
+                                    Mode!</span>
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <label class="toggle-switch theme-rtl">
+                                    <input type="checkbox">
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                                <span class="ml-3">Enable RTL
+                                    Mode!</span>
+                            </li>
+                            <li class="d-flex align-items-center mb-2">
+                                <label class="toggle-switch theme-high-contrast">
+                                    <input type="checkbox">
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                                <span class="ml-3">Enable High
+                                    Contrast Mode!</span>
+                            </li>
+                        </ul>
+
+                        <hr>
+                        <h6>General Settings</h6>
+                        <ul class="setting-list list-unstyled">
+                            <li>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox" name="checkbox" checked>
+                                    <span>Allowed
+                                        Notifications</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox" name="checkbox">
+                                    <span>Offline</span>
+                                </label>
+                            </li>
+                            <li>
+                                <label class="fancy-checkbox">
+                                    <input type="checkbox" name="checkbox">
+                                    <span>Location
+                                        Permission</span>
+                                </label>
+                            </li>
+                        </ul>
+
+                        <a href="#" target="_blank" class="btn btn-block btn-primary">Buy
+                            this item</a>
+                        <a href="https://themeforest.net/user/wrraptheme/portfolio" target="_blank"
+                            class="btn btn-block btn-secondary">View
+                            portfolio</a>
+                    </div>
+                    <div class="tab-pane fade" id="tab-question">
+                        <form>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="icon-magnifier"></i></span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Search...">
+                            </div>
+                        </form>
+                        <ul class="list-unstyled question">
+                            <li class="menu-heading">HOW-TO</li>
+                            <li><a href="javascript:void(0);">How
+                                    to Create Campaign</a></li>
+                            <li><a href="javascript:void(0);">Boost
+                                    Your Sales</a></li>
+                            <li><a href="javascript:void(0);">Website
+                                    Analytics</a></li>
+                            <li class="menu-heading">ACCOUNT</li>
+                            <li><a href="javascript:void(0);">Cearet
+                                    New Account</a></li>
+                            <li><a href="javascript:void(0);">Change
+                                    Password?</a></li>
+                            <li><a href="javascript:void(0);">Privacy
+                                    &amp; Policy</a></li>
+                            <li class="menu-heading">BILLING</li>
+                            <li><a href="javascript:void(0);">Payment
+                                    info</a></li>
+                            <li><a href="javascript:void(0);">Auto-Renewal</a></li>
+                            <li class="menu-button mt-3">
+                                <a href="../docs/index.html" class="btn btn-primary btn-block">Documentation</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Previous HTML content here -->
+
+    </div>
+    <!-- chat setting menu ok script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab switching logic: only show the selected tab-pane, hide others
+            function showTab(tabId) {
+                // Get all tab panes
+                const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+                tabPanes.forEach(function (pane) {
+                    if (pane.id === tabId) {
+                        pane.classList.add('show', 'active');
+                    } else {
+                        pane.classList.remove('show', 'active');
+                    }
+                });
+            }
+
+            // On page load, show the tab from hash or default to tab-menu
+            var hash = window.location.hash && document.querySelector(window.location.hash) ? window.location.hash : '#tab-menu';
+            var initialTabId = hash.replace('#', '');
+            showTab(initialTabId);
+
+            // Add click event to all tab links
+            document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function (tabLink) {
+                tabLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var href = this.getAttribute('href');
+                    if (href && href.startsWith('#') && document.querySelector(href)) {
+                        showTab(href.replace('#', ''));
+                        // Update URL hash without scrolling
+                        history.replaceState(null, '', href);
+                    }
+                });
+            });
+
+            // Role-based menu visibility
+            function checkUserRoleAndShowMenu() {
+                // Get user role from cookie
+                const userRole = getCookie('userRole');
+                console.log('User role from cookie:', userRole);
+                
+                // Show admin-only menu items only if user role is 1 (admin)
+                const adminOnlyItems = document.querySelectorAll('.admin-only');
+                adminOnlyItems.forEach(item => {
+                    if (userRole === '1') {
+                        item.style.display = 'list-item';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+
+            // Helper function to get cookie value
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            // Check role and show/hide menu items on page load
+            checkUserRoleAndShowMenu();
+        });
+    </script>
+
+    <!-- Add this script at the end of your body -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to set active menu item
+            function setActiveMenu() {
+                // Get current URL path
+                const path = window.location.pathname.split('/').pop() || 'index';
+
+                // Remove all active classes first
+                document.querySelectorAll('.sidebar-nav li').forEach(li => {
+                    li.classList.remove('active');
+                    li.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                });
+
+                // Special case for index page
+                if (path === 'index' || path === '') {
+                    const dashboardLink = document.querySelector('.sidebar-nav a[href="/index"]');
+                    if (dashboardLink) {
+                        dashboardLink.classList.add('active');
+                        let parent = dashboardLink.closest('li');
+                        while (parent) {
+                            parent.classList.add('active');
+                            if (parent.classList.contains('metismenu')) break;
+                            parent = parent.parentElement.closest('li');
+                        }
+                    }
+                    return;
+                }
+
+                // Find matching link and add active class
+                let found = false;
+                document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && (href.endsWith(path) || href === path)) {
+                        link.classList.add('active');
+                        let parent = link.closest('li');
+                        while (parent) {
+                            parent.classList.add('active');
+                            if (parent.classList.contains('metismenu')) break;
+                            parent = parent.parentElement.closest('li');
+                        }
+                        found = true;
+                    }
+                });
+
+                // If no direct match found, try partial matches
+                if (!found) {
+                    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && path.includes(href.split('/').pop())) {
+                            link.classList.add('active');
+                            let parent = link.closest('li');
+                            while (parent) {
+                                parent.classList.add('active');
+                                if (parent.classList.contains('metismenu')) break;
+                                parent = parent.parentElement.closest('li');
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Set active menu on page load
+            setActiveMenu();
+
+            // Helper: Close all sibling submenus at the same level except the current one
+            function closeSiblingSubmenus(currentLi) {
+                if (!currentLi) return;
+                const parentUl = currentLi.parentElement;
+                if (!parentUl) return;
+                Array.from(parentUl.children).forEach(sibling => {
+                    if (sibling !== currentLi && sibling.tagName === 'LI') {
+                        sibling.classList.remove('active');
+                        // Also close all nested submenus
+                        sibling.querySelectorAll('li.active').forEach(nested => nested.classList.remove('active'));
+                    }
+                });
+            }
+
+            // Handle click events on menu items
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        // For dropdown arrows, toggle only this submenu, close siblings
+                        const parentLi = this.closest('li');
+                        if (parentLi) {
+                            const isActive = parentLi.classList.contains('active');
+                            closeSiblingSubmenus(parentLi);
+                            if (!isActive) {
+                                parentLi.classList.add('active');
+                            } else {
+                                parentLi.classList.remove('active');
+                                // Also close all nested submenus
+                                parentLi.querySelectorAll('li.active').forEach(nested => nested.classList.remove('active'));
+                            }
+                        }
+                        e.preventDefault();
+                    } else {
+                        // For actual links, set the active state
+                        setActiveMenu();
+                    }
+                });
+            });
+
+            // Initialize submenus based on active state (show only the active path)
+            function showActiveSubmenus() {
+                // Hide all submenus
+                document.querySelectorAll('.sidebar-nav li > ul').forEach(ul => {
+                    ul.style.display = 'none';
+                });
+                // Show only the submenus of active li's
+                document.querySelectorAll('.sidebar-nav li.active > ul').forEach(ul => {
+                    ul.style.display = 'block';
+                });
+            }
+
+            // Initial show of active submenus
+            showActiveSubmenus();
+
+            // Also update submenu visibility on any click
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    setTimeout(showActiveSubmenus, 0);
+                });
+            });
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Page Loaded");
+
+            const quickActionsLabel = document.getElementById('quickActionsLabel');
+            const quickDropdownMenu = document.getElementById('quickDropdownMenu');
+
+            const quickOptionsByTenant = {
+                ltl: [
+                    { text: 'Create New Order', icon: 'fa fa-plus-square', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/create-order' },
+                    { text: 'Upload Bulk Orders', icon: 'fa fa-upload', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/bulk-upload' },
+                    { text: 'Create Pickup', icon: 'fa fa-truck', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/create-pickup' },
+                    { text: 'Request Support', icon: 'fa fa-headset', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/support' },
+                    { text: 'Create Appointment', icon: 'fa fa-calendar-plus', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/appointments/create' },
+                    { text: 'Shipment Tracking', icon: 'fa-solid fa-truck', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '../../shipment-tracking' },
+                    { text: 'Create Appointment', icon: 'fa fa-calendar-plus', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/package' },
+                ],
+                express: [
+                    { text: 'Create Express Order', icon: 'fa fa-rocket', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/create-order' },
+                    { text: 'Bulk Upload Express', icon: 'fa fa-cloud-upload-alt', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/bulk-upload' },
+                    { text: 'Schedule Delivery', icon: 'fa fa-calendar-check', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/schedule-delivery' },
+                    { text: 'Shipment Tracking', icon: 'fa-solid fa-truck', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/shipment-tracking' },
+                    { text: 'Create Appointment', icon: 'fa fa-calendar-plus', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/package' },
+                ],
+                ecom: [
+                    { text: 'Create ecom Order', icon: 'fa fa-shopping-cart', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/create-order' },
+                    { text: 'Bulk Product Upload', icon: 'fa fa-boxes', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/bulk-upload' },
+                    { text: 'Ecom Pickup Request', icon: 'fa fa-truck', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/create-pickup' },
+                    { text: 'Shipment Tracking', icon: 'fa-solid fa-truck', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/shipment-tracking' },
+                    { text: 'Create Appointment', icon: 'fa fa-calendar-plus', iconStyle: 'color: #0e85ff; font-size: 10px;', path: '/package' },
+                ]
+            };
+
+            const tenantLabels = {
+                ltl: 'Quick (B2B)',
+                express: 'Quick (Express)',
+                ecom: 'Quick (Ecom)'
+            };
+
+            const validSlugs = ['ltl', 'express', 'ecom'];
+
+            // --- Get tenant from localStorage or infer from URL ---
+            let selectedSlug = localStorage.getItem('selectedSlug');
+            if (!selectedSlug || !validSlugs.includes(selectedSlug)) {
+                const urlSlug = window.location.pathname.split('/')[1];
+                selectedSlug = validSlugs.includes(urlSlug) ? urlSlug : 'express';
+                localStorage.setItem('selectedSlug', selectedSlug);
+            }
+
+            // --- Set cookie for backend access ---
+            document.cookie = `tenant=${selectedSlug}; path=/; max-age=${60 * 60 * 24 * 7}`;
+
+            // --- Update sidebar menu visibility ---
+            filterAndHighlightMenu(selectedSlug);
+
+            // --- Render quick actions ---
+            renderQuickActions(selectedSlug);
+
+            // --- Update quick label ---
+            quickActionsLabel.textContent = tenantLabels[selectedSlug] || 'Quick';
+
+            // --- Update tenant label in UI ---
+            const activeTenantItem = document.querySelector(`.tenant-item[data-slug="${selectedSlug}"]`);
+            if (activeTenantItem) {
+                document.querySelector('.tenant-name').textContent = activeTenantItem.dataset.tenant || '';
+                document.querySelector('.tenant-type').textContent = activeTenantItem.dataset.type || '';
+            }
+
+            // --- Update all dynamic hrefs for tenant ---
+            updateTenantUrls(selectedSlug);
+
+            // --- Handle ecom-only menu items on initial load ---
+            const ecomOnlyItems = document.querySelectorAll('.ecom-only');
+            ecomOnlyItems.forEach(item => {
+                if (selectedSlug === 'ecom') {
+                    item.style.display = "list-item";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+
+            // --- Handle tenant selection from dropdown ---
+            document.querySelectorAll('.tenant-item').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    const slug = this.dataset.slug;
+                    const tenantName = this.dataset.tenant;
+                    const tenantType = this.dataset.type;
+
+                    if (slug === 'ltl') {
+                        e.preventDefault();
+                        alert('Coming Soon');
+                        return;
+                    }
+
+                    // Check if user has access to this segment
+                    <% if (typeof user !== 'undefined' && user) { %>
+                    const isAdmin = <%= user.selectedClientId === 1 %>;
+                    const segmentType = '<%= user.segmentType || "" %>';
+                    
+                    if (!isAdmin) {
+                        if (slug === 'express' && segmentType !== 'express' && segmentType !== 'both') {
+                            e.preventDefault();
+                            alert('You do not have access to Express segment');
+                            return;
+                        }
+                        if (slug === 'ecom' && segmentType !== 'ecom' && segmentType !== 'both') {
+                            e.preventDefault();
+                            alert('You do not have access to E-commerce segment');
+                            return;
+                        }
+                    }
+                    <% } %>
+
+                    // Save and update
+                    localStorage.setItem('selectedSlug', slug);
+                    document.cookie = `tenant=${slug}; path=/; max-age=${60 * 60 * 24 * 7}`;
+
+                    document.querySelector('.tenant-name').textContent = tenantName;
+                    document.querySelector('.tenant-type').textContent = tenantType;
+                    quickActionsLabel.textContent = tenantLabels[slug] || 'Quick';
+
+                    renderQuickActions(slug);
+                    updateTenantUrls(slug);
+                    filterAndHighlightMenu(slug);
+
+                    // Redirect to new slug path
+                    window.location.href = `/${slug}`;
+                });
+            });
+
+            function renderQuickActions(tenant) {
+                const options = quickOptionsByTenant[tenant] || [];
+                quickDropdownMenu.innerHTML = '';
+
+                options.forEach(opt => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+            <a class="dropdown-item d-flex align-items-center gap-2" href="#" data-path="${opt.path}">
+              <i class="fa ${opt.icon}" style="font-size:10px;color: #0e85ff;"></i>
+              <span style="font-size:12px;">${opt.text}</span>
+            </a>`;
+                    quickDropdownMenu.appendChild(li);
+                });
+
+                quickDropdownMenu.querySelectorAll('a[data-path]').forEach(a => {
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const path = this.getAttribute('data-path');
+                        window.location.href = `/${tenant}${path}`;
+                    });
+                });
+            }
+
+            function filterAndHighlightMenu(slug) {
+                const menuItems = document.querySelectorAll('#sidebarMenu li');
+                menuItems.forEach(li => {
+                    const anchor = li.querySelector('a');
+                    const href = anchor?.getAttribute('href') || "";
+
+                    const isCommon = href.includes('/index') || href.includes('/cod-reports');
+                    const isMatch = href.includes(`/${slug}/`) || href === `/${slug}` || href === `/${slug}/index`;
+
+                    if (isCommon || isMatch) {
+                        li.style.display = "list-item";
+                        li.classList.toggle('active', isMatch);
+                    } else {
+                        li.style.display = "none";
+                    }
+                });
+
+                // Handle ecom-only menu items
+                const ecomOnlyItems = document.querySelectorAll('.ecom-only');
+                ecomOnlyItems.forEach(item => {
+                    if (slug === 'ecom') {
+                        item.style.display = "list-item";
+                    } else {
+                        item.style.display = "none";
+                    }
+                });
+            }
+
+            function updateTenantUrls(slug) {
+                const dynamicPaths = [
+                    "/create-order",
+                    "/create-order-new",
+                    "/create-bulk-order",
+                    "/unprocessed-orders",
+                    "/ready_to_dispatch_assinged_lr",
+                    "/order-In-transit",
+                    "/out-for-delivery",
+                    "/order-delivered",
+                    "/order-return",
+                    "/cancelled-orders",
+                    "/package"
+                ];
+
+                dynamicPaths.forEach(path => {
+                    const links = document.querySelectorAll(`a[href$="${path}"], a[href$="${slug}${path}"]`);
+                    links.forEach(link => {
+                        let currentHref = link.getAttribute("href");
+                        if (!currentHref.startsWith(`/${slug}`)) {
+                            const newHref = `/${slug}${path}`;
+                            link.setAttribute("href", newHref);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+
+ <script>
+    // Injected data from server
+    const userId = <%= userId %>;
+    const assignedRoles = <%- JSON.stringify(assignedRoles) %>;
+
+    function showTag() {
+        const Elements = document.getElementsByClassName('role-allowed');
+        const OuterLi = document.getElementsByClassName('outer-nav-item');
+
+        // Show allowed role-based elements
+        Array.from(Elements).forEach((el) => {
+            if (userId == 1 || assignedRoles.includes(el.dataset.roleName)) {
+                el.classList.remove('role-allowed'); // becomes visible
+            }
+        });
+
+        // Show parent <li>s if any children are visible
+        Array.from(OuterLi).forEach((outer) => {
+            const visibleLis = Array.from(outer.querySelectorAll('li')).filter(li => {
+                const isVisible = window.getComputedStyle(li).display !== 'none';
+                const isHiddenByRole = li.classList.contains('role-allowed');
+                return isVisible && !isHiddenByRole;
+            });
+
+            outer.style.display = visibleLis.length > 0 ? 'block' : 'none';
+        });
+    }
+
+    // Run once when DOM is loaded
+    window.addEventListener('DOMContentLoaded', () => {
+        showTag();
+    });
+
+    // 🧠 Auto-run showTag() if DOM changes (tabs loaded dynamically)
+    const observer = new MutationObserver((mutationsList, observer) => {
+        showTag();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // ✅ Optionally expose showTag() for manual triggering
+    window.refreshRoleTabs = showTag;
+</script>
+
+    <script>
+        document.querySelectorAll('.client-user-selector').forEach(container => {
+            const clientSelect = container.querySelector('.clientSelect');
+            const userSelect = container.querySelector('.userSelect');
+
+            const COOKIE_KEY = 'selection'; // store { selectedClientId, selectedUserId }
+            const levelMap = { 1: 'Super Admin', 2: 'Client', 3: 'Sub-Client' };
+
+            /** -----------------------------
+             *  Cookie Helpers
+             * ----------------------------- */
+            function setCookie(name, value, days) {
+                const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+                document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/;`;
+            }
+
+            function getCookie(name) {
+                const match = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+                return match ? decodeURIComponent(match.split('=')[1]) : '';
+            }
+
+            /** -----------------------------
+             *  Save selection (selectedClientId + selectedUserId)
+             * ----------------------------- */
+            function saveSelection(clientId, userId) {
+                const selection = {
+                    selectedClientId: clientId || null,
+                    selectedUserId: userId || null
+                };
+                setCookie(COOKIE_KEY, JSON.stringify(selection), 7); // store 7 days
+            }
+
+            /** -----------------------------
+             *  Load selection from cookie
+             * ----------------------------- */
+            function loadSelection() {
+                try {
+                    return JSON.parse(getCookie(COOKIE_KEY) || '{}');
+                } catch (e) {
+                    return {};
+                }
+            }
+
+          /** -----------------------------
+ *  Load Clients  (always pick first)
+ * ----------------------------- */
+/** -----------------------------
+ *  Load Clients (use cookie if exists, else pick first)
+ * ----------------------------- */
+ async function loadClients() {
+  try {
+    const res = await axios.get('/api/all-clients');
+    const clients = res.data.clients || [];
+
+    clientSelect.innerHTML = ''; // clear previous
+    const selection = loadSelection(); // load from cookie
+    let selectedId = selection.selectedClientId || null;
+
+    clients.forEach((client, index) => {
+      const option = document.createElement('option');
+      option.value = client.id;
+      
+      // Display company name if available, otherwise fall back to full_name
+      const displayName = client.company_name || client.full_name || `Client ${client.id}`;
+      option.textContent = displayName;
+
+      // Select saved client if found, otherwise select first
+      if (selectedId) {
+        if (String(client.id) === String(selectedId)) {
+          option.selected = true;
+        }
+      } else if (index === 0) {
+        option.selected = true;
+        selectedId = client.id; // set fallback
+      }
+
+      clientSelect.appendChild(option);
+    });
+
+    // If no clients, clear cookie
+    if (!clients.length) {
+      saveSelection(null, null);
+      return '';
+    }
+
+    // If cookie didn't exist, store the first client's ID
+    if (!selection.selectedClientId && selectedId) {
+      saveSelection(selectedId, null);
+    }
+
+    return selectedId || '';
+  } catch (err) {
+    console.error('Failed to fetch clients:', err);
+    return '';
+  }
+}
+
+/** -----------------------------
+ *  Init Component
+ * ----------------------------- */
+(async function init() {
+  const selectedClientId = await loadClients(); // this will force-select first + save cookie
+  if (selectedClientId) {
+    await loadUsers(selectedClientId);
+  } else {
+    userSelect.innerHTML = '<option value="">Self (No User)</option>';
+    userSelect.disabled = true;
+  }
+})();
+            /** -----------------------------
+             *  Load Users for Client
+             * ----------------------------- */
+            async function loadUsers(clientId) {
+                if (!clientId) return;
+
+                try {
+                    const res = await axios.get(`/api/clients/${clientId}/users`);
+                    const users = res.data.users || [];
+
+                    userSelect.innerHTML = '<option value="">Self (No User)</option>';
+                    userSelect.disabled = false;
+
+                    const selection = loadSelection();
+
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.full_name;
+
+                        // Restore saved selectedUserId if matches
+                        if (selection.selectedUserId && selection.selectedUserId == user.id) {
+                            option.selected = true;
+                        }
+
+                        userSelect.appendChild(option);
+                    });
+                } catch (err) {
+                    console.error('Failed to fetch users:', err);
+                }
+            }
+
+            /** -----------------------------
+             *  Init Component
+             * ----------------------------- */
+            (async function init() {
+                const selectedClientId = await loadClients();
+                if (selectedClientId) {
+                    await loadUsers(selectedClientId);
+                }
+            })();
+
+            /** -----------------------------
+             *  Handle client change
+             * ----------------------------- */
+            clientSelect.addEventListener('change', async function () {
+                const clientId = this.value;
+                saveSelection(clientId, null); // reset userId
+                window.location.reload();
+                userSelect.innerHTML = '<option value="">Self (No User)</option>';
+                userSelect.disabled = true;
+
+                if (!clientId) return;
+                await loadUsers(clientId);
+               
+            });
+
+            /** -----------------------------
+             *  Handle user change
+             * ----------------------------- */
+            userSelect.addEventListener('change', function () {
+                saveSelection(clientSelect.value, this.value || null);
+                window.location.reload();
+            });
+
+            /** -----------------------------
+             *  Fix User Dropdown Functionality
+             * ----------------------------- */
+            const userDropdownToggle = document.getElementById('userDropdownToggle');
+            const userDropdownMenu = document.querySelector('.user-account .dropdown-menu');
+            let isDropdownOpen = false;
+
+            if (userDropdownToggle && userDropdownMenu) {
+                userDropdownToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (isDropdownOpen) {
+                        // Close dropdown
+                        userDropdownMenu.style.display = 'none';
+                        userDropdownMenu.classList.remove('show');
+                        isDropdownOpen = false;
+                    } else {
+                        // Open dropdown
+                        userDropdownMenu.style.display = 'block';
+                        userDropdownMenu.classList.add('show');
+                        isDropdownOpen = true;
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!userDropdownToggle.contains(e.target) && !userDropdownMenu.contains(e.target)) {
+                        userDropdownMenu.style.display = 'none';
+                        userDropdownMenu.classList.remove('show');
+                        isDropdownOpen = false;
+                    }
+                });
+
+                // Close dropdown when clicking on dropdown items
+                const dropdownItems = userDropdownMenu.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function () {
+                        // Don't close for the "Switch Client" item as it has sub-elements
+                        if (!this.querySelector('.client-user-selector')) {
+                            userDropdownMenu.style.display = 'none';
+                            userDropdownMenu.classList.remove('show');
+                            isDropdownOpen = false;
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    <!-- JavaScript to prevent dropdown from closing -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prevent dropdown from closing when clicking on selectors
+        const clientSelect = document.querySelector('.clientSelect');
+        const userSelect = document.querySelector('.userSelect');
+        const clientUserSelector = document.querySelector('.client-user-selector');
+        
+        if (clientSelect) {
+            clientSelect.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            clientSelect.addEventListener('focus', function(e) {
+                e.stopPropagation();
+            });
+            
+            clientSelect.addEventListener('blur', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        if (userSelect) {
+            userSelect.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            userSelect.addEventListener('focus', function(e) {
+                e.stopPropagation();
+            });
+            
+            userSelect.addEventListener('blur', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        if (clientUserSelector) {
+            clientUserSelector.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        // Prevent the parent dropdown from closing when interacting with selectors
+        const accountDropdown = document.querySelector('.dropdown-menu.account');
+        if (accountDropdown) {
+            accountDropdown.addEventListener('click', function(e) {
+                if (e.target.closest('.client-user-selector')) {
+                    e.stopPropagation();
+                }
+            });
+        }
+    });
+    </script>
+
+</body>
+
+</html>

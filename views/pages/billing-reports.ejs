@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" rel="stylesheet">
+
+
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        color: #333 !important;
+        border: 1px solid #979797;
+        background-color: white;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #dcdcdc));
+        background: -webkit-linear-gradient(top, white 0%, #dcdcdc 100%);
+        background: -moz-linear-gradient(top, white 0%, #dcdcdc 100%);
+        background: -ms-linear-gradient(top, white 0%, #dcdcdc 100%);
+        background: -o-linear-gradient(top, white 0%, #dcdcdc 100%);
+        background: linear-gradient(to bottom, white 0%, #dcdcdc 100%);
+    }
+    .table-bordered td, .table-bordered th {
+    border: 1px solid #f8f3f381;
+}
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat App</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">App</li>
+                  <li class="breadcrumb-item active">Chat</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+           
+        
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body p-2">
+                            <div id="reportrange" class="form-control" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">All Status</option>
+                        <option value="1">Booking</option>
+                        <option value="4">Delivered</option>
+                        <option value="5">RTO</option>
+                    </select>
+                </div>
+                <div>
+                     <h2>Select Client:</h2>
+                    <select id="clientDropdown">
+                    <% clientIdAndClientName.forEach(client => { %>
+              <option value="<%= client.id %>"><%= client.company_name %></option>
+            <% }) %>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                    <button id="fetchBillingBtn" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+                <div class="form-group">
+            <label for="downloadCSVFile">Download File</label><br>
+            <a id="downloadCSVFile" 
+               href="#" 
+               class="btn btn-primary"
+               download>
+              Download Report
+            </a>
+          </div>
+        
+          <div>
+            <h2>Download Old Invoice CSV</h2>
+        
+          <label for="invoiceNumber">Invoice Number:</label>
+          <input type="text" id="invoiceNumber" placeholder="e.g. INV-123">
+          <button onclick="downloadCSV()">Download</button>
+        
+          <p id="message" style="color: red;"></p>
+          </div>
+                <div class="col-md-4">
+                    <form class="d-flex">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search-input" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-soft-primary" type="button" id="button-addon2">
+                                <i class="fas fa-search" style="font-size: 12px;"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="datatable_2" class="table table-bordered table-hover">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>PO ID</th>
+                                            <th>LR No</th>
+                                            <th>Invoice No</th>
+                                            <th>Order Date</th>
+                                            <th>Destination Pincode</th>
+                                            <th>Consignee Name</th>
+                                            <th>Destination City</th>
+                                            <th>Count of Boxes</th>
+                                            <th>Client Name</th>
+                                            <th>Origin City</th>
+                                            <th>Origin Pincode</th>
+                                            <th>Billed Weight</th>
+                                            <th>Freight Charges</th>
+                                            <th>FSC Charges</th>
+                                            <th>ROV Insurance</th>
+                                            <th>COD Charges</th>
+                                            <th>Waybill Charge</th>
+                                            <th>FM Cost</th>
+                                            <th>LM Cost</th>
+                                            <th>Green Tax</th>
+                                            <th>Additional Charge</th>
+                                            <th>Appointment Charge</th>
+                                            <th>Handling Charges Heavy Shipment</th>
+                                            <th>Sunday Delivery Pickup Charges</th>
+                                            <th>Additional Machinery Charges</th>
+                                            <th>Additional Manpower Charges</th>
+                                            <th>Adhoc Vehicle Charges</th>
+                                            <th>Mathadi Union Charges</th>
+                                            <th>Special Delivery Areas Charges</th>
+                                            <th>Re-Attempt Charge</th>
+                                            <th>Cheque</th>
+                                            <th>POD Charge</th>
+                                            <th>CSD Charge</th>
+                                            <th>Demurrage Charge</th>
+                                            
+                                            
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% billingData.forEach((item, index) => { %>
+                                            <tr>
+                                                <td><%= item.id %></td>
+                                                <td><%= item.po_id %></td>
+                                                <td><%= item.lr_No %></td>
+                                                <td><%= item.invoice_No %></td>
+                                                <td><%= new Date(item.order_date).toLocaleString('en-IN', { 
+                                                    timeZone: 'Asia/Kolkata',
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                }) %></td>
+                                                <td><%= item.destination_Pincode %></td>
+                                                <td><%= item.consignee_Name %></td>
+                                                <td><%= item.destination_city %></td>
+                                                <td><%= item.total_Box %></td>
+                                                <td><%= item.client_name %></td>
+                                                <td><%= item.origin_city %></td>
+                                                <td><%= item.pickup_Pincode %></td>
+                                                <td><%= item.billed_weight %></td>
+                                                <td><%= item.freight_charges %></td>
+                                                <td><%= item.fsc_charges %></td>
+                                                <td><%= item.rov_insurance %></td>
+                                                <td><%= item.cod_charges %></td>
+                                                <td><%= item.waybill_charge %></td>
+                                                <td><%= item.fm_cost %></td>
+                                                <td><%= item.lm_cost %></td>
+                                                <td><%= item.green_tax %></td>
+                                                <td><%= item.additional_charge %></td>
+                                                <td><%= item.appointment_charge %></td>
+                                                <td><%= item.handling_charges_heavy_shipment %></td>
+                                                <td><%= item.sunday_delivery_pickup_charges %></td>
+                                                <td><%= item.additional_machinery_charges %></td>
+                                                <td><%= item.additional_manpower_charges %></td>
+                                                <td><%= item.adhoc_vehicle_charges %></td>
+                                                <td><%= item.mathadi_union_charges %></td>
+                                                <td><%= item.special_delivery_areas_charges %></td>
+                                                <td><%= item.re_attempt_charge %></td>
+                                                <td><%= item.cheque %></td>
+                                                <td><%= item.pod_charge %></td>
+                                                <td><%= item.csd_charge %></td>
+                                                <td><%= item.demurrage_charge %></td>
+                                                
+                                                
+                                                <td class="text-center">
+                                                    <a href="#" class="btn btn-link p-0 me-2">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-link p-0">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+        
+                             
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        
+        <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+        
+        <script>
+            $(document).ready(function() {
+                var table = $('#datatable_2').DataTable({
+                    "ordering": false,
+                    "searching": true,
+                    "lengthChange": false, 
+                    "info": true,
+                    "paging": true,
+                    "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                    "language": {
+                        "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                        "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                    },
+                    "pagingType": "full_numbers",
+                    "pageLength": 10,
+                    "drawCallback": function() {
+                        $('.paginate_button').addClass('btn btn-sm').css({
+                            'background-color': '#e3f2fd',
+                            'border-color': '#90caf9', 
+                            'color': '#8f8f8f',
+                            'margin': '0 2px',
+                            'border-radius': '4px'
+                        });
+                        
+                        $('.paginate_button.current').css({
+                            'background-color': '#rgb(204 204 200)',
+                            'color': '#fff',
+                            'border-color': '#8f8f8f'
+                        });
+        
+                        $('.paginate_button.disabled').css({
+                            'opacity': '0.5',
+                            'cursor': 'not-allowed'
+                        });
+                    }
+                });
+        
+          // Populate client dropdown from server variable
+                const clients = <%- JSON.stringify(clientIdAndClientName) %>;
+                const $clientDropdown = $('#clientDropdown');
+                clients.forEach(client => {
+                    const option = $('<option>', {
+                        value: client.id,
+                        text: client.company_name
+                    });
+                    $clientDropdown.append(option);
+                });
+        
+                // Function to fetch data based on date range and status
+                function fetchFilteredData(fromDate, toDate, status, clientId) {
+                  axios.get('/billingDateFilter', {
+                    params: {
+                      fromDate: fromDate,
+                      toDate: toDate,
+                      status: status,
+                      clientId : clientId
+                    }
+                  })
+                  .then(response => {
+                      const data = response.data;
+                      console.log("Filtered data received:", data.length);
+                      
+                      // Clear existing data
+                      table.clear();
+                      
+                      // Add new data
+                      if (data && data.length > 0) {
+                          data.forEach(item => {
+                              // Create an array with all columns, using empty string for missing values
+                              const rowData = [
+                                  item.lr_id || '',
+                                  item.po_id || '',
+                                  item.lr_No || '',
+                                  item.order_date || '',
+                                  item.destination_Pincode || '',
+                                  item.consignee_Name || '',
+                                  item.destination_Add || '',
+                                  item.total_Box || '',
+                                  item.client_name || '',
+                                  item.origin_city || '',
+                                  item.origin_pincode || '',
+                                  item.billed_weight || '',
+                                  item.freight_charges || '',
+                                  item.fsc_charges || '',
+                                  item.rov_insurance || '',
+                                  item.cod_charges || '',
+                                  item.waybill_charge || '',
+                                  item.fm_cost || '',
+                                  item.lm_cost || '',
+                                  item.green_tax || '',
+                                  item.additional_charge || '',
+                                  item.appointment_charge || '',
+                                  item.handling_charges_heavy_shipment || '',
+                                  item.sunday_delivery_pickup_charges || '',
+                                  item.additional_machinery_charges || '',
+                                  item.additional_manpower_charges || '',
+                                  item.adhoc_vehicle_charges || '',
+                                  item.mathadi_union_charges || '',
+                                  item.special_delivery_areas_charges || '',
+                                  item.re_attempt_charge || '',
+                                  item.cheque || '',
+                                  item.pod_charge || '',
+                                  item.csd_charge || '',
+                                  item.demurrage_charge || '',
+                                  item.created_at || '',
+                                  item.updated_at || '',
+                                  item.status || '',
+                                  '<a href="#" class="btn btn-link p-0 me-2"><i class="fas fa-edit"></i></a><a href="#" class="btn btn-link p-0"><i class="fas fa-trash-alt"></i></a>'
+                              ];
+                              
+                              table.row.add(rowData);
+                          });
+                      } else {
+                          // If no data, add a single empty row with correct number of columns
+                          const emptyRow = Array(38).fill(''); // 37 data columns + 1 action column
+                          emptyRow[37] = '<a href="#" class="btn btn-link p-0 me-2"><i class="fas fa-edit"></i></a><a href="#" class="btn btn-link p-0"><i class="fas fa-trash-alt"></i></a>';
+                          table.row.add(emptyRow);
+                      }
+                      
+                      // Redraw the table
+                      table.draw();
+                  })
+                  .catch(error => {
+                      console.error('Error fetching filtered data:', error);
+                  });
+                }
+        
+                
+                // Function to fetch data based on date range and status Download CSV
+                // function fetchFilteredDataForDownloadCSV(fromDate, toDate, status, clientId) {
+                //   axios.get('/billingDateFilterForDonloadCSV', {
+                //     params: {
+                //       fromDate: fromDate,
+                //       toDate: toDate,
+                //       status: status,
+                //       clientId : clientId
+                //     }
+                //   })
+                //   .then(response => {
+                //       const data = response.data;
+                //       console.log("Filtered data received:", data.length);
+                      
+                //       // Clear existing data
+                //       table.clear();
+                      
+                //       // Add new data
+                //       if (data && data.length > 0) {
+                //           data.forEach(item => {
+                //               // Create an array with all columns, using empty string for missing values
+                //               const rowData = [
+                //                   item.lr_id || '',
+                //                   item.po_id || '',
+                //                   item.lr_No || '',
+                //                   item.order_date || '',
+                //                   item.destination_Pincode || '',
+                //                   item.consignee_Name || '',
+                //                   item.destination_Add || '',
+                //                   item.total_Box || '',
+                //                   item.client_name || '',
+                //                   item.origin_city || '',
+                //                   item.origin_pincode || '',
+                //                   item.billed_weight || '',
+                //                   item.freight_charges || '',
+                //                   item.fsc_charges || '',
+                //                   item.rov_insurance || '',
+                //                   item.cod_charges || '',
+                //                   item.waybill_charge || '',
+                //                   item.fm_cost || '',
+                //                   item.lm_cost || '',
+                //                   item.green_tax || '',
+                //                   item.additional_charge || '',
+                //                   item.appointment_charge || '',
+                //                   item.handling_charges_heavy_shipment || '',
+                //                   item.sunday_delivery_pickup_charges || '',
+                //                   item.additional_machinery_charges || '',
+                //                   item.additional_manpower_charges || '',
+                //                   item.adhoc_vehicle_charges || '',
+                //                   item.mathadi_union_charges || '',
+                //                   item.special_delivery_areas_charges || '',
+                //                   item.re_attempt_charge || '',
+                //                   item.cheque || '',
+                //                   item.pod_charge || '',
+                //                   item.csd_charge || '',
+                //                   item.demurrage_charge || '',
+                //                   item.created_at || '',
+                //                   item.updated_at || '',
+                //                   item.status || '',
+                //                   '<a href="#" class="btn btn-link p-0 me-2"><i class="fas fa-edit"></i></a><a href="#" class="btn btn-link p-0"><i class="fas fa-trash-alt"></i></a>'
+                //               ];
+                              
+                //               table.row.add(rowData);
+                //           });
+                //       } else {
+                //           // If no data, add a single empty row with correct number of columns
+                //           const emptyRow = Array(38).fill(''); // 37 data columns + 1 action column
+                //           emptyRow[37] = '<a href="#" class="btn btn-link p-0 me-2"><i class="fas fa-edit"></i></a><a href="#" class="btn btn-link p-0"><i class="fas fa-trash-alt"></i></a>';
+                //           table.row.add(emptyRow);
+                //       }
+                      
+                //       // Redraw the table
+                //       table.draw();
+                //   })
+                //   .catch(error => {
+                //       console.error('Error fetching filtered data:', error);
+                //   });
+                // }
+        
+                // Add event listener to the fetch button
+                $('#fetchBillingBtn').on('click', function() {
+                    const dateRangeText = $('#reportrange span').text();
+                    const [fromDate, toDate] = dateRangeText.split(' - ');
+                    const status = $('#statusFilter').val();
+                    const clientId = $('#clientDropdown').val();
+                    fetchFilteredData(fromDate, toDate, status, clientId);
+                });
+        
+            // For Download File In CSV 
+        $('#downloadCSVFile').on('click', function(e) {
+            e.preventDefault();
+            const dateRangeText = $('#reportrange span').text();
+            const [fromDate, toDate] = dateRangeText.split(' - ');
+            const status = $('#statusFilter').val();
+            const clientId = $('#clientDropdown').val();
+        
+            axios({
+                method: 'get',
+                url: '/billingDateFilterForDonloadCSV',
+                params: {
+                    fromDate,
+                    toDate,
+                    status,
+                    clientId
+                },
+                responseType: 'blob'
+            })
+            .then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Report.csv'); // or dynamically generate file name
+                document.body.appendChild(link);
+                link.click();
+            })
+            .catch(error => {
+                console.error('Download failed:', error);
+            });
+        });
+        
+        
+            //     $('#downloadCSVFile').on('click', function() {
+            //         const dateRangeText = $('#reportrange span').text();
+            //         const [fromDate, toDate] = dateRangeText.split(' - ');
+            //         const status = $('#statusFilter').val();
+            //         const clientId = $('#clientDropdown').val();
+        
+            //          const downloadUrl = `/fetchFilteredDataForDownloadCSV?fromDate=${fromDate}&toDate=${toDate}&status=${status}&clientId=${clientId}`;
+        
+            // $(this).attr('href', downloadUrl);
+            //         // fetchFilteredDataForDownloadCSV(fromDate, toDate, status, clientId);
+            //     });
+        
+                // Initialize daterangepicker
+              
+              
+                $('#reportrange').daterangepicker({
+                    startDate: moment().subtract(29, 'days'),
+                    endDate: moment(),
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    }
+                }, function(start, end) {
+                    $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                });
+        
+                // Set initial date range display
+                $('#reportrange span').html(moment().subtract(29, 'days').format('YYYY-MM-DD') + ' - ' + moment().format('YYYY-MM-DD'));
+                
+        
+                // Add search functionality
+                $('#search-input').on('keyup', function() {
+                    table.search($(this).val()).draw();
+                });
+        
+                // Search when search button clicked
+                $('#button-addon2').on('click', function() {
+                    var searchValue = $('#search-input').val();
+                    table.search(searchValue).draw();
+                });
+            });
+        </script>
+        
+         <script>
+            function downloadCSV() {
+              const invoiceNumber = document.getElementById('invoiceNumber').value.trim();
+              const message = document.getElementById('message');
+              message.textContent = '';
+        
+              if (!invoiceNumber) {
+                message.textContent = 'Please enter invoice number';
+                return;
+              }
+        
+              // Create a download link and trigger click
+              const downloadUrl = `/downloadOldInvoiceCSV?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
+              const a = document.createElement('a');
+              a.href = downloadUrl;
+              a.download = `${invoiceNumber}.csv`;  // optional, helps hint filename
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          </script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

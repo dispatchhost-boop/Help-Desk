@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Bootstrap JavaScript and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JavaScript and jQuery -->
+<style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+      position: sticky;
+      top: 0;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      height: 50%;
+      width: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    .modal.active {
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+    .overlay.active {
+      display: block;
+    }
+    /* Toggle Switch Styles */
+    .toggle-container {
+      display: inline-block;
+      position: relative;
+    }
+    .toggle-input {
+      position: absolute;
+      opacity: 0;
+    }
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .toggle-button {
+      width: 30px; /* Reduced from 50px */
+      height: 16px; /* Reduced from 24px */
+      background: #ddd;
+      border-radius: 8px; /* Reduced from 12px */
+      position: relative;
+      transition: background 0.3s;
+      margin: 0 3px; /* Reduced from 5px */
+    }
+    .toggle-button:before {
+      content: '';
+      position: absolute;
+      width: 12px; /* Reduced from 20px */
+      height: 12px; /* Reduced from 20px */
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+    .toggle-input:checked + .toggle-label .toggle-button {
+      background: #4CAF50;
+    }
+    .toggle-input:checked + .toggle-label .toggle-button:before {
+      transform: translateX(14px); /* Reduced from 26px */
+    }
+    .toggle-text {
+      font-size: 10px; /* Reduced from 12px */
+      font-weight: bold;
+    }
+    .toggle-text.on {
+      color: #4CAF50;
+      display: none;
+    }
+    .toggle-text.off {
+      color: #f44336;
+    }
+    .toggle-input:checked + .toggle-label .toggle-text.on {
+      display: inline;
+    }
+    .toggle-input:checked + .toggle-label .toggle-text.off {
+      display: none;
+    }
+    /* .sticky-row {
+      position: sticky;
+      left: 0;
+      background-color: white;
+      z-index: 1;
+    } */
+</style>
+
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+             <div class="container-fluid">
+  <div class="row ">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded shadow-sm">
+        <h1 class="h3 mb-0 text-primary font-weight-bold">Role Assignment</h1>
+        <div>
+          <button 
+            class="btn btn-primary btn-sm rounded-pill shadow-sm hover-scale"
+            onclick="openCreateModal()"
+          >
+            <i class="fas fa-plus-circle mr-2"></i>
+            Create New Role Assignment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive shadow-sm rounded">
+  <table class="table table-hover">
+    <thead class="bg-light">
+      <tr>
+        <th class="font-weight-bold text-dark border-0 py-3">Role</th>
+        <% roles.forEach(role => { %>
+          <th class="font-weight-bold text-dark border-0 py-3">
+            <%= role.name %>
+            <button class="btn btn-sm text-danger delete-role-btn" title="Delete Role" onclick="deleteRole(<%= role.id %>)">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </th>
+        <% }) %>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- Page Roles Header -->
+      <% if (pageRoles.length > 0) { %>
+        <tr class="table-group-separator bg-light">
+          <td colspan="<%= roles.length + 1 %>" class="font-weight-bold text-primary">Page Permissions</td>
+        </tr>
+
+        <% pageRoles.forEach(systemRole => { %>
+          <tr>
+            <td class="sticky-row font-weight-medium py-3"><%= systemRole %></td>
+            <% roles.forEach(role => { 
+              const assignedRoles = role.description ? JSON.parse(role.description) : [];
+              const isChecked = assignedRoles.includes(systemRole);
+            %>
+              <td class="toggle-cell align-middle py-3">
+                <div class="toggle-container d-flex justify-content-center">
+                  <input 
+                    type="checkbox" 
+                    id="toggle_<%= role.id %>_<%= systemRole %>" 
+                    class="toggle-input"
+                    data-user-id="<%= role.id %>" 
+                    data-role="<%= systemRole %>"
+                    <%= isChecked ? 'checked' : '' %>
+                    onchange="updateUserRole(this)"
+                  >
+                  <label for="toggle_<%= role.id %>_<%= systemRole %>" class="toggle-label m-0">
+                    <span class="toggle-button shadow-sm"></span>
+                    <span class="toggle-text on">ON</span>
+                    <span class="toggle-text off">OFF</span>
+                  </label>
+                </div>
+              </td>
+            <% }) %>
+          </tr>
+        <% }) %>
+      <% } %>
+
+      <!-- API Roles Header -->
+      <% if (apiRoles.length > 0) { %>
+        <tr class="table-group-separator bg-light">
+          <td colspan="<%= roles.length + 1 %>" class="font-weight-bold text-primary">API Permissions</td>
+        </tr>
+
+        <% apiRoles.forEach(systemRole => { %>
+          <tr>
+            <td class="sticky-row font-weight-medium py-3"><%= systemRole %></td>
+            <% roles.forEach(role => { 
+              const assignedRoles = role.description ? JSON.parse(role.description) : [];
+              const isChecked = assignedRoles.includes(systemRole);
+            %>
+              <td class="toggle-cell align-middle py-3">
+                <div class="toggle-container d-flex justify-content-center">
+                  <input 
+                    type="checkbox" 
+                    id="toggle_<%= role.id %>_<%= systemRole %>" 
+                    class="toggle-input"
+                    data-user-id="<%= role.id %>" 
+                    data-role="<%= systemRole %>"
+                    <%= isChecked ? 'checked' : '' %>
+                    onchange="updateUserRole(this)"
+                  >
+                  <label for="toggle_<%= role.id %>_<%= systemRole %>" class="toggle-label m-0">
+                    <span class="toggle-button shadow-sm"></span>
+                    <span class="toggle-text on">ON</span>
+                    <span class="toggle-text off">OFF</span>
+                  </label>
+                </div>
+              </td>
+            <% }) %>
+          </tr>
+        <% }) %>
+      <% } %>
+
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Create Role Modal -->
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="roleModal">
+  <h2 style="color: #333; margin-bottom: 20px; font-size: 24px;">Create New Role Assignment</h2>
+  <div style="margin-bottom: 15px;">
+    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: 500;">Role Name:</label>
+    <input 
+      type="text" 
+      id="newUserName" 
+      required
+      style="width: 100%; 
+             padding: 8px 12px; 
+             border: 1px solid #ddd; 
+             border-radius: 4px;
+             font-size: 14px;"
+    >
+  </div>
+   
+  <div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button 
+      onclick="submitCreateRole()"
+      style="padding: 8px 16px;
+             background-color: #4CAF50;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             font-weight: 500;
+             transition: background-color 0.3s;"
+      onmouseover="this.style.backgroundColor='#45a049'"
+      onmouseout="this.style.backgroundColor='#4CAF50'"
+    >Submit</button>
+    <button 
+      onclick="closeCreateModal()"
+      style="padding: 8px 16px;
+             background-color: #f44336;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             font-weight: 500;
+             transition: background-color 0.3s;"
+      onmouseover="this.style.backgroundColor='#da190b'"
+      onmouseout="this.style.backgroundColor='#f44336'"
+    >Cancel</button>
+  </div>
+</div>
+
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+          </div>
+          
+          <!-- Scripts -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+    <script>
+  // Update user role when toggle is changed
+  function updateUserRole(toggle) {
+    const userId = toggle.dataset.userId;
+    const role = toggle.dataset.role;
+    const isChecked = toggle.checked;
+    
+    // Show loading state
+    const label = toggle.nextElementSibling;
+    label.style.opacity = '0.5';
+    
+    axios.patch(`/api/roles/${userId}`, {
+      role: role,
+      action: isChecked ? 'add' : 'remove'
+    })
+    .then(response => {
+      // Success - keep the toggle state as is
+      label.style.opacity = '1';
+      
+      // Simple notification
+      const notification = document.createElement('div');
+      notification.textContent = 'Role updated successfully';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.padding = '10px 20px';
+      notification.style.background = '#4CAF50';
+      notification.style.color = 'white';
+      notification.style.borderRadius = '4px';
+      notification.style.zIndex = '1000';
+      document.body.appendChild(notification);
+      
+      // Remove after 2 seconds
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 2000);
+    })
+    .catch(error => {
+      // Revert on error
+      toggle.checked = !isChecked;
+      label.style.opacity = '1';
+      
+      // Simple error notification
+      const notification = document.createElement('div');
+      notification.textContent = error.response?.data?.message || 'Error updating role';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.padding = '10px 20px';
+      notification.style.background = '#f44336';
+      notification.style.color = 'white';
+      notification.style.borderRadius = '4px';
+      notification.style.zIndex = '1000';
+      document.body.appendChild(notification);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    });
+  }
+
+  // Create new role assignment
+  function openCreateModal() {
+    document.getElementById('roleModal').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+    document.getElementById('newUserName').value = '';
+    roleTabes.forEach(role => {
+      document.getElementById(`newRole_${role}`).checked = false;
+    });
+  }
+
+  function closeCreateModal() {
+    document.getElementById('roleModal').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  function submitCreateRole() {
+    console.log('asdf,jh')
+    const roleName = document.getElementById('newUserName').value.trim();
+    if (!roleName) {
+      alert('User name is required');
+      return;
+    }
+
+    axios.post('/api/roles', {
+      name: roleName
+    })
+    .then(() => {
+      closeCreateModal();
+      // Simple success notification
+      const notification = document.createElement('div');
+      notification.textContent = 'Role assignment created successfully';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.padding = '10px 20px';
+      notification.style.background = '#4CAF50';
+      notification.style.color = 'white';
+      notification.style.borderRadius = '4px';
+      notification.style.zIndex = '1000';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    })
+    .catch(error => {
+      alert(error.response?.data?.message || 'Error creating role assignment');
+    });
+  }
+
+  // Delete role assignment
+//   function deleteRole(id) {
+//   Swal.fire({
+//     title: 'Are you sure?',
+//     text: "You won't be able to revert this!",
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Yes, delete it!',
+//     cancelButtonText: 'Cancel',
+//     reverseButtons: true,
+//     focusCancel: true,
+//     backdrop: `
+//       rgba(0,0,0,0.7)
+//       url("/images/nyan-cat.gif")
+//       left top
+//       no-repeat
+//     `
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       axios.delete(`/api/roles/${id}`)
+//         .then(() => {
+//           Swal.fire(
+//             'Deleted!',
+//             'Role assignment has been deleted.',
+//             'success'
+//           ).then(() => {
+//             window.location.reload();
+//           });
+//         })
+//         .catch(error => {
+//           Swal.fire(
+//             'Error!',
+//             error.response?.data?.message || 'Error deleting role assignment',
+//             'error'
+//           );
+//         });
+//     }
+//   });
+// }
+
+  // Make table horizontally scrollable with sticky first column
+  // document.addEventListener('DOMContentLoaded', function() {
+  //   const table = document.getElementById('rolesTable');
+  //   if (table) {
+  //     table.style.width = 'max-content';
+  //   }
+  // });
+
+  //delete role
+const deleteRole=(roleId)=>{
+  // console.log(roleid)
+ Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will delete the role permanently!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios.delete(`/api/roles/${roleId}`)
+            .then(() => {
+              Swal.fire({
+                title: 'Deleted!',
+                text: 'Role has been deleted.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+              }).then(() => location.reload()); // Or remove row dynamically
+            })
+            .catch(err => {
+              console.error('Delete failed', err);
+              Swal.fire({
+                title: 'Error!',
+                text: 'Something went wrong while deleting.',
+                icon: 'error'
+              });
+            });
+        }
+      });
+    }
+
+     
+
+</script>
+
+  </body>
+</html>

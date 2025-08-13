@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('../../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        /* Layout */
+        .manifest-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 992px) {
+            .manifest-container {
+                flex-direction: row;
+            }
+        }
+
+        .left-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 992px) {
+            .right-section {
+                width: 35%;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background-color: white;
+            border: 1px solid #e4e4e4;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .insurance-card {
+            background-color: #f0f0f0;
+            border: none;
+        }
+
+        /* Card Header */
+        .card-header {
+            display: flex;
+            /* justify-content: space-between;
+            align-items: start; */
+            margin-bottom: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3d445c;
+            flex-shrink: 0;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e3eb;
+            border-radius: 6px;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #5b80f7;
+            box-shadow: 0 0 0 2px rgba(91, 128, 247, 0.2);
+        }
+
+        /* Radio Buttons */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: #5b80f7;
+        }
+
+        /* Order Details Row */
+        .order-details-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .order-details-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #525b7a;
+            cursor: pointer;
+            padding: 8px;
+            align-self: center;
+        }
+
+        /* Invoice Row */
+        .invoice-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .invoice-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .checkbox-group input {
+            width: 16px;
+            height: 16px;
+            accent-color: #5b80f7;
+        }
+
+        /* Summary */
+        .summary {
+            margin-top: 16px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Insurance Section */
+        .insurance-card p {
+            margin-bottom: 16px;
+        }
+
+        .insurance-card .note {
+            font-size: 12px;
+            color: #525b7a;
+            margin-top: 8px;
+        }
+
+        /* Address Selector */
+        .address-selector {
+            position: relative;
+            min-height: 120px;
+        }
+
+        .address-line {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .connector-line {
+            position: absolute;
+            left: 15px;
+            top: 25px;
+            height: 100%;
+            border-left: 2px dashed #525b7a;
+        }
+
+        .iconset{
+            width: 12px;
+            height: 12px;      
+            border-radius: 50%;
+            margin-right: 8px;
+            position: absolute;
+            top: 9px;
+            left: 8px;
+        }
+
+        .connector-square {
+            width: 12px;
+            height: 12px;
+       
+            margin-right: 8px;
+            position: absolute;
+            top: 0;
+            left: 9px;
+        }
+
+        .address-input {
+            padding-left: 32px;
+            width: 100%;
+        }
+
+        /* Add Box Button */
+        .add-box-btn {
+            width: 100%;
+            background-color: #f9f9fb;
+            color: #a3aac2;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-box-btn:hover {
+            background-color: #e0e3eb;
+        }
+
+        .remaining-boxes {
+            font-size: 12px;
+            color: #525b7a;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        /* Weight Details */
+        .weight-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .weight-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .weight-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .weight-input input {
+            width: 80px;
+            margin-right: 8px;
+        }
+
+        /* File Upload */
+        .file-upload {
+            margin-top: 8px;
+        }
+
+        .upload-area {
+            border: 2px dashed #e0e3eb;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #5b80f7;
+            background-color: #e6ecff;
+        }
+
+        .upload-area input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-area i {
+            font-size: 32px;
+            color: #a3aac2;
+            margin-bottom: 8px;
+        }
+
+        .upload-area div {
+            color: #5b80f7;
+            font-weight: 500;
+        }
+
+        .upload-area div div {
+            font-size: 12px;
+            color: #3d445c;
+            font-weight: 400;
+        }
+
+        /* Shipping Mode */
+        .shipping-mode {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .shipping-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e0e3eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shipping-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .shipping-option.selected {
+            border-color: #5b80f7;
+            background-color: #f0f5ff;
+        }
+
+        .icon-container {
+            background-color: #a3aac2;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .icon-container i {
+            color: white;
+        }
+
+        .text-content p {
+            font-weight: 500;
+        }
+
+        .text-content div {
+            font-size: 12px;
+            color: #525b7a;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .check-icon {
+            margin-left: 16px;
+            color: #5b80f7;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .shipping-option.selected .check-icon {
+            opacity: 1;
+        }
+
+        /* Utility */
+        hr {
+            border: none;
+            border-top: 1px solid #e0e3eb;
+            margin: 16px 0;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #525b7a;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .radio-group {
+                gap: 12px;
+            }
+
+            .invoice-row .form-group,
+            .order-details-row .form-group {
+                min-width: 100%;
+            }
+
+            .weight-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .weight-input {
+                width: 100%;
+            }
+
+            .weight-input input {
+                width: 100%;
+            }
+        }
+
+        /* Additional styles for address dropdown */
+        .pickup-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .pickup-item:hover {
+            background: #f0f0f0;
+        }
+
+        .pickup-item.selected {
+            border: 2px solid #007bff;
+            background-color: #e8f0ff;
+        }
+
+        #pickupDropdownTrigger {
+            transition: border 0.2s ease;
+        }
+
+        .drop-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .drop-item:hover {
+            background: #f0f0f0;
+        }
+
+        .drop-item.selected {
+            border: 2px solid #007bff;
+            background-color: #e8f0ff;
+        }
+
+        #dropDropdownTrigger {
+            transition: border 0.2s ease;
+        }
+    </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+        <!-- HEADER -->
+        <%- include('../../partials/header') %>
+
+        <!-- SIDEBAR -->
+        <%- include('../../partials/left-sidebar') %>
+        <%- include('../../partials/right-iconbar') %>
+
+        <!-- MAIN CONTENT -->
+        <div id="main-content">
+            <div class="container-fluid">
+                <div class="block-header">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <h2>B2B Heavy Shipment</h2>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                                </li>
+                                <li class="breadcrumb-item">LTL</li>
+                                <li class="breadcrumb-item active">Create Order</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add your page-specific content here -->
+                <main class="manifest-container mb-5">
+                    <section class="left-section">
+                        <div class="card">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="fas fa-truck-moving"></i></span>
+                                    <div>
+                                        <h3>LR Details</h3>
+                                    </div>
+                                </div>
+                            </header>
+                            <form id="lrForm" novalidate>
+                                <div class="form-group">
+                                    <label>LR creation</label>
+
+                                    <!-- Radio Buttons -->
+                                    <div class="radio-group" style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                        <div class="radio-option">
+                                            <input type="radio" name="lr-creation" id="manual" value="manual" checked>
+                                            <label for="manual">Manual</label>
+                                        </div>
+                                        <div class="radio-option">
+                                            <input type="radio" name="lr-creation" id="automatic" value="automatic">
+                                            <label for="automatic">Automatic</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- LR Number Input -->
+                                    <div id="lrInputWrapper">
+                                        <input type="text" id="lrNumberInput" class="form-control" placeholder="Enter LR Number">
+                                        <div id="lrError" style="color: red; font-size: 13px; margin-top: 3px; display: none;">
+                                            Please enter LR number
+                                        </div>
+                                    </div>
+
+                                    <!-- Info Text for Automatic -->
+                                    <div id="infoText" style="display: none; margin-top: 8px; color: #666;">
+                                        <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                                        <small>LR number will be autofilled once you manifest the shipment</small>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="bi bi-box-seam"></i></span>
+                                    <div>
+                                        <h3>Order Details</h3>
+                                    </div>
+                                </div>
+                            </header>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" placeholder="Enter order description" maxlength="300" id="order-description">
+                            </div>
+                            <div class="order-details-row">
+                                <div class="form-group">
+                                    <label>Your reference ID / order ID</label>
+                                    <input type="text" placeholder="Enter your reference ID / order ID" id="order-id">
+                                </div>
+                                <div class="form-group">
+                                    <label>No. of boxes</label>
+                                    <input type="number" placeholder="Enter no. of boxes" min="1" id="box-count">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <header class="card-header" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                <span class="icon" style="font-size: 20px;"><i class="fas fa-money-bill-wave"></i></span>
+                                <h3 style="margin: 0; font-size: 18px;">Invoice Details</h3>
+                            </header>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="font-weight: 500; color: #555; display: block; margin-bottom: 8px;">Payment Mode</label>
+                                <div class="radio-group" style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px;">
+                                    <!-- Prepaid -->
+                                    <div class="radio-option" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="radio" name="payment-mode" id="prepaid" checked>
+                                        <label for="prepaid" style="margin: 0;">Prepaid</label>
+                                    </div>
+
+                                    <!-- COD + Collectable amount -->
+                                    <div class="radio-option" style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="radio" name="payment-mode" id="cod">
+                                        <label for="cod" style="margin: 0;">Collect on delivery</label>
+
+                                        <div id="cod-amount-container" style="display: none; display: flex; flex-direction: column; gap: 4px;">
+                                            <label style="font-size: 12px; color: #666;">Enter collectable amount (₹)</label>
+                                            <input type="number" placeholder="₹ Amount" min="0" step="0.01" id="cod-amount" style="padding: 12px 12px; border-radius: 6px; border: 1px solid #ccc; width: 180px; font-size: 14px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 20px 0;">
+
+                            <div class="invoice-row" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label style="font-weight: 500; color: #555; display: block; margin-bottom: 6px;">E-Way Bill Number</label>
+                                    <input type="text" placeholder="Enter E-Way Bill number" maxlength="12" id="eway-bill" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label style="font-weight: 500; color: #555; display: block; margin-bottom: 6px;">Invoice Number</label>
+                                    <input type="text" placeholder="Enter invoice number" maxlength="30" id="invoice-number" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+                                </div>
+                                <div class="form-group" style="flex: 1; min-width: 200px;">
+                                    <label style="font-weight: 500; color: #555; display: block; margin-bottom: 6px;">Amount (₹)</label>
+                                    <input type="number" placeholder="Enter amount" min="0" step="0.01" id="invoice-amount" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+                                </div>
+                            </div>
+
+                            <div class="checkbox-group" style="margin: 20px 0;">
+                                <input type="checkbox" id="eway-later">
+                                <label for="eway-later" style="margin-left: 6px; color: #444;">I will add E-Way Bill later / E-Way Bill not required for this shipment</label>
+                            </div>
+
+                            <hr style="margin: 20px 0;">
+
+                            <div class="summary" style="font-size: 15px; color: #222;">
+                                <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <div>Total Amount</div>
+                                    <div id="total-amount">₹0.00</div>
+                                </div>
+
+                                <!-- Show/hide this based on mode -->
+                                <div class="summary-row" id="transporter-id-row" style="display: flex; justify-content: space-between;">
+                                    <div>Delhivery Transporter ID</div>
+                                    <div>06AAPCS9575E1ZR</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card insurance-card" id="insuranceCard" style="transition: 0.3s ease; border: none; padding: 20px; border-radius: 12px;">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="bi bi-cash-stack"></i></span>
+                                    <div>
+                                        <h3 id="insuranceHeading">Insure your shipment</h3>
+                                    </div>
+                                </div>
+                            </header>
+
+                            <p>Are you sure you want to ship the item at your own risk?</p>
+
+                            <div class="radio-group" style="display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0;">
+                                <div class="radio-option">
+                                    <input type="radio" name="insurance" id="owners-risk" checked>
+                                    <label for="owners-risk">Yes, Ship with Owners Risk</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="insurance" id="carriers-risk">
+                                    <label for="carriers-risk">Get Delhivery's Insurance <span style="color: #888;">(Carrier's Risk)</span></label>
+                                </div>
+                            </div>
+
+                            <p class="note" style="font-size: 13px; color: #777;">Getting insurance may include additional costs, please read the pricing file for insurance pricing details</p>
+                        </div>
+                    </section>
+
+                    <section class="right-section">
+                        <div class="card">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="fas fa-location-dot"></i></span>
+                                    <div>
+                                        <h3>Delivery Details</h3>
+                                    </div>
+                                </div>
+                            </header>
+                          
+
+                            <div class="address-selector">
+                                <div class="address-line">
+                                    <div class="connector-line"></div>
+                                    <div class="iconset"><i class="bi bi-geo-alt-fill" style="color: #007bff;"></i>
+                                    </div>
+                                    <!-- Include Bootstrap -->
+
+                                    <!-- Pickup Location Dropdown -->
+                                    <div class="address-input position-relative my-3" style="max-width: 450px;">
+                                        <div id="pickupDropdownTrigger" class="form-select" style="cursor: pointer;">
+                                            Select Pickup Location
+                                        </div>
+
+                                        <!-- Custom Dropdown -->
+                                        <div id="pickupDropdown" class="card shadow-sm" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 999; max-height: 330px; border-radius: 8px;">
+                                            <div style="padding: 10px;">
+                                                <input type="text" class="form-control form-control-sm mb-2" placeholder="Search pickup location..." id="pickupSearch">
+
+                                                <div style="max-height: 180px; overflow-y: auto;" id="pickupList">
+                                                    <!-- Address 1 -->
+                                                    <div class="pickup-item selected" data-title="MARSHMALLOW JAMMU & KASHMIR" data-address="162/4, SHREE TIRUPATI BALAJI LIFESTYLE, SANJAY NAGAR, Jammu, Jammu & Kashmir, IN, 180004" data-phone="+91XXXXXX9120">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div>
+                                                                <strong>MARSHMALLOW JAMMU & KASHMIR</strong><br>
+                                                                <small class="text-muted">162/4, SHREE TIRUPATI BALAJI LIFESTYLE, SANJAY NAGAR, Jammu, Jammu & Kashmir, IN, 180004</small><br>
+                                                                <small class="text-muted">+91XXXXXX9120</small>
+                                                            </div>
+                                                            <div class="check-icon" style="color: green;">✔️</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Address 2 -->
+                                                    <div class="pickup-item mt-3" data-title="Mumbai Warehouse" data-address="A/102 Business Park, Andheri East, Mumbai, MH, 400059" data-phone="+91XXXXXX7810">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div>
+                                                                <strong>Mumbai Warehouse</strong><br>
+                                                                <small class="text-muted">A/102 Business Park, Andheri East, Mumbai, MH, 400059</small><br>
+                                                                <small class="text-muted">+91XXXXXX7810</small>
+                                                            </div>
+                                                            <div class="check-icon" style="display:none; color: green;">✔️</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Add More -->
+                                                    <div class="pickup-item mt-3 text-primary" id="addMoreBtn" style="cursor: pointer;">
+                                                        + Add More
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Left aligned add link -->
+                                            <div class="border-top px-3 py-2">
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#addPickupModal" style="text-decoration: none; color: #007bff;">
+                                                    + Add Pickup Location
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                 
+                                </div>
+
+                                <!-- DROP LOCATION SECTION -->
+                                <div class="address-line position-relative my-3" style="max-width: 450px;">
+                                    <div class="connector-square"><i class="bi bi-house-door"style="Color:purple;"></i></div>
+
+                                    <!-- Trigger -->
+                                    <div id="dropDropdownTrigger" class="form-select" style="cursor: pointer;width: 327px;margin-left: 33px;">
+                                        Select Drop Location
+                                    </div>
+
+                                    <!-- Dropdown -->
+                                    <div id="dropDropdown" class="card shadow-sm" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 999; max-height: 330px; border-radius: 8px;">
+                                        <div style="padding: 10px;">
+                                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search drop location..." id="dropSearch">
+
+                                            <div style="max-height: 180px; overflow-y: auto;" id="dropList">
+                                                <!-- Option 1 -->
+                                                <div class="drop-item selected" data-title="Natures Basket Limited" data-address="Westend Mall, Pune, Maharashtra, IN, 411007" data-company="Natures basket limited" data-phone="+91XXXXXX2777">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <strong>Natures Basket Limited</strong><br>
+                                                            <small class="text-muted">Westend Mall, Pune, Maharashtra, IN, 411007</small><br>
+                                                            <small class="text-muted">Natures basket limited</small><br>
+                                                            <small class="text-muted">+91XXXXXX2777</small>
+                                                        </div>
+                                                        <div class="check-icon" style="color: green;">✔️</div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Option 2 -->
+                                                <div class="drop-item mt-3" data-title="Hyderabad Hub" data-address="Road No. 3, Banjara Hills, Hyderabad, Telangana, 500034" data-company="Hyderabad Express Pvt Ltd" data-phone="+91XXXXXX1122">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <strong>Hyderabad Hub</strong><br>
+                                                            <small class="text-muted">Road No. 3, Banjara Hills, Hyderabad, Telangana, 500034</small><br>
+                                                            <small class="text-muted">Hyderabad Express Pvt Ltd</small><br>
+                                                            <small class="text-muted">+91XXXXXX1122</small>
+                                                        </div>
+                                                        <div class="check-icon" style="display:none; color: green;">✔️</div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Add More -->
+                                                <div class="drop-item mt-3 text-primary" id="dropAddMoreBtn" style="cursor: pointer;">
+                                                    + Add More
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border-top px-3 py-2">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#addDropModal" style="text-decoration: none; color: #007bff;">
+                                                + Add Drop Location
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="fas fa-boxes-stacked"></i></span>
+                                    <div>
+                                        <h3>Weights & Dimensions</h3>
+                                    </div>
+                                </div>
+                            </header>
+                            <button class="add-box-btn" id="add-box-btn">
+                                <i class="fas fa-circle-plus"></i> Add Box Size
+                            </button>
+                            <div class="remaining-boxes" id="remaining-boxes">0 boxes left</div>
+                            <hr>
+                            <div class="weight-details">
+                                <div class="weight-row">
+                                    <div>Total shipment weight</div>
+                                    <div class="weight-input">
+                                        <input type="number" min="0" step="0.1" id="total-weight">
+                                        <span>Kgs</span>
+                                    </div>
+                                </div>
+                                <div class="weight-row">
+                                    <div>Total no.of boxes</div>
+                                    <div id="total-boxes">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <header class="card-header">
+                                <div class="header-left">
+                                    <span class="icon"><i class="fas fa-file-invoice"></i></span>
+                                    <div>
+                                        <h3>Upload Documents</h3>
+                                        <div class="note">Max size 20MB</div>
+                                    </div>
+                                </div>
+                            </header>
+                            <div class="form-group">
+                                <label>Invoice Document (Optional)</label>
+                                <div class="file-upload">
+                                    <div class="upload-area" id="invoice-upload">
+                                        <i class="fas fa-file-image"></i>
+                                        <div>
+                                            <div>Upload Document (PNG, JPG, JPEG, PDF, BMP)</div>
+                                            <div>or drag and drop here</div>
+                                        </div>
+                                        <input type="file" accept=".png,.jpg,.jpeg,.pdf,.bmp" id="invoice-file">
+                                    </div>
+                                </div>
+                                <div id="invoice-file-name" class="note" style="margin-top: 8px; display: none;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Document (Optional)</label>
+                                <select id="document-type">
+                                    <option value="">Select Document Type</option>
+                                    <option value="ewaybill">Ewaybill Form</option>
+                                    <option value="declaration">Goods Declaration</option>
+                                    <option value="challan">Delivery Challan</option>
+                                    <option value="po">PO Copy</option>
+                                    <option value="kyc">KYC</option>
+                                    <option value="regulatory">Regulatory Form</option>
+                                    <option value="photo-id">Photo ID</option>
+                                    <option value="asn">ASN</option>
+                                    <option value="einvoice">Einvoice QR</option>
+                                </select>
+                                <div class="file-upload">
+                                    <div class="upload-area" id="secondary-upload">
+                                        <i class="fas fa-file-image"></i>
+                                        <div>
+                                            <div>Upload Document (PNG, JPG, JPEG, PDF, BMP)</div>
+                                            <div>or drag and drop here</div>
+                                        </div>
+                                        <input type="file" accept=".png,.jpg,.jpeg,.pdf,.bmp" id="secondary-file">
+                                    </div>
+                                </div>
+                                <div id="secondary-file-name" class="note" style="margin-top: 8px; display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="shipping-mode">
+                            <div class="shipping-option selected" id="shipping-option">
+                                <div class="icon-container">
+                                    <i class="fas fa-truck-moving"></i>
+                                </div>
+                                <div class="text-content">
+                                    <p>Shipping Mode</p>
+                                    <div>SURFACE</div>
+                                </div>
+                                <div class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+ 
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- FOOTER -->
+        <%- include('../../partials/footer') %>
+    </div>
+  <!-- Modal for Add Pickup -->
+  <div class="modal fade" id="addPickupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">Add Pickup Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Modal form content here...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success btn-sm">Save Pickup Address</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- MODAL: ADD DROP LOCATION -->
+    <div class="modal fade" id="addDropModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-4">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">Add Drop Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="dropLocationForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="color: #8e8e8e;">Company Name</label>
+                            <input type="text" class="form-control shadow-sm" placeholder="Enter name" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">Drop Location Contact</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+91</span>
+                                    <input type="text" class="form-control shadow-sm" placeholder="Enter mobile number" maxlength="10" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">Contact Person Name</label>
+                                <input type="text" class="form-control shadow-sm" placeholder="Enter contact person name">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="color: #8e8e8e;">Email (Optional)</label>
+                            <input type="email" class="form-control shadow-sm" placeholder="Enter email ID">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="color: #8e8e8e;">Address Line</label>
+                            <input type="text" class="form-control shadow-sm" placeholder="Enter address" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">Country</label>
+                                <select class="form-select shadow-sm" disabled>
+                                    <option selected>India</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">Pincode</label>
+                                <input type="text" class="form-control shadow-sm" placeholder="Enter pincode" maxlength="6" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">State</label>
+                                <input type="text" class="form-control shadow-sm" placeholder="Enter state" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold" style="color: #8e8e8e;">City</label>
+                                <input type="text" class="form-control shadow-sm" placeholder="Enter city" required>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="saveDropLocation">
+                            <label class="form-check-label" for="saveDropLocation" style="color: #8e8e8e;">
+                                Save this location for future orders
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success btn-sm">Save Drop Address</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+
+    <script>
+        // LR Details Form Script
+        document.addEventListener('DOMContentLoaded', function () {
+            const manualRadio = document.getElementById('manual');
+            const automaticRadio = document.getElementById('automatic');
+            const lrInputWrapper = document.getElementById('lrInputWrapper');
+            const lrInput = document.getElementById('lrNumberInput');
+            const lrError = document.getElementById('lrError');
+            const infoText = document.getElementById('infoText');
+            const form = document.getElementById('lrForm');
+
+            function updateView() {
+                if (automaticRadio.checked) {
+                    lrInputWrapper.style.display = 'none';
+                    infoText.style.display = 'block';
+                    lrInput.value = '';
+                    lrError.style.display = 'none';
+                } else {
+                    lrInputWrapper.style.display = 'block';
+                    infoText.style.display = 'none';
+                }
+            }
+
+            manualRadio.addEventListener('change', updateView);
+            automaticRadio.addEventListener('change', updateView);
+
+            updateView(); // Initial setup
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+                lrError.style.display = 'none';
+
+                if (manualRadio.checked) {
+                    if (lrInput.value.trim() === '') {
+                        lrError.style.display = 'block';
+                        lrInput.focus();
+                    } else {
+                        alert('Form submitted with LR: ' + lrInput.value);
+                        form.reset();
+                        updateView();
+                    }
+                } else {
+                    alert('Form submitted in Automatic mode');
+                    form.reset();
+                    updateView();
+                }
+            });
+        });
+
+        // Payment Mode Script
+        document.addEventListener('DOMContentLoaded', function () {
+            const prepaidRadio = document.getElementById('prepaid');
+            const codRadio = document.getElementById('cod');
+            const codAmountContainer = document.getElementById('cod-amount-container');
+            const transporterRow = document.getElementById('transporter-id-row');
+
+            function updateView() {
+                if (codRadio.checked) {
+                    codAmountContainer.style.display = 'flex';
+                    transporterRow.style.display = 'none';
+                } else {
+                    codAmountContainer.style.display = 'none';
+                    transporterRow.style.display = 'flex';
+                }
+            }
+
+            prepaidRadio.addEventListener('change', updateView);
+            codRadio.addEventListener('change', updateView);
+
+            // Initialize
+            updateView();
+        });
+
+        // Insurance Card Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const card = document.getElementById('insuranceCard');
+            const heading = document.getElementById('insuranceHeading');
+            const ownersRisk = document.getElementById('owners-risk');
+            const carriersRisk = document.getElementById('carriers-risk');
+
+            ownersRisk.addEventListener('change', () => {
+                if (ownersRisk.checked) {
+                    heading.textContent = 'Insure your shipment';
+                    card.style.backgroundColor = '#fff';
+                    card.style.border = 'none';
+                }
+            });
+
+            carriersRisk.addEventListener('change', () => {
+                if (carriersRisk.checked) {
+                    heading.textContent = 'Your shipment is insured!';
+                    card.style.backgroundColor = '#e6f4ff';
+                    card.style.border = 'none';
+                }
+            });
+        });
+
+        // Pickup Location Dropdown Script
+        document.addEventListener('DOMContentLoaded', function () {
+            const trigger = document.getElementById('pickupDropdownTrigger');
+            const dropdown = document.getElementById('pickupDropdown');
+            const searchInput = document.getElementById('pickupSearch');
+            const pickupItems = document.querySelectorAll('.pickup-item');
+
+            // Toggle dropdown
+            trigger.addEventListener('click', () => {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            });
+
+            // Close dropdown outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.address-input')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Filter search
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                pickupItems.forEach(item => {
+                    if (!item.id.includes('addMoreBtn')) {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(query) ? 'block' : 'none';
+                    }
+                });
+            });
+
+            // Select address
+            pickupItems.forEach(item => {
+                if (!item.id.includes('addMoreBtn')) {
+                    item.addEventListener('click', () => {
+                        // Remove previous selection
+                        pickupItems.forEach(i => {
+                            i.classList.remove('selected');
+                            i.querySelector('.check-icon')?.style.setProperty('display', 'none');
+                        });
+
+                        // Current selection
+                        item.classList.add('selected');
+                        item.querySelector('.check-icon')?.style.setProperty('display', 'block');
+
+                        // Get data
+                        const title = item.dataset.title || '';
+                        const address = item.dataset.address || '';
+                        const phone = item.dataset.phone || '';
+                        trigger.innerHTML = `
+                            <div>
+                                <strong>${title}</strong><br>
+                                <small class="text-muted">${address}</small><br>
+                                <small class="text-muted">${phone}</small>
+                            </div>
+                        `;
+                        trigger.style.border = 'none';
+                        dropdown.style.display = 'none';
+                    });
+                }
+            });
+
+            // Add More Click
+            document.getElementById('addMoreBtn').addEventListener('click', () => {
+                alert("You clicked + Add More");
+            });
+        });
+
+        // Drop Location Dropdown Script
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropTrigger = document.getElementById('dropDropdownTrigger');
+            const dropDropdown = document.getElementById('dropDropdown');
+            const dropSearch = document.getElementById('dropSearch');
+            const dropItems = document.querySelectorAll('.drop-item');
+
+            dropTrigger.addEventListener('click', () => {
+                dropDropdown.style.display = dropDropdown.style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.address-line')) {
+                    dropDropdown.style.display = 'none';
+                }
+            });
+
+            dropSearch.addEventListener('input', () => {
+                const val = dropSearch.value.toLowerCase();
+                dropItems.forEach(item => {
+                    if (!item.id.includes('AddMore')) {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(val) ? 'block' : 'none';
+                    }
+                });
+            });
+
+            dropItems.forEach(item => {
+                if (!item.id.includes('AddMore')) {
+                    item.addEventListener('click', () => {
+                        dropItems.forEach(i => {
+                            i.classList.remove('selected');
+                            i.querySelector('.check-icon')?.style.setProperty('display', 'none');
+                        });
+
+                        item.classList.add('selected');
+                        item.querySelector('.check-icon')?.style.setProperty('display', 'block');
+
+                        // Show selected
+                        const title = item.dataset.title;
+                        const address = item.dataset.address;
+                        const company = item.dataset.company;
+                        const phone = item.dataset.phone;
+
+                        dropTrigger.innerHTML = `
+                            <div>
+                                <strong>${title}</strong><br>
+                                <small class="text-muted">${address}</small><br>
+                                <small class="text-muted">${company}</small><br>
+                                <small class="text-muted">${phone}</small>
+                            </div>
+                        `;
+                        dropTrigger.style.border = 'none';
+                        dropDropdown.style.display = 'none';
+                    });
+                }
+            });
+
+            document.getElementById('dropAddMoreBtn').addEventListener('click', () => {
+                alert("You clicked Add More for Drop");
+            });
+        });
+
+        // Basic functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            // Update total amount when invoice amount changes
+            const invoiceAmount = document.getElementById('invoice-amount');
+            const totalAmount = document.getElementById('total-amount');
+
+            invoiceAmount.addEventListener('input', function () {
+                const amount = parseFloat(this.value) || 0;
+                totalAmount.textContent = '₹' + amount.toFixed(2);
+            });
+
+            // Update box count
+            const boxCount = document.getElementById('box-count');
+            const remainingBoxes = document.getElementById('remaining-boxes');
+            const totalBoxes = document.getElementById('total-boxes');
+
+            boxCount.addEventListener('input', function () {
+                const count = parseInt(this.value) || 0;
+                remainingBoxes.textContent = count + ' boxes left';
+                totalBoxes.textContent = count;
+            });
+
+            // File upload display
+            const invoiceFile = document.getElementById('invoice-file');
+            const invoiceFileName = document.getElementById('invoice-file-name');
+
+            invoiceFile.addEventListener('change', function () {
+                if (this.files.length > 0) {
+                    invoiceFileName.textContent = 'Selected: ' + this.files[0].name;
+                    invoiceFileName.style.display = 'block';
+                } else {
+                    invoiceFileName.style.display = 'none';
+                }
+            });
+
+            const secondaryFile = document.getElementById('secondary-file');
+            const secondaryFileName = document.getElementById('secondary-file-name');
+
+            secondaryFile.addEventListener('change', function () {
+                if (this.files.length > 0) {
+                    secondaryFileName.textContent = 'Selected: ' + this.files[0].name;
+                    secondaryFileName.style.display = 'block';
+                } else {
+                    secondaryFileName.style.display = 'none';
+                }
+            });
+
+            // Add box button
+            const addBoxBtn = document.getElementById('add-box-btn');
+            addBoxBtn.addEventListener('click', function () {
+                alert('Add box functionality would go here');
+            });
+
+            // Shipping mode selection
+            const shippingOption = document.getElementById('shipping-option');
+            shippingOption.addEventListener('click', function () {
+                this.classList.add('selected');
+            });
+
+            // E-Way Bill checkbox
+            const ewayLater = document.getElementById('eway-later');
+            const ewayBill = document.getElementById('eway-bill');
+
+            ewayLater.addEventListener('change', function () {
+                ewayBill.disabled = this.checked;
+                if (this.checked) {
+                    ewayBill.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

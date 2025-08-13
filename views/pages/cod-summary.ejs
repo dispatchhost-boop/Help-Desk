@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        table.dataTable tbody tr {
+          background-color: #ffffff00 !important;
+      }
+      table.dataTable thead th, table.dataTable thead td {
+          padding: 10px 18px;
+          border-bottom: 1px solid #11111127;
+      }
+      table.dataTable.no-footer {
+          border-bottom: 1px solid #11111127;
+      }
+      </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Cod Summary</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">Billing Section</li>
+                  <li class="breadcrumb-item active">Cod Summary</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+
+          
+          <div class="mb-5">
+          
+          
+            <div class="row">
+              <div class="col-md-6 d-flex align-items-center">
+                <div id="datatable_length" class="dataTables_length"></div>
+              </div>
+              <div class="col-md-6">
+                <form class="d-flex justify-content-end">
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="search-input" 
+                      placeholder="Search" aria-label="Search">
+                    <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          
+            <!-- Page Body -->
+            <div class="container-fluid">
+              <div class="mb-5">
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table id="datatable_2" class="table">
+                      <thead class="text-nowrap">
+                        <tr>
+                          <th>Client Name</th>
+                          <th>PO Number</th>
+                          <th>Order Date</th>
+                          <th>Qty</th>
+                          <th>LR/AWB</th>
+                          <th>LR/AWB Date</th>
+                          <th>Status</th>
+                          <th>Shipment Carrier</th>
+                          <th>Shipment Mode</th>
+                          <th>COD Amount</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% 
+                        // Helper to format date and time in Indian format
+                        function formatIndianDateTime(dt) {
+                          if (!dt) return '';
+                          let dateObj;
+                          if (typeof dt === 'string' && dt.length > 0) {
+                            // Try to parse as ISO or fallback to Date constructor
+                            dateObj = new Date(dt);
+                          } else if (dt instanceof Date) {
+                            dateObj = dt;
+                          } else {
+                            return dt;
+                          }
+                          if (isNaN(dateObj.getTime())) return dt;
+
+                          // Date in DD/MM/YYYY
+                          const day = String(dateObj.getDate()).padStart(2, '0');
+                          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                          const year = dateObj.getFullYear();
+                          const dateStr = `${day}/${month}/${year}`;
+
+                          // Time in hh:mm AM/PM
+                          let hours = dateObj.getHours();
+                          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                          const ampm = hours >= 12 ? 'PM' : 'AM';
+                          hours = hours % 12;
+                          hours = hours ? hours : 12; // the hour '0' should be '12'
+                          const timeStr = `${hours}:${minutes} ${ampm}`;
+
+                          // Return as stacked (date above, time below)
+                          return `<div style="line-height:1.2;"><span>${dateStr}</span><br><small>${timeStr}</small></div>`;
+                        }
+                        %>
+                        <% if (result && result.length > 0) { %>
+                          <% result.forEach(row => { %>
+                            <tr>
+                              <td><%= row.client_name %></td>
+                              <td><%= row.po_id %></td>
+                              <td>
+                                <%- formatIndianDateTime(row.delivery_date) %>
+                              </td>
+                              <td><%= row.qnty %></td>
+                              <td><%= row.lr_no %></td>
+                              <td>
+                                <%- formatIndianDateTime(row.delivery_date) %>
+                              </td>
+                              <td>
+                                <% if (row.status == 0) { %>
+                                  <span class="badge bg-danger">Cancel</span>
+                                <% } else if (row.status == 4) { %>
+                                  <span class="badge bg-success">Delivered</span>
+                                <% } else if (row.status == 5) { %>
+                                  <span class="badge bg-warning">RTO</span>
+                                <% } %>
+                              </td>
+                              <td><%= row.forwarder %></td>
+                              <td><%= row.dispatch_mode %></td>
+                              <td>₹<%= row.cod_amount %></td>
+                              <td>
+                                <a href="/view-order/<%= row.po_id %>" class="btn  btn-sm">View</a>
+                              </td>
+                            </tr>
+                          <% }); %>
+                        <% } else { %>
+                          <tr>
+                            <td colspan="11" class="text-center">No Data Found</td>
+                          </tr>
+                        <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- jQuery -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <!-- DataTables -->
+          <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+          <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+          
+          <script>
+          $(document).ready(function() {
+            // Check if DataTable is already initialized
+            if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+              var table = $('#datatable_2').DataTable({
+                "ordering": false,
+                "searching": true, // Enable searching
+                "lengthChange": true, 
+                "info": true,
+                "paging": true,
+                "pageLength": 10,
+                "pagingType": "full_numbers",
+                // Hide the default search box since we're using custom search
+                "dom": '<"top"l>rt<"bottom"ip><"clear">',
+                "language": {
+                  "lengthMenu": "Show _MENU_ entries",
+                  "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                  "infoEmpty": "Showing 0 to 0 of 0 entries", 
+                  "emptyTable": "No data available in table",
+                  "zeroRecords": "No matching records found",
+                  "paginate": {
+                    "first": "<i class='fas fa-angle-double-left'></i>",
+                    "previous": "<i class='fas fa-angle-left'></i>",
+                    "next": "<i class='fas fa-angle-right'></i>",
+                    "last": "<i class='fas fa-angle-double-right'></i>"
+                  }
+                },
+                "drawCallback": function(settings) {
+                  $('.paginate_button').addClass('btn btn-sm').css({
+                    'background-color': '#e3f2fd',
+                    'border-color': '#90caf9',
+                    'color': '#1976d2',
+                    'margin': '0 2px', 
+                    'border-radius': '4px'
+                  });
+          
+                  $('.paginate_button.current').css({
+                    'background-color': '#1976d2',
+                    'color': '#fff',
+                    'border-color': '#1976d2'
+                  });
+          
+                  $('.paginate_button.disabled').css({
+                    'opacity': '0.5',
+                    'cursor': 'not-allowed'
+                  });
+          
+                  // Center align pagination
+                  $('.dataTables_paginate').css({
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'margin-top': '15px'
+                  });
+          
+                  // Style the length menu
+                  $('.dataTables_length').css({
+                    'margin-bottom': '15px'
+                  });
+                }
+              });
+          
+              // Handle search input keyup event
+              $('#search-input').on('keyup', function(e) {
+                // Perform search on every keypress
+                table.search($(this).val()).draw();
+              });
+          
+              // Handle search button click
+              $('#button-addon2').on('click', function(e) {
+                e.preventDefault(); // Prevent form submission
+                // Trigger search using input value
+                table.search($('#search-input').val()).draw();
+              });
+          
+              // Handle form submission
+              $('form.d-flex').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+                // Trigger search using input value
+                table.search($('#search-input').val()).draw();
+              });
+          
+              // Error handling
+              table.on('error.dt', function(e, settings, techNote, message) {
+                console.error('DataTables error:', message);
+              });
+            }
+          });
+          </script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

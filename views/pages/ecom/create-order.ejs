@@ -1,0 +1,3037 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+      .slide-in-right {
+        animation: slideInRight 0.7s forwards;
+      }
+
+      .slide-out-left,
+      .slide-out-right {
+        animation: slideOut 0.7s forwards;
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(50px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slideOut {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        to {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+      }
+
+      select:disabled {
+        background-color: #f1f1f1;
+        color: #888;
+        cursor: not-allowed;
+      }
+
+      .pickup-options-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        /* Adjust this value to increase/decrease spacing */
+        padding: 20px;
+      }
+
+      .pickup-option {
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        text-align: center;
+        width: fit-content;
+        min-width: 250px;
+        /* Adjust as needed */
+      }
+
+      /* ====== MAIN STYLES ====== */
+      .header {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #e0e3eb;
+        margin-bottom: 20px;
+      }
+
+      .back-button {
+        background: white;
+        border: 1px solid #e0e3eb;
+        border-radius: 4px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .back-button:hover {
+        background: #f9f9fb;
+      }
+
+      .page-title {
+        font-size: 18px;
+        font-weight: 500;
+        margin-right: 10px;
+      }
+
+      .help-link {
+        display: flex;
+        align-items: center;
+        color: #5b80f7;
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .content-wrapper {
+        display: flex;
+        gap: 20px;
+      }
+
+      .left-section {
+        width: 67%;
+      }
+
+      .right-section {
+        width: 33%;
+      }
+
+      .card {
+        background: white;
+        border: 1px solid #e4e4e4;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .card-icon {
+        background: #f9f9fb;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        color: #3d445c;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 6px 10px;
+        /* Reduced from 8px 12px */
+        border: 1px solid #e0e3eb;
+        border-radius: 6px;
+        font-size: 13px;
+        /* Reduced from 14px */
+        height: 34px;
+        /* Added fixed height */
+      }
+
+      .input-info {
+        font-size: 13px;
+        /* Reduced from 14px */
+        color: #a3aac2;
+        margin-top: 4px;
+      }
+
+      .product-search {
+        position: relative;
+      }
+
+      .product-search input {
+        padding-left: 35px;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a3aac2;
+        font-size: 14px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .empty-state svg {
+        margin-bottom: 10px;
+      }
+
+      .empty-state p {
+        color: #3d445c;
+        font-size: 14px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        padding-bottom: 12px;
+      }
+
+      .checkbox-group input {
+        margin-right: 8px;
+      }
+
+      .payment-mode {
+        display: flex;
+        gap: 20px;
+      }
+
+      .payment-mode .form-group {
+        width: 50%;
+      }
+
+      .currency-input {
+        position: relative;
+      }
+
+      .currency-input span {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .currency-input input {
+        padding-left: 30px;
+      }
+
+      .address-selection {
+        position: relative;
+        padding-left: 20px;
+      }
+
+      .address-line {
+        position: absolute;
+        left: 6px;
+        top: 12px;
+        bottom: 10px;
+        border-left: 2px dashed #525b7a;
+      }
+
+      .address-marker {
+        position: absolute;
+        left: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+
+        background: white;
+      }
+
+      .address-marker.square {
+        border-radius: 0;
+
+      }
+
+      .address-content {
+        padding-left: 18px;
+        padding-bottom: 32px;
+      }
+
+      .address-content:last-child {
+        padding-bottom: 0;
+      }
+
+      .address-select {
+        width: 100%;
+        border: none;
+        font-weight: 500;
+        padding: 0;
+      }
+
+      .add-button {
+        display: flex;
+        align-items: center;
+        color: #5b80f7;
+        cursor: pointer;
+      }
+
+      .add-button i {
+        margin-right: 8px;
+      }
+
+      .box-tabs {
+        border-bottom: 1px solid #e0e3eb;
+      }
+
+      .tab {
+        padding: 8px 16px;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+      }
+
+      .tab.active {
+        border-bottom-color: #5b80f7;
+        color: #5b80f7;
+      }
+
+      .box-details {
+        padding: 16px;
+      }
+
+      .box-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .box-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      
+
+      .box-dimensions input {
+        width: 60px;
+        height: 34px;
+        /* Added fixed height */
+        padding: 6px;
+        
+      }
+      .box-dimensions {
+    display: flex
+;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+      .box-weight-unit {
+        width: 100px;
+        height: 34px;
+        /* Added fixed height */
+      }
+
+      .shipping-modes {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .shipping-mode {
+        border: 2px solid #e0e3eb;
+        border-radius: 8px;
+        padding: 8px;
+        text-align: center;
+        flex: 1;
+        cursor: pointer;
+        background: #e0e3eb;
+      }
+
+      .shipping-mode.active {
+        background: #5b80f7;
+        border-color: #5b80f7;
+        color: white;
+      }
+
+      .shipping-mode i {
+        margin-right: 4px;
+      }
+
+      .shipping-mode .mode-text {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .shipping-cost {
+        margin-top: 16px;
+        border-top: 1px solid #e0e3eb;
+        padding: 12px 0;
+      }
+
+      .cost-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px;
+      }
+
+      .footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 20px 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        height: 36px;
+        /* Added fixed height */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-outline {
+        background: white;
+        border: 1px solid #e0e3eb;
+      }
+
+      .btn-outline:hover {
+        background: #f9f9fb;
+      }
+
+      .btn-primary {
+        background: #3d445c;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1f222e;
+      }
+
+      .btn-blue {
+        background: #5b80f7;
+        color: white;
+      }
+
+      .btn-blue:hover {
+        background: #3f61cd;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* ====== PRODUCT SEARCH STYLES ====== */
+      .product-search .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+      }
+
+      .dropdown-panel {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .dropdown-scrollable {
+        max-height: 240px;
+        overflow-y: auto;
+      }
+
+      .product-item {
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #f1f1f1;
+        cursor: pointer;
+      }
+
+      .selected-product {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #fafafa;
+      }
+
+      .selected-product input {
+        width: 60px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 5px;
+        height: 34px;
+        /* Added fixed height */
+      }
+
+      /* ====== BOX DETAILS STYLES ====== */
+      .box-tabs-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        gap: 10px;
+      }
+
+      .box-tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        flex-grow: 1;
+        padding-bottom: 5px;
+        scrollbar-width: thin;
+      }
+
+      .box-tabs::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .box-tabs::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 2px;
+      }
+
+      .tab {
+        padding: 8px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        min-width: 40px;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        background: #f9f9f9;
+      }
+
+      .tab:hover {
+        border-color: #ccc;
+        background: #f0f0f0;
+      }
+
+      .tab.active {
+        background-color: #e9f5ff;
+        border-color: #b8d9f8;
+        color: #0066cc;
+      }
+
+      .tab i {
+        font-size: 14px;
+      }
+
+      #addBoxBtn {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #555;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 36px;
+        /* Added fixed height */
+      }
+
+      #addBoxBtn:hover {
+        border-color: #999;
+        background: #f5f5f5;
+      }
+
+      #addBoxBtn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .box-container {
+        margin-top: 15px;
+        position: relative;
+        overflow: hidden;
+        min-height: 400px;
+      }
+
+      .box-details {
+        display: none;
+        width: 100%;
+        animation-duration: 0.7s;
+        animation-fill-mode: forwards;
+      }
+
+      .box-details.active {
+        display: block;
+      }
+
+      .box-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .box-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .delete-box {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.2s ease;
+      }
+
+      .delete-box:hover {
+        color: #e74c3c;
+      }
+
+      .info-note {
+        display: flex;
+        gap: 10px;
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+        align-items: flex-start;
+      }
+
+      .info-note i {
+        color: #6c757d;
+        margin-top: 2px;
+      }
+
+      .info-note p {
+        margin: 0;
+        font-size: 13px;
+        color: #6c757d;
+        line-height: 1.5;
+      }
+
+      .shipping-info {
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 8px;
+      }
+
+      /* Animation Classes */
+      .slide-in-right {
+        animation: slideInRight 0.7s ease forwards;
+      }
+
+      .slide-out-left {
+        animation: slideOutLeft 0.7s ease forwards;
+      }
+
+      .slide-out-right {
+        animation: slideOutRight 0.7s ease forwards;
+      }
+
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOutLeft {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+
+        to {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+      }
+
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+
+      /* ====== MODAL STYLES ====== */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background: #fff;
+    
+        padding: 30px;
+        border-radius: 12px;
+        overflow-y: auto;
+        max-height: 90%;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 30px;
+        gap: 10px;
+      }
+
+      /* ====== RESPONSIVE STYLES ====== */
+      @media (max-width: 1200px) {
+        .content-wrapper {
+          gap: 16px;
+        }
+
+        .card {
+          padding: 14px;
+        }
+
+        .card-title {
+          font-size: 16px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+          padding: 5px 8px;
+          font-size: 12px;
+        }
+
+        .btn {
+          padding: 7px 12px;
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .left-section {
+          width: 60%;
+        }
+
+        .right-section {
+          width: 40%;
+        }
+
+        
+
+        .box-unit {
+          width: 80px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .content-wrapper {
+          flex-direction: column;
+        }
+
+        .left-section,
+        .right-section {
+          width: 100%;
+        }
+
+        .payment-mode {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .payment-mode .form-group {
+          width: 100%;
+        }
+
+        .header {
+          padding: 12px 0;
+        }
+
+        .page-title {
+          font-size: 16px;
+        }
+
+        .card-title {
+          font-size: 15px;
+        }
+
+        label {
+          font-size: 13px;
+        }
+
+        .input-info {
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .footer {
+          flex-direction: column;
+          align-items: stretch;
+          padding: 16px 0;
+          gap: 8px;
+        }
+
+        .btn {
+          width: 100%;
+        }
+
+        .box-tabs {
+          gap: 4px;
+        }
+
+        .tab {
+          padding: 6px 12px;
+          font-size: 13px;
+        }
+
+        .box-details {
+          padding: 12px;
+        }
+
+        .modal-content {
+          padding: 20px;
+        }
+      }
+
+      /* Touch device optimizations */
+      @media (hover: none) {
+
+        input,
+        select,
+        textarea,
+        button {
+          min-height: 44px;
+          font-size: 16px !important;
+        }
+
+        .btn {
+          padding: 10px 16px !important;
+        }
+
+        .checkbox-group {
+          min-height: 44px;
+        }
+      }
+    </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+    <!-- HEADER -->
+    <%- include('../../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../../partials/left-sidebar') %>
+        <%- include('../../partials/right-iconbar') %>
+
+          <!-- MAIN CONTENT -->
+          <div id="main-content">
+            <div class="container">
+              <div class="block-header">
+                <div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-12">
+                    <h2>B2C Express</h2>
+                    <ul class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="/"><i class="fa fa-dashboard"></i></a>
+                      </li>
+                      <li class="breadcrumb-item">Express</li>
+                      <li class="breadcrumb-item active">Create Order</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add your page-specific content here -->
+              <div class="row">
+                <div class="content-wrapper">
+                  <!-- LEFT SECTION -->
+                  <div class="left-section">
+                    <!-- Order Card -->
+                    <div class="card"
+                      style="position: relative; border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: #fff;">
+                      <!-- Card Header -->
+                      <div class="card-header"
+                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <div class="card-icon" style="font-size: 20px; color: #333;">
+                          <i class="bi bi-box-seam"></i>
+                        </div>
+                        <h2 class="card-title">Order Details</h2>
+                      </div>
+
+                      
+
+                      <!-- Order ID -->
+                      <div class="form-group" style="margin-bottom: 20px;">
+  <div class="row g-3 align-items-end">
+    <!-- PO.NO Left -->
+    <div class="col-md-4">
+      <label for="wpid" class="form-label">Order ID/No.
+        <span class="required">*</span>
+        <span class="info-icon"
+          onmouseover="this.querySelector('.order-id-tooltip').style.visibility='visible'; this.querySelector('.order-id-tooltip').style.opacity='1'; this.style.background='#fff';"
+          onmouseout="this.querySelector('.order-id-tooltip').style.visibility='hidden'; this.querySelector('.order-id-tooltip').style.opacity='0'; this.style.background='none';"
+          style="display: inline-block; position: relative; cursor: pointer; padding: 2px 6px; border-radius: 50%;">
+          <i class="fas fa-info-circle" style="color: #888;"></i>
+          <span class="order-id-tooltip"
+            style="visibility: hidden; opacity: 0; transition: opacity 0.3s; position: absolute; top: 130%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 999;">
+            It is a unique identification number for an order.
+            <span
+              style="position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 6px solid #333;"></span>
+          </span>
+        </span>
+      </label>
+      <div class="input-group">
+        <input type="text" id="wpid" name="wpid[]" class="input-field wpid-id form-control" required>
+      </div>
+      <div class="mt-2">
+        <button type="button" id="firstPID" class="btn" style="font-size: 11px; border: none; white-space: nowrap;">
+          <i class="ti ti-plus menu-icon"></i>&nbsp;Generate Order ID/No.
+        </button>
+      </div>
+    </div>
+
+    <!-- Order ID Right -->
+    <div class="col-md-4">
+      <label for="refid" style="display: flex; align-items: center; gap: 6px; font-weight: 500; color: #333;">
+        ref/purchase order id
+      </label>
+      <div class="input-group">
+        <input type="text" id="refid" name="refid" class="input-field refid form-control"
+          placeholder="Enter Order ID / Reference Number"
+          style="padding: 10px; border-radius: 6px; border: 1px solid #d0d5dd; font-size: 14px;" required>
+      </div>
+      <div class="mt-2">
+        <button id="autorefid" type="button" class="btn" style="font-size: 11px; border: none; white-space: nowrap;">
+          <i class="ti ti-plus menu-icon"></i>&nbsp;Generate ref id/purchase order
+        </button>
+      </div>
+    </div>
+
+    <!-- Invoice Number -->
+    <div class="col-md-4">
+      <label for="invoiceid" style="display: flex; align-items: center; gap: 6px; font-weight: 500; color: #333;">
+        Invoice Number
+      </label>
+      <div class="input-group">
+        <input type="text" id="invoiceid" name="invoiceid" class="input-field invoiceid form-control"
+          placeholder="Enter Invoice Number"
+          style="padding: 10px; border-radius: 6px; border: 1px solid #d0d5dd; font-size: 14px;" required>
+      </div>
+      <div class="mt-2">
+        <button id="autoInvoiceid" type="button" class="btn" style="font-size: 11px; border: none; white-space: nowrap;">
+          <i class="ti ti-plus menu-icon"></i>&nbsp;Generate Invoice Number
+        </button>
+      </div>
+    </div>
+    
+    <!-- Channel Selection -->
+    <div class="col-md-4">
+      <label style="display: flex; align-items: center; gap: 6px; font-weight: 500; color: #333;">
+        Sales Channel
+      </label>
+      <!-- Channel Input & Dropdown -->
+      <div style="position: relative;">
+        <input type="text" placeholder="Select Channel" id="channelInput" onclick="toggleDropdown()"
+          readonly
+          style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d0d5dd; font-size: 14px; cursor: pointer;">
+
+        <div id="channelDropdown"
+          style="display: none; position: absolute; top: 100%; left: 0; background: #fff; border: 1px solid #d0d5dd; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); padding: 10px; z-index: 1000; width: 100%; margin-top: 5px;">
+
+          <!-- Default channel -->
+          <div id="channelDefault" onclick="selectChannel('Default Channel', this)"
+            style="padding: 8px 0; color: #333; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            Default Channel
+            <span class="check-icon" style="display: none; color: green;"><i
+                class="fas fa-check-circle"></i></span>
+          </div>
+
+          <!-- Load more -->
+          <div id="loadMore" onclick="loadMoreChannels()"
+            style="text-align: center; margin-top: 8px; color: #3B82F6; cursor: pointer; font-size: 14px;">
+            Load More</div>
+
+          <!-- Dynamically loaded channels -->
+          <div id="moreChannels" style="margin-top: 8px;"></div>
+
+          <!-- Add new -->
+          <!-- <a data-bs-toggle="modal" data-bs-target="#addChannelModal"
+            style="display: block; margin-top: 10px; text-decoration: none; color: #3B82F6; font-weight: 500; text-align: left;">+
+            Add New Channel</a> -->
+        </div>
+      </div>
+    </div>
+  </div>
+                       </div>
+
+                    </div>
+
+
+
+
+
+
+                    <!-- Products Card -->
+                    <div class="card">
+                      <div class="card-header"
+                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <div class="card-icon">
+                          <i class="fas fa-box-open"></i>
+                        </div>
+                        <h2 class="card-title">Add products to be shipped</h2>
+                        
+                        <div style="position: relative; margin-left: auto;">
+                          <div onclick="openAddItemModal()"
+                            style="text-align: start; padding: 10px 15px; color: #556ee6; font-size: 14px; border-top: 1px solid #eee; cursor: pointer; background: #fff;">
+                            <i class="fas fa-plus"></i> Add item
+                          </div>
+                          
+                          <div
+                            style="display: none; position: absolute; top: 130%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 6px 12px; border-radius: 5px; font-size: 12px; white-space: nowrap; z-index: 999;">
+                            Select products to ship in this section.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group product-search" style="position: relative;">
+                        <i class="fas fa-search search-icon"
+                          style="position: absolute; left: 10px; top: 18px; color: #888;"></i>
+                        <input type="text" placeholder="Enter at least 3 letters to search by product name / SKU code"
+                          id="productSearchInput" class="form-control" style="padding-left: 30px;">
+                        <p class="input-info" style="font-size: 12px; color: #777; margin-top: 8px;">
+                          Add the products you want to ship. This cannot be modified once the order is created.
+                        </p>
+                        <!-- Add Item Dropdown Trigger -->
+                        <div class="dropdown-panel" id="productDropdown"
+                          style="display:none; border: 1px solid #ddd; border-radius: 6px; position: absolute; width: 100%; background: #fff; z-index: 1000;">
+                          <div class="dropdown-scrollable" id="productDropdownContent"></div>
+                          <div onclick="openAddItemModal()"
+                            style="text-align: start; padding: 10px 15px; color: #556ee6; font-size: 14px; border-top: 1px solid #eee; cursor: pointer; background: #fff;">
+                            <i class="fas fa-plus"></i> Add item
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Empty State -->
+                      <div class="empty-state" style="text-align: center; padding: 30px 0;">
+                        <svg width="100" height="80" viewBox="0 0 100 80" fill="none"
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M32.75 2.5H37.75C38.9219 8.19844 43.9688 12.5 50 12.5C56.0313 12.5 61.0859 8.19844 62.2469 2.5H67.2469C66.0156 10.9578 58.7969 17.5 50 17.5C41.2031 17.5 33.9844 10.9578 32.75 2.5Z"
+                            fill="#A3AAC2" />
+                          <path opacity="0.4"
+                            d="M100 25.4375C100 26.5183 99.6418 27.6063 98.9044 28.5156L91.0982 38.1453C90.1107 39.3634 88.6576 39.9969 87.1904 39.9969C86.0951 39.9969 84.9919 39.6434 84.0701 38.9158L75.0001 31.7656V72.5C75.0001 76.6422 71.6422 80 67.5001 80H32.5C28.3594 80 25 76.6406 25 72.5V31.7656L15.7969 38.9219C15.0079 39.6406 13.9047 39.8594 12.8094 39.8594C11.3425 39.8594 9.88911 39.2255 8.90161 38.0078L1.09567 28.5156C0.358172 27.6094 0 26.5156 0 25.4375C0 23.9903 0.642344 22.5562 1.87656 21.5812L22.9703 4.925C24.9688 3.35781 27.4532 2.5 29.8594 2.5H32.6126C33.9844 10.9578 41.2032 17.5 50.0001 17.5C58.7969 17.5 66.0157 10.9578 67.2501 2.5H70.0001C72.5547 2.5 75.0344 3.35781 77.0297 4.93281L98.1235 21.5891C99.3594 22.5625 100 24 100 25.4375Z"
+                            fill="#A3AAC2" />
+                        </svg>
+                        <p style="margin-top: 10px; font-size: 14px; color: #777;">No Products Added</p>
+                      </div>
+
+                      <div id="selectedProducts" style="margin-top: 20px;"></div>
+
+                      <div class="checkbox-group" id="fragileSection" style="margin-top: 20px; display:none;">
+                        <input type="checkbox" id="fragile">
+                        <label for="fragile">My package contains fragile items</label>
+                      </div>
+                    </div>
+
+                    <!-- Payment Details Card -->
+                    <div class="card">
+                      <div class="card-header" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="card-icon">
+                          <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h2 class="card-title">Payment Details</h2>
+                        <div style="position: relative; margin-left: auto;">
+                          <i class="fas fa-circle-info" style="color: #777; cursor: pointer;"
+                            onmouseover="this.nextElementSibling.style.display='block'"
+                            onmouseout="this.nextElementSibling.style.display='none'"></i>
+                          <div
+                            style="display: none; position: absolute; top: 130%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 6px 12px; border-radius: 5px; font-size: 12px; white-space: nowrap; z-index: 999;">
+                            Enter payment details for this order.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="payment-mode"
+                        style="display: flex; gap: 20px; align-items: flex-end; margin-top: 15px;">
+                        <div class="form-group">
+                          <label>Payment Mode</label>
+                          <select id="paymentMode" onchange="toggleAmountField()"
+                            style="padding: 8px 14px; border: none; border-radius: 6px; background: #f5f5f5; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                            <option value="prepaid">Pre-Paid</option>
+                            <option value="cod">Cash On Delivery</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group" id="collectableAmountBox" style="display: none; margin-left: auto;">
+                          <label>Collectable Amount</label>
+                          <div class="currency-input"
+                            style="display: flex; align-items: center; background: #f5f5f5; border-radius: 6px; padding: 4px 10px;">
+                            <span style="font-size: 16px;">₹</span>
+                            <input type="number" id="collectableAmount" placeholder="0.00" step="0.01"
+                              style="padding: 8px 14px; border: none; border-radius: 6px; background: #f5f5f5; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); outline: none; ">
+                          </div>
+                        </div>
+                      </div>
+                      <hr style="margin: 20px 0;">
+
+                      <div class="summary-section" style="font-size: 14px; color: #333; display: none;">
+                        <!-- Sub Total Row -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                          <div style="flex: 1;"><strong>Sub Total (A)</strong></div>
+                          <div style="flex: 1; text-align: center; color: #777;" id="itemSummary">1 Item(s) * 28 Nos</div>
+                          <div style="flex: 1; text-align: right;" id="subTotalAmount"><strong>₹28,000.00</strong></div>
+                        </div>
+
+                        <!-- Tax Row -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                          <div style="flex: 1;"><strong>Total Tax (B)</strong></div>
+                          <div style="flex: 1;"></div>
+                          <div style="flex: 1; text-align: right;" id="taxAmount">₹0.00</div>
+                        </div>
+
+                        <!-- Discount Row -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                          <div style="flex: 1;" id=""><strong>Total Discount (C)</strong></div>
+                          <div style="flex: 1; text-align: center; color: #777;" id="discountLabel">Total Discount</div>
+                          <div style="flex: 1; text-align: right;" id="discountAmount">₹0.00</div>
+                        </div>
+
+                        <hr style="margin: 12px 0;">
+
+                        <!-- Grand Total Row -->
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px;">
+                          <div style="flex: 1;">Grand Total (A + B - C)</div>
+                          <div style="flex: 1;"></div>
+                          <div style="flex: 1; text-align: right;" id="grandTotalAmount">₹28,000.00</div>
+                        </div>
+                      </div>
+
+                      
+                    </div>
+                  </div>
+
+                  <!-- RIGHT SECTION -->
+                  <div class="right-section">
+                    <!-- Delivery Details Card -->
+                    <div class="card">
+                      <div class="card-header d-flex align-items-center gap-2 gap-md-3 flex-wrap">
+                        <div class="card-icon" style="font-size: 20px; color: #333;">
+                          <i class="bi bi-truck"></i>
+                        </div>
+                        <h2 class="card-title mb-0">Delivery Details</h2>
+                        <div class="ms-auto position-relative">
+                          <i class="fas fa-circle-info" style="color: #777; cursor: pointer;"
+                            onmouseover="this.nextElementSibling.style.display='block'"
+                            onmouseout="this.nextElementSibling.style.display='none'"></i>
+                          <div
+                            style="display: none; position: absolute; top: 130%; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 6px 12px; border-radius: 5px; font-size: 12px; white-space: nowrap; z-index: 999;">
+                            Enter delivery details for this order.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="address-selection">
+                        <div class="address-line"></div>
+
+                        <!-- First Address Block -->
+                        <div class="address-content">
+                          <div class="address-marker"><i class="bi bi-geo-alt-fill" style="color: #5196ff;"></i>
+                          </div>
+                          <div class="form-group">
+                            <div class="position-relative">
+                              <input id="addressPickupInput" type="text" placeholder="Select pickup location" readonly
+                                onclick="toggleAddressPickupDropdown()" class="address-select form-select"
+                                style="min-width: 0; width: 100%; max-width: 100%; font-size: 12px;">
+                              <div id="addressPickupDropdown"
+                                style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1050; background: #fff; border: 1px solid #ddd; border-radius: 6px; margin-top: 5px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15);font-size: 12px;">
+                                <div style="padding: 8px; border-bottom: 1px solid #eee;">
+                                  <input type="text" placeholder="Search Pickup Locations"
+                                    oninput="filterAddressPickupOptions(this)" class="form-control"
+                                    style="font-size: 1rem;">
+                                </div>
+                                <div id="addressPickupOptions">
+                                  <div class="pickup-options-container">
+                                    <% if (Array.isArray(warehouseData) && warehouseData.length > 0) { %>
+                                      <% warehouseData.forEach(function(warehouse) { %>
+                                        <div class="pickup-option" data-serial="<%= warehouse.serial %>">
+                                          <%= warehouse.warehouse_name %>
+                                        </div>
+                                      <% }); %>
+                                    <% } else { %>
+                                      <div class="pickup-option text-muted">No pickup locations available</div>
+                                    <% } %>
+                                  </div>
+                                </div>
+                                
+                                <!-- <div style="padding: 10px; border-top: 1px solid #eee; text-align: left;">
+                                  <a href="#" data-bs-toggle="modal" data-bs-target="#addPickupModal"
+                                    style="color: #556ee6; font-weight: 500; display: flex; align-items: center;">
+                                    <i class="fas fa-plus" style="margin-right: 6px;"></i> Add Pickup Location
+                                  </a>
+                                </div> -->
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+
+                        <!-- Second Address Block -->
+                        <div class="address-content mb-2">
+                          <div class="address-marker square"><i class="bi bi-house-door" style="color: purple;"></i>
+                          </div>
+                          <div class="add-button" data-bs-toggle="modal" data-bs-target="#customerDetailsModal"
+                            style="cursor:pointer; display: flex; align-items: center;">
+                            <i class="	bi bi-person-plus"></i>
+                            <span class="ms-2">Add Customer Details</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Seller Details Modal -->
+                   
+
+
+
+                    <!-- Box Details Card -->
+                    <div class="card">
+                      <div class="card-header">
+                        <div class="card-icon">
+                          <i class="bi bi-bar-chart"></i>
+                        </div>
+                        <h2 class="card-title">Box Details</h2>
+                      </div>
+
+                      <div class="box-tabs-container">
+                        <div class="box-tabs">
+                          <div class="tab active" data-box="1">
+                            <i class="bi bi-box"></i> 1
+                          </div>
+                        </div>
+                        <button class="btn btn-outline" id="addBoxBtn">+ Add Box</button>
+                      </div>
+
+                      <div class="box-container">
+                        <!-- Original Box 1 (cannot be deleted) -->
+                        <div class="box-details active" data-box="1">
+                          <div class="box-header">
+                            <div class="box-title">Box 1</div>
+                            <button style="visibility: hidden;">
+                              <i class="fal fa-trash"></i>
+                            </button>
+                          </div>
+
+                          <div class="form-group">
+                            <label>Package Type</label>
+                            <select>
+                              <option>Select Package Type</option>
+                              <option>Plastic cover/Flyer</option>
+                              <option>Cardboard Box</option>
+                            </select>
+                            <p class="input-info">Select package which will be used to ship</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label>Size</label>
+                            <div class="box-dimensions">
+                              <input type="number" placeholder="L">
+                              <input type="number" placeholder="B">
+                              <input type="number" placeholder="H">
+                              <select class="box-dimension-unit w-25">
+                                <option>cm</option>
+                                <option>ft</option>
+                                <option>in</option>
+                                
+                              </select>
+                            </div>
+                            <p class="input-info">Length + Breadth + Height should be at-least 15 cm</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label>Package weight</label>
+                            <div class="d-flex">
+                              <input type="number" placeholder="Enter package weight" class="w-50">
+                              <select class="box-weight-unit ms-5">
+                                <option>gm</option>
+                                <option>kg</option>
+                                
+                              </select>
+                            </div>
+                            <p class="input-info">Packaged weight should be at least 50 grams</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="info-note">
+                        <i class="fal fa-circle-info"></i>
+                        <p>The estimated cost may vary from the final shipping cost based on the packaged dimensions &
+                          weight measured before delivery.</p>
+                      </div>
+
+                      <div class="shipping-info">
+                        <div class="info-row">
+                          <div><strong>Total Actual Weight</strong></div>
+                          <div class="totalActualWeight">-- gm</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FOOTER BUTTONS -->
+                <div class="footer mb-5">
+                 
+                  <button class="btn btn-outline" id="orderSubmit">Create Order and Manifest Later</button>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODALS -->
+          <!-- Add Channel Modal -->
+          <div class="modal" id="addChannelModal" tabindex="-1" aria-labelledby="addChannelModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 700px;">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addChannelModalLabel" style="font-weight: 600;">Add New Channel
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body" style="padding: 20px; overflow-y: scroll; height: 335px;">
+                  <!-- Channel Selection -->
+                  <section style="margin-bottom: 30px;">
+                    
+
+                    <!-- Search Box -->
+                    <div style="position: relative; margin-bottom: 20px;">
+                      <input id="selectedChannelDisplay" type="text" placeholder="Search Channel"
+                        oninput="showAllChannels()" onclick="showAllChannels()"
+                        style="width: 100%; padding: 10px 35px 10px 10px; border: 1px solid #ccc; border-radius: 8px;">
+                      <i class="fas fa-search"
+                        style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                      <input type="hidden" id="selectedChannelInput" name="selectedChannel">
+                      <span id="selectedChannelSetNow"
+                        style="display:none; position: absolute; right: 45px; top: 50%; transform: translateY(-50%); color: #34c38f; font-weight: 500; font-size: 13px;"></span>
+                    </div>
+
+                    <h6 style="font-weight: 600; margin-bottom: 10px;">Popular Channels</h6>
+
+                    <div id="popularChannels"
+                      style="display: flex;flex-wrap: nowrap;gap: 10px;flex-direction: row;align-content: stretch;justify-content: space-between;align-items: center;display: flex; flex-wrap: wrap; gap: 10px;">
+                      <!-- Channel Buttons inside wrappers, improved gap and alignment -->
+
+                      <div class="channel-wrapper" style="flex: 1 1 45%; min-width: 200px;">
+                        <button type="button" class="channel-btn" data-channel="Shopify"
+                          style="width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 14px; border: 1px solid #ccc; padding: 10px 16px; border-radius: 8px; background: #fff; position: relative;">
+                          <span
+                            style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                            <img src="shopify-icon.svg" alt="Shopify" width="22" height="22" style="display: block;">
+                          </span>
+                          <span style="flex:1; text-align: left;">Shopify</span>
+                          <span class="selected-check"
+                            style="display:none; position:absolute; right:14px; color:green; top:50%; transform:translateY(-50%);"><i
+                              class="fas fa-check-circle"></i></span>
+                        </button>
+                      </div>
+
+                      <div class="channel-wrapper" style="flex: 1 1 45%; min-width: 200px;">
+                        <button type="button" class="channel-btn" data-channel="WooCommerce"
+                          style="width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 14px; border: 1px solid #ccc; padding: 10px 16px; border-radius: 8px; background: #fff; position: relative;">
+                          <span
+                            style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                            <img src="woocommerce-icon.svg" alt="WooCommerce" width="22" height="22"
+                              style="display: block;">
+                          </span>
+                          <span style="flex:1; text-align: left;">WooCommerce</span>
+                          <span class="selected-check"
+                            style="display:none; position:absolute; right:14px; color:green; top:50%; transform:translateY(-50%);"><i
+                              class="fas fa-check-circle"></i></span>
+                        </button>
+                      </div>
+
+                      <div class="channel-wrapper" style="flex: 1 1 45%; min-width: 200px;">
+                        <button type="button" class="channel-btn" data-channel="Amazon"
+                          style="width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 14px; border: 1px solid #ccc; padding: 10px 16px; border-radius: 8px; background: #fff; position: relative;">
+                          <span
+                            style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                            <img src="amazon-icon.svg" alt="Amazon" width="22" height="22" style="display: block;">
+                          </span>
+                          <span style="flex:1; text-align: left;">Amazon</span>
+                          <span class="selected-check"
+                            style="display:none; position:absolute; right:14px; color:green; top:50%; transform:translateY(-50%);"><i
+                              class="fas fa-check-circle"></i></span>
+                        </button>
+                      </div>
+
+                      <div class="channel-wrapper" style="flex: 1 1 45%; min-width: 200px;">
+                        <button type="button" class="channel-btn" data-channel="Custom"
+                          style="width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 14px; border: 1px solid #ccc; padding: 10px 16px; border-radius: 8px; background: #fff; position: relative;">
+                          <span
+                            style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                            <i class="fas fa-cube" style="font-size: 18px;"></i>
+                          </span>
+                          <span style="flex:1; text-align: left;">Custom</span>
+                          <span class="selected-check"
+                            style="display:none; position:absolute; right:14px; color:green; top:50%; transform:translateY(-50%);"><i
+                              class="fas fa-check-circle"></i></span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+
+                  <!-- Channel Details -->
+                  <section style="margin-bottom: 30px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                      <i class="fas fa-basket-shopping" style="color: #34c38f;"></i>
+                      <h5 style="margin: 0; font-weight: 600;">Channel Details</h5>
+                    </div>
+                    <div>
+                      <label style="font-weight: 500; margin-bottom: 5px; display: block;">Channel Name</label>
+                      <input type="text" placeholder="Channel Name" maxlength="50"
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                    </div>
+                  </section>
+
+                  <!-- Default Preference -->
+                  <section>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                      <i class="fas fa-boxes-stacked" style="color: #f1b44c; font-size: 18px;"></i>
+                      <h5 style="margin: 0; font-weight: 600;">Default Preference</h5>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                      <label style="font-weight: 500; margin-bottom: 8px; display: block;">Default Pickup
+                        Location</label>
+                      <div style="position: relative;">
+                        <input id="pickupSearchInput" type="text" placeholder="Select Facility" readonly
+                          onclick="togglePickupDropdown()"
+                          style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                        <div id="pickupDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1050; background: #fff;
+                 border: 1px solid #ddd; border-radius: 6px; margin-top: 5px; max-height: 220px; overflow-y: auto;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                          <div style="padding: 8px; border-bottom: 1px solid #eee;">
+                            <input type="text" placeholder="Search Pickup Locations" oninput="filterPickupOptions(this)"
+                              style="width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+                          </div>
+                          <div id="pickupOptions">
+                            <div class="pickup-options-container">
+                              <div class="pickup-option">MANROLAND REVERSE PICKUP</div>
+                              <div class="pickup-option">GNV COMMODITIES PVT.LTD MUMBAI</div>
+                              <div class="pickup-option">MOTIVATE BOX DELHI</div>
+                              <div class="pickup-option">A4SKART</div>
+                              <div class="pickup-option">GNV BANGALORE</div>
+                            </div>
+                          </div>
+                          <div onclick="loadMoreOptions()"
+                            style="padding: 10px; text-align: center; color: #556ee6; font-weight: 500; cursor: pointer;">
+                            load more</div>
+                          <div style="padding: 10px; border-top: 1px solid #eee;">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#addPickupModal"
+                              style="color: #556ee6; font-weight: 500; display: flex; align-items: center;">
+                              <i class="fas fa-plus" style="margin-right: 6px;"></i> Add Pickup Location
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <p style="font-size: 13px; color: #666; margin-top: 8px;">This will be your default pickup
+                        location for orders from this channel.</p>
+                    </div>
+                  </section>
+                </div>
+
+
+
+                <div class="modal-footer" style="padding: 15px 20px; border-top: 1px solid #eee;">
+                  <button class="btn btn-light" data-bs-dismiss="modal"
+                    style="padding: 8px 20px; border-radius: 6px;">Cancel</button>
+                  <button class="btn btn-primary" style="padding: 8px 20px; border-radius: 6px;">Create
+                    Channel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Add Pickup Modal -->
+          <div class="modal fade" id="addPickupModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content" style="border-radius: 12px;">
+                <div class="modal-header" style="background-color: #f5f7fa;">
+                  <h5 class="modal-title">Add Pickup Address</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+               
+
+                <div class="modal-footer">
+                  <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                  <button class="btn btn-success">Save Pickup Address</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Customer Details Modal -->
+        <div class="modal" id="customerDetailsModal" tabindex="-1" aria-labelledby="customerDetailsModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content rounded-3">
+      <div class="modal-header bg-white">
+        <div>
+          <h4 class="modal-title fw-bold" id="customerDetailsModalLabel">Add Customer</h4>
+          <p class="mb-0 text-muted" style="font-size: 14px;">Add customer and address details</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form>
+        <div class="modal-body pt-4"  style="overflow: scroll;height: 70vh;">
+          <!-- Shipping Details -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="customerFirstName" class="form-label fw-semibold">First Name</label>
+              <input type="text" class="form-control" id="customerFirstName" placeholder="Enter first name">
+            </div>
+            <div class="col-md-6">
+              <label for="customerLastName" class="form-label fw-semibold">Last Name</label>
+              <input type="text" class="form-control" id="customerLastName" placeholder="Enter last name">
+            </div>
+            <div class="col-md-6">
+              <label for="customerEmail" class="form-label fw-semibold">Email</label>
+              <input type="email" class="form-control" id="customerEmail" placeholder="Enter email ID">
+            </div>
+            <div class="col-md-6">
+              <label for="customerPhone" class="form-label fw-semibold">Phone Number</label>
+              <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="tel" class="form-control" id="customerPhone" placeholder="Enter mobile number"
+                  onblur="handlePhoneBlur()" oninput="validatePhoneInput(this)">
+              </div>
+              <small id="mobileHelp" class="form-text text-danger" style="display: none;">
+                Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.
+              </small>
+            </div>
+            <div class="col-md-6">
+              <label for="alternatePhone" class="form-label fw-semibold">Alternate Mobile No</label>
+              <div class="input-group">
+                <span class="input-group-text">+91</span>
+                <input type="tel" class="form-control" id="alternatePhone" placeholder="Enter alternate mobile number"
+                  oninput="alternateValidatePhoneInput(this)" maxlength="10">
+              </div>
+              <small id="alternateMobileHelp" class="form-text text-danger" style="display: none;">
+                Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.
+              </small>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="mb-3">
+            <label for="consignee_address" class="form-label fw-semibold">Shipping Address Line 1</label>
+            <input type="text" class="form-control" id="consignee_address" placeholder="Address Line 1">
+          </div>
+          <div class="mb-3">
+            <label for="consignee_landmark" class="form-label fw-semibold">Nearby Landmark</label>
+            <input type="text" class="form-control" id="consignee_landmark" placeholder="Enter nearby landmark">
+          </div>
+          <div class="mb-3">
+            <label for="shippingAddress2" class="form-label fw-semibold">Shipping Address Line 2</label>
+            <input type="text" class="form-control" id="shippingAddress2" placeholder="Address Line 2">
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="customerCountry" class="form-label fw-semibold">Country</label>
+              <select class="form-select" id="customerCountry">
+                <option selected>India</option>
+              </select>
+            </div>
+           <div class="col-md-6">
+            <label for="consignee_pincode" class="form-label fw-semibold">Pincode</label>
+            <div class="pincode-container position-relative">
+              <input type="text" class="form-control" id="consignee_pincode"
+                placeholder="Enter 6-digit pincode" maxlength="6" onchange="fetchAddressDetails(event)">
+              <div id="consignee_pincode-loading" class="position-absolute end-0 top-50 translate-middle-y pe-2 text-muted" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+            </div>
+          </div>
+
+            <div class="col-md-6">
+              <label for="consignee_state" class="form-label fw-semibold">State</label>
+              <input type="text" class="form-control" id="consignee_state" placeholder="Enter state">
+            </div>
+            <div class="col-md-6">
+              <label for="consignee_city" class="form-label fw-semibold">City</label>
+              <input type="text" class="form-control" id="consignee_city" placeholder="Enter city">
+            </div>
+          </div>
+
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="billingSameAsShipping" checked onchange="toggleBillingAddress()">
+            <label class="form-check-label" for="billingSameAsShipping">
+              Billing address same as the shipping address
+            </label>
+          </div>
+
+          <!-- Billing Address Section -->
+          <div id="billingAddressSection" style="display: none;" class="mt-4">
+            <hr>
+            <h6 class="fw-bold">Billing Address</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="billing_first_name" class="form-label fw-semibold">First Name</label>
+                <input type="text" class="form-control" id="billing_first_name" placeholder="Enter first name">
+              </div>
+              <div class="col-md-6">
+                <label for="billing_last_name" class="form-label fw-semibold">Last Name</label>
+                <input type="text" class="form-control" id="billing_last_name" placeholder="Enter last name">
+              </div>
+              <div class="col-md-6">
+                <label for="billing_email" class="form-label fw-semibold">Email</label>
+                <input type="email" class="form-control" id="billing_email" placeholder="Enter email ID">
+              </div>
+              <div class="col-md-6">
+                <label for="billing_phone" class="form-label fw-semibold">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text">+91</span>
+                  <input type="tel" class="form-control" id="billing_phone" placeholder="Enter mobile number">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="billing_alternate_phone" class="form-label fw-semibold">Alternate Phone</label>
+                <div class="input-group">
+                  <span class="input-group-text">+91</span>
+                  <input type="tel" class="form-control" id="billing_alternate_phone" placeholder="Enter alternate number">
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label for="billing_address_line1" class="form-label fw-semibold">Billing Address Line 1</label>
+                <input type="text" class="form-control" id="billing_address_line1" placeholder="Address Line 1">
+              </div>
+              <div class="col-md-12">
+                <label for="billing_landmark" class="form-label fw-semibold">Landmark</label>
+                <input type="text" class="form-control" id="billing_landmark" placeholder="Enter nearby landmark">
+              </div>
+              <div class="col-md-12">
+                <label for="billing_address_line2" class="form-label fw-semibold">Billing Address Line 2</label>
+                <input type="text" class="form-control" id="billing_address_line2" placeholder="Address Line 2">
+              </div>
+              <div class="col-md-6">
+                <label for="billing_country" class="form-label fw-semibold">Country</label>
+                <input type="text" class="form-control" id="billing_country" placeholder="Enter country" value="India">
+              </div>
+             <div class="col-md-6">
+              <label for="billing_pincode" class="form-label fw-semibold">Pincode</label>
+              <div class="pincode-container position-relative">
+                <input type="text" class="form-control" id="billing_pincode"
+                  placeholder="Enter 6-digit pincode" maxlength="6" onchange="fetchAddressDetails(event)">
+                <div id="billing_pincode-loading" class="position-absolute end-0 top-50 translate-middle-y pe-2 text-muted" style="display:none;">
+                  <i class="fas fa-spinner fa-spin"></i>
+                </div>
+              </div>
+            </div>
+
+              <div class="col-md-6">
+                <label for="billing_state" class="form-label fw-semibold">State</label>
+                <input type="text" class="form-control" id="billing_state" placeholder="Enter state">
+              </div>
+              <div class="col-md-6">
+                <label for="billing_city" class="form-label fw-semibold">City</label>
+                <input type="text" class="form-control" id="billing_city" placeholder="Enter city">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light border-top">
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Add Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+          <!-- Add Item Modal -->
+          <div id="addItemModal"
+            style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+            <div
+              style="background: #fff; width: 700px; max-width: 95%; padding: 30px; border-radius: 12px; overflow-y: auto; max-height: 90%;">
+              <!-- Header -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                  <h2 style="margin: 0;">Item Details</h2>
+                  <p style="margin: 4px 0; color: #777;">Add item category and other details</p>
+                </div>
+                <span style="cursor:pointer; font-size: 24px; color: #aaa;" onclick="closeAddItemModal()">&times;</span>
+              </div>
+
+              <!-- Form -->
+              <div class="row" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div style="flex:1 1 45%;">
+                  <label>Product Name</label>
+                  <input type="text" id="productName" placeholder="Enter item name" class="form-control">
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>SKU Code</label>
+                  <input type="text" id="skuCode" placeholder="Enter SKU code" class="form-control">
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Category</label>
+                  <input type="text" id="category" placeholder="For example, Electronics" class="form-control">
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Price</label>
+                  <div
+                    style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; padding-left: 10px;">
+                    <span>₹</span>
+                    <input type="number" id="price" placeholder="Enter price" class="form-control" style="border: none; outline: none; width: 100%;">
+                  </div>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Tax Type <small style="color: #aaa;">Optional</small></label>
+                  <select class="form-control">
+                    <option>Select tax type</option>
+                    <option>GST</option>
+                    <option>IGST</option>
+                  </select>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Discount <small style="color: #aaa;">Optional</small></label>
+                  <div style="display: flex; gap: 8px;">
+                    <input type="number" placeholder="Enter discount" class="form-control">
+                    <select class="form-control" style="width: 100px;">
+                      <option>Percent</option>
+                      <option>Flat</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="flex:1 1 100%;">
+                  <label>Product Image <small style="color: #aaa;">Optional</small></label>
+                  <input type="text" placeholder="Enter Image URL" class="form-control">
+                </div>
+              </div>
+
+              <!-- Footer Buttons -->
+              <div style="display: flex; justify-content: flex-end; margin-top: 30px; gap: 10px;">
+                <button onclick="closeAddItemModal()"
+                  style="padding: 8px 16px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 6px;">Cancel</button>
+                <button onclick="addNewProduct()"
+                  style="padding: 8px 16px; background: #000; color: #fff; border: none; border-radius: 6px;">Add
+                  Item</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Modal -->
+          <div id="editModal"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:10000;">
+            <div
+              style="background:#fff; width:700px; max-width:95%; padding:30px; border-radius:12px; overflow-y:auto; max-height:90%;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0;">Edit Product</h2>
+                <span style="cursor:pointer; font-size:20px;" onclick="closeModal()">&times;</span>
+              </div>
+
+              <div class="row" style="display:flex; flex-wrap:wrap; gap:20px;">
+                <div style="flex:1 1 45%;">
+                  <label>Product Name</label>
+                  <input type="text" id="editName" class="form-control" readonly>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>SKU</label>
+                  <input type="text" id="editSku" class="form-control" readonly>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Category</label>
+                  <input type="text" id="editCategory" class="form-control" readonly>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Price</label>
+                  <input type="number" id="editPrice" class="form-control">
+                </div>
+                
+                <div style="flex:1 1 45%;">
+                  <label>Discount <small style="color:#aaa;">Optional</small></label>
+                  <div style="display:flex;">
+                    <input type="number" id="editDiscountValue" class="form-control" style="flex:1;">
+                    <select id="editDiscountType" class="form-control" style="width:100px;">
+                      <option value="Percent">Percent</option>
+                      <option value="Flat">Flat</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="flex:1 1 45%;">
+                  <label>Quantity</label>
+                  <input type="number" id="editQty" class="form-control">
+                </div>
+                <div style="flex:1 1 100%;">
+                  <label>Product Image <small style="color:#aaa;">Optional</small></label>
+                  <input type="text" id="editProductImage" class="form-control" placeholder="Enter Image URL">
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; margin-top:20px; gap:10px;">
+                <button onclick="closeModal()" class="btn btn-light">Cancel</button>
+                <button onclick="saveEdit()" class="btn btn-dark">Update Item</button>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="previousAddressesModal" tabindex="-1" aria-labelledby="previousAddressesModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style=" margin-left: 25%;">
+              <div class="modal-content" style="overflow: hidden;width: 190%;">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="previousAddressesModalLabel">Select Previous Address</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="previousAddressesModalBody">
+                  <!-- Address options will be injected here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <!-- FOOTER -->
+          <%- include('../../partials/footer') %>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Channel Selection Functions -->
+  <!-- ✅ Script for Channel Selection (Merged) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Channel selection (modal)
+      const displayInput = document.getElementById('selectedChannelDisplay');
+      const hiddenInput = document.getElementById('selectedChannelInput');
+      const setNowSpan = document.getElementById('selectedChannelSetNow');
+      const channelButtons = document.querySelectorAll('.channel-btn');
+      const channelWrappers = document.querySelectorAll('.channel-wrapper');
+
+      // When a channel is selected
+      channelButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const channelName = this.getAttribute('data-channel');
+
+          // Set input values
+          displayInput.value = channelName;
+          hiddenInput.value = channelName;
+          setNowSpan.textContent = 'Set';
+          setNowSpan.style.display = 'inline-block';
+
+          // Show only selected channel
+          channelWrappers.forEach(wrapper => wrapper.style.display = 'none');
+          this.closest('.channel-wrapper').style.display = 'block';
+
+          // Tick handling
+          channelButtons.forEach(btn => {
+            btn.style.borderColor = '#ccc';
+            const icon = btn.querySelector('.selected-check');
+            if (icon) icon.style.display = 'none';
+          });
+
+          const selectedCheck = this.querySelector('.selected-check');
+          if (selectedCheck) selectedCheck.style.display = 'inline-block';
+          this.style.borderColor = '#34c38f';
+        });
+      });
+
+      // Show all channels when editing
+      window.showAllChannels = function () {
+        channelWrappers.forEach(wrapper => wrapper.style.display = 'block');
+      };
+
+     
+      
+
+      window.openAddChannelModal = function (e) {
+        e.preventDefault();
+        document.getElementById('addChannelModal').style.display = 'flex';
+      };
+    });
+  </script>
+
+  <!-- Pickup Location Functions -->
+  <script>
+    /* ====== PICKUP LOCATION FUNCTIONS ====== */
+    let selectedPickupSerial = null;
+    function togglePickupDropdown() {
+      const dropdown = document.getElementById("pickupDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function filterPickupOptions(input) {
+      const filter = input.value.toUpperCase();
+      const options = document.querySelectorAll("#pickupOptions .pickup-option");
+      options.forEach(option => {
+        const text = option.textContent || option.innerText;
+        option.style.display = text.toUpperCase().includes(filter) ? "" : "none";
+      });
+    }
+
+    function bindPickupOptionEvents() {
+      document.querySelectorAll('.pickup-option').forEach(option => {
+        option.addEventListener('click', function () {
+          document.getElementById("pickupSearchInput").value = this.textContent;
+          document.getElementById("pickupDropdown").style.display = "none";
+        });
+      });
+    }
+
+    // function loadMoreOptions() {
+    //   const pickupOptions = document.getElementById("pickupOptions");
+    //   const moreLocations = [
+    //     "Logistics Hub KANPUR",
+    //     "MARS WAREHOUSE GURGAON",
+    //     "DELHIVERY DC NOIDA",
+    //     "FBA WAREHOUSE JAIPUR",
+    //     "Blitz WAREHOUSE HYDERABAD"
+    //   ];
+
+    //   moreLocations.forEach(name => {
+    //     const div = document.createElement("div");
+    //     div.className = "pickup-option";
+    //     div.textContent = name;
+    //     pickupOptions.appendChild(div);
+    //   });
+
+    //   // Rebind click events
+    //   bindPickupOptionEvents();
+    // }
+  </script>
+
+  <!-- Address Pickup Functions -->
+  <script>
+    /* ====== ADDRESS PICKUP FUNCTIONS ====== */
+    function toggleAddressPickupDropdown() {
+      const dropdown = document.getElementById("addressPickupDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function filterAddressPickupOptions(input) {
+      const filter = input.value.toUpperCase();
+      const options = document.querySelectorAll("#addressPickupOptions .pickup-option");
+      options.forEach(option => {
+        const text = option.textContent || option.innerText;
+        option.style.display = text.toUpperCase().includes(filter) ? "" : "none";
+      });
+    }
+
+    function bindAddressPickupOptionEvents() {
+      document.querySelectorAll('#addressPickupOptions .pickup-option').forEach(option => {
+        option.addEventListener('click', function () {
+          document.getElementById("addressPickupInput").value = this.textContent;
+          document.getElementById("addressPickupDropdown").style.display = "none";
+        });
+      });
+    }
+    document.querySelectorAll('.pickup-option').forEach(option => {
+  option.addEventListener('click', function() {
+    selectedPickupSerial = this.getAttribute('data-serial');
+    // Optionally, highlight the selected option
+    document.querySelectorAll('.pickup-option').forEach(opt => opt.classList.remove('selected'));
+    this.classList.add('selected');
+    // Optionally, close the dropdown or update a display field
+    document.getElementById('addressPickupDropdown').style.display = 'none';
+    // Optionally, show the selected name somewhere
+    // document.getElementById('selectedPickupName').innerText = this.innerText;
+  });
+});
+window.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.pickup-option').forEach(option => {
+    option.addEventListener('click', function() {
+      selectedPickupSerial = this.getAttribute('data-serial');
+      document.querySelectorAll('.pickup-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      document.getElementById('addressPickupDropdown').style.display = 'none';
+    });
+  });
+});
+
+  
+  </script>
+
+  <!-- Product Search Functions -->
+  <script>
+    /* ====== PRODUCT SEARCH FUNCTIONS ====== */
+    const input = document.getElementById("productSearchInput");
+    const dropdown = document.getElementById("productDropdown");
+    const dropdownContent = document.getElementById("productDropdownContent");
+    const selectedProductsContainer = document.getElementById("selectedProducts");
+    const emptyState = document.querySelector(".empty-state");
+    const editModal = document.getElementById("editModal");
+    const fragileSection = document.getElementById("fragileSection");
+
+    let editingIndex = null;
+
+    let products = <%- JSON.stringify(productsData) %>;
+    console.log("jdgjdgsjd",products)
+
+    let selectedProducts = [];
+
+    input.addEventListener("focus", () => {
+  dropdown.style.display = "block";
+  renderDropdown(input.value);
+});
+
+// Add this for live search as the user types
+input.addEventListener("input", () => {
+  dropdown.style.display = "block";
+  renderDropdown(input.value);
+});
+
+    function renderDropdown(searchTerm = "") {
+  // Filter products by name or SKU (case-insensitive)
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (filteredProducts.length === 0) {
+    dropdownContent.innerHTML = `<div style="padding: 10px; color: #888;">No products found.</div>`;
+    return;
+  }
+
+  dropdownContent.innerHTML = filteredProducts.map((p, i) => `
+    <div class="product-item" onclick="selectProduct(${products.indexOf(p)})">
+      <div>
+        <div style="font-weight: 600;">${p.name}</div>
+        <div style="font-size: 12px; color: #555;">SKU: ${p.sku}</div>
+      </div>
+      <div style="font-size: 14px; color: #333;">₹${p.price}</div>
+    </div>
+  `).join("");
+}
+
+    function selectProduct(index) {
+      const product = products[index];
+
+      const alreadySelected = selectedProducts.some(p => p.sku === product.sku);
+      if (alreadySelected) {
+        alert("This product is already added.");
+        return;
+      }
+
+      selectedProducts.push({ ...product, quantity: 1 });
+      renderSelected();
+      dropdown.style.display = "none";
+    }
+    
+    let totalDiscount = 0;
+    let totalTax = 0;
+    let totalQty = 0;
+    let grandTotal=0;
+    function renderSelected() {
+  const container = document.getElementById('selectedProducts');
+  const summarySection = document.querySelector('.summary-section');
+  emptyState.style.display = selectedProducts.length === 0 ? "block" : "none";
+  fragileSection.style.display = selectedProducts.length > 0 ? "block" : "none";
+  if (!selectedProducts || selectedProducts.length === 0) {
+    container.innerHTML = '';
+    if (summarySection) summarySection.style.display = 'none';
+    return;
+  }
+
+  if (summarySection) summarySection.style.display = '';
+
+  let html = '';
+  
+  
+  let subTotal = 0;
+  let totalItems = selectedProducts.length;
+ 
+
+  selectedProducts.forEach((p, idx) => {
+    const qty = p.quantity || 1;
+    const price = parseFloat(p.price) || 0;
+    let discount = 0;
+
+    // Calculate discount for this product
+    if (p.discountValue && p.discountType) {
+      if (p.discountType === "Percent") {
+        discount = (price * qty) * (p.discountValue / 100);
+      } else if (p.discountType === "Flat") {
+        discount = p.discountValue * qty;
+      }
+    }
+
+    // Calculate tax for this product
+    const total = (price * qty) - discount;
+totalQty += qty;
+subTotal += price * qty;
+totalDiscount += discount;
+
+    html += `
+      <div class="selected-product" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <div style="flex: 1;">
+          <div style="font-weight: bold;">${p.name}</div>
+          <div style="font-size: 12px; color: #666;">${p.sku}</div>
+        </div>
+        <div>${p.category}</div>
+        <div>₹${price.toFixed(2)}</div>
+        <input type="number" value="${qty}" min="1" onchange="updateQty(${idx}, this.value)" style="width: 60px;">
+        <div>₹${total.toFixed(2)}</div>
+        <i class="fas fa-edit" onclick="editProduct(${idx})" style="cursor: pointer; color: #556ee6;"></i>
+        <i class="fas fa-trash" onclick="deleteProduct(${idx})" style="cursor: pointer; color: #dc3545;"></i>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Update summary
+  document.getElementById('itemSummary').innerText = `${totalItems} Item(s) * ${totalQty} Nos`;
+  document.getElementById('subTotalAmount').innerHTML = `<strong>₹${subTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>`;
+
+  // Tax
+  document.getElementById('taxAmount').innerText = `₹0.00`;
+  // Discount
+  document.getElementById('discountAmount').innerText = `₹${totalDiscount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+  // Grand total
+  grandTotal = subTotal - totalDiscount;
+  document.getElementById('grandTotalAmount').innerHTML = `₹${grandTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+document.getElementById('collectableAmount').value = grandTotal.toFixed(2);
+}
+function updateQty(index, qty) {
+      selectedProducts[index].quantity = parseInt(qty);
+      renderSelected();
+    }
+
+    function deleteProduct(index) {
+      selectedProducts.splice(index, 1);
+      renderSelected();
+    }
+
+    function editProduct(index) {
+      const p = selectedProducts[index];
+      document.getElementById("editName").value = p.name;
+      document.getElementById("editCategory").value = p.category;
+      document.getElementById("editSku").value = p.sku;
+      document.getElementById("editPrice").value = p.price;
+      document.getElementById("editQty").value = p.quantity;
+     
+      editingIndex = index;
+      editModal.style.display = "flex";
+    }
+
+    function saveEdit() {
+      const idx = editingIndex;
+      console.log("selectedProducts[idx].name",selectedProducts[idx])
+      selectedProducts[idx].name = document.getElementById("editName").value;
+      selectedProducts[idx].sku = document.getElementById("editSku").value;
+      selectedProducts[idx].price = parseFloat(document.getElementById("editPrice").value);
+      selectedProducts[idx].quantity = parseInt(document.getElementById("editQty").value);
+      selectedProducts[idx].discountValue = parseFloat(document.getElementById("editDiscountValue").value) || 0;
+      selectedProducts[idx].discountType = document.getElementById("editDiscountType").value;
+      
+      renderSelected();
+      closeModal();
+    }
+  </script>
+
+  <!-- Payment Mode Functions -->
+  <script>
+    /* ====== PAYMENT MODE FUNCTIONS ====== */
+    function toggleAmountField() {
+      const mode = document.getElementById('paymentMode').value;
+      const box = document.getElementById('collectableAmountBox');
+      box.style.display = mode === 'cod' ? 'block' : 'none';
+    }
+  </script>
+
+  <!-- Box Management Functions -->
+
+  <!-- SCRIPT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const MAX_BOXES = 5;
+      const addBoxBtn = document.getElementById('addBoxBtn');
+      const boxContainer = document.querySelector('.box-container');
+      const boxTabs = document.querySelector('.box-tabs');
+      let boxCount = 1;
+
+      function init() {
+        if (boxCount >= MAX_BOXES) {
+          disableAddButton();
+        }
+        setupEventListeners();
+      }
+
+      function setupEventListeners() {
+        addBoxBtn.addEventListener('click', handleAddBox);
+
+        boxTabs.addEventListener('click', function (e) {
+          const tab = e.target.closest('.tab');
+          if (tab) handleTabClick(tab);
+        });
+
+        boxContainer.addEventListener('click', function (e) {
+          const deleteBtn = e.target.closest('.delete-box');
+          if (deleteBtn) handleDeleteBox(deleteBtn);
+        });
+      }
+
+      function handleAddBox() {
+        if (boxCount >= MAX_BOXES) return;
+        boxCount++;
+        createNewBox(boxCount);
+        if (boxCount >= MAX_BOXES) disableAddButton();
+        updateTotalActualWeight();
+      }
+
+      function createNewBox(boxNumber) {
+        const newTab = createTabElement(boxNumber);
+        const newBox = createBoxElement(boxNumber);
+        boxTabs.appendChild(newTab);
+        boxContainer.appendChild(newBox);
+        activateBox(boxNumber);
+      }
+
+      function createTabElement(boxNumber) {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.dataset.box = boxNumber;
+        tab.innerHTML = `<i class="	bi bi-box"></i> ${boxNumber}`;
+        return tab;
+      }
+
+      function createBoxElement(boxNumber) {
+        const isDisabled = boxNumber > 1 ? 'disabled' : ''; // Only Box 1 is editable
+        const box = document.createElement('div');
+        box.className = 'box-details';
+        box.dataset.box = boxNumber;
+        box.innerHTML = `
+    <div class="box-header">
+      <div class="box-title">Box ${boxNumber}</div>
+      <button class="delete-box">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+
+    <div class="form-group">
+      <label>Package Type</label>
+      <select ${isDisabled}>
+        <option>Select Package Type</option>
+        <option>Plastic cover/Flyer</option>
+        <option>Cardboard Box</option>
+      </select>
+      <p class="input-info">Select package which will be used to ship</p>
+    </div>
+
+    <div class="form-group">
+      <label>Size</label>
+      <div class="box-dimensions">
+                              <input type="number" placeholder="L">
+                              <input type="number" placeholder="B">
+                              <input type="number" placeholder="H">
+                              <select class="box-dimension-unit w-25">
+                                <option>cm</option>
+                                <option>ft</option>
+                                <option>in</option>
+                                
+                              </select>
+                            </div>
+      <p class="input-info">Length + Breadth + Height should be at-least 15 cm</p>
+    </div>
+
+   <div class="form-group">
+      <label>Package weight</label>
+      <div class="d-flex">
+        <input type="number" placeholder="Enter package weight" class="w-50">
+        <select class="box-weight-unit ms-5" data-prev-unit="gm">
+          <option value="gm">gm</option>
+          <option value="kg">kg</option>
+        </select>
+      </div>
+      <p class="input-info">Packaged weight should be at least 50 grams</p>
+    </div>
+    </div>
+  `;
+        return box;
+      }
+      function handleTabClick(tab) {
+        const boxNumber = tab.dataset.box;
+        activateBox(boxNumber);
+      }
+
+      function activateBox(boxNumber) {
+        const currentActive = document.querySelector('.box-details.active');
+        if (currentActive) {
+          animateOut(currentActive).then(() => currentActive.classList.remove('active'));
+        }
+        const selectedBox = document.querySelector(`.box-details[data-box="${boxNumber}"]`);
+        selectedBox.classList.add('active');
+        animateIn(selectedBox);
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.tab[data-box="${boxNumber}"]`).classList.add('active');
+      }
+
+      function handleDeleteBox(deleteBtn) {
+        const boxElement = deleteBtn.closest('.box-details');
+        const boxNumber = boxElement.dataset.box;
+
+        animateOut(boxElement, 'right').then(() => {
+          boxElement.remove();
+          document.querySelector(`.tab[data-box="${boxNumber}"]`).remove();
+          boxCount--;
+
+          if (!document.querySelector('.box-details.active')) {
+            activateBox('1');
+          }
+
+          if (boxCount < MAX_BOXES) enableAddButton();
+          updateTotalActualWeight();
+          
+        });
+      }
+
+      function animateOut(element, direction = 'left') {
+        return new Promise((resolve) => {
+          element.classList.add(`slide-out-${direction}`);
+          setTimeout(() => {
+            element.style.display = 'none';
+            element.classList.remove(`slide-out-${direction}`);
+            resolve();
+          }, 700);
+        });
+      }
+
+      function animateIn(element, direction = 'right') {
+        element.style.display = 'block';
+        element.classList.add(`slide-in-${direction}`);
+        setTimeout(() => {
+          element.classList.remove(`slide-in-${direction}`);
+        }, 700);
+      }
+
+      function disableAddButton() {
+        addBoxBtn.disabled = true;
+        addBoxBtn.classList.add('disabled');
+        addBoxBtn.style.display = 'none'; // Hide completely
+      }
+
+      function enableAddButton() {
+        addBoxBtn.disabled = false;
+        addBoxBtn.classList.remove('disabled');
+        addBoxBtn.style.display = 'inline-block'; // Show again
+      }
+
+      init();
+      // Listen for changes in any weight input or unit select
+      document.querySelector('.box-container').addEventListener('change', function(e) {
+  if (e.target.matches('.box-weight-unit')) {
+    const select = e.target;
+    const boxDiv = select.closest('.box-details');
+    const weightInput = boxDiv.querySelector('.d-flex input[type="number"]');
+    let prevUnit = select.getAttribute('data-prev-unit') || 'gm';
+    let newUnit = select.value;
+    let value = parseFloat(weightInput.value) || 0;
+
+    // Convert the value in the input field to the new unit
+    if (prevUnit !== newUnit) {
+      if (prevUnit === 'kg' && newUnit === 'gm') {
+        // kg to gm
+        value = value * 1000;
+      } else if (prevUnit === 'gm' && newUnit === 'kg') {
+        // gm to kg
+        value = value / 1000;
+      }
+      weightInput.value = value ? value : '';
+    }
+
+    // Store the new unit for next change
+    select.setAttribute('data-prev-unit', newUnit);
+
+    updateTotalActualWeight();
+  }
+});
+
+updateTotalActualWeight();
+    });
+    document.querySelector('.box-container').addEventListener('input', function(e) {
+  if (
+    e.target.matches('.d-flex input[type="number"]') ||
+    e.target.matches('.box-weight-unit')
+  ) {
+    updateTotalActualWeight();
+  }
+});
+
+
+
+    let total_Weight = 0;
+    function updateTotalActualWeight() {
+  let totalWeight = 0;
+  document.querySelectorAll('.box-container .box-details').forEach(boxDiv => {
+    const weightInput = boxDiv.querySelector('.d-flex input[type="number"]');
+    const weightUnitSelect = boxDiv.querySelector('.box-weight-unit');
+    let weight = parseFloat(weightInput?.value) || 0;
+    let weightUnit = weightUnitSelect?.value || 'gm';
+    if (weightUnit === 'kg') {
+      weight = weight * 1000;
+    }
+    totalWeight += weight;
+    total_Weight = totalWeight;
+  });
+  document.querySelectorAll('.totalActualWeight').forEach(el => {
+    el.innerText = `${totalWeight} gm`;
+  });
+}
+  </script>
+
+  <!-- Modal Functions -->
+  <script>
+    /* ====== MODAL FUNCTIONS ====== */
+    function closeModal() {
+      document.getElementById('addChannelModal').style.display = 'none';
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    function openAddItemModal() {
+      document.getElementById("addItemModal").style.display = "flex";
+    }
+
+    function closeAddItemModal() {
+      document.getElementById("addItemModal").style.display = "none";
+    }
+
+    function addNewProduct() {
+  // Get values from modal inputs
+  const name = document.getElementById('productName').value.trim();
+  const sku = document.getElementById('skuCode').value.trim();
+  const category = document.getElementById('category').value.trim();
+  const price = document.getElementById('price').value.trim();
+
+  if (!name || !sku || !category || !price) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  // Create product object
+  const product = { name, sku, category, price };
+
+  // Send to backend
+  axios.post('/api/client-products', product)
+    .then(response => {
+      if (response.data.success && response.data.product) {
+        // Replace products array with the latest from backend
+        products.push(response.data.product);
+        // Optionally, re-render your product list here
+        renderSelected();
+        // Clear modal fields
+        document.getElementById('productName').value = '';
+        document.getElementById('skuCode').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('price').value = '';
+        closeAddItemModal();
+      } else {
+        alert('Failed to add product.');
+      }
+    })
+    .catch(err => {
+      alert('Error adding product.');
+      console.error(err);
+    });
+}
+  </script>
+
+  <!-- Global Event Listeners -->
+  <script>
+    /* ====== GLOBAL EVENT LISTENERS ====== */
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (event) {
+      // Channel dropdown
+      
+      
+
+      // Pickup location dropdown
+      const pickupDropdown = document.getElementById("pickupDropdown");
+      const pickupInput = document.getElementById("pickupSearchInput");
+      if (!pickupDropdown.contains(event.target) && event.target !== pickupInput) {
+        pickupDropdown.style.display = "none";
+      }
+
+      // Address pickup dropdown
+      const addressPickupDropdown = document.getElementById("addressPickupDropdown");
+      const addressPickupInput = document.getElementById("addressPickupInput");
+      if (!addressPickupDropdown.contains(event.target) && event.target !== addressPickupInput) {
+        addressPickupDropdown.style.display = "none";
+      }
+
+      // Product search dropdown
+      if (!event.target.closest(".form-group")) {
+        document.getElementById("productDropdown").style.display = "none";
+      }
+    });
+
+    // Initialize pickup options
+    document.addEventListener("DOMContentLoaded", function () {
+      bindPickupOptionEvents();
+      bindAddressPickupOptionEvents();
+    });
+  </script>
+  <!-- generate order id auto -->
+  <script>
+  // Handle PO number, Order ID, and Invoice Number auto-generation
+  document.addEventListener('DOMContentLoaded', function () {
+    // PO Number auto-generate
+    var firstPIDBtn = document.getElementById('firstPID');
+    if (firstPIDBtn) {
+      firstPIDBtn.addEventListener('click', function () {
+        const wpidInput = document.querySelector('.wpid-id');
+        if (wpidInput) {
+          wpidInput.value = generateRandomOrderID();
+        }
+      });
+    }
+    function generateRandomOrderID() {
+      return 'ord-' + Math.floor(Math.random() * 1000000);
+    }
+
+    // Order ID auto-generate
+    var autoOrderIdBtn = document.getElementById('autorefid');
+    if (autoOrderIdBtn) {
+      autoOrderIdBtn.addEventListener('click', function () {
+        const refid = generateRefId();
+        var orderIdInput = document.getElementById('refid');
+        if (orderIdInput) {
+          orderIdInput.value = refid;
+        }
+      });
+    }
+    function generateRefId() {
+      return 'ref-' + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    // Invoice Number auto-generate
+    var autoInvoiceBtn = document.getElementById('autoInvoiceid');
+    if (autoInvoiceBtn) {
+      autoInvoiceBtn.addEventListener('click', function () {
+        const invoiceNo = generateInvoiceNo();
+        var invoiceInput = document.getElementById('invoiceid');
+        if (invoiceInput) {
+          invoiceInput.value = invoiceNo;
+        }
+      });
+    }
+    function generateInvoiceNo() {
+      return 'inv-' + Math.floor(100000 + Math.random() * 900000);
+    }
+  });
+</script>
+  <script>
+ async function fetchAddressDetails(e) {
+    const input = e.target;
+    const pincode = input.value.trim();
+
+    // Detect prefix (billing_ or consignee_)
+    const isBilling = input.id.includes('billing');
+    const prefix = isBilling ? 'billing_' : 'consignee_';
+
+    const loadingIndicator = document.getElementById(`${prefix}pincode-loading`);
+    const stateInput = document.getElementById(`${prefix}state`);
+    const cityInput = document.getElementById(`${prefix}city`);
+
+    if (pincode.length === 6) {
+      if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+      try {
+        const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+        const data = await response.json();
+
+        if (
+          data &&
+          data[0]?.Status === "Success" &&
+          data[0]?.PostOffice?.length > 0
+        ) {
+          const postOffice = data[0].PostOffice[0];
+          stateInput.value = postOffice.State || '';
+          cityInput.value = postOffice.District || '';
+        } else {
+          stateInput.value = '';
+          cityInput.value = '';
+          alert("Invalid pincode or no data found.");
+        }
+      } catch (error) {
+        console.error("Pincode API Error:", error);
+        stateInput.value = '';
+        cityInput.value = '';
+        alert("Something went wrong. Please try again.");
+      } finally {
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+      }
+    }
+  } 
+    function handleAddressResponse(data) {
+  if (data && data.addresses && data.addresses.length > 0) {
+    allAddresses = data.addresses;
+    currentPage = 1;
+    renderAddressPage(currentPage);
+
+    // Show the modal (Bootstrap 5)
+    var modal = new bootstrap.Modal(document.getElementById('previousAddressesModal'));
+    modal.show();
+  }
+}
+
+function handlePhoneBlur() {
+  const phoneNumber = document.getElementById('customerPhone').value.trim();
+  if (phoneNumber.length === 10) {
+    fetchAddresses({ phoneNumber });
+    document.getElementById('mobileHelp').style.display = 'none';
+  } else {
+    // If phone number is not valid, you can add an error message or handle as needed
+    document.getElementById('mobileHelp').style.display = 'block';
+  }
+}
+function validatePhoneInput(inputField) {
+  const phoneNumber = inputField.value;
+  const mobileHelp = document.getElementById('mobileHelp');
+ 
+  // Show the error message only after the user has typed the first digit
+  if (phoneNumber.length > 0) {
+    mobileHelp.style.display = 'block';
+  }
+  if (phoneNumber.length === 0) {
+    mobileHelp.style.display = 'none';
+  }
+ 
+  // Check if the first digit is not 6, 7, 8, or 9
+  if (phoneNumber.length === 1 && !/^[6-9]$/.test(phoneNumber)) {
+    // Clear the input if the first character is invalid
+    inputField.value = '';
+  }
+ 
+  // Restrict further input beyond 10 digits
+  if (phoneNumber.length > 10) {
+    inputField.value = phoneNumber.slice(0, 10); // Trim to 10 digits if user tries to input more
+  }
+ 
+  // Hide the error only if the input length is exactly 10 digits and the first digit is valid
+  if (phoneNumber.length === 10 && /^[6-9]/.test(phoneNumber)) {
+    mobileHelp.style.display = 'none';
+  }
+}
+
+function alternateValidatePhoneInput(inputField) {
+  const phoneNumber = inputField.value;
+  const alternateMobileHelp = document.getElementById('alternateMobileHelp');
+ 
+  // Show the error message only after the user has typed the first digit
+  if (phoneNumber.length > 0) {
+    alternateMobileHelp.style.display = 'block';
+  }
+  if (phoneNumber.length === 0) {
+    alternateMobileHelp.style.display = 'none';
+  }
+ 
+  // Check if the first digit is not 6, 7, 8, or 9
+  if (phoneNumber.length === 1 && !/^[6-9]$/.test(phoneNumber)) {
+    // Clear the input if the first character is invalid
+    inputField.value = '';
+  }
+ 
+  // Restrict further input beyond 10 digits
+  if (phoneNumber.length > 10) {
+    inputField.value = phoneNumber.slice(0, 10); // Trim to 10 digits if user tries to input more
+  }
+ 
+  // Hide the error only if the input length is exactly 10 digits and the first digit is valid
+  if (phoneNumber.length === 10 && /^[6-9]/.test(phoneNumber)) {
+    alternateMobileHelp.style.display = 'none';
+  }
+}
+
+function selectPreviousAddress(address) {
+  // Split the name into first and last name (simple split by first space)
+  let firstName = '';
+  let lastName = '';
+  if (address.name) {
+    const nameParts = address.name.trim().split(' ');
+    firstName = nameParts[0];
+    lastName = nameParts.slice(1).join(' '); // Handles middle names too
+  }
+
+  document.getElementById('customerFirstName').value = firstName;
+  document.getElementById('customerLastName').value = lastName;
+  document.getElementById('customerEmail').value = address.email || '';
+  document.getElementById('customerPhone').value = address.phone || '';
+  document.getElementById('consignee_address').value = address.address || '';
+  document.getElementById('consignee_landmark').value = address.nearby || '',
+  document.getElementById('consignee_pincode').value = address.pincode || '';
+  document.getElementById('consignee_state').value = address.state || '';
+  document.getElementById('consignee_city').value = address.city || '';
+  // Add more fields if needed
+}
+
+
+function fetchAddresses(data) {
+  axios.post('/get-addresses/express', data)
+    .then(res => handleAddressResponse(res.data))
+    .catch(() => {
+      handleAddressResponse({ addresses: [] });
+      document.getElementById('previousAddressesContainer').style.display = 'none';
+      console.error('Error fetching addresses');
+    });
+}
+
+  </script>
+  <script>
+    let allAddresses = [];
+let currentPage = 1;
+const addressesPerPage = 6;
+function renderAddressPage(page) {
+  const modalBody = document.getElementById('previousAddressesModalBody');
+  const start = (page - 1) * addressesPerPage;
+  const end = start + addressesPerPage;
+  const addressesToShow = allAddresses.slice(start, end);
+
+  let html = '<div class="row" id="addressRow">';
+  addressesToShow.forEach(address => {
+    html += `
+      <div class="col-md-4 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6>${address.name} <small class="text-muted">(${address.phone})</small></h6>
+            <p>
+              ${address.address}, ${address.city}, ${address.state} - ${address.pincode}<br>
+              <small>${address.email ? address.email : ''}</small>
+            </p>
+            <button type="button" class="btn btn-primary btn-sm" onclick='selectPreviousAddress(${JSON.stringify(address)})' data-bs-dismiss="modal">
+              Use This Address
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+
+  // Pagination controls
+  const totalPages = Math.ceil(allAddresses.length / addressesPerPage);
+  html += `
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <button class="btn btn-secondary btn-sm" ${page === 1 ? 'disabled' : ''} onclick="showPrevPage()">Previous</button>
+      <span>Page ${page} of ${totalPages}</span>
+      <button class="btn btn-secondary btn-sm" ${page === totalPages ? 'disabled' : ''} onclick="showNextPage()">Next</button>
+    </div>
+  `;
+
+  modalBody.innerHTML = html;
+}
+function showPrevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderAddressPage(currentPage);
+  }
+}
+
+function showNextPage() {
+  const totalPages = Math.ceil(allAddresses.length / addressesPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderAddressPage(currentPage);
+  }
+}
+  </script>
+
+<script>
+// Ensure SweetAlert2 is loaded before this script
+document.getElementById('orderSubmit').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const orderID = document.getElementById('wpid').value;
+  const refid = document.getElementById('refid').value;
+  const invoiceNumber = document.getElementById('invoiceid').value;
+  const paymentMode = document.getElementById('paymentMode').value;
+  const channel = document.getElementById('channelInput').value;
+  let collectableAmount = null;
+
+  if (paymentMode === 'cod') {
+    collectableAmount = document.getElementById('collectableAmount').value;
+  }
+
+  const boxes = getAllBoxDetails();
+  const pickupSerial = selectedPickupSerial;
+  const productsDetails = selectedProducts;
+
+  const billingSameAsShipping = document.getElementById('billingSameAsShipping').checked;
+
+  const consigneeDetails = {
+    firstName: document.getElementById('customerFirstName').value,
+    lastName: document.getElementById('customerLastName').value,
+    email: document.getElementById('customerEmail').value,
+    phone: document.getElementById('customerPhone').value,
+    alternatePhone: document.getElementById('alternatePhone').value,
+    addressLine1: document.getElementById('consignee_address').value,
+    addressLine2: document.getElementById('shippingAddress2').value,
+    landmark: document.getElementById('consignee_landmark').value,
+    country: document.getElementById('customerCountry').value,
+    pincode: document.getElementById('consignee_pincode').value,
+    state: document.getElementById('consignee_state').value,
+    city: document.getElementById('consignee_city').value,
+    billingSameAsShipping
+  };
+
+  let billingDetails = null;
+  if (!billingSameAsShipping) {
+    billingDetails = {
+      billing_first_name: document.getElementById('billing_first_name').value,
+      billing_last_name: document.getElementById('billing_last_name').value,
+      billing_email: document.getElementById('billing_email').value,
+      billing_phone: document.getElementById('billing_phone').value,
+      billing_alternate_phone: document.getElementById('billing_alternate_phone').value,
+      billing_address_line1: document.getElementById('billing_address_line1').value,
+      billing_address_line2: document.getElementById('billing_address_line2').value,
+      billing_landmark: document.getElementById('billing_landmark').value,
+      billing_country: document.getElementById('billing_country').value,
+      billing_pincode: document.getElementById('billing_pincode').value,
+      billing_state: document.getElementById('billing_state').value,
+      billing_city: document.getElementById('billing_city').value
+    };
+  }
+
+  axios.post('/api/create-order-ecom', {
+    orderID,
+    refid,
+    invoiceNumber,
+    paymentMode,
+    collectableAmount,
+    warehouseID: pickupSerial,
+    consigneeDetails,
+    billingDetails, // added this line
+    boxes,
+    total_Weight,
+    productsDetails,
+    grandTotal,
+    totalQty,
+    totalTax,
+    totalDiscount,
+    channel
+  })
+    .then(response => {
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Order Created',
+          text: response.data.message || 'Order created successfully!',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          window.location.href = '/ecom/create-order';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Create Order',
+          text: response.data.message || 'Unknown error',
+          confirmButtonText: 'OK'
+        });
+      }
+    })
+    .catch(error => {
+      let errorMsg = 'Error creating order';
+      if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonText: 'OK'
+      });
+      console.error(error);
+    });
+});
+
+function getAllBoxDetails() {
+  const boxes = [];
+  document.querySelectorAll('.box-container .box-details').forEach(boxDiv => {
+    const packageType = boxDiv.querySelector('select:not(.box-dimension-unit):not(.box-weight-unit)')?.value || '';
+    const dimensionInputs = boxDiv.querySelectorAll('.box-dimensions input');
+    const length = dimensionInputs[0]?.value || '';
+    const breadth = dimensionInputs[1]?.value || '';
+    const height = dimensionInputs[2]?.value || '';
+    const dimensionUnit = boxDiv.querySelector('.box-dimension-unit')?.value || '';
+    const weightInput = boxDiv.querySelector('.d-flex input[type="number"]');
+    const weight = weightInput?.value || '';
+    const weightUnit = boxDiv.querySelector('.box-weight-unit')?.value || '';
+
+    boxes.push({
+      packageType,
+      length,
+      breadth,
+      height,
+      dimensionUnit,
+      weight,
+      weightUnit
+    });
+  });
+  return boxes;
+}
+</script>
+
+<!-- JS to handle billing section toggle -->
+<script>
+  function toggleBillingAddress() {
+    const isSame = document.getElementById('billingSameAsShipping').checked;
+    document.getElementById('billingAddressSection').style.display = isSame ? 'none' : 'block';
+  }
+</script>
+
+<!-- Channel Dropdown Functions -->
+<script>
+function toggleDropdown() {
+  const dropdown = document.getElementById('channelDropdown');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+function selectChannel(channelName, el) {
+  document.getElementById('channelInput').value = channelName;
+  document.getElementById('channelDropdown').style.display = 'none';
+
+  // Remove all tick marks
+  document.querySelectorAll('.check-icon').forEach(icon => icon.style.display = 'none');
+
+  // Show tick for selected
+  if (el) {
+    const check = el.querySelector('.check-icon');
+    if (check) check.style.display = 'inline-block';
+  }
+}
+
+function loadMoreChannels() {
+  const moreChannels = document.getElementById('moreChannels');
+  const loadBtn = document.getElementById('loadMore');
+
+  if (moreChannels.children.length === 0) {
+    const channels = ['Shopify','Amazon', 'Flipkart', 'Offline Store'];
+    channels.forEach(name => {
+      const div = document.createElement('div');
+      div.style.padding = '6px 0';
+      div.style.cursor = 'pointer';
+      div.style.display = 'flex';
+      div.style.justifyContent = 'space-between';
+      div.style.alignItems = 'center';
+      div.style.color = '#333';
+      div.textContent = name;
+
+      const checkSpan = document.createElement('span');
+      checkSpan.className = 'check-icon';
+      checkSpan.style.display = 'none';
+      checkSpan.style.color = 'green';
+      checkSpan.innerHTML = '<i class="fas fa-check-circle"></i>';
+
+      div.appendChild(checkSpan);
+      div.onclick = () => selectChannel(name, div);
+      moreChannels.appendChild(div);
+    });
+  } else {
+    loadBtn.innerText = 'No more data';
+    loadBtn.style.color = '#888';
+    loadBtn.style.cursor = 'default';
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('channelDropdown');
+  const input = document.getElementById('channelInput');
+  
+  if (dropdown && input && !dropdown.contains(event.target) && event.target !== input) {
+    dropdown.style.display = 'none';
+  }
+});
+</script>
+</body>
+
+</html>

@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <%- include('../partials/head') %>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <style>
+      @keyframes truckmove {
+        0% {
+          transform: translateX(0);
+        }
+
+        100% {
+          transform: translateX(20px);
+        }
+      }
+
+      /* Pagination Styles */
+      #paginationControls .btn-group {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #paginationControls .pagination-btn {
+        min-width: 40px;
+      }
+
+      #paginationControls .btn-outline-primary:hover {
+        background-color: #e9f2ff;
+      }
+
+      :root {
+        --pro-primary: #1366d6;
+        /* main blue */
+        --pro-primary-600: #0f57b7;
+        --pro-primary-50: #edf4ff;
+        --pro-border: #d7e1ee;
+        --pro-text: #223042;
+        --pro-muted: #6b7a90;
+        --pro-bg: #f4f7fb;
+        --pro-card: #ffffff;
+        --pro-glow: 0 10px 28px rgba(19, 102, 214, .22);
+      }
+
+      body {
+        background: var(--pro-bg);
+        color: var(--pro-text);
+        font-size: 13px;
+      }
+
+      .pro-card {
+        background: var(--pro-card);
+        border: 1px solid var(--pro-border);
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(19, 102, 214, .04);
+      }
+
+      .pro-section-title {
+        color: var(--pro-primary);
+        font-weight: 700;
+        letter-spacing: .2px;
+      }
+
+      .btn-pro {
+        background: var(--pro-primary);
+        color: #fff;
+        border: 0;
+      }
+
+      .btn-pro:hover {
+        background: var(--pro-primary-600);
+        color: #fff;
+      }
+
+      .btn-outline-pro {
+        border: 1px solid var(--pro-border);
+        color: var(--pro-text);
+      }
+
+      .badge-soft {
+        background: var(--pro-primary-50);
+        color: var(--pro-primary);
+        border: 1px solid var(--pro-border);
+      }
+
+      .tiny {
+        font-size: 11px;
+        color: var(--pro-muted);
+      }
+
+      .card-tile {
+        border: 1px solid var(--pro-border);
+        border-radius: 10px;
+        transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+        position: relative;
+        height: 100%;
+        background: #fff;
+      }
+
+      .card-tile:hover {
+        box-shadow: 0 10px 24px rgba(16, 24, 40, .08);
+        transform: translateY(-1px);
+      }
+
+      .tile-actions {
+        position: absolute;
+        right: .5rem;
+        top: .5rem;
+        opacity: .65;
+      }
+
+      .tile-actions .btn {
+        --bs-btn-padding-y: .15rem;
+        --bs-btn-padding-x: .35rem;
+      }
+
+      .eta {
+        font-size: 11px;
+        color: var(--pro-muted);
+      }
+
+      .price {
+        font-weight: 700;
+        font-size: 14px;
+        color: #0b3b82;
+      }
+
+      /* Options row (full width) */
+      .more-row-wrap {
+        overflow: clip;
+      }
+
+      /* for animation */
+      .more-row {
+        border: 1px dashed var(--pro-border);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+        transform-origin: top center;
+        opacity: 0;
+        transform: translateY(-6px) scaleY(.98);
+      }
+
+      .more-row.open {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+        transition: opacity .18s ease, transform .22s ease;
+      }
+
+      .opt-grid {
+        row-gap: 1rem;
+      }
+
+      /* Selection highlight */
+      .card-tile.selected {
+        border-color: var(--pro-primary);
+        box-shadow: var(--pro-glow);
+      }
+
+      .select-badge {
+        position: absolute;
+        left: .5rem;
+        top: .5rem;
+        background: var(--pro-primary);
+        color: #fff;
+        border-radius: 999px;
+        font-size: 10px;
+        padding: 2px 6px;
+        display: none;
+      }
+
+      .card-tile.selected .select-badge {
+        display: inline-block;
+      }
+
+      .select-btn {
+        font-size: 12px;
+      }
+
+      .select-btn.selected {
+        background: var(--pro-primary-50);
+        color: var(--pro-primary);
+        border-color: var(--pro-primary);
+      }
+
+      /* Grid overlay for arrow connector */
+      #partnersGrid {
+        position: relative;
+      }
+
+      .arrow-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      /* Inputs */
+      .select-caret {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg width='18' height='18' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7l4 4 4-4' stroke='%236b7a90' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        padding-right: 2rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+      }
+
+      .form-control,
+      .form-select {
+        border-color: var(--pro-border);
+      }
+
+      .more-row {
+        overflow-x: auto;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--pro-primary);
+        box-shadow: 0 0 0 .2rem rgba(19, 102, 214, .1);
+      }
+
+      /* Toast */
+      .toast-pro {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 16px;
+        z-index: 1090;
+        background: #1f2937;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+      }
+
+      @media (min-width: 992px) {
+        .col-lg-2 {
+          flex: 0 0 auto;
+          width: 32.666667%;
+        }
+      }
+    </style>
+</head>
+
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+
+    <!-- HEADER -->
+    <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+        <%- include('../partials/right-iconbar') %>
+
+          <!-- MAIN CONTENT -->
+          <div id="main-content">
+            <div class="container">
+
+
+              <!-- MAIN BODY CONTENT -->
+              <!-- Paste your dashboard cards, charts, stats etc. here -->
+              <div class="row  align-items-stretch">
+                <!-- ===== Calculator ===== -->
+                <div class="col-sm-4 d-flex">
+                  <div class="my-5 flex-grow-1 d-flex">
+                    <div class="pro-card p-3 p-md-4 w-100 d-flex flex-column h-100">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2">
+                          <button type="button" class="btn btn-pro btn-sm">Domestic</button>
+                          <button type="button" class="btn btn-outline-pro btn-sm" disabled
+                            title="This demo focuses on Domestic">International</button>
+                        </div>
+                        <div class="d-flex gap-2">
+                          <button id="btnSample" type="button" class="btn btn-outline-pro btn-sm"><i
+                              class="fa-solid fa-wand-magic-sparkles me-1"></i>Sample</button>
+                          <button id="btnReset" type="button" class="btn btn-outline-pro btn-sm d-none">Reset</button>
+                        </div>
+                      </div>
+
+                      <form id="calcForm" class="row g-3 flex-grow-1">
+                        <div class="col-12 col-sm-6">
+                          <label for="shipmentType" class="form-label">Shipment Type <span
+                              class="text-danger">*</span></label>
+                          <select id="shipmentType" class="form-select select-caret" required>
+                            <option value="forward" selected>Forward</option>
+                            <option value="rto">RTO</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                          <label for="packageType" class="form-label">Package Type <span
+                              class="text-danger">*</span></label>
+                          <select id="packageType" class="form-select select-caret" required>
+                            <option value="single" selected>Single Package (B2C)</option>
+                            <option value="multi">Multiple Boxes (B2B)</option>
+                          </select>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                          <label for="originPincode" class="form-label">Origin Pincode <span
+                              class="text-danger">*</span></label>
+                          <input id="originPincode" class="form-control" type="text" inputmode="numeric"
+                            placeholder="e.g. 247667" value="247667" maxlength="8" required>
+                          <div class="tiny mt-1">Enter a 6‑digit Indian pincode</div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                          <label for="deliveryAreaPincode" class="form-label">Delivery Pincode <span
+                              class="text-danger">*</span></label>
+                          <input id="deliveryAreaPincode" class="form-control" type="text" inputmode="numeric"
+                            placeholder="e.g. 110076" value="110076" maxlength="8" required>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                          <label for="paymentMode" class="form-label">Payment Mode <span
+                              class="text-danger">*</span></label>
+                          <select id="paymentMode" class="form-select select-caret" required>
+                            <option value="COD" selected>COD</option>
+                            <option value="PREPAID">Prepaid</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-sm-6" id="codAmountWrap">
+                          <label for="codAmount" class="form-label">COD Amount <span
+                              class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input id="codAmount" class="form-control" type="number" min="1" step="1" value="5000"
+                              required>
+                          </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                          <label for="approxWeight" class="form-label">Approximate Weight (Kg) <span
+                              class="text-danger">*</span></label>
+                          <input id="approxWeight" class="form-control" type="number" min="0.1" step="0.1" value="2"
+                            required>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                          <label for="invoiceValue" class="form-label">Invoice Value <span
+                              class="text-danger">*</span></label>
+                          <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input id="invoiceValue" class="form-control" type="number" min="1" step="1" value="5000"
+                              required>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <label class="form-label">Dimensions (cm)</label>
+                          <div class="row g-2">
+                            <div class="col-4 col-sm-2">
+                              <div class="form-text mb-1">Length</div>
+                              <input id="length" class="form-control" type="number" min="1" step="0.1" value="23">
+                            </div>
+                            <div class="col-4 col-sm-2">
+                              <div class="form-text mb-1">Width</div>
+                              <input id="width" class="form-control" type="number" min="1" step="0.1" value="40">
+                            </div>
+                            <div class="col-4 col-sm-2">
+                              <div class="form-text mb-1">Height</div>
+                              <input id="height" class="form-control" type="number" min="1" step="0.1" value="54">
+                            </div>
+                            <div class="col-12 col-sm-6 d-flex align-items-end">
+                              <div id="calcHints" class="ms-sm-3 tiny"></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-12">
+                          <button type="button" id="btnCalc" class="btn btn-pro w-100 py-2">
+                            <i class="fa-solid fa-calculator me-2"></i>Calculate
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <!-- ===== Partners ===== -->
+                <div class="col-sm-8 d-flex">
+                  <div class="container my-5 flex-grow-1 d-flex">
+                    <div class="pro-card p-3 w-100 d-flex flex-column h-100">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="pro-section-title">Shipping Partners</div>
+                        <div id="resultMeta" class="tiny"></div>
+                      </div>
+
+                      <div id="partnersGrid" class="row g-3 flex-grow-1">
+                        <!-- Arrow overlay for connectors -->
+                        <svg id="arrowOverlay" class="arrow-overlay" xmlns="http://www.w3.org/2000/svg">
+                          <defs>
+                            <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                              <path d="M0,0 L8,4 L0,8 z" fill="#1366d6" />
+                            </marker>
+                          </defs>
+                          <!-- path injected dynamically -->
+                        </svg>
+                      </div>
+
+                      <div id="noResults" class="text-center tiny text-muted mt-3 d-none">
+                        No suitable services for this shipment. Try adjusting weight/dimensions or switch mode.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <template id="tileTemplate">
+                  <div class="card-tile p-2 h-100 d-flex flex-column text-center">
+                    <span class="select-badge"><i class="fa-solid fa-check"></i> Selected</span>
+
+                    <div class="d-flex flex-column align-items-center gap-1">
+                      <img class="logo mb-1 d-none" alt="Logo" style="height:20px; width:auto;">
+                      <div class="fw-semibold small title"></div>
+                      <div class="eta"></div>
+                      <div class="text-secondary small chgWeight"></div>
+                      <div class="price my-1 total"></div>
+                    </div>
+                    <div class="mt-1 text-start small breakdown"></div>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                      <button class="btn btn-outline-pro btn-sm select-btn">Select</button>
+                      <button class="btn btn-link p-0 small moreBtn d-none" type="button" title="Show more options">
+                        <i class="fa-solid fa-chevron-right"></i>
+                      </button>
+                    </div>
+                    <div class="mt-1">
+                      <span class="text-primary-emphasis small moreCount d-none"></span>
+                    </div>
+                  </div>
+                </template>
+
+
+
+                <!-- Toast -->
+                <div id="toast" class="toast-pro d-none"></div>
+              </div>
+              <!-- Bootstrap JS -->
+              <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome CDN (Add this if not already loaded) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
+
+              <script>
+                /************** Utilities **************/
+                const gstRate = 0.18;
+                const formatINR = n => "₹ " + (Number(n).toFixed(2).replace(/\.00$/, ''));
+                const ceilToHalf = kg => Number((Math.ceil(kg * 2) / 2).toFixed(2));
+                const normalizePincode = v => String(v || '').replace(/\D+/g, '').slice(0, 6);
+                const isValidPincode = v => normalizePincode(v).length === 6;
+                const approxDistanceClass = (o, d) => {
+                  const O = normalizePincode(o), D = normalizePincode(d);
+                  if (O.length !== 6 || D.length !== 6) return 'unknown';
+                  const a = Number(O.slice(0, 3)), b = Number(D.slice(0, 3));
+                  const diff = Math.abs(a - b);
+                  if (diff <= 5) return 'local';
+                  if (diff <= 50) return 'zonal';
+                  return 'national';
+                };
+                const getETA = (mode, dist) => {
+                  const map = {
+                    surface: { local: '2–3 Days', zonal: '3–5 Days', national: '4–7 Days', unknown: '3–6 Days' },
+                    air: { local: '1–2 Days', zonal: '1–3 Days', national: '2–4 Days', unknown: '1–3 Days' }
+                  };
+                  return (map[mode] || map.surface)[dist] || '3–6 Days';
+                };
+                const volumetricKg = (L, W, H, divisor) => (L && W && H) ? (L * W * H) / divisor : 0;
+                const showToast = (msg) => {
+                  const t = document.getElementById('toast');
+                  if (!t) return;
+                  t.textContent = msg; t.classList.remove('d-none');
+                  setTimeout(() => t.classList.add('d-none'), 1800);
+                };
+
+                /************** Sample rate cards (replace with real slabs) **************/
+                const partnersMaster = [
+                  {
+                    id: 'delhivery_surface', name: 'Delhivery Surface',
+                    logo: 'https://storage.googleapis.com/a1aa/image/fe87b5a1-497a-4705-38ab-fb3a001c4d61.jpg',
+                    mode: 'surface', volumetricDivisor: 6000,
+                    rateOptions: [
+                      { label: '10Kg (Surface)', baseUpToKg: 10, baseRate: 230, addlPerKg: 20, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '5Kg (Surface)', baseUpToKg: 5, baseRate: 180, addlPerKg: 25, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '0.5Kg (Surface)', baseUpToKg: 0.5, baseRate: 60, addlPerKg: 30, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '1Kg (Surface)', baseUpToKg: 0.5, baseRate: 60, addlPerKg: 30, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '2Kg (Surface)', baseUpToKg: 0.5, baseRate: 60, addlPerKg: 30, cod: { type: 'flat', flat: 75, max: 150 } },
+
+                    ]
+                  },
+                  {
+                    id: 'xpressbees_surface', name: 'XpressBees Surface',
+                    logo: 'https://storage.googleapis.com/a1aa/image/11c85f1c-d4d0-4932-ab28-e177f060848f.jpg',
+                    mode: 'surface', volumetricDivisor: 6000,
+                    rateOptions: [
+                      { label: '10Kg (Surface)', baseUpToKg: 10, baseRate: 210, addlPerKg: 18, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '5Kg (Surface)', baseUpToKg: 5, baseRate: 170, addlPerKg: 22, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '2Kg (Surface)', baseUpToKg: 2, baseRate: 120, addlPerKg: 24, cod: { type: 'flat', flat: 75, max: 150 } },
+                      { label: '5KG (Surface)', baseUpToKg: 5, baseRate: 270, addlPerKg: 32, cod: { type: 'flat', flat: 85, max: 250 } },
+                    ]
+                  },
+                  {
+                    id: 'ekart_surface', name: 'Ekart Surface',
+                    logo: 'https://storage.googleapis.com/a1aa/image/f0c99af2-0d87-4972-c8a9-95b346beea56.jpg',
+                    mode: 'surface', volumetricDivisor: 5500,
+                    rateOptions: [
+                      { label: '5Kg (Surface)', baseUpToKg: 5, baseRate: 250, addlPerKg: 24, cod: { type: 'percent', percent: 1.5, min: 40, max: 200 } },
+                      { label: '10Kg (Surface)', baseUpToKg: 10, baseRate: 300, addlPerKg: 20, cod: { type: 'percent', percent: 1.5, min: 40, max: 200 } },
+                    ]
+                  },
+                  {
+                    id: 'dtdc_surface', name: 'DTDC Surface',
+                    logo: 'https://storage.googleapis.com/a1aa/image/0e8d4699-fbb0-4dbb-7408-d47ff6be2d82.jpg',
+                    mode: 'surface', volumetricDivisor: 6000,
+                    rateOptions: [
+                      { label: '0.5KG (Surface)', baseUpToKg: 0.5, baseRate: 320, addlPerKg: 40, cod: { type: 'flat', flat: 85, max: 250 } },
+                      { label: '5KG (Surface)', baseUpToKg: 5, baseRate: 270, addlPerKg: 32, cod: { type: 'flat', flat: 85, max: 250 } },
+                    ]
+                  },
+                  {
+                    id: 'amazon_surface', name: 'Amazon ATS Surface',
+                    logo: 'https://storage.googleapis.com/a1aa/image/6671d6a6-270c-42bd-4804-a3cf176b4748.jpg',
+                    mode: 'surface', volumetricDivisor: 6000,
+                    rateOptions: [
+                      { label: '5KG (Surface)', baseUpToKg: 5, baseRate: 420, addlPerKg: 35, cod: { type: 'flat', flat: 75, max: 200 } },
+                      { label: '10KG (Surface)', baseUpToKg: 10, baseRate: 460, addlPerKg: 30, cod: { type: 'flat', flat: 75, max: 200 } },
+                    ]
+                  },
+                  {
+                    id: 'dtdc_air', name: 'DTDC Air', logo: '', mode: 'air', volumetricDivisor: 5000,
+                    rateOptions: [
+                      { label: '0.5Kg (Air)', baseUpToKg: 0.5, baseRate: 640, addlPerKg: 110, cod: { type: 'flat', flat: 100, max: 300 } },
+                      { label: '2Kg (Air)', baseUpToKg: 2, baseRate: 820, addlPerKg: 120, cod: { type: 'flat', flat: 100, max: 300 } },
+                    ]
+                  },
+                  {
+                    id: 'bluedart_surface', name: 'BlueDart Surface', logo: '', mode: 'surface', volumetricDivisor: 6000,
+                    rateOptions: [
+                      { label: '0.5 Kg (Surface)', baseUpToKg: 0.5, baseRate: 730, addlPerKg: 60, cod: { type: 'flat', flat: 100, max: 300 } },
+
+                    ]
+                  },
+                  {
+                    id: 'delhivery_air', name: 'Delhivery Air', logo: '', mode: 'air', volumetricDivisor: 5000,
+                    rateOptions: [{ label: 'Air (Std)', baseUpToKg: 1, baseRate: 900, addlPerKg: 130, cod: { type: 'flat', flat: 100, max: 300 } }]
+                  },
+                  {
+                    id: 'bluedart_air', name: 'BlueDart Air', logo: '', mode: 'air', volumetricDivisor: 5000,
+                    rateOptions: [{ label: '0.5KG (Air)', baseUpToKg: 0.5, baseRate: 1000, addlPerKg: 150, cod: { type: 'flat', flat: 100, max: 300 } }]
+                  },
+                ];
+
+                /************** Engine **************/
+                const calcShippingForOption = (opt, chgKg) => {
+                  const extraKg = Math.max(0, chgKg - opt.baseUpToKg);
+                  const extraRounded = Math.ceil(extraKg * 2) / 2; // per 0.5 kg
+                  return opt.baseRate + (extraKg > 0 ? extraRounded * opt.addlPerKg : 0);
+                };
+                const calcCODCharge = (rule, mode, amount) => {
+                  if (mode !== 'COD' || !rule) return 0;
+                  let v = rule.type === 'flat' ? (rule.flat || 0) : (rule.percent || 0) * amount / 100;
+                  if (rule.min != null) v = Math.max(v, rule.min);
+                  if (rule.max != null) v = Math.min(v, rule.max);
+                  return v;
+                };
+                function computeAllQuotes(input) {
+                  const O = normalizePincode(input.origin);
+                  const D = normalizePincode(input.dest);
+                  const { paymentMode, codAmount, actualKg, L, W, H } = input;
+                  const distClass = approxDistanceClass(O, D);
+                  const quotes = [];
+                  partners.forEach(p => {
+                    const vol = volumetricKg(L, W, H, p.volumetricDivisor);
+                    const chgKg = ceilToHalf(Math.max(actualKg, vol));
+                    const optionResults = p.rateOptions.map(opt => {
+                      const shipping = calcShippingForOption(opt, chgKg);
+                      const cod = calcCODCharge(opt.cod, paymentMode, codAmount);
+                      const gst = (shipping + cod) * gstRate;
+                      const total = shipping + cod + gst;
+                      return {
+                        partnerId: p.id, partnerName: p.name, label: opt.label, mode: p.mode,
+                        chgKg, shipping, cod, gst, total, volumetricDivisor: p.volumetricDivisor,
+                        eta: getETA(p.mode, distClass),
+                        breakdown: { shipping, cod, gst }
+                      };
+                    });
+                    optionResults.sort((a, b) => a.total - b.total);
+                    quotes.push({ best: optionResults[0], more: optionResults.slice(1) });
+                  });
+                  quotes.sort((a, b) => a.best.total - b.best.total);
+                  return quotes;
+                }
+
+                /************** State **************/
+                let partners = JSON.parse(JSON.stringify(partnersMaster));
+                let lastInput = null, lastQuotes = [], openOptionsRow = null;
+                let selectedSet = new Set(); // keys like partnerId|label
+
+                /************** Elements **************/
+                const elPaymentMode = document.getElementById('paymentMode');
+                const elCodWrap = document.getElementById('codAmountWrap');
+                const elCodAmount = document.getElementById('codAmount');
+                const elForm = document.getElementById('calcForm');
+                const elBtnCalc = document.getElementById('btnCalc');
+                const elGrid = document.getElementById('partnersGrid');
+                const elMeta = document.getElementById('resultMeta');
+                const elNoResults = document.getElementById('noResults');
+                const elHints = document.getElementById('calcHints');
+                const elBtnReset = document.getElementById('btnReset');
+                const elBtnSample = document.getElementById('btnSample');
+                const elOrigin = document.getElementById('originPincode');
+                const elDest = document.getElementById('deliveryAreaPincode');
+                const elOverlay = document.getElementById('arrowOverlay');
+
+                /************** Injected UI (CSS + Preloader + Default Msg) **************/
+                (function injectUI() {
+                  // CSS
+                  const css = `
+                                #preloader{position:fixed;inset:0;z-index:2000;display:grid;place-items:center}
+                                #preloader.d-none{display:none!important}
+                                #preloader .pl-backdrop{position:absolute;inset:0;backdrop-filter:blur(2px);background:rgba(0,0,0,.25)}
+                                #preloader .pl-card{position:relative;z-index:1;width:min(720px,92vw);background:#fff;border-radius:16px;padding:20px 18px 22px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+                                #preloader .pl-title{font-weight:600;margin-bottom:10px}
+                                #preloader .pl-timeline{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:8px 0 22px}
+                                #preloader .pl-line{position:absolute;left:6px;right:6px;top:14px;height:2px;background:linear-gradient(90deg,#cfe3ff,#e0e7ff)}
+                                #preloader .pl-dot{position:relative;text-align:center;font-size:12px;color:#6b7280}
+                                #preloader .pl-dot::before{content:"";position:absolute;left:50%;transform:translateX(-50%);top:-4px;width:12px;height:12px;border-radius:50%;background:#d1d5db;box-shadow:0 0 0 2px #fff inset;transition:background .25s ease,transform .25s ease}
+                                #preloader .pl-dot.active{color:#111827}
+                                #preloader .pl-dot.active::before{background:#1366d6;transform:translateX(-50%) scale(1.1)}
+                                #preloader .pl-track{position:relative;height:42px;--progress:0}
+                                #preloader .pl-truck{width:64px;height:32px;position:absolute;top:2px;left:0;fill:#1366d6;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2));animation:truck-bounce .9s ease-in-out infinite;transform:translateX(calc((100% - 64px) * var(--progress)))}
+                                @keyframes truck-bounce{0%,100%{transform:translateX(calc((100% - 64px) * var(--progress))) translateY(0)}50%{transform:translateX(calc((100% - 64px) * var(--progress))) translateY(-1.5px)}}
+                                .alert-info{background:#eef5ff;border:1px solid #d6e6ff;color:#0b479c}
+                                `;
+                  const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
+
+                  // Preloader
+                  const pre = document.createElement('div');
+                  pre.id = 'preloader'; pre.className = 'd-none';
+                  pre.innerHTML = `
+                                 <div class="pl-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); z-index: 998;"></div>
+
+<div class="pl-card" style="max-width: 720px; margin: 60px auto; background: #fff; border-radius: 16px; padding: 32px 36px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); position: relative; z-index: 999; font-family: 'Segoe UI', sans-serif;">
+  <div class="pl-title" style="font-size: 22px; font-weight: 700; margin-bottom: 32px; text-align: center; color: #1f2937;">
+    Calculating Best Rates...
+  </div>
+
+  <div class="pl-timeline" style="display: flex; justify-content: space-between; align-items: center; position: relative; margin-bottom: 40px;">
+    <div class="pl-line" style="position: absolute; top: 50%; left: 6%; width: 88%; height: 0px; border-top: 2px dashed #9ca3af; z-index: 0; transform: translateY(-50%);"></div>
+
+    <!-- Step 0 -->
+    <div class="pl-dot" data-step="0" style="background: #22c55e; color: #fff; border-radius: 50%; width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; z-index: 2; box-shadow: 0 3px 8px rgba(0,0,0,0.1);">
+      <i class="fa-solid fa-file-circle-check" style="font-size: 16px; margin-bottom: 3px;"></i>
+      Created
+    </div>
+
+    <!-- Step 1 -->
+    <div class="pl-dot" data-step="1" style="background: #22c55e; color: #fff; border-radius: 50%; width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; z-index: 2; box-shadow: 0 3px 8px rgba(0,0,0,0.1);">
+      <i class="fa-solid fa-calendar-check" style="font-size: 16px; margin-bottom: 3px;"></i>
+      Pickup
+    </div>
+
+    <!-- Step 2 (Current) -->
+    <div class="pl-dot" data-step="2" style="background: #2563eb; color: #fff; border-radius: 50%; width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; z-index: 2; box-shadow: 0 0 12px rgba(37,99,235,0.5);">
+      <i class="fa-solid fa-truck-fast" style="font-size: 16px; margin-bottom: 3px;"></i>
+      Transit
+    </div>
+
+    <!-- Step 3 -->
+    <div class="pl-dot" data-step="3" style="background: #e5e7eb; color: #6b7280; border-radius: 50%; width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; z-index: 2;">
+      <i class="fa-solid fa-warehouse" style="font-size: 16px; margin-bottom: 3px;"></i>
+      At Hub
+    </div>
+
+    <!-- Step 4 -->
+    <div class="pl-dot" data-step="4" style="background: #e5e7eb; color: #6b7280; border-radius: 50%; width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; z-index: 2;">
+      <i class="fa-solid fa-person-walking-luggage" style="font-size: 16px; margin-bottom: 3px;"></i>
+      Delivery
+    </div>
+  </div>
+
+  <div class="pl-track" style="text-align: center;">
+    <svg class="pl-truck" viewBox="0 0 64 32" aria-hidden="true" style="width: 90px; fill: #2563eb; animation: truckmove 2s ease-in-out infinite alternate;">
+      <rect x="2" y="12" width="34" height="12" rx="2"></rect>
+      <rect x="36" y="14" width="20" height="10" rx="2"></rect>
+      <circle cx="12" cy="26" r="3"></circle>
+      <circle cx="30" cy="26" r="3"></circle>
+      <circle cx="48" cy="26" r="3"></circle>
+    </svg>
+  </div>
+
+  <div class="pl-status" id="plStatus" style="margin-top: 24px; text-align: center; font-size: 17px; font-weight: 600; color: #374151;">
+    In Transit...
+  </div>
+</div>
+
+
+
+`;
+                  document.body.appendChild(pre);
+
+                  // Default Message (placed just before partnersGrid)
+                  const def = document.createElement('div');
+                  def.id = 'defaultMsg';
+                  def.className = 'alert alert-info d-flex align-items-center';
+                  def.innerHTML = `<i class="fa-solid fa-circle-info me-2"></i>
+                                                 <span>Enter shipment details and click <strong>Calculate Rates</strong> to start.</span>`;
+                  if (elGrid && elGrid.parentElement) {
+                    elGrid.parentElement.insertBefore(def, elGrid);
+                  } else {
+                    document.body.appendChild(def);
+                  }
+                })();
+
+                /************** Pincode input sanitize **************/
+                function sanitizePincodeInput(e) {
+                  const after = normalizePincode(e.target.value);
+                  e.target.value = after;
+                }
+                ['input', 'paste', 'blur'].forEach(evt => {
+                  if (elOrigin) elOrigin.addEventListener(evt, sanitizePincodeInput);
+                  if (elDest) elDest.addEventListener(evt, sanitizePincodeInput);
+                });
+
+                /************** Events **************/
+                if (elPaymentMode) {
+                  elPaymentMode.addEventListener('change', () => {
+                    const isCOD = elPaymentMode.value === 'COD';
+                    if (elCodWrap) elCodWrap.classList.toggle('d-none', !isCOD);
+                    if (elCodAmount) elCodAmount.required = isCOD;
+                  });
+                }
+
+                if (elBtnSample) {
+                  elBtnSample.addEventListener('click', () => {
+                    document.getElementById('shipmentType').value = 'forward';
+                    document.getElementById('packageType').value = 'single';
+                    elOrigin.value = '247667';
+                    elDest.value = '110076';
+                    elPaymentMode.value = 'COD';
+                    elPaymentMode.dispatchEvent(new Event('change'));
+                    elCodAmount.value = 5000;
+                    document.getElementById('invoiceValue').value = 5000;
+                    document.getElementById('approxWeight').value = 2;
+                    document.getElementById('length').value = 23;
+                    document.getElementById('width').value = 40;
+                    document.getElementById('height').value = 54;
+                    showToast('Sample values filled');
+                    elBtnReset.classList.remove('d-none');
+                    const elDefaultMsg = document.getElementById('defaultMsg');
+                    if (elDefaultMsg) elDefaultMsg.classList.remove('d-none');
+                    if (elNoResults) elNoResults.classList.add('d-none');
+                  });
+                }
+
+                if (elBtnReset) {
+                  elBtnReset.addEventListener('click', () => {
+                    if (elForm) elForm.reset();
+                    document.getElementById('shipmentType').value = 'forward';
+                    document.getElementById('packageType').value = 'single';
+                    elPaymentMode.value = 'COD';
+                    elPaymentMode.dispatchEvent(new Event('change'));
+                    elOrigin.value = ''; elDest.value = '';
+                    if (elGrid) elGrid.innerHTML = '';
+                    clearArrow();
+                    if (elNoResults) elNoResults.classList.add('d-none');
+                    if (elMeta) elMeta.textContent = '';
+                    if (elHints) elHints.textContent = '';
+                    partners = JSON.parse(JSON.stringify(partnersMaster));
+                    lastInput = null; lastQuotes = []; openOptionsRow = null;
+                    selectedSet.clear();
+                    elBtnReset.classList.add('d-none');
+                    const elDefaultMsg = document.getElementById('defaultMsg');
+                    if (elDefaultMsg) elDefaultMsg.classList.remove('d-none');
+                  });
+                }
+
+                /************** Preloader Controls **************/
+                const elPreloader = document.getElementById('preloader');
+                const elPlStatus = document.getElementById('plStatus');
+                const plDots = () => Array.from(elPreloader.querySelectorAll('.pl-dot'));
+                const plTrack = () => elPreloader.querySelector('.pl-track');
+                const PL_STEPS = [
+                  'Created...',
+                  'Pickup scheduled...',
+                  'In transit...',
+                  'At hub...',
+                  'Out for delivery...'
+                ];
+                let plTimer = null, plIdx = 0;
+
+                function showPreloader() {
+                  if (!elPreloader) return;
+                  elPreloader.classList.remove('d-none');
+                  plIdx = 0;
+                  updatePreloaderStep(0);
+                  clearInterval(plTimer);
+                  plTimer = setInterval(() => {
+                    plIdx = Math.min(plIdx + 1, PL_STEPS.length - 1);
+                    updatePreloaderStep(plIdx);
+                  }, 600);
+                }
+                function hidePreloader() {
+                  if (!elPreloader) return;
+                  clearInterval(plTimer);
+                  elPreloader.classList.add('d-none');
+                }
+                function updatePreloaderStep(i) {
+                  if (elPlStatus) elPlStatus.textContent = PL_STEPS[i] || '';
+                  plDots().forEach((d, idx) => d.classList.toggle('active', idx <= i));
+                  const prog = i / (PL_STEPS.length - 1 || 1);
+                  const track = plTrack();
+                  if (track) track.style.setProperty('--progress', prog);
+                }
+
+                /************** Calculate Click (with preloader + default msg) **************/
+                if (elBtnCalc) {
+                  elBtnCalc.addEventListener('click', () => {
+                    const origin = normalizePincode(elOrigin.value);
+                    const dest = normalizePincode(elDest.value);
+                    const paymentMode = document.getElementById('paymentMode').value;
+                    const codAmount = Number(document.getElementById('codAmount').value || 0);
+                    const invoiceValue = Number(document.getElementById('invoiceValue').value || 0);
+                    const actualKg = Number(document.getElementById('approxWeight').value || 0);
+                    const L = Number(document.getElementById('length').value || 0);
+                    const W = Number(document.getElementById('width').value || 0);
+                    const H = Number(document.getElementById('height').value || 0);
+
+                    if (!isValidPincode(origin) || !isValidPincode(dest)) { showToast('Please enter a valid 6‑digit pincode.'); return; }
+                    if (!(actualKg > 0)) { showToast('Approximate weight must be > 0'); return; }
+                    if (!(L > 0 && W > 0 && H > 0)) { showToast('Dimensions must be > 0'); return; }
+                    if (paymentMode === 'COD' && !(codAmount > 0)) { showToast('Enter a valid COD amount'); return; }
+
+                    const elDefaultMsg = document.getElementById('defaultMsg');
+                    if (elDefaultMsg) elDefaultMsg.classList.add('d-none');
+
+                    lastInput = { origin, dest, paymentMode, codAmount, invoiceValue, actualKg, L, W, H };
+
+                    showPreloader();
+                    setTimeout(() => {
+                      renderQuotes();
+                      hidePreloader();
+                      elBtnReset.classList.remove('d-none');
+                    }, 900);
+                  });
+                }
+
+                window.addEventListener('resize', () => refreshArrow());
+                window.addEventListener('scroll', () => refreshArrow(), { passive: true });
+
+                /************** Rendering **************/
+                let currentPage = 1;
+                const cardsPerPage = 6;
+
+                function renderQuotes() {
+                  if (!lastInput) return;
+
+                  // Calculate volumetric weights
+                  const volSurface = volumetricKg(lastInput.L, lastInput.W, lastInput.H, 6000);
+                  const volAir = volumetricKg(lastInput.L, lastInput.W, lastInput.H, 5000);
+
+                  // Show weight hints
+                  if (elHints) {
+                    elHints.innerHTML = `
+      <span class="badge rounded-pill badge-soft me-1">Actual: ${Number(lastInput.actualKg).toFixed(2)} kg</span>
+      <span class="badge rounded-pill badge-soft me-1">Vol (Surface~6000): ${volSurface.toFixed(2)} kg</span>
+      <span class="badge rounded-pill badge-soft me-1">Vol (Air~5000): ${volAir.toFixed(2)} kg</span>
+      <span class="tiny ms-1">Chargeable uses each carrier's divisor & rounds ↑ to 0.5 kg</span>
+    `;
+                  }
+
+                  // Calculate all quotes
+                  lastQuotes = computeAllQuotes(lastInput);
+                  openOptionsRow = null;
+                  clearArrow();
+
+                  // Clear existing grid content
+                  if (elGrid) elGrid.querySelectorAll('.col-12,.col-sm-6,.col-md-4,.col-lg-2').forEach(n => n.remove());
+
+                  // Handle no results case
+                  if (!lastQuotes.length) {
+                    if (elNoResults) elNoResults.classList.remove('d-none');
+                    if (elMeta) elMeta.textContent = '';
+                    return;
+                  }
+                  if (elNoResults) elNoResults.classList.add('d-none');
+
+                  // Calculate pagination
+                  const totalPages = Math.ceil(lastQuotes.length / cardsPerPage);
+                  const startIndex = (currentPage - 1) * cardsPerPage;
+                  const endIndex = Math.min(startIndex + cardsPerPage, lastQuotes.length);
+                  const currentQuotes = lastQuotes.slice(startIndex, endIndex);
+
+                  // Render current page quotes
+                  currentQuotes.forEach(q => {
+                    const col = document.createElement('div');
+                    col.className = 'col-12 col-sm-6 col-md-4 col-lg-2';
+                    const card = buildTileCard(q.best, q.more);
+                    col.appendChild(card);
+                    elGrid.appendChild(col);
+                  });
+
+                  // Add pagination controls if needed
+                  addPaginationControls(totalPages);
+
+                  // Update meta information
+                  const cheapest = lastQuotes[0].best.total;
+                  updateMeta(cheapest);
+                } function updateMeta(cheapest) {
+
+                  const count = lastQuotes.length;
+                  const selectedCount = selectedSet.size;
+                  if (elMeta) elMeta.textContent = `${count} carriers • Cheapest ${formatINR(cheapest)}${selectedCount ? ` • Selected ${selectedCount}` : ''}`;
+                }
+                function addPaginationControls(totalPages) {
+                  // Remove existing pagination if any
+                  const existingPagination = document.getElementById('paginationControls');
+                  if (existingPagination) existingPagination.remove();
+
+                  if (totalPages <= 1) return;
+
+                  const paginationDiv = document.createElement('div');
+                  paginationDiv.id = 'paginationControls';
+                  paginationDiv.className = 'col-12 d-flex justify-content-between align-items-center mt-4';
+
+                  // Left side - showing count
+                  const countText = document.createElement('div');
+                  countText.className = 'small text-muted';
+                  countText.textContent = `Showing ${((currentPage - 1) * cardsPerPage) + 1}-${Math.min(currentPage * cardsPerPage, lastQuotes.length)} of ${lastQuotes.length} carriers`;
+
+                  // Right side - pagination buttons
+                  const paginationButtons = document.createElement('div');
+                  paginationButtons.className = 'btn-group';
+                  paginationButtons.role = 'group';
+
+                  let paginationHTML = `
+    <button type="button" class="btn btn-outline-primary btn-sm pagination-btn small" style="min-width: 38px;" ${currentPage === 1 ? 'disabled' : ''} data-page="prev">
+      <i class="fa-solid fa-angle-left me-1"></i> Prev
+    </button>`;
+
+                  // Show page numbers (small, clean, professional)
+                  for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `
+    <button type="button" class="btn btn-sm pagination-btn small ${currentPage === i ? 'btn-primary' : 'btn-outline-primary'}" style="min-width: 32px;" data-page="${i}">
+      ${i}
+    </button>`;
+                  }
+
+                  paginationHTML += `
+    <button type="button" class="btn btn-outline-primary btn-sm pagination-btn small" style="min-width: 38px;" ${currentPage === totalPages ? 'disabled' : ''} data-page="next">
+      Next <i class="fa-solid fa-angle-right ms-1"></i>
+    </button>`;
+
+                  paginationButtons.innerHTML = paginationHTML;
+
+                  // Append both sections to the container
+                  paginationDiv.appendChild(countText);
+                  paginationDiv.appendChild(paginationButtons);
+                  elGrid.appendChild(paginationDiv);
+
+                  // Add event listeners
+                  document.querySelectorAll('.pagination-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                      const page = this.dataset.page;
+
+                      if (page === 'prev' && currentPage > 1) {
+                        currentPage--;
+                      } else if (page === 'next' && currentPage < totalPages) {
+                        currentPage++;
+                      } else if (!isNaN(page)) {
+                        currentPage = parseInt(page);
+                      }
+
+                      renderQuotes();
+                    });
+                  });
+                }
+
+
+                function buildTileCard(best, moreArr, isOptionCard = false) {
+                  const tpl = document.getElementById('tileTemplate');
+                  const node = tpl.content.cloneNode(true);
+                  const root = node.querySelector('.card-tile');
+                  const selectBtn = node.querySelector('.select-btn');
+                  const logo = node.querySelector('.logo');
+                  const pDef = findPartner(best.partnerId);
+
+                  if (pDef && pDef.logo) {
+                    logo.src = pDef.logo;
+                    logo.alt = best.partnerName + ' logo';
+                    logo.classList.remove('d-none');
+                  }
+
+                  node.querySelector('.title').textContent = `${best.partnerName} ${best.label} (${capitalize(best.mode)})`;
+                  node.querySelector('.eta').textContent = `Estimated Delivery: ${best.eta}`;
+                  node.querySelector('.chgWeight').textContent = `(Chg. Weight: ${best.chgKg} Kg)`;
+                  node.querySelector('.total').textContent = formatINR(best.total);
+
+                  const bd = node.querySelector('.breakdown');
+                  bd.innerHTML = `
+    <div>Shipping Charges: ${formatINR(best.breakdown.shipping)}</div>
+    ${lastInput && lastInput.paymentMode === 'COD' ? `<div>COD Charges: ${formatINR(best.breakdown.cod)}</div>` : ''}
+    <div>GST (18%): ${formatINR(best.breakdown.gst)}</div>
+  `;
+
+                  const key = best.partnerId + '|' + best.label;
+                  if (selectedSet.has(key)) {
+                    root.classList.add('selected');
+                    selectBtn.classList.add('selected');
+                    selectBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Selected';
+                  }
+
+                  selectBtn.addEventListener('click', () => {
+                    if (selectedSet.has(key)) {
+                      selectedSet.delete(key);
+                      root.classList.remove('selected');
+                      selectBtn.classList.remove('selected');
+                      selectBtn.innerHTML = 'Select';
+                    } else {
+                      selectedSet.add(key);
+                      root.classList.add('selected');
+                      selectBtn.classList.add('selected');
+                      selectBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Selected';
+                    }
+                    const cheapest = lastQuotes?.[0]?.best?.total ?? 0;
+                    updateMeta(cheapest);
+                  });
+
+                  const moreBtn = node.querySelector('.moreBtn');
+                  const moreCount = node.querySelector('.moreCount');
+                  if (moreArr && moreArr.length && !isOptionCard) {
+                    moreCount.classList.remove('d-none');
+                    moreBtn.classList.remove('d-none');
+                    moreCount.textContent = `+${moreArr.length} more option${moreArr.length > 1 ? 's' : ''} from ${best.partnerName}`;
+                    moreBtn.addEventListener('click', (e) => {
+                      const colEl = e.currentTarget.closest('.col-12, .col-sm-6, .col-md-4, .col-lg-2') || e.currentTarget.closest('.col');
+                      toggleOptionsRow(colEl, best, moreArr);
+                    });
+                  }
+
+                  return node;
+                }
+                function toggleOptionsRow(anchorColEl, best, moreArr) {
+                  if (openOptionsRow && openOptionsRow.forColEl !== anchorColEl) {
+                    openOptionsRow.rowEl.remove(); openOptionsRow = null; clearArrow();
+                  }
+                  if (openOptionsRow && openOptionsRow.forColEl === anchorColEl) {
+                    openOptionsRow.rowEl.remove(); openOptionsRow = null; clearArrow();
+                    return;
+                  }
+
+                  const row = document.createElement('div');
+                  row.className = 'col-12 more-row-wrap';
+
+                  const wrap = document.createElement('div');
+                  wrap.className = 'more-row p-2 bg-light rounded';
+
+                  const header = document.createElement('div');
+                  header.className = 'd-flex justify-content-between align-items-start mb-2';
+                  header.innerHTML = `
+    <div class="fw-semibold">More options from ${best.partnerName}
+      <span class="tiny ms-2 text-muted">(chargeable: ${best.chgKg} kg)</span>
+    </div>
+    <button class="btn btn-outline-pro btn-sm"><i class="fa-solid fa-xmark me-1"></i>Close</button>
+  `;
+                  header.querySelector('button').addEventListener('click', () => {
+                    row.remove(); openOptionsRow = null; clearArrow();
+                  });
+
+                  // ✅ Replaced FLEX with BOOTSTRAP GRID
+                  const grid = document.createElement('div');
+                  grid.className = 'row g-3'; // Bootstrap grid with gutter
+
+                  moreArr.forEach(opt => {
+                    const col = document.createElement('div');
+                    col.className = 'col-12 col-sm-6 col-md-4'; // 3 per row on md+
+                    col.appendChild(buildTileCard(opt, [], true));
+                    grid.appendChild(col);
+                  });
+
+
+                  wrap.appendChild(header);
+                  wrap.appendChild(grid);
+                  row.appendChild(wrap);
+
+                  const parent = anchorColEl.parentElement;
+                  const children = Array.from(parent.children);
+                  const idx = children.indexOf(anchorColEl);
+                  if (idx >= 0 && idx < children.length - 1) {
+                    parent.insertBefore(row, children[idx + 1]);
+                  } else {
+                    parent.appendChild(row);
+                  }
+
+                  requestAnimationFrame(() => wrap.classList.add('open'));
+                  openOptionsRow = { rowEl: row, forColEl: anchorColEl };
+                  refreshArrow(anchorColEl, row);
+                }
+
+                function refreshArrow(anchorColEl = openOptionsRow?.forColEl, rowEl = openOptionsRow?.rowEl) {
+                  if (!anchorColEl || !rowEl) { clearArrow(); return; }
+                  const tile = anchorColEl.querySelector('.card-tile');
+                  const more = rowEl.querySelector('.more-row');
+                  if (!tile || !more) { clearArrow(); return; }
+
+                  const gridRect = elGrid.getBoundingClientRect();
+                  const tRect = tile.getBoundingClientRect();
+                  const mRect = more.getBoundingClientRect();
+
+                  const startX = (tRect.left + tRect.right) / 2 - gridRect.left;
+                  const startY = tRect.bottom - gridRect.top - 4;
+
+                  const endX = mRect.left - gridRect.left + 20;
+                  const endY = mRect.top - gridRect.top + 8;
+
+                  const cx1 = startX;
+                  const cy1 = startY + 24;
+                  const cx2 = endX - 24;
+                  const cy2 = endY - 16;
+
+                  const pathD = `M ${startX},${startY} C ${cx1},${cy1} ${cx2},${cy2} ${endX},${endY}`;
+
+                  document.getElementById('arrowOverlay')?.setAttribute('viewBox', `0 0 ${gridRect.width} ${gridRect.height}`);
+                  document.getElementById('arrowOverlay')?.setAttribute('width', gridRect.width);
+                  document.getElementById('arrowOverlay')?.setAttribute('height', gridRect.height);
+
+                  let path = elOverlay.querySelector('path');
+                  if (!path) {
+                    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    elOverlay.appendChild(path);
+                  }
+                  path.setAttribute('d', pathD);
+                  path.setAttribute('fill', 'none');
+                  path.setAttribute('stroke', '#1366d6');
+                  path.setAttribute('stroke-width', '2');
+                  path.setAttribute('marker-end', 'url(#arrowHead)');
+                  path.style.transition = 'd .12s ease';
+                }
+
+                function clearArrow() {
+                  const p = elOverlay?.querySelector('path');
+                  if (p) p.remove();
+                }
+
+                function findPartner(id) { return partners.find(p => p.id === id) || partnersMaster.find(p => p.id === id); }
+                function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+                /* Initialize default message state */
+                (function initDefaults() {
+                  const elDefaultMsg = document.getElementById('defaultMsg');
+                  if (elDefaultMsg) elDefaultMsg.classList.remove('d-none');
+                  if (elNoResults) elNoResults.classList.add('d-none');
+                })();
+              </script>
+
+            </div>
+            <!-- External JS -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <!-- FOOTER -->
+            <%- include('../partials/footer') %>
+          </div>
+
+  </div>
+
+
+  <script src="/js/main.js"></script>
+</body>
+
+</html>

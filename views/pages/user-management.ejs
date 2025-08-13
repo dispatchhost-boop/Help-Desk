@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="hi">
+ 
+<head>
+  <%- include('../partials/head') %>
+   <style>
+    /* Add padding to all cells */
+    #datatable_2 td, 
+    #datatable_2 th {
+      padding: 4px !important;
+    }
+  
+    /* Style the active pagination button */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: rgb(246, 246, 253) !important; /* Set background color to blue */
+      color: white !important;          /* Set text color to white */
+      border: none !important;          /* Remove border */
+      border-radius: 4px;               /* Add slight rounding */
+    }
+  
+    /* Hover effect for pagination buttons */
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background-color: lightblue !important; /* Light blue on hover */
+      color: white !important;                /* Ensure text is white */
+    }
+  
+   
+  
+    /* Add spacing between the filter/search bar and the table */
+    .dataTables_wrapper .dataTables_filter {
+      margin-bottom: 16px; /* Add gap below the filter */
+    }
+  
+    /* Optional: Search input box custom styling */
+    .dataTables_wrapper .dataTables_filter input {
+      border: 1px solid lightgray;       /* Add a border to the search input */
+      border-radius: 4px;                /* Slight rounding */
+      padding: 4px 8px;                  /* Add some padding */
+    }
+  </style>
+  
+</head>
+ 
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+ 
+    <!-- HEADER -->
+    <%- include('../partials/header') %>
+ 
+    <!-- SIDEBAR -->
+    <%- include('../partials/left-sidebar') %>
+    <%- include('../partials/right-iconbar') %>
+ 
+    <!-- MAIN CONTENT -->
+    <div id="main-content">
+      <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="block-header">
+          <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+              <h2>Dashboard</h2>
+              <ul class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="/"><i class="fa fa-dashboard"></i></a>
+                </li>
+                <li class="breadcrumb-item active">Dashboard</li>
+              </ul>
+            </div>
+ 
+            <!-- Uncomment this block if you need page actions like Download/Add -->
+            <!--
+            <div class="col-lg-6 col-md-6 col-sm-12">
+              <div class="d-flex flex-row-reverse">
+                <div class="page_action">
+                  <button type="button" class="btn btn-primary">
+                    <i class="fa fa-download"></i> Download report
+                  </button>
+                  <button type="button" class="btn btn-secondary">
+                    <i class="fa fa-plus"></i> Add new
+                  </button>
+                </div>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+ 
+        <!-- MAIN BODY CONTENT -->
+        <!-- Paste your dashboard cards, charts, stats etc. here -->
+            <div class="container">
+
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- <script>
+  document.querySelectorAll('.client-user-selector').forEach(container => {
+    const clientSelect = container.querySelector('.clientSelect');
+    const userSelect = container.querySelector('.userSelect');
+
+  axios.get('/api/all-clients')
+  .then(res => {
+    const clients = res.data.clients || [];
+    const levelMap = {
+      1: 'Super Admin',
+      2: 'Client',
+      3: 'Sub-Client',
+    };
+
+    clients.forEach(client => {
+      const option = document.createElement('option');
+      const roleLabel = levelMap[client.level] || 'Unknown';
+      option.value = client.id;
+      option.textContent = `${client.full_name} (${roleLabel})`;
+      clientSelect.appendChild(option);
+    });
+  })
+  .catch(err => console.error('Failed to fetch clients:', err));
+
+    // 2️⃣ Load users when client changes
+    clientSelect.addEventListener('change', async function() {
+      const clientId = this.value;
+      userSelect.innerHTML = '<option value="">Self (No User)</option>';
+      userSelect.disabled = true;
+
+      if (!clientId) return;
+
+      try {
+        const res =await axios.get(`/api/clients/${clientId}/users`);
+        console.log(res.data)
+        const users = res.data.users || [];
+
+        userSelect.disabled = false;
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = `User ${user.full_name}`; // or user.name if you have
+          userSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
+    });
+  });
+</script> -->
+
+<!-- ---------- -->
+    <div class="row p-2">
+      <div class="d-flex justify-content-end align-items-center col-12">
+        <div>
+          <% if (activeTopicIds.includes(5)) { %>
+            <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#Adduser">
+              Add Users
+            </button>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <div class="w-full px-4">
+      <div class="nav nav-tabs border-bottom">
+        <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1Content">
+          <i class="fas fa-check-circle"></i> Active
+        </button>
+        <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2Content">
+          <i class="fas fa-times-circle"></i> Inactive
+        </button>
+      </div>
+    
+      <div class="tab-content">
+        <!-- Active Tab Content -->
+        <div id="tab1Content" class="tab-pane fade show active">
+          <div class="container-fluid mt-3">
+            <div class="p-2">
+              <div class="table-responsive card p-2">
+                <table class="table my-table border-0 table-striped" id="datatable_2">
+                  <thead>
+                    <tr>
+                      <th>Client Name</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>Email ID</th>
+                      <th>Phone Number</th>
+                      <th>Reporting</th>
+                      <th>Role</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <!-- here i have changed -->
+                  <tbody>
+                    <% activeAdmins.forEach(admin => { %>
+                    <tr>
+                      <td><%= admin.company_name %></td>
+                      <td><%= admin.first_name %></td>
+                      <td><%= admin.last_name %></td>
+                      <td><%= admin.email %></td>
+                      <td><%= admin.phone_no ? 'XXXXXX' + admin.phone_no.slice(-4) : '' %></td>
+                      <td><%= admin.is_active == 1 ? 'Active' : 'Inactive' %></td>
+                      <td><%= admin.role_name %></td>
+                      <td>
+                       
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ViewUserModal"
+                          data-user-id="<%= admin.id %>" onclick="viewUser(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#EditUserModal"
+                          data-user-id="<%= admin.id %>" onclick="editUser(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" data-user-id="<%= admin.id %>" onclick="deactivateOrActive(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-user-slash"></i>
+                          Deactivate
+                        </button>
+                        
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Inactive Tab Content -->
+        <div id="tab2Content" class="tab-pane fade">
+          <div class=" container-fluid mt-3" style="background: linear-gradient(135deg, #fdfcfb 0%, #fbffdc 100%);">
+            <div class="p-2">
+              <div class="table-responsive">
+                <table class="table my-table border-0" id="datatable_3">
+                  <thead>
+                    <tr>
+                      <th>Client Name</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>Email ID</th>
+                      <th>Phone Number</th>
+                      <th>Reporting</th>
+                      <th>Role</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% inactiveAdmins.forEach(admin => { %>
+                    <tr>
+                      <td><%= admin.company_name %></td>
+                      <td><%= admin.first_name %></td>
+                      <td><%= admin.last_name %></td>
+                      <td><%= admin.email %></td>
+                      <td><%= admin.phone_no ? 'XXXXXX' + admin.phone_no.slice(-4) : '' %></td>
+                      <td><%= admin.is_active == 1 ? 'Active' : 'Inactive' %></td>
+                      <td><%= admin.role_name %></td>
+                      <td>
+                        <% if (admin.role_name !== 'super Admin') { %>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ViewUserModal"
+                          data-user-id="<%= admin.id %>" onclick="viewUser(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#EditUserModal"
+                          data-user-id="<%= admin.id %>" onclick="editUser(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" data-user-id="<%= admin.id %>" onclick="deactivateOrActive(this.getAttribute('data-user-id'))">
+                          <i class="fas fa-user-check"></i>
+                          Activate
+                        </button>
+                        <% } %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    
+  </div>
+<!-- modal satart  -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card-body">
+          <!-- Modal body starts for users -->
+          <div class="modal fade bd-example-modal-lg" id="Adduser" tabindex="-1" role="dialog"
+            aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header"style="background: linear-gradient(135deg, #fdfcfb 0%, #fbffdc 100%);">
+                  <h6 class="modal-title m-0 text-dark" id="myLargeModalLabel">
+                    Add New User
+                  </h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!--end modal-header-->
+                <div class="modal-body">
+                  <form id="user_form">
+                    <div class="row">
+                      <div class="col-md-6 card p-4">
+                        <!-- First Name and Last Name in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="fname">First Name</label>
+                            <input type="text" class="form-control" id="fname" name="firstName"
+                              placeholder="Enter first name" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="lname">Last Name</label>
+                            <input type="text" class="form-control" id="lname" name="lastName"
+                              placeholder="Enter last name" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="userPhoto">upload photo</label>
+                            <input type="file" id="userPhoto" accept="image/*" />
+                             
+                          </div>
+                        </div>
+                      
+                        <!-- Email in one row -->
+                        <div class="row mb-2">
+                          <div class="col-12">
+                            <label class="form-label" for="useremail">Email</label>
+                            <input type="email" class="form-control" id="useremail" name="email"
+                              placeholder="Enter email" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                        </div>
+                      
+                        <!-- Password and Confirm Password in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="userpassword">Password</label>
+                            <input type="password" class="form-control" name="password" id="userpassword"
+                              placeholder="Enter password" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="Confirmpassword">Confirm Password</label>
+                            <input type="password" class="form-control" name="confirmpassword" id="Confirmpassword"
+                              placeholder="Enter confirm password" required style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                            <span id="passwordMismatchError" style="color: red; display: none;">Passwords do not match.</span>
+                          </div>
+                        </div>
+                      </div>
+                <div class="mb-3">
+                  <label class="form-label d-block">User Type:</label>
+
+                  <!-- Client option disabled -->
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="userType" id="client" value="client" disabled>
+                    <label class="form-check-label" for="client">Client</label>
+                  </div>
+
+                  <!-- User option selected by default -->
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="userType" id="user" value="user" checked>
+                    <label class="form-check-label" for="user">User</label>
+                  </div>
+                </div>
+
+                      <select name="roleId" class="form-control">
+                        <% roles.forEach(role => { %>
+                          <option value="<%= role.id %>"><%= role.name %></option>
+                        <% }) %>
+                      </select>
+                        <!-- Second Row: Mobile Number -->
+                        <div class="mb-3">
+                          <label class="form-label" for="mobileNo">Mobile Number</label>
+                          <input type="text" class="form-control" id="mobileNo" maxlength="10" name="mobileNo" placeholder="Enter 10-digit phone number" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                        </div>
+                      
+                    
+
+                        <div class="mt-2 text-end">
+                          <button type="button" class="btn btn-primary btn-sm" id="submit_users">
+                            Submit
+                          </button>
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                      
+                    </div>
+
+                    
+                  </form>
+
+
+                  <!--end form-->
+                </div>
+                <!--end modal-body-->
+              </div>
+              <!--end modal-content-->
+            </div>
+            <!--end modal-dialog-->
+          </div>
+
+          <!--end modal-->
+        </div>
+        <!--end card-body-->
+      </div>
+      <div class="col-12">
+        <div class="card-body">
+          <div class="modal bd-example-modal-lg" id="ViewUserModal" tabindex="-1" role="dialog"
+            aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header"  style="background-color: #9acbff24;">
+                  <h6 class="modal-title m-0" id="myLargeModalLabel" style="color: #000;">
+                    View User
+                  </h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!--end modal-header-->
+                <div class="modal-body">
+                  <form id="view_form">
+                    <div class="row">
+                      <!-- First Column - 6 units wide for inputs -->
+                      <div class="col-md-6 card p-4">
+                        <!-- First Name and Last Name in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="fname">First Name</label>
+                            <input type="text" class="form-control" id="fnameview" name="firstname" placeholder="Enter first name" readonly />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="lname">Last Name</label>
+                            <input type="text" class="form-control" id="lnameview" name="lastname" placeholder="Enter last name" readonly />
+                          </div>
+                        </div>
+                
+                        <!-- Email -->
+                        <div class="row mb-2">
+                          <div class="col-12">
+                            <label class="form-label" for="useremail">Email</label>
+                            <input type="email" class="form-control" id="useremailview" name="useremail" placeholder="superadmin@dispatch.co.in" readonly />
+                          </div>
+                        </div>
+                
+                        <!-- Password -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="userpassword">Password</label>
+                            <input type="text" class="form-control" id="userpasswordview" name="password" placeholder="••••••" readonly />
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End of First Column -->
+                
+                      <!-- Second Column - 6 units wide for inputs -->
+                      <div class="col-md-6 card p-4">
+                        <!-- Choose User Type and Select Client in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="userType">User  Type</label>
+                            <div>
+                              <span id="userTypeDisplay"></span>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="clientSelect">Selected Client</label>
+                            <input type="text" class="form-control" id="clientSelect" name="client" placeholder="Choose Client Name" readonly />
+                          </div>
+                        </div>
+                
+                        <!-- Mobile Number in one row (spanning full width) -->
+                        <div class="row mb-2">
+                          <div class="col-12">
+                            <label class="form-label" for="viewmobileNo">Mobile Number</label>
+                            <input type="text" class="form-control" id="viewmobileNo" name="viewmobileNo" placeholder="Enter 10-digit phone number" maxlength="10" readonly />
+                          </div>
+                        </div>
+                        <!-- Select Role and Select Reporting User in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="viewroleSelect">Selected Role</label>
+                            <input type="text" class="form-control" id="viewroleSelect" name="role" placeholder="Choose a role" readonly />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="viewreportingUserSelect">Selected Reporting User</label>
+                            <input type="text" class="form-control" id="viewreportingUserSelect" name="reportingUser " placeholder="Choose Reporting User" readonly />
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End of Second Column -->
+                
+                      <!-- Close button -->
+                      <div class="mt-2 text-end">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <!--end modal-body-->
+              </div>
+              <!--end modal-content-->
+            </div>
+            <!--end modal-dialog-->
+          </div>
+        </div>
+      </div>
+
+      <!-- edit form modal start -->
+      <div class="col-12">
+        <div class="card-body">
+          <!-- Modal body starts for users -->
+          <div class="modal  bd-example-modal-lg" id="EditUserModal" tabindex="-1" role="dialog"
+            aria-labelledby="EditUserLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header" style="background-color: #9acbff24;">
+                  <h6 class="modal-title m-0" id="EditUserLabel"style="color: #000;">Edit User</h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!--end modal-header-->
+                <div class="modal-body">
+                  <form id="user_form1">
+                    <div class="row">
+                      <!-- First Column - 6 units wide -->
+                      <div class="col-md-6 card p-4">
+                        <!-- First Name and Last Name in one row -->
+                        <div class="row ">
+                          <div class="col-md-6">
+                            <label class="form-label" for="fnameedit">First Name</label>
+                            <input type="text" class="form-control" id="fnameedit" name="fnameedit"
+                              placeholder="Enter first name" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="lnameedit">Last Name</label>
+                            <input type="text" class="form-control" id="lnameedit" name="lnameedit"
+                              placeholder="Enter last name" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                        </div>
+                  
+                        <!-- Username -->
+                        <div class="row mb-2">
+                          <div class="col-12">
+                            <label class="form-label" for="usernameedit">Username</label>
+                            <input type="text" class="form-control" id="usernameedit" name="username"
+                              placeholder="Enter username" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" readonly/>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label" for="userPhotoedit">Upload Photo</label>
+                          <input type="file" id="userPhotoedit" accept="image/*" onchange="previewImage(event)" />
+                          <br />
+                          <img id="photoPreview" src="" alt="Photo Preview" style="display: none; max-width: 100%; margin-top: 10px;" />
+                        </div>
+                  
+                        <!-- Email -->
+                        <div class="row mb-2">
+                          <div class="col-12">
+                            <label class="form-label" for="useremailedit">Email</label>
+                            <input type="email" class="form-control" id="useremailedit" name="useremailedit"
+                              placeholder="Enter email" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" readonly />
+                          </div>
+                        </div>
+                  
+                        <!-- Password and Confirm Password in one row -->
+                        <div class="row mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label" for="NewUserPassword">New Password</label>
+                            <input type="password" class="form-control" name="NewUserPassword" id="NewUserPassword"
+                              placeholder="Enter password" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label" for="ConfirmNewpassword">Confirm Password</label>
+                            <input type="password" class="form-control" name="ConfirmNewpassword" id="ConfirmNewpassword"
+                              placeholder="Enter confirm password" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                        </div>
+                      </div>
+                  
+                      <!-- Second Column - 6 units wide -->
+                      <div class="col-md-6 card p-4">
+                        <!-- Select Client -->
+                        <div class="row mb-3">
+                          <div class="col-md-12">
+                            <label for="clientNameField" class="form-label">Selected Client</label>
+                            <span id="clientNameField" class="form-text"></span> <!-- Display client name here -->
+                          </div>
+                        </div>
+                  
+                        <!-- Mobile Number -->
+                        <div class="row mb-3">
+                          <div class="col-12">
+                            <label class="form-label" for="EditmobileNo">Mobile Number</label>
+                            <input type="text" class="form-control" id="EditmobileNo" name="mobileNo"
+                              placeholder="Enter 10-digit phone number" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;" />
+                          </div>
+                        </div>
+                  
+                        <!-- Role and Reporting User -->
+                        <div class="row mb-3">
+                          
+                            <div class="col-md-12">
+                              <label for="roleSelectedAdd" class="form-label">Selected role</label>
+                              <span id="roleSelectedAdd" class="form-text"></span> <!-- Display client name here -->
+                            </div>
+                         
+                          <div class="col-md-6">
+                            
+                            <label for="roleSelectInEdit" class="form-label">Select Role</label>
+                            <select class="form-select" id="roleSelectInEdit" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
+                              <option selected disabled>Choose a role</option>
+                              
+                              <option value="2">Admin</option>
+                              <option value="3">Client</option>
+                              <option value="4">Operations</option>
+                              <option value="5">CRM</option>
+                              <option value="6">Support</option>
+                            </select>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="EditreportingUserSelect" class="form-label">Select Reporting User</label>
+                            <select class="form-select" id="EditreportingUserSelect" style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;">
+                              <option selected disabled>Choose a user</option>
+                            </select>
+                          </div>
+                        </div>
+                  
+                        <!-- Active/In-Active Toggle -->
+                        
+                      </div>
+                  
+                    </div>
+                  
+                    <!-- Modal Footer -->
+                    <div class="mt-2 text-end">
+                      <button type="button" class="btn btn-primary btn-sm" onclick="saveEditUser()">
+                       Update
+                      </button>
+                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                       Cancel
+                      </button>
+                    </div>
+                  </form>
+                  
+                  <!--end form-->
+                </div>
+                <!--end modal-body-->
+              </div>
+              <!--end modal-content-->
+            </div>
+            <!--end modal-dialog-->
+          </div>
+
+          <!--end modal-->
+        </div>
+        <!--end card-body-->
+      </div>
+      <!-- edit modal end -->
+      <!--end col-12-->
+    </div>
+    <!--end row-->
+
+      </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <!-- FOOTER -->
+      <%- include('../partials/footer') %>
+    
+   
+ 
+  <!-- External JS -->
+  <!-- tab script start -->
+     
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   
+      <!-- tab script end -->
+      <!-- Bootstrap JS -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+      <!-- DataTables JS and Bootstrap Integration -->
+      <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <script>
+        // Make user view
+        let clientLoginId = 0;
+        function viewUser (userId) {
+  console.log("user login", userId);
+  // Send request to backend to get user details by userId
+  axios.get(`/admin/view/${userId}`)
+    .then(response => {
+      const userData = response.data;
+
+            // Populate the form fields with user data
+            document.getElementById('fnameview').value = userData.first_name;
+      document.getElementById('lnameview').value = userData.last_name;
+      document.getElementById('useremailview').value = userData.email;
+      document.getElementById('userpasswordview').value = userData.password; // Consider not showing the password
+
+      // Populate other fields
+      document.getElementById('clientSelect').value = userData.company_name || '';
+      document.getElementById('viewmobileNo').value = userData.phone_no || '';
+      document.getElementById('viewroleSelect').value = userData.role_name || '';
+      document.getElementById('viewreportingUserSelect').value = userData.reporting_user || '';
+
+      // Set the user type radio button based on user_type
+     // Set the user type display based on user_type
+if (userData.user_type === 'c1') {
+  document.getElementById('userTypeDisplay').innerText = 'Client';
+} else if (userData.user_type === 'd1') {
+  document.getElementById('userTypeDisplay').innerText = 'Dispatch';
+}
+
+
+      // Open the modal (Bootstrap 5)
+      const viewUserModal = new bootstrap.Modal(document.getElementById('ViewUserModal'));
+      viewUserModal.show();
+    })
+    .catch(error => {
+      console.error('Error fetching user data:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an issue fetching user data. Please try again.',
+      });
+    });
+}
+
+
+          // Password real-time validation
+  document.addEventListener("DOMContentLoaded", () => {
+    const passwordField = document.getElementById('userpassword');
+    const confirmPasswordField = document.getElementById('Confirmpassword');
+    const passwordMismatchError = document.getElementById('passwordMismatchError');
+
+    confirmPasswordField.addEventListener('input', () => {
+      const password = passwordField.value;
+      const confirmPassword = confirmPasswordField.value;
+
+      // Show or hide the error message based on match
+      if (password && confirmPassword && password !== confirmPassword) {
+        passwordMismatchError.style.display = 'block';
+      } else {
+        passwordMismatchError.style.display = 'none';
+      }
+    });
+
+    passwordField.addEventListener('input', () => {
+      // Trigger validation when the password field changes
+      const password = passwordField.value;
+      const confirmPassword = confirmPasswordField.value;
+
+      if (password && confirmPassword && password !== confirmPassword) {
+        passwordMismatchError.style.display = 'block';
+      } else {
+        passwordMismatchError.style.display = 'none';
+      }
+    });
+  });
+
+
+ document.getElementById('submit_users').addEventListener('click', async () => {
+  const form = document.getElementById('user_form');
+  const formData = new FormData(form);
+
+  // Add file if selected
+  const userPhoto = document.getElementById('userPhoto').files[0];
+  if (userPhoto) formData.append('photo', userPhoto);
+  
+  const password = formData.get('password');
+  const confirmPassword = formData.get('confirmpassword');
+
+  if (password !== confirmPassword) {
+    document.getElementById('passwordMismatchError').style.display = 'block';
+    return;
+  }
+
+  try {
+    const response = await axios.post('/predispatch/client_sign_in', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.status === 200) {
+      showSwal('User has been created successfully.', 'success');
+      setTimeout(() => window.location.href = '/user-management', 1500);
+    }
+  } catch (error) {
+    const validationErrors = error.response?.data?.errors?.errors || [];
+    if (validationErrors.length > 0) {
+      const errorMessage = validationErrors
+        .map(err => `• ${err.message}`)
+        .join('<br/>');
+      showSwal(errorMessage, 'error');
+    } else {
+      showSwal('There was an error creating the user.', 'error');
+    }
+  }
+});
+ 
+      </script>
+
+
+      <script>
+
+let userId;
+
+function editUser (Id) {
+  console.log("in the editUser ");
+  userId = Id;
+
+  // Send request to get user details for the specific userId
+  axios.get(`/admin/view/${userId}`)
+    .then(response => {
+      const userData = response.data;
+
+      // Populate the form fields with user data
+      document.getElementById('fnameedit').value = userData.first_name || " ";
+      document.getElementById('lnameedit').value = userData.last_name || "";
+      document.getElementById('useremailedit').value = userData.email || "";
+      document.getElementById('usernameedit').value = userData.email || "";
+      document.getElementById("EditmobileNo").value = userData.phone_no || "";
+      const clientNameField = document.getElementById('clientNameField'); // Ensure this ID matches your HTML
+      clientNameField.textContent = userData.company_name || "No client selected"; // Display client name
+      const roleseleted = document.getElementById("roleSelectedAdd");
+      roleseleted.textContent = userData.role_name || ""; // Display role
+      const photoPreview = document.getElementById('photoPreview');
+      photoPreview.src = userData.logo_path || ''; // Assuming logo_path contains the relative path
+      photoPreview.style.display = userData.logo_path ? 'block' : 'none'; // Show or hide based on existence
+
+      // Fetch reporting users based on the company name
+      const companyName = userData.client_id;
+
+      // Fetch reporting users based on the company name
+      
+      return axios.get(`/choose-user?company_name=${encodeURIComponent(companyName)}`);
+    })
+    .then(response => {
+      const reportingUsers = response.data; // Assuming this returns an array of reporting users
+
+      // Populate the Reporting User dropdown
+      const reportingUserSelect = document.getElementById('EditreportingUserSelect'); // Ensure this ID matches your HTML
+      reportingUserSelect.innerHTML = '<option selected disabled>Choose a user</option>'; // Clear previous options
+
+      reportingUsers.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;  // Set the value to the user id
+        option.textContent = `${user.first_name} ${user.last_name}`;  // Display full name in the dropdown
+        reportingUserSelect.appendChild(option); // Append the option to the dropdown
+      });
+
+      // Open the modal
+      const editUserModal = new bootstrap.Modal(document.getElementById('EditUserModal'));
+      editUserModal.show();
+    })
+    .catch(error => {
+      console.error('Error fetching user data for editing:', error);
+    });
+}
+
+function saveEditUser () {
+  const updatedData = new FormData(); // Use FormData to handle file uploads
+  updatedData.append('id', userId); // Use the stored userId
+
+  // Check if elements exist before accessing their values
+  const firstNameInput = document.getElementById('fnameedit');
+  const lastNameInput = document.getElementById('lnameedit');
+  const emailInput = document.getElementById('useremailedit');
+  const mobileNoInput = document.getElementById('EditmobileNo');
+  const reportingUserSelect = document.getElementById('EditreportingUserSelect');
+  const roleSelect = document.getElementById('roleSelectInEdit');
+  const newPasswordInput = document.getElementById('NewUserPassword');
+  const confirmPasswordInput = document.getElementById('ConfirmNewpassword');
+
+  if (firstNameInput) updatedData.append('first_name', firstNameInput.value);
+  if (lastNameInput) updatedData.append('last_name', lastNameInput.value);
+  if (emailInput) updatedData.append('email', emailInput.value);
+  if (mobileNoInput) updatedData.append('mobile_no', mobileNoInput.value);
+  if (reportingUserSelect) updatedData.append('reporting_user_id', reportingUserSelect.value);
+  if (roleSelect) updatedData.append('role_id', roleSelect.value);
+
+  // Get the new password
+  const newPassword = newPasswordInput ? newPasswordInput.value : '';
+  const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+  // Only include the password in the updatedData if it's provided
+  if (newPassword) {
+    if (newPassword === confirmPassword) {
+      updatedData.append('password', newPassword); // Add password to the data to be sent
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Passwords do not match!',
+      });
+      return; // Exit the function if passwords do not match
+    }
+  }
+
+  // Handle file upload
+  const userPhotoEdit = document.getElementById('userPhotoedit').files[0]; // Get the selected file
+  if (userPhotoEdit) {
+    updatedData.append('photo', userPhotoEdit); // Append the file to FormData
+  }
+
+  // Send the updated data to the backend for saving
+  axios.post(`/admin/edit`, updatedData, {
+    headers: {
+      'Content-Type': 'multipart/form-data' // Set the content type for file upload
+    }
+  })
+  .then(response => {
+    if (response.data.success) {
+      // Handle success
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: response.data.message || 'User  data updated successfully',
+      }).then(() => {
+        // Redirect to user management page after closing the alert
+        window.location.href = '/user-management';
+      });
+      // Close modal
+      var editUserModal = bootstrap.Modal.getInstance(document.getElementById('EditUserModal'));
+      editUserModal.hide();
+    } else {
+      // Handle failure
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: response.data.message || 'Failed to update user data',
+      });
+    }
+  })
+  .catch(error => {
+    // Check if the error response exists and has a message
+    if (error.response && error.response.data) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response.data.message || 'An error occurred while updating user data. Please try again.',
+      });
+    } else {
+      // Handle generic error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An unexpected error occurred. Please try again later.',
+      });
+    }
+    console.error('Error updating user data:', error);
+  });
+}
+        function deactivateOrActive(userId) {
+          axios.post(`/admin/deactivate`, { id: userId })
+            .then(response => {
+              console.log('User deactivated successfully');
+              // Optionally refresh the user list or update the UI to reflect the change
+              location.reload(); // Reload to see updated status
+            })
+            .catch(error => {
+              console.error('Error deactivating user:', error);
+            });
+        }
+
+
+      </script>
+
+
+      <!-- Initialize DataTable -->
+      <script>
+        $(document).ready(function () {
+          // Initialize DataTable only if not already initialized
+          if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+            $('#datatable_2').DataTable({
+              "ordering": false, // Disable column sorting
+              "searching": true, // Enable built-in search
+              "lengthChange": true, // Allow entries per page dropdown
+              "info": true, // Show table info (e.g., "Showing 1 to 10 of 50 entries")
+              "paging": true, // Enable pagination
+              "pageLength": 10, // Default number of entries per page
+              "language": {
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                "infoEmpty": "No entries available",
+                "search": "Search:", // Custom label for search input
+                "paginate": {
+                  "previous": "Prev",
+                  "next": "Next"
+                }
+              }
+            });
+          }
+      
+          // Custom search functionality
+          $('#search-input').on('keyup', function () {
+            var searchValue = $(this).val(); // Get the search input value
+            $('#datatable_2').DataTable().search(searchValue).draw(); // Apply search filter
+          });
+      
+          // Optional: Trigger search on button click
+          $('#button-addon2').on('click', function () {
+            var searchValue = $('#search-input').val();
+            $('#datatable_2').DataTable().search(searchValue).draw();
+          });
+        });
+      </script>
+<!-- jQuery Library -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+      
+
+      <!-- App js -->
+      <script src="assets/js/app.js"></script>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+      <script>
+        // Function to fetch client data and populate the first dropdown
+        async function fetchClientData(userType) {
+          try {
+            // Clear the user select dropdown
+            const companySelect = document.getElementById('companySelect');
+            companySelect.innerHTML = '<option selected disabled>Choose Client Name</option>';
+
+            // Make an Axios GET request to the /client-management route
+            const response = await axios.get(`/client-management?user_type=${userType}`);
+            console.log("Full response:", response);
+
+            if (response.data && Array.isArray(response.data.adminData)) {
+              // Loop through the array of company names
+              response.data.adminData.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id; // Use company id as the value
+                option.textContent = company.company_name; // Display company_name in the dropdown
+                companySelect.appendChild(option); // Append the option to the dropdown
+              });
+            } else {
+              console.warn('Invalid data format or empty adminData:', response.data);
+            }
+          } catch (error) {
+            console.error('Error fetching client data:', error);
+          }
+        }
+
+        // Function to fetch user names (admins) based on the selected company
+        async function fetchAndPopulateUsers(companyName) {
+          try {
+            // Make a POST request to fetch user data based on companyId
+            const response = await fetch(`/choose-user?company_name=${encodeURIComponent(companyName)}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            // Check if the response was successful
+            const data = await response.json();
+
+            if (response.ok && Array.isArray(data)) {  // Check if data is an array of users
+              const userSelect = document.getElementById('userSelect');
+
+              // Clear previous options
+              userSelect.innerHTML = '<option selected disabled>Choose a user</option>';
+
+              // Add user options dynamically
+              data.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;  // Set the value to the user id
+                option.textContent = `${user.first_name} ${user.last_name}`;  // Display full name in the dropdown
+                userSelect.appendChild(option); // Append the option to the dropdown
+              });
+            } else {
+              console.error('Error or invalid data format:', data.message || 'No users found');
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          }
+        }
+
+        
+
+        // Event listener for when a company is selected
+        
+
+        // Call fetchClientData() when page loads to populate the company select dropdown
+        document.addEventListener('DOMContentLoaded', function () {
+          console.log("the client_id is", "<%= clientId %>");
+          const clientId = "<%= clientId %>";
+          console.log("in the dom content loaded");
+          if (clientId == "0" || clientId == "1") {
+        document.getElementById('companySelect').addEventListener('change', function () {
+          const companyId = this.value;
+          console.log("companyId in the company select", companyId);
+          if (companyId) {
+            // Call function to populate the Reporting User dropdown based on selected company
+            fetchAndPopulateUsers(companyId);
+          }
+        });
+      }
+          
+          // Only call fetchClientData when clientId is not 0 or 1
+          if (clientId !== "0" && clientId !== "1") {
+    // fetchClientData('c1');
+    
+    // Get login_id for the selected client
+    axios.get(`/choose-clientComp/${clientId}`)
+        .then(response => {
+            if (response.data.success) {
+                const clientData = response.data.data;
+                console.log("Login ID:", clientData.login_id);
+                clientLoginId = clientData.login_id;
+                // Use the login_id to fetch and populate users
+                fetchAndPopulateUsers(clientData.login_id);
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching client details:", error);
+        });
+}
+        });
+        function previewImage(event) {
+  const file = event.target.files[0];
+  const photoPreview = document.getElementById('photoPreview');
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      photoPreview.src = e.target.result; // Set the src of the image to the file's data URL
+      photoPreview.style.display = 'block'; // Show the image
+    };
+    reader.readAsDataURL(file); // Read the file as a data URL
+  } else {
+    photoPreview.src = ''; // Clear the image preview if no file is selected
+    photoPreview.style.display = 'none'; // Hide the image
+  }
+}
+      </script>
+          
+      
+
+  <script src="/js/main.js"></script>
+</body>
+ 
+</html>

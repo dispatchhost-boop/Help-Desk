@@ -1,0 +1,98 @@
+<style>
+   footer {
+    padding: 0 30px;
+    /* padding-bottom: 15px; */
+    position: absolute;
+    right: 0;
+}
+
+    .footer-fixed-bottom {
+        position: fixed;
+        bottom: 0;
+        left: 280px;
+        width: calc(100% - 330px);
+       
+        background: #ffffff;
+      
+        transition: all 0.3s ease-in-out;
+        z-index: 99;
+    }
+
+    .footer-fixed-bottom .container-fluid {
+        max-width: 1140px;
+        margin: 0 auto;
+    }
+
+    /* Full width layout styles */
+    .layout-fullwidth .footer-fixed-bottom {
+        left: 0;
+        width: calc(100% - 50px);
+    }
+
+    .right_icon_toggle.layout-fullwidth .footer-fixed-bottom {
+        width: 100%;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 991px) {
+        .footer-fixed-bottom {
+            left: 0;
+            width: 100%;
+        }
+    }
+</style>
+  
+  <!-- Fixed Footer -->
+  <footer class="footer-fixed-bottom">
+    <div class="container-fluid px-4">
+      <div class="row align-items-center" style="min-height: 48px;">
+        <div class="col-md-6 col-12 text-md-start text-center mb-2 mb-md-0">
+          <span>© 2025 Ashrey Logistic Solutions LLP.</span>
+        </div>
+        <div class="col-md-6 col-12 text-md-end text-center">
+          <span>Crafted with</span>
+          <i class="fas fa-heart text-danger"></i>
+          <span class="ms-2">by Team Dispatch Solutions</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+
+<!-- JavaScript Dependencies -->
+<!-- <script src="/assets/bundles/libscripts.bundle.js"></script> -->
+<script src="/assets/bundles/vendorscripts.bundle.js"></script>
+
+<!-- Axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+<!-- Vendor JS -->
+<script src="/assets/vendor/toastr/toastr.js"></script>
+<script src="/assets/bundles/c3.bundle.js"></script>
+<script src="/assets/vendor/sweetalert/sweetalert.min.js"></script>
+
+<!-- Main Application JS -->
+<script src="/assets/bundles/mainscripts.bundle.js"></script>
+<script src="/assets/js/index.js"></script>
+<script src="/assets/js/pages/ui/dialogs.js"></script>
+<!-- <script>
+// Fetch API token from /get-api-token and make it available globally
+window.apiToken = null;
+$.ajax({
+    url: '/get-api-token',
+    method: 'GET',
+    dataType: 'json',
+    success: function(data) {
+        if (data && data.token) {
+            window.apiToken = data.token;
+            console.log('API token fetched:', window.apiToken);
+        } else {
+            console.warn('Token not found in /get-api-token response:', data);
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error('Failed to fetch API token:', error);
+    }
+});
+</script> -->

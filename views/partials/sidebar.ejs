@@ -1,0 +1,31 @@
+<div class="sidebar">
+  <div class="sidebar-wrapper">
+    <ul class="nav">
+      <li class="nav-item <%= activePage === 'dashboard' ? 'active' : '' %>">
+        <a class="nav-link" href="/">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item <%= activePage === 'Ordr Management' ? 'active' : '' %>">
+        <a class="nav-link" href="/order-management">
+          <i class="fas fa-chart-pie"></i>
+          <span>app-calendar</span>
+        </a>
+      </li>
+        <li class="nav-item <%= activePage === 'order-summary' ? 'active' : '' %>">
+        <a class="nav-link" href="/order-summary">
+          <i class="fas fa-chart-pie"></i>
+          <span>Order Summary</span>
+        </a>
+      </li>
+  <li class="nav-item <%= activePage === 'order-pendancy' ? 'active' : '' %>">
+        <a class="nav-link" href="/order-pendancy">
+          <i class="fas fa-chart-pie"></i>
+          <span>Order Pendancy</span>
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+</div>

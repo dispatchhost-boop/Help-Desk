@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  table.dataTable tbody tr {
+    background-color: #ffffff00 !important;
+  }
+  
+  table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 18px;
+    border-bottom: 1px solid #11111127;
+  }
+  
+  table.dataTable.no-footer {
+    border-bottom: 1px solid #11111127;
+  }
+ 
+  .dataTables_length label {
+    font-weight: 600;
+    margin-right: 10px;
+  }
+
+  .dataTables_paginate .paginate_button {
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+  .table-responsive {
+    max-width: 100%;
+    overflow-x: auto !important;
+}
+.modal-backdrop {
+  display: none !important;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+
+
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Billing Section</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">COD</li>
+                  <li class="breadcrumb-item active">To Be Remitted</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div class="mb-5">
+
+            <!-- Search & Button Row -->
+            <div class="row align-items-center mb-3">
+              <!-- Search Input -->
+              <div class="col-md-3">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="search-input" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- Edit Selected Button (Right End) -->
+              <div class="col-md-auto ms-auto">
+                <button id="openModalBtn" class="btn btn-outline-primary border-0" disabled data-bs-toggle="modal" data-bs-target="#editModal">
+                  Edit Selected
+                </button>
+              </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table id="datatable_2" class="table table-striped text-nowrap">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Po_Id</th>
+                        <th>Order Date</th>
+                        <th>UTR Number</th>
+                        <th>Lr Number</th>
+                        <th>Delivery Date</th>
+                        <th>Client Name</th>
+                        <th>Customer Name</th>
+                        <th>Customer Address</th>
+                        <th>Pincode</th>
+                        <th>Collectable Cod</th>
+                        <th>Remitted From Forwarder</th>
+                        <th>Total Amount From Forwarder</th>
+                        <th>Discrepancy</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <%
+                        // Helper to format date and time in Indian format (date up, time down, AM/PM)
+                        function formatIndianDateTime(dt) {
+                          if (!dt) return '';
+                          let dateObj;
+                          if (typeof dt === 'string' && dt.length > 0) {
+                            dateObj = new Date(dt);
+                          } else if (dt instanceof Date) {
+                            dateObj = dt;
+                          } else {
+                            return dt;
+                          }
+                          if (isNaN(dateObj.getTime())) return dt;
+
+                          // Date in DD/MM/YYYY
+                          const day = String(dateObj.getDate()).padStart(2, '0');
+                          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                          const year = dateObj.getFullYear();
+                          const dateStr = `${day}/${month}/${year}`;
+
+                          // Time in hh:mm AM/PM
+                          let hours = dateObj.getHours();
+                          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                          const ampm = hours >= 12 ? 'PM' : 'AM';
+                          hours = hours % 12;
+                          hours = hours ? hours : 12; // the hour '0' should be '12'
+                          const timeStr = `${hours}:${minutes} ${ampm}`;
+
+                          // Return as stacked (date above, time below)
+                          return `<div style="line-height:1.2;"><span>${dateStr}</span><br><small>${timeStr}</small></div>`;
+                        }
+                      %>
+                      <% if (result && result.length > 0) { %>
+                        <% result.forEach(row => { %>
+                          <% if (row.status !== "1") { %>
+                          <tr>
+                            <td><input type="checkbox" class="rowCheckbox"></td>
+                            <td><%= row.po_id %></td>
+                            <td><%- formatIndianDateTime(row.order_date) %></td>
+                            <td><%= row.utr_number %></td>
+                            <td><%= row.lr_no %></td>
+                            <td><%- formatIndianDateTime(row.delivery_date) %></td>
+                            <td><%= row.client_name %></td>
+                            <td><%= row.customer_name %></td>
+                            <td><%= row.customer_address %></td>
+                            <td><%= row.pincode %></td>
+                            <td>₹<%= row.cod_amount %></td>
+                            <td>₹<%= row.cod_amount %></td>
+                            <td>₹<%= row.amount_from_forwarder %></td>
+                            <td>₹<%= row.discrepency_amount %></td>
+                          </tr>
+                          <% } %>
+                        <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="14" class="text-center">No Data Found</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- Pagination will be handled by DataTables JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- DataTables and jQuery (for pagination, search, etc.) -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+          <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+
+          <script>
+            $(document).ready(function() {
+              // Initialize DataTable with pagination and search
+              if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+                $('#datatable_2').DataTable({
+                  "ordering": false,
+                  "searching": false,
+                  "paging": true,
+                  "pageLength": 10,
+                  "lengthMenu": [5, 10, 25, 50, 100, "All"],
+                  "language": {
+                    "search": "",
+                    "searchPlaceholder": "Search"
+                  },
+                  "columnDefs": [
+                    { "orderable": false, "targets": 0 }
+                  ]
+                });
+              }
+
+              // Search input triggers DataTable search
+              $('#search-input').on('keyup', function() {
+                $('#datatable_2').DataTable().search(this.value).draw();
+              });
+
+              // Select all checkboxes
+              $('#selectAll').on('change', function() {
+                $('.rowCheckbox').prop('checked', this.checked).trigger('change');
+              });
+
+              // Enable/disable Edit Selected button
+              $(document).on('change', '.rowCheckbox', function() {
+                let anyChecked = $('.rowCheckbox:checked').length > 0;
+                $('#openModalBtn').prop('disabled', !anyChecked);
+                // If any unchecked, uncheck selectAll
+                if (!this.checked) {
+                  $('#selectAll').prop('checked', false);
+                } else if ($('.rowCheckbox:checked').length === $('.rowCheckbox').length) {
+                  $('#selectAll').prop('checked', true);
+                }
+              });
+            });
+          </script>
+          
+        <!-- Modal -->
+        <div class="modal" id="editModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header"style="background: linear-gradient(135deg, #fdfcfb 0%, #f1faff 100%)">
+                <h5 class="modal-title" id="modalLabel" style="color:#5a99fc">Edit Selected Rows</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body"style=" background: linear-gradient(135deg, #fdfcfb 0%, #fbffdc 100%);">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" id="editModalTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="utrDetailsTab" data-bs-toggle="tab" href="#utrDetails" role="tab" aria-controls="utrDetails" aria-selected="true">UTR DETAILS</a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="orderSummaryTab" data-bs-toggle="tab" href="#orderSummary" role="tab" aria-controls="orderSummary" aria-selected="false">ORDER SUMMARY</a>
+                  </li>
+                </ul>
+                
+                <!-- Tab content -->
+                <div class="tab-content mt-3">
+                  <!-- UTR DETAILS Tab -->
+                  <div class="tab-pane fade show active" id="utrDetails" role="tabpanel" aria-labelledby="utrDetailsTab">
+                    <form id="editForm">
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <div class="form-group mb-3">
+                            <label>Select Client</label>
+                            <select id="clientName" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></select>
+                          </div>
+                          <div class="form-group mb-3">
+                            <label for="lrNos">Selected LR Numbers</label>
+                            <input type="text" id="lrNos" class="form-control" readonly style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <input type="hidden" id="selectedPoIds">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label>UTR Number</label>
+                            <input type="text" id="utrNumber" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label>Bank Name</label>
+                            <input type="text" id="bankName" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                        </div>
+        
+                        <div class="col-sm-6">
+                          <div class="form-group mb-3">
+                            <label>IFSC Code</label>
+                            <input type="text" id="ifscCode" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label>Branch Name</label>
+                            <input type="text" id="branchName" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label>Transaction Date</label>
+                            <input type="date" id="transactionDate" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                          <div class="form-group mb-3">
+                            <label>Remittance Amount</label>
+                            <input type="number" id="remittanceAmount" class="form-control" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+        
+                  <!-- ORDER SUMMARY Tab -->
+                  <div class="tab-pane " id="orderSummary" role="tabpanel" aria-labelledby="orderSummaryTab">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>PO ID</th>
+                          <th>LR Nu.</th>
+                          <th>Order Date</th>
+                          <th>Client Name</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="orderSummaryBody">
+                        <!-- Dynamic rows will be inserted here based on selected rows -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChanges">Save </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        
+        
+        
+        <script>
+        document.getElementById('saveChanges').addEventListener('click', function() {
+          const formData = {
+              clientName: document.getElementById('clientName').value,
+              utrNumber: document.getElementById('utrNumber').value,
+              bankName: document.getElementById('bankName').value,
+              ifscCode: document.getElementById('ifscCode').value,
+              branchName: document.getElementById('branchName').value,
+              transactionDate: document.getElementById('transactionDate').value,
+              remittanceAmount: document.getElementById('remittanceAmount').value,
+              orderSummary: []
+          };
+        
+          // Collect data from the order summary table
+          document.querySelectorAll('#orderSummaryBody tr').forEach(row => {
+              const poId = row.children[1].textContent;
+              const lrNos = row.children[2].textContent;
+              const orderDate = row.children[3].textContent;
+              const clientName = row.children[4].textContent;
+              const status = row.children[5].querySelector("select").value;
+              // const status = row.children[5].textContent;
+        
+              formData.orderSummary.push({ poId, lrNos, orderDate, clientName, status });
+          });
+        
+          // Send data to the server using Axios
+          axios.post('/save-agg-to-client', formData)
+          .then(response => {
+              console.log('Success:', response.data);
+              alert('Data saved successfully!');
+              $('#editModal').modal('hide'); // Hide modal on success
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Error saving data!');
+          });
+        });
+        </script>
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            let selectAll = document.getElementById("selectAll");
+            let checkboxes = document.querySelectorAll(".rowCheckbox");
+            let openModalBtn = document.getElementById("openModalBtn");
+        
+            // Handle select all checkbox behavior - MODIFIED to only select rows that match conditions
+            selectAll.addEventListener("change", function () {
+              checkboxes.forEach(cb => {
+                const tr = cb.closest('tr');
+                const utrNumber = tr.cells[3].innerText.trim(); // UTR number column
+                const discrepencyAmount = parseFloat(tr.cells[13].innerText.trim()); // Discrepancy column
+                
+                // Only check rows that match the highlighting conditions
+                if (selectAll.checked && 
+                    ((utrNumber && discrepencyAmount === 0.00) || (discrepencyAmount !== 0.00))) {
+                  cb.checked = true;
+                } else {
+                  cb.checked = false;
+                }
+              });
+              
+              openModalBtn.disabled = ![...checkboxes].some(cb => cb.checked);
+            });
+        
+            // Handle individual row selection
+            checkboxes.forEach(cb => {
+              cb.addEventListener("change", function () {
+                openModalBtn.disabled = ![...checkboxes].some(cb => cb.checked);
+              });
+            });
+        
+            // Open the modal when the button is clicked - MODIFIED to filter rows
+            openModalBtn.addEventListener("click", function () {
+              let selectedRows = document.querySelectorAll(".rowCheckbox:checked");
+              let clientName = '';
+              let selectedData = [];
+              let lrNos = [];
+              let poIds = [];
+        
+              selectedRows.forEach(row => {
+                let tr = row.closest("tr");
+                let utrNumber = tr.cells[3].innerText.trim(); // UTR number column
+                let discrepencyAmount = parseFloat(tr.cells[13].innerText.trim()); // Discrepancy column
+                
+                // Only include rows that match the highlighting conditions
+                if ((utrNumber && discrepencyAmount === 0.00) || (discrepencyAmount !== 0.00)) {
+                  let rowClientName = tr.cells[6]?.innerText.trim();
+        
+                  // Ensure all selected rows have the same client
+                  if (!clientName) {
+                    clientName = rowClientName;
+                  } else if (clientName !== rowClientName) {
+                    alert("Please select rows with the same client.");
+                    return;
+                  }
+        
+                  // Collect the necessary data
+                  selectedData.push({
+                    po_id: tr.cells[1]?.innerText.trim(),
+                    order_date: tr.cells[2]?.innerText.trim(),
+                    lr_no: tr.cells[4]?.innerText.trim(),
+                    client_name: tr.cells[6]?.innerText.trim(),
+                  });
+                  
+                  lrNos.push(tr.cells[4]?.innerText.trim());
+                  poIds.push(tr.cells[1]?.innerText.trim());
+                }
+              });
+        
+              // Only proceed if there are rows that match the conditions
+              if (selectedData.length === 0) {
+                alert("No rows match the required conditions (highlighted in green or red).");
+                return;
+              }
+        
+              // Populate the UTR DETAILS tab
+              document.getElementById("clientName").value = clientName;
+              document.getElementById("lrNos").value = lrNos.join(", ");
+              document.getElementById("selectedPoIds").value = poIds.join(',');
+        
+              // Populate the ORDER SUMMARY tab
+              const orderSummaryBody = document.getElementById("orderSummaryBody");
+              orderSummaryBody.innerHTML = ''; // Clear previous rows
+              selectedData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td>${index + 1}</td>
+                  <td>${row.po_id}</td>
+                  <td>${row.lr_no}</td>
+                  <td>${row.order_date}</td>
+                  <td>${row.client_name}</td>
+                  <td>
+                    <select class="form-control">
+                      <option value="1">Remit</option>
+                      <option value="0">Non Remit</option>
+                    </select>
+                  </td>
+                `;
+                orderSummaryBody.appendChild(tr);
+              });
+        
+              // Show the modal
+              new bootstrap.Modal(document.getElementById('editModal')).show();
+            });
+        
+            // Handle save changes
+            document.getElementById("saveChanges").addEventListener("click", function () {
+              let selectedPoIds = document.getElementById("selectedPoIds").value.split(',');
+              let newUtrNumber = document.getElementById("utrNumber").value;
+              let newTransactionDate = document.getElementById("transactionDate").value;
+              let newRemittanceAmount = document.getElementById("remittanceAmount").value;
+        
+              // Update the selected rows with new data
+              selectedPoIds.forEach(poId => {
+                let row = [...document.querySelectorAll(".rowCheckbox")].find(cb => cb.closest('tr').cells[1]?.innerText.trim() === poId);
+                if (row) {
+                  let tr = row.closest('tr');
+                  tr.cells[2].innerText = newUtrNumber;
+                  tr.cells[5].innerText = newTransactionDate;
+                  tr.cells[6].innerText = newRemittanceAmount;
+                }
+              });
+        
+              // Close the modal after saving changes
+              document.querySelector(".close").click();
+            });
+        
+          });
+        </script>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            let rows = document.querySelectorAll("#datatable_2 tbody tr");
+        
+            rows.forEach(row => {
+              let utrNumber = row.cells[2].innerText.trim(); // UTR number is in the 3rd column (index 2)
+              let discrepencyAmount = parseFloat(row.cells[12].innerText.trim()); // Discrepency is in the 13th column (index 12)
+              
+              // Highlight row green if both conditions match (utr_number exists and discrepency_amount is 0.00)
+              if (utrNumber && discrepencyAmount === 0.00) {
+                row.style.background = "linear-gradient(135deg, #fdfcfb 0%, #ddf7cd6e 100%)";
+                row.style.color = "#3a3a3a"; // Text visibility improve karne ke liye
+              }
+              // Highlight row red if discrepency_amount is not 0.00
+              else if (discrepencyAmount !== 0.00) {
+                row.style.background = "linear-gradient(135deg, #fdfcfb 0%, #ffd5d594 100%)";
+                row.style.color = "#3a3a3a"; // Text visibility improve karne ke liye
+              }
+            });
+          });
+        </script>
+        
+              
+            <!-- Scripts -->
+            <!-- jQuery first -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            
+            <!-- DataTables after jQuery -->
+            <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+            
+            <!-- Bootstrap JS (required for modal functionality) -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+            
+            <!-- Axios for AJAX requests -->
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+            
+            <!-- SweetAlert2 for alerts -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            
+            <script>
+              $(document).ready(function () {
+                // Check if DataTable is already initialized
+                if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+                  // Initialize DataTable only if it's not already initialized
+                  var table = $('#datatable_2').DataTable({
+                    "ordering": false,
+                    "searching": true,
+                    "lengthChange": false, 
+                    "info": true,
+                    "paging": true,
+                    "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                    "language": {
+                      "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                      "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                    },
+                    "pagingType": "full_numbers",
+                    "pageLength": 10,
+                    "drawCallback": function() {
+                      $('.paginate_button').addClass('btn btn-sm').css({
+                        'background-color': '#e3f2fd',
+                        'border-color': '#90caf9',
+                        'color': '#1976d2', 
+                        'margin': '0 2px',
+                        'border-radius': '4px'
+                      });
+                      
+                      $('.paginate_button.current').css({
+                        'background-color': '#1976d2',
+                        'color': '#fff',
+                        'border-color': '#1976d2'
+                      });
+        
+                      $('.paginate_button.disabled').css({
+                        'opacity': '0.5',
+                        'cursor': 'not-allowed'
+                      });
+                    }
+                  });
+                }
+        
+                // Custom search functionality when user types in the search input
+                $('#search-input').on('keyup', function () {
+                  var searchValue = $(this).val();
+                  $('#datatable_2').DataTable().search(searchValue).draw();
+                });
+        
+                // Optional: Search when the search button is clicked
+                $('#button-addon2').on('click', function () {
+                  var searchValue = $('#search-input').val();
+                  $('#datatable_2').DataTable().search(searchValue).draw();
+                });
+              });
+            </script>
+        
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

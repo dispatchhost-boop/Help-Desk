@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+<link href="assets/libs/mobius1-selectr/selectr.min.css" rel="stylesheet"
+type="text/css" />
+<link href="assets/libs/huebee/huebee.min.css" rel="stylesheet"
+type="text/css" />
+<link href="assets/libs/vanillajs-datepicker/css/datepicker.min.css"
+rel="stylesheet" type="text/css" />
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<!-- SweetAlert2 CSS -->
+<link
+href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css"
+rel="stylesheet">
+
+<!-- SweetAlert2 JS -->
+<script
+src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.js"></script>
+
+<style>
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  color: #333 !important;
+  border: 1px solid #979797;
+  background-color: white;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #dcdcdc));
+  background: -webkit-linear-gradient(top, white 0%, #dcdcdc 100%);
+  background: -moz-linear-gradient(top, white 0%, #dcdcdc 100%);
+  background: -ms-linear-gradient(top, white 0%, #dcdcdc 100%);
+  background: -o-linear-gradient(top, white 0%, #dcdcdc 100%);
+  background: linear-gradient(to bottom, white 0%, #dcdcdc 100%);
+}
+  .table th {
+    color: rgb(62, 62, 62);
+  }
+</style>
+
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat App</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">App</li>
+                  <li class="breadcrumb-item active">Chat</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+<!-- body part start -->
+<div>
+
+ 
+  <!-- tab start 1st -->
+  <div class="row">
+    <div class="col-md-12 col-lg-12">
+      <div class="">
+        <div class="card-body">
+          <!-- Nav tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#home"
+                role="tab" aria-selected="true">Docket
+                Allotment</a>
+            </li>
+            <!-- <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#profile"
+                role="tab" aria-selected="false">Docket
+                Summary</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#settings"
+                role="tab" aria-selected="false">
+                Docket Settings</a>
+            </li> -->
+          </ul>
+
+          <!-- Tab panes -->
+          <div class="tab-content">
+            <div class="tab-pane p-3 active" id="home" role="tabpanel">
+              
+              <div class=" card-body">
+                <div class="row">
+                  <div class="">
+                    <div class="row">
+                      <div class="col-sm-3 mt-3">
+                        <form class="d-flex">
+                          <div class="input-group">
+                            <input type="text" class="form-control" id="search-input"
+                              placeholder="Search" aria-label="Search"
+                              aria-describedby="basic-addon2">
+                            <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                              <i class="fas fa-search"></i>
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="col-sm-2">
+                        <label for="forwarderSelect" class="mr-2">Select
+                          Forwarder:</label>
+                        <select class="form-control form-select"
+                          id="forwarderSelect">
+                          <% manualLrsData.forEach((entry) => { %>
+                          <option value="<%= entry.lr_forwarder %>">
+                            <%= entry.lr_forwarder %>
+                          </option>
+                          <% }); %>
+                        </select>
+                      </div>
+
+                      <div class="col-sm-2">
+                        <label for="seriesSelect" class="mr-2">Select
+                          Series:</label>
+                        <select class="form-control form-select"
+                          id="seriesSelect">
+                          <% manualLrsData.forEach((entry) => { %>
+                          <option value="<%= entry.agg_type %>">
+                            <%= entry.agg_type %>
+                          </option>
+                          <% }); %>
+                        </select>
+                      </div>
+                      <div class="col-sm-5 mt-3 text-end">
+                        <button type="button" class="btn btn-soft-success"
+                          data-bs-toggle="modal" data-bs-target="#exampleModal">
+                          Upload Excel File
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <table class="table my-table" id="docket-table">
+                  <thead >
+                    <tr>
+                      <th>Sno.</th>
+                      <th>Client Name</th>
+                      <th>Aggrigator Name</th>
+                      <th>Lr Forwarder</th>
+                      <th>Series</th>
+                      <th>Product</th>
+                      <th>Total Docket</th>
+                      <th>Consume Docket</th>
+                      <th>Balance Docket</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-center" id="dataRows">
+                    <% manualLrsData.forEach((entry, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td><%= entry.Client_id %></td>
+                      <td><%= entry.aggrigator_company_name %></td>
+                      <td>
+                        <%= entry.lr_forwarder %>
+                      </td>
+                      <td><%= entry.agg_type %></td>
+                      <td><%= entry.product_type %></td>
+                      <td>
+                        <%= entry.total %> <!-- Total Docket count -->
+                      </td>
+                      <td>
+                        <%= entry.nonConsumed %>
+                        <!-- Display consumed docket count -->
+                      </td>
+                      <td>
+                        <%= entry.total - entry.nonConsumed %>
+                        <!-- Balance Docket count (Total - Non-consumed) -->
+                      </td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+
+                <!-- Pagination -->
+              </div>
+
+            </div>
+
+            <!-- modal to asign docket start -->
+            <div class="modal fade" id="exampleModal" tabindex="-1"
+              aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content" style="background: linear-gradient(135deg, #fdfcfb 0%, #f1faff 100%);">
+                  <div class="modal-header " style="background: linear-gradient(135deg, #fdfcfb 0%, #f1faff 100%);">
+                    <h6 class="modal-title m-0 text-black "
+                      id="exampleModalSuccess1">Bulk Upload LR / AWB</h6>
+
+                    <button type="button" class="btn-close"
+                      data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <!--end modal-header-->
+
+                  <div class="modal-body">
+                    <div class="card">
+                      <div class="card-header"
+                        style="background-color: #a6c5ff">
+                        <h4 class="card-title" style="color: #000000">Bulk
+                          Upload LR / AWB</h4>
+                        <p class="text-muted mb-0"
+                          style="color: #ffffff !important">You can add multiple
+                          pincodes using an excel file format</p>
+                      </div>
+                      <!--end card-header-->
+
+                      <div class="card-body" style="height: 210px; padding: 8%">
+                        <div class="row mb-3">
+                          <div class="col-md-6">
+                            <label for="selectClient" class="form-label"
+                              style="color: #343769">Select Client</label>
+                            <select class="form-select" id="selectClient"
+                              required>
+                              <option value disabled selected>Choose a
+                                Client</option>
+                              <% clients.forEach(client => { %>
+                              <option value="<%= client.id %>"><%=
+                                client.company_name %></option>
+                              <% }); %>
+                            </select>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="selectAggregator" class="form-label"
+                              style="color: #343769">Select Aggregator</label>
+                            <select class="form-select" id="selectAggregator"
+                              required>
+                              <option value disabled selected>Choose an
+                                Aggregator</option>
+
+                            </select>
+                          </div>
+                        </div>
+                        <!--end row-->
+
+                        <div class="uppy-Root" dir="ltr">
+                          <input id="fileUpload" class="uppy-DragDrop-input"
+                            type="file" accept=".xlsx, .xls" required
+                            name="fileUpload" />
+                        </div>
+
+                      </div>
+                      <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                  </div>
+                  <!--end modal-body-->
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm"
+                      data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success btn-sm"
+                      id="saveButton">Save</button>
+                  </div>
+                  <!--end modal-footer-->
+                </div>
+              </div>
+            </div>
+
+            <!--end modal-->
+            <!-- modal to asign docket close -->
+            <!-- bulk upload start modal -->
+
+            <!-- bulk uploads close modal -->
+
+          </div>
+        </div>
+        <!--end card-body-->
+      </div>
+      <!--end card-->
+    </div>
+    <!--end col-->
+  </div>
+  <!--end row-->
+  <!-- modal start -->
+
+  <!-- modal close -->
+  <!-- tab close 1st -->
+
+  <!-- container div close -->
+</div>
+
+<!-- body part close -->
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+      // Filter the table based on the selected values in the dropdown
+      document.getElementById('forwarderSelect').addEventListener('change', function() {
+        applyFilters();
+      });
+    
+      document.getElementById('seriesSelect').addEventListener('change', function() {
+        applyFilters();
+      });
+    
+      function applyFilters() {
+        const forwarder = document.getElementById('forwarderSelect').value;
+        const series = document.getElementById('seriesSelect').value;
+    
+        // Use Axios to send a GET request to the server with the selected filters
+        axios.get('/filter-lrs', {
+          params: {
+            forwarder: forwarder,
+            series: series
+          }
+        })
+        .then(function (response) {
+          // Handle success, update the table with filtered data
+          const data = response.data;
+          const rows = data.map((entry, index) => {
+            // Access the required values from the response
+            const forwarderCount = entry.forwarderCount || 0;
+            const totalDocket = entry.total || 0;
+            const nonConsumedDocket = entry.nonConsumed || 0;
+            const balanceDocket = totalDocket - nonConsumedDocket;
+    
+            return `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${entry.Client_id}</td>
+                <td>${entry.aggrigator_company_name}</td>
+                <td>
+                  ${entry.lr_forwarder} (Count: ${forwarderCount})
+                </td>
+                <td>${entry.agg_type}</td>
+                <td>${entry.product_type}</td>
+                <td>${totalDocket}</td>
+                <td style="background-color: red">
+                  ${nonConsumedDocket} <!-- Display consumed docket count -->
+                </td>
+                <td style="background-color: green">
+                  ${balanceDocket} <!-- Balance Docket count (Total - Non-consumed) -->
+                </td>
+              </tr>
+            `;
+          }).join('');
+    
+          // Update the table rows with the new data
+          document.getElementById('dataRows').innerHTML = rows;
+        })
+        .catch(function (error) {
+          console.error('Error fetching filtered data:', error);
+        });
+      }
+    </script>
+
+<link rel="stylesheet" type="text/css"
+  href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css" />
+<script
+  src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="assets/js/pages/form-wizard.js"></script>
+
+<!-- Selectr -->
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.css" />
+<script
+  src="https://cdn.jsdelivr.net/npm/selectr@1.2.0/dist/selectr.min.js"></script>
+<!-- Huebee -->
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.min.css" />
+<script
+  src="https://cdn.jsdelivr.net/npm/huebee@1.2.0/dist/huebee.pkgd.min.js"></script>
+<!-- Vanilla JS Datepicker -->
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/css/datepicker.min.css" />
+<script
+  src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker-full.min.js"></script>
+<!-- Moment.js -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<!-- IMask -->
+<script src="https://unpkg.com/imask@6.4.1/dist/imask.min.js"></script>
+<script src="assets/js/pages/forms-advanced.js"></script>
+<script>
+        var optionsCount = $("#stateSelectN1 option").length;
+        $("#stateSelectN1").attr("size", optionsCount > 5 ? 5 : optionsCount);
+      </script>
+<script src="assets/libs/uppy/uppy.legacy.min.js"></script>
+<script src="assets/js/pages/file-upload.init.js"></script>
+<!-- Script 1: For Client Selection -->
+<script>
+  // Event listener for when a client is selected
+  document.getElementById('selectClient').addEventListener('change', function() {
+    const clientId = this.value;
+
+    if (clientId) {
+      // Make an Axios request to get aggregators for the selected client
+      axios.get(`/get-aggregators-by-client/${clientId}`)
+        .then(response => {
+          if (response.data.success) {
+            const aggregatorSelect = document.getElementById('selectAggregator');
+            aggregatorSelect.innerHTML = '<option value="" disabled selected>Choose an Aggregator</option>'; // Reset the dropdown
+
+            // Loop through the aggregators and append them to the select
+            response.data.aggregators.forEach(aggregator => {
+              const option = document.createElement('option');
+              option.value = aggregator.id;
+              option.textContent = aggregator.Aggrigator_company_name;
+              aggregatorSelect.appendChild(option);
+            });
+          } else {
+            alert(response.data.message); // Display error message if no aggregators found
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching aggregators:', error);
+          alert('Error fetching aggregators');
+        });
+    }
+  });
+</script>
+
+<!-- Script 2: Initialize Uppy (Only Once) -->
+<script>
+
+
+    // Event listener for the Save button
+    document.getElementById('saveButton').addEventListener('click', function () {
+  const clientId = document.getElementById('selectClient').value;
+  const aggregatorId = document.getElementById('selectAggregator').value;
+
+  // Get the file from the input element
+  const fileInput = document.getElementById('fileUpload');
+  const file = fileInput.files[0]; // Get the first selected file
+
+  console.log("Client ID:", clientId);
+  console.log("Aggregator ID:", aggregatorId);
+  console.log("File:", file); // Log the selected file or null if no file selected
+
+  // Check if all required fields are selected
+  if (!clientId || !aggregatorId || !file) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Incomplete Form',
+      text: 'Please select a client, aggregator, and a file.',
+    });
+    return;
+  }
+
+  // Create a FormData object to send the file and other data
+  const formData = new FormData();
+  formData.append('client_id', clientId);
+  formData.append('aggregator_id', aggregatorId);
+  formData.append('file', file);
+
+  // Make an Axios POST request to upload the file
+  axios.post('/upload-excel', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  .then(response => {
+    if (response.data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Upload Successful',
+        text: response.data.message || 'File uploaded successfully!',
+      }).then(() => {
+        // Close the modal if needed
+        $('#exampleModal').modal('hide');
+        // Optionally refresh the page or perform other actions
+
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: response.data.message || 'An error occurred during file upload.',
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error uploading file:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'An error occurred while uploading the file. Please try again later.',
+    });
+  });
+});
+
+  
+</script>
+<!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    // Check if DataTable is already initialized
+    if (!$.fn.dataTable.isDataTable('#docket-table')) {
+      // Initialize DataTable only if it's not already initialized
+      var table = $('#docket-table').DataTable({
+        "ordering": false,
+        "searching": true,
+        "lengthChange": false,
+        "info": true,
+        "paging": true,
+        "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+        "language": {
+          "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+          "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+        },
+        "pagingType": "full_numbers",
+        "pageLength": 10,
+        "drawCallback": function() {
+          $('.paginate_button').addClass('btn btn-sm').css({
+            'background-color': '#e3f2fd',
+            'border-color': '#90caf9',
+            'color': '#1976d2',
+            'margin': '0 2px',
+            'border-radius': '4px'
+          });
+          
+          $('.paginate_button.current').css({
+            'background-color': '#1976d2',
+            'color': '#fff',
+            'border-color': '#1976d2'
+          });
+
+          $('.paginate_button.disabled').css({
+            'opacity': '0.5',
+            'cursor': 'not-allowed'
+          });
+        }
+      });
+    }
+
+    // Custom search functionality when user types in the search input
+    $('#search-input').on('keyup', function () {
+      var searchValue = $(this).val();
+      $('#docket-table').DataTable().search(searchValue).draw();
+    });
+
+    // Optional: Search when the search button is clicked 
+    $('#button-addon2').on('click', function () {
+      var searchValue = $('#search-input').val();
+      $('#docket-table').DataTable().search(searchValue).draw();
+    });
+  });
+</script>
+<script
+  src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

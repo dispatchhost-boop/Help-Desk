@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link
+  href="assets/libs/tabulator-tables/css/tabulator_bootstrap5.min.css"
+  rel="stylesheet"
+  type="text/css" />
+<link
+  href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.css" />
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<style>
+  
+
+table.dataTable tbody tr {
+    background-color: #fcfeed !important;
+}
+table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 18px;
+    border-bottom: 1px solid #e8e6e6 !important;
+}
+table.dataTable.no-footer {
+    border-bottom: 1px solid #e8e6e6 !important;
+}
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  .form-label {
+    font-weight: 500;
+    color: #8a8a8a;
+    font-family: inherit;
+    text-transform: capitalize;
+    font-size: small;
+  }
+ 
+ 
+  .popup-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    /* border: 1px solid #ccc; */
+    border-radius: 4px;
+  }
+
+  .hrlines {
+    border: 1px solid #c3c3c3;
+  }
+
+  .table td {
+    font-weight: 400;
+    vertical-align: middle;
+    border-color: #e8ebf3;
+    border: 0px !important;
+  }/* Change the background color of <th> when hovered */
+#detailsTable th:hover {
+  background-color: #f1f1f1; /* Light gray color on hover */
+}
+
+/* Change the background color of <td> when hovered */
+#detailsTable tbody tr:hover td {
+  background-color: #e0f7fa; /* Light teal color on hover */
+}
+
+/* Optional: Add a transition effect for smooth hover */
+#detailsTable th, #detailsTable td {
+  transition: background-color 0.3s ease;
+}
+
+.modal-content .modal-footer {
+    border-top: none ;
+}
+
+
+</style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat App</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">App</li>
+                  <li class="breadcrumb-item active">Chat</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+               
+        
+            <div class="row">
+              <div class="text-end ">
+               
+            </div>
+            <div class="col-md-3">
+        
+              <form class="d-flex">
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2">
+                    <button class="btn btn-soft-secondary" type="button" id="button-addon2" style="width: 40px; height: 80%;">
+                        <i class="fas fa-search" style="font-size: 14px;"></i>
+                    </button>
+                  </div>
+              </form>
+            </div>
+              <div class="">
+                <div class="col-sm-12">
+                  <div class="card-body">
+                    <div class="col-sm-12">
+                      <table  class="table my-table" id="datatable_2">
+                        <thead>
+                          <tr>
+                            <th>Client Name</th>
+                            <th>Client Address</th>
+                            
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Contact Person</th>
+                            <th>Contact No.</th>
+                            <th>Action</th>
+                            <th>VAS services</th>
+                          </tr>
+                        </thead>
+        
+                        <tbody id="detailsTableBody" style="color:#272627;">
+                          <% if (clientData && clientData.length > 0) { %>
+                            <% clientData.forEach((client) => { %>
+                              <tr>
+                                <td><%= client.company_name %></td>
+                                <td><%= client.company_address %></td>
+                                
+                                <td><%= client.company_city %></td>
+                                <td><%= client.company_state %></td>
+                                <td><%= client.first_name %></td>
+                                <td><%= client.mobile %></td>
+                                <td>
+        
+                                  <div class="btn-group">
+                                    <div class="dropdown">
+                                      <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-edit" style="color:#5a99fc"></i>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="editClientDetails('<%= client.id %>')">Client Details</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="editContactDetails('<%= client.id %>')">Contact Details</a></li>
+                                        
+                                      </ul>
+                                    </div>
+                                    <button class="btn btn-sm  delete-client-btn" data-client-id="<%= client.id %>" type="button">
+                                      <i class="fas fa-trash" style="color:rgb(245, 127, 127)"></i>
+                                    </button>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div class="form-check" style="display: flex; justify-content: center;">
+                                    <input type="checkbox" class="form-check-input"
+                                           <%= client.vas === 1 ? 'checked' : '' %>
+                                           onclick="toggleVas(<%= client.id %>, this.checked)">
+                                  </div>
+                                </td>
+                                
+                              </tr>
+                            <% }); %>
+                          <% } %>
+                        </tbody>
+                        
+                      </table>
+        
+                    </div>
+                  </div>
+        
+                </div>
+              </div>
+              <!--end col-->
+        
+              <!-- Modal Structure -->
+              
+            </div>
+          </div>
+ 
+        <!-- Edit Client Modal -->
+        <div class="modal " id="clientDetailsModal" tabindex="-1">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #fdfcfb 0%, #f1faff 100%);">
+                <h5 class="modal-title fs-4" style="color: #5a99fc;">Edit Client Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="basicInfo" enctype="multipart/form-data">
+                  <div class="row">
+                    <div class="" style="border-radius: 15px; width: 100%;">
+                      <!-- First Row -->
+                      <div class="row mb-3">
+                        <!-- Basic Information -->
+                        <div class="col-md-4 bg-light border">
+                          <div class="">
+                            <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                              <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                <i class="fa-regular fa-paper-plane p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                              </div>
+                              <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                <h5>Client Basic Information</h5>
+                              </div>
+                            </div>
+                            <div class="card-body">
+                              <!-- Basic Info Fields -->
+                              <div class="row p-3">
+                                <div class="col-sm-12 mb-2">
+                                  <div class="form-group">
+                                    <label for="clientName">Contact Person</label>
+                                    <div class="col-lg-12 mb-2">
+                                      <input id="clientName" name="clientName" type="text" class="form-control" placeholder="Enter Client Name">
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-sm-12 mb-2">
+                                  <label for="companyName">Company Name</label>
+                                  <div class="col-lg-12">
+                                    <input id="companyName" name="companyName" type="text" class="form-control" placeholder="Enter Company name">
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-sm-6">
+                                    <div class="form-group">
+                                      <label for="client_mobile">Mobile No.</label>
+                                      <div class="col-lg-12">
+                                        <input id="client_mobile" name="client_mobile" type="text" class="form-control" placeholder="Enter Your Mobile No.">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                      <label for="client_Email">Email Address</label>
+                                      <div class="col-lg-12">
+                                        <input id="client_Email" name="client_Email" type="text" class="form-control" placeholder="Enter Your Email Id">
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              
+                              </div>
+                              <!-- Add Logo Upload Section -->
+                            
+                            </div>
+                          </div>
+                        </div>
+        
+                        <!-- Client Other Basic Information -->
+                        <div class="col-md-4 bg-light border">
+                          <div class="">
+                            <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                              <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                              </div>
+                              <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                <h5>Client Other Basic Information</h5>
+                              </div>
+                            </div>
+                            <div class="">
+                              <div class="row p-3">
+                                <!-- Address -->
+                                <div class="col-12 mb-3">
+                                  <div class="form-group">
+                                    <label for="companyAddress">Address</label>
+                                    <div class="col-sm-12">
+                                      <input id="companyAddress" name="companyAddress" 
+                                        class="form-control" placeholder="Enter Your Address">
+                                    </div>
+                                  </div>
+                                </div>
+        
+                                <!-- Country, State, City -->
+                                <div class="row gx-3">
+                                  <div class="col-sm-4 mb-3">
+                                    <div class="form-group">
+                                      <label for="companyCountry">Country</label>
+                                      <input id="companyCountry" name="companyCountry"
+                                        class="form-control" placeholder="Enter Your Country Name">
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-4 mb-3">
+                                    <div class="form-group">
+                                      <label for="companyState">State</label>
+                                      <input id="companyState" name="companyState"
+                                        class="form-control" placeholder="Enter Your State Name">
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-4 mb-3">
+                                    <div class="form-group">
+                                      <label for="companyDistrict">City</label>
+                                      <input id="companyDistrict" name="companyDistrict"
+                                        class="form-control" placeholder="Enter Your City Name">
+                                    </div>
+                                  </div>
+                                </div>
+        
+                                <!-- Logo Upload -->
+                                <!-- <div class="col-sm-12 input-group mb-3" style="margin-top: 10px; display: flex; align-items: center;">
+                                  <label class="form-label" style="margin-right: 10px;">Upload Logo</label>
+                                  <input type="file" class="form-control" id="companyLogo" name="companyLogo">
+                                </div> -->
+        
+                                <!-- Contract Dates -->
+                                <div class="row">
+                                  <div class="col-sm-6">
+                                    <label for="fromDate">Contract From</label>
+                                    <input class="form-control" type="date" id="fromDate" name="fromDate">
+                                  </div>
+                                  <div class="col-sm-6">
+                                    <label for="fromTo">Contract To</label>
+                                    <input class="form-control" type="date" id="fromTo" name="fromTo">
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+        
+                        <!-- Client Configuration -->
+                        <div class="col-md-4 bg-light border">
+                          <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                            <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                              <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                            </div>
+                            <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                              <h5>Client Other Basic Information</h5>
+                            </div>
+                          </div>
+                          <div class="col-sm-12">
+                            <div class="form-group">
+                              <label for="website">Website</label>
+                              <input id="website" name="website" type="text" class="form-control" placeholder="Enter your Website Url">
+                            </div>
+                          </div>
+        
+                          <div class="row">
+                            <div class="form-group mb-3">
+                              <label for="companyLogo">Company Logo</label>
+                              <input type="file" class="form-control" id="companyLogo" name="companyLogo" accept="image/*">
+                              <div id="logoPreview" class="mt-2">
+                                <!-- Logo preview will be inserted here by JavaScript -->
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <label for="paymentSystem">Payment System</label>
+                              <select id="paymentSystem" name="paymentSystem" class="form-select">
+                                <option value="prepaid">Prepaid</option>
+                                <option value="postpaid">Postpaid</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+        
+                      </div>
+                 
+        
+                      <!-- Second Row -->
+                      <div class="row">
+                        <!-- KYC Details -->
+                        <div class="col-md-6 bg-light border">
+                          <div class="">
+                            <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                              <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                              </div>
+                              <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                <h5>Client KYC Details</h5>
+                              </div>
+                            </div>
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="company_pan">PAN Card</label>
+                                    <div class="col-lg-12">
+                                      <input id="company_pan" name="company_pan" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="vat">VAT/TIN No.</label>
+                                    <div class="col-lg-12">
+                                      <input id="vat" name="vat" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row mt-3">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="gstNo">GST No.</label>
+                                    <div class="col-lg-12">
+                                      <input id="gstNo" name="gstNo" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="company_uin">Company UIN</label>
+                                    <div class="col-lg-12">
+                                      <input id="company_uin" name="company_uin" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+        
+                        <!-- Banking Details -->
+                        <div class="col-md-6 bg-light border">
+                          <div class="">
+                            <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                              <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                <i class="fa-solid fa-building-columns p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                              </div>
+                              <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                <h5>Client Banking Details</h5>
+                              </div>
+                            </div>
+                            <div class="card-body">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="Bank_account_name">Bank Account Name</label>
+                                    <div class="col-lg-12">
+                                      <input id="Bank_account_name" name="Bank_account_name" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="billingCycle">Billing Cycle</label>
+                                    <div class="col-lg-12">
+                                      <select id="billingCycle" name="billingCycle" class="form-select">
+                                        <option value="weekly">Weekly</option>
+                                        <option value="fortnight">Fortnight</option>
+                                        <option value="monthly">Monthly</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="accountNumber">Account Number</label>
+                                    <div class="col-lg-12">
+                                      <input id="accountNumber" name="accountNumber" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="chooseBank">Bank Name</label>
+                                    <div class="col-lg-12">
+                                      <select id="chooseBank" name="chooseBank" class="form-select">
+                                        <option value="State Bank Of India">State Bank Of India</option>
+                                        <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                                        <option value="HDFC Bank LTD">HDFC Bank LTD</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="account_type">Account Type</label>
+                                    <div class="col-lg-12">
+                                      <select id="account_type" name="account_type" class="form-select">
+                                        <option value="Savings">Savings</option>
+                                        <option value="Current">Current</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group mb-2">
+                                    <label for="ifscCode">IFSC CODE</label>
+                                    <div class="col-lg-12">
+                                      <input id="ifscCode" name="ifscCode" type="text" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateClientDetails()">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Departmental Information Modal -->
+        <div class="modal" id="contactDetailsModal" tabindex="-1">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #fdfcfb 0%, #f1faff 100%);">
+                <h5 class="modal-title fs-4" style="color: #5a99fc;">Edit Departmental Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="contact_tables_data">
+                  <div class="row">
+                    <div class="">
+                      <div class="card-body">
+                        <!-- First Row -->
+                        <div class="row">
+                          <!-- Sales Department -->
+                          <div class="col-md-3 bg-light border">
+                            <div class="">
+                              <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                  <i class="fas fa-chart-line p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                </div>
+                                <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                  <h5 style="font-size: 14px;">Sales Department</h5>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div id="sales-section">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>kriName</label>
+                                        <div class="col-lg-12">
+                                          <input name="sales_name[]" type="text" class="form-control" placeholder="Enter Name">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Mobile No.</label>
+                                        <div class="col-lg-12">
+                                          <input type="text" class="form-control" name="sales_phone[]" placeholder="Enter Phone Number">
+                                        </div>
+                                      </div>
+                                    </div>
+                                  
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Designation</label>
+                                        <div class="col-lg-12">
+                                          <input name="sales_designation[]" type="text" class="form-control" placeholder="Enter Designation">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Email Address</label>
+                                        <div class="col-lg-12">
+                                          <input type="email" class="form-control" name="sales_email[]" placeholder="Enter Email Address">
+                                        </div>
+                                      </div>
+                                      <div id="sales-inputs"></div>
+                                      <button type="button" class="btn col-md-12 text-end" 
+                                        style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" 
+                                        onclick="addContact('sales')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+        
+                          <!-- Operations Department -->
+                          <div class="col-md-3 bg-light border">
+                            <div class="">
+                              <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                  <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                </div>
+                                <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                  <h5 style="font-size: 14px;">Operation Department</h5>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div id="ops-section">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Name</label>
+                                        <div class="col-lg-12">
+                                          <input name="ops_name[]" type="text" class="form-control" placeholder="Enter Name">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Mobile No.</label>
+                                        <div class="col-lg-12">
+                                          <input type="text" class="form-control" name="ops_phone[]" placeholder="Enter Phone Number">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Designation</label>
+                                        <div class="col-lg-12">
+                                          <input name="ops_designation[]" type="text" class="form-control" placeholder="Enter Designation">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Email Address</label>
+                                        <div class="col-lg-12">
+                                          <input type="email" class="form-control" name="ops_email[]" placeholder="Enter Email Address">
+                                        </div>
+                                      </div>
+                                      <div id="ops-inputs"></div>
+                                      <button type="button" class="btn col-md-12 text-end" 
+                                        style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" 
+                                        onclick="addContact('ops')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+        
+                          <!-- Finance Department -->
+                          <div class="col-md-3 bg-light border">
+                            <div class="">
+                              <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                  <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                </div>
+                                <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                  <h5 style="font-size: 14px;">Finance Department</h5>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div id="accounts-section">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Name</label>
+                                        <div class="col-lg-12">
+                                          <input name="accounts_name[]" type="text" class="form-control" placeholder="Enter Name">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Mobile No.</label>
+                                        <div class="col-lg-12">
+                                          <input type="text" class="form-control" name="accounts_phone[]" placeholder="Enter Phone Number">
+                                        </div>
+                                      </div>
+                                    </div>
+                                  
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Designation</label>
+                                        <div class="col-lg-12">
+                                          <input name="accounts_designation[]" type="text" class="form-control" placeholder="Enter Designation">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Email Address</label>
+                                        <div class="col-lg-12">
+                                          <input type="email" class="form-control" name="accounts_email[]" placeholder="Enter Email Address">
+                                        </div>
+                                      </div>
+                                      <div id="accounts-inputs"></div>
+                                      <button type="button" class="btn col-md-12 text-end" 
+                                        style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" 
+                                        onclick="addContact('accounts')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+        
+                          <!-- Support Department -->
+                          <div class="col-md-3 bg-light border">
+                            <div class="">
+                              <div class="row p-1" style="background-color: #8fb9ff26;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                                <div class="col-2" style="display: flex; align-items: center;justify-content: space-around;">
+                                  <i class="fa-solid fa-file-signature p-2 ml-2" style="font-size: 22px;color: #5a99f7;border-radius: 5px;"></i>
+                                </div>
+                                <div class="col-10" style="text-align: end; text-transform: uppercase;">
+                                  <h5 style="font-size: 14px;">Support Department</h5>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div id="rvp-section">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Name</label>
+                                        <div class="col-lg-12">
+                                          <input name="rvp_name[]" type="text" class="form-control" placeholder="Enter Name">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Mobile No.</label>
+                                        <div class="col-lg-12">
+                                          <input type="text" class="form-control" name="rvp_phone[]" placeholder="Enter Phone Number">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Designation</label>
+                                        <div class="col-lg-12">
+                                          <input name="rvp_designation[]" type="text" class="form-control" placeholder="Enter Designation">
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <div class="form-group row mb-2">
+                                        <label>Email Address</label>
+                                        <div class="col-lg-12">
+                                          <input type="email" class="form-control" name="rvp_email[]" placeholder="Enter Email Address">
+                                        </div>
+                                      </div>
+                                      <div id="rvp-inputs"></div>
+                                      <button type="button" class="btn col-md-12 text-end" 
+                                        style="background: no-repeat;border: none;color: rgb(93, 5, 93);font-weight: 600;white-space: nowrap;" 
+                                        onclick="addContact('rvp')">+ More Contacts <i class="fa-regular fa-hand-point-right"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateDepartmentalInfo()">Save </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+    
+      
+        
+        <script
+          src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link
+          rel="stylesheet"
+          href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" />
+        <script
+          src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script
+          src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        
+        
+        <!-- defoult pickup slot selection js -->
+        
+        
+        <!-- defoult pickup slot selection end -->
+        <!-- return modal form js start -->
+        
+        <!-- return form js end -->
+        
+        <!-- jecc -->
+        
+        <!-- cjcnasc -->
+        
+        
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        <script>
+          $(document).ready(function () {
+            // Check if DataTable is already initialized
+            if (!$.fn.dataTable.isDataTable('#datatable_2')) {
+              // Initialize DataTable only if it's not already initialized
+              var table = $('#datatable_2').DataTable({
+                "ordering": false,
+                "searching": true,
+                "lengthChange": false,
+                "info": true,
+                "paging": true,
+                "dom": '<"d-flex align-items-center gap-3"<"flex-grow-1">>lrtip',
+                "language": {
+                  "lengthMenu": `<div style="float: right">Showing <select class='form-select' style='background-color: #e3f2fd; border-color: #90caf9; color: #1976d2; display: inline-block; width:80px; text-align-last: center; padding-right: 25px;'><option value='10'>10</option><option value='25'>25</option><option value='50'>50</option><option value='100'>100</option></select> of Total Entries</div>`,
+                  "info": "<div style='float: left'>Showing _START_ to _END_ of _TOTAL_ entries</div>"
+                },
+                "pagingType": "full_numbers",
+                "pageLength": 10,
+                "drawCallback": function() {
+                  $('.paginate_button').addClass('btn btn-sm').css({
+                    'background-color': '#e3f2fd',
+                    'border-color': '#90caf9',
+                    'color': '#1976d2',
+                    'margin': '0 2px',
+                    'border-radius': '4px'
+                  });
+                  
+                  $('.paginate_button.current').css({
+                    'background-color': '#1976d2',
+                    'color': '#fff',
+                    'border-color': '#1976d2'
+                  });
+        
+                  $('.paginate_button.disabled').css({
+                    'opacity': '0.5',
+                    'cursor': 'not-allowed'
+                  });
+                }
+              });
+            }
+        
+            // Custom search functionality when user types in the search input
+            $('#search-input').on('keyup', function () {
+              var searchValue = $(this).val();
+              $('#datatable_2').DataTable().search(searchValue).draw();
+            });
+        
+            // Optional: Search when the search button is clicked
+            $('#button-addon2').on('click', function () {
+              var searchValue = $('#search-input').val();
+              $('#datatable_2').DataTable().search(searchValue).draw();
+            });
+          });
+        </script>
+        <!-- App js -->
+
+       
+        
+        <!-- Add JavaScript for edit/delete functionality -->
+        <script>
+        let currentClientId = null;
+        
+        async function editClientDetails(clientId) {
+          try {
+            // Show loading state
+            Swal.fire({
+              title: 'Loading...',
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
+        
+            currentClientId = clientId;
+            const response = await axios.get(`/api/client/${clientId}`);
+            
+            if (response.data.success) {
+              const client = response.data.client;
+              
+              // Basic Information Section
+              const basicInfoFields = {
+                'clientName': client.first_name,
+                'companyName': client.company_name,
+                'client_mobile': client.mobile,
+                'client_Email': client.email,
+                'website': client.website
+              };
+        
+              // Other Basic Information Section
+              const otherBasicFields = {
+                'companyAddress': client.company_address,
+                'companyCountry': client.company_country,
+                'companyState': client.company_state,
+                'companyDistrict': client.company_city,
+                'fromDate': formatDate(client.from_date),
+                'fromTo': formatDate(client.from_to)
+              };
+        
+              // KYC Details Section
+              const kycFields = {
+                'company_pan': client.company_pan,
+                'vat': client.vat,
+                'gstNo': client.gst,
+                'company_uin': client.company_uin,
+                'paymentSystem': client.payment_system
+              };
+        
+              // Banking Details Section
+              const bankingFields = {
+                'Bank_account_name': client.account_name,
+                'billingCycle': client.billing_cycle,
+                'accountNumber': client.account_number,
+                'chooseBank': client.choose_bank,
+                'account_type': client.account_type,
+                'ifscCode': client.ifsc_code,
+                'creditTerms': client.credit_terms
+              };
+        
+              // Helper function to safely set form values
+              const setFormValues = (fields) => {
+                Object.entries(fields).forEach(([id, value]) => {
+                  const element = document.getElementById(id);
+                  if (element) {
+                    // Handle select elements differently
+                    if (element.tagName === 'SELECT') {
+                      // If the value exists in options, set it
+                      if ([...element.options].some(opt => opt.value === value)) {
+                        element.value = value;
+                      }
+                    } else {
+                      element.value = value || '';
+                    }
+                  }
+                });
+              };
+        
+              // Set all form values
+              setFormValues(basicInfoFields);
+              setFormValues(otherBasicFields);
+              setFormValues(kycFields);
+              setFormValues(bankingFields);
+        
+              // Handle logo preview and file input
+              const logoPreview = document.getElementById('logoPreview');
+              const logoInput = document.getElementById('companyLogo');
+              
+              if (logoPreview) {
+                if (client.logo_path) {
+                  // Show current logo and add option to remove/change
+                  logoPreview.innerHTML = `
+                    <div class="logo-container" style="display: flex; justify-content: space-between;">
+                      <img src="/${client.logo_path}" alt="Company Logo" style="max-width: 200px;" class="mt-2">
+                      <div class="logo-actions">
+                       
+                      </div>
+                    </div>
+                  `;
+                  
+                  // Store current logo path
+                  logoPreview.dataset.currentLogo = client.logo_path;
+                } else {
+                  logoPreview.innerHTML = '<p class="text-muted">No logo uploaded</p>';
+                }
+              }
+        
+              // Reset file input
+              if (logoInput) {
+                logoInput.value = '';
+                
+                // Update preview when new file is selected
+                logoInput.onchange = function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                      logoPreview.innerHTML = `
+                        <div class="logo-container">
+                          <img src="${e.target.result}" alt="New Logo" 
+                               style="max-width: 100px; max-height: 100px;" class="mt-2">
+                          <div class="logo-actions mt-2">
+                            
+                          </div>
+                        </div>
+                      `;
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                };
+              }
+        
+              // Handle forwarder/aggregator selection if exists
+              if (client.list_forwarder && Array.isArray(client.list_forwarder)) {
+                const select = document.getElementById('list_forwarder');
+                if (select) {
+                  client.list_forwarder.forEach(forwarder => {
+                    const option = [...select.options].find(opt => opt.value.includes(forwarder.id));
+                    if (option) {
+                      option.selected = true;
+                    }
+                  });
+                  // If using Select2, refresh it
+                  if ($.fn.select2) {
+                    $(select).trigger('change');
+                  }
+                }
+              }
+        
+              // Close loading and show modal
+              Swal.close();
+              const modal = new bootstrap.Modal(document.getElementById('clientDetailsModal'));
+              modal.show();
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to fetch client details'
+            });
+          }
+        }
+        
+        // Helper function to format dates
+        function formatDate(dateString) {
+          if (!dateString) return '';
+          try {
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+          } catch (e) {
+            console.error('Date formatting error:', e);
+            return dateString;
+          }
+        }
+        
+        // Add update function
+        async function updateClientDetails() {
+          try {
+            const formElement = document.getElementById('basicInfo');
+            const formData = new FormData(formElement); // Correctly create FormData object
+        
+            const response = await axios.put(`/api/client/${currentClientId}/parental`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data' // Ensure correct content type
+              }
+            });
+        
+            if (response.data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Client details updated successfully'
+              });
+        
+              // Close modal and refresh page
+              const modal = bootstrap.Modal.getInstance(document.getElementById('clientDetailsModal'));
+              modal.hide();
+              location.reload();
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to update client details'
+            });
+          }
+        }
+        
+        
+        function addContact(department) {
+          const container = document.getElementById(`${department}-inputs`);
+          if (!container) return;
+        
+          const newRow = `
+            <div class="row added-contact mt-2">
+              <hr/>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row mb-2">
+                    <label>kriName</label>
+                    <div class="col-lg-12">
+                      <input name="${department}_name[]" type="text" class="form-control" placeholder="Enter Name">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group row mb-2">
+                    <label>Mobile No.</label>
+                    <div class="col-lg-12">
+                      <input type="text" class="form-control" name="${department}_phone[]" placeholder="Enter Phone Number">
+                    </div>
+                  </div>
+                </div>
+                    <div class="col-md-6">
+                  <div class="form-group row mb-2">
+                    <label>Designation</label>
+                    <div class="col-lg-12">
+                      <input name="${department}_designation[]" type="text" class="form-control" placeholder="Enter Designation">
+                    </div>
+                  </div>
+                </div>
+                     <div class="col-md-6">
+                  <div class="form-group row mb-2">
+                    <label>Email Address</label>
+                    <div class="col-lg-12">
+                      <input type="email" class="form-control" name="${department}_email[]" placeholder="Enter Email Address">
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <button type="button" class="btn remove-contact" 
+                      style="background: none; border: none; color: red; font-weight: 600;" 
+                      onclick="removeContact(event, this)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            
+            </div>
+          `;
+          
+          container.insertAdjacentHTML('beforeend', newRow);
+        }
+        
+        function removeContact(event, button) {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          const contactRow = button.closest('.added-contact');
+          if (contactRow) {
+            contactRow.remove();
+          }
+        }
+        
+        // Update the editContactDetails function to handle multiple contacts better
+        async function editContactDetails(clientId) {
+          try {
+            currentClientId = clientId;
+            const response = await axios.get(`/api/client/${clientId}`);
+            
+            if (response.data.success) {
+              const { contacts } = response.data;
+              
+              // Clear existing inputs first
+              ['sales', 'ops', 'accounts', 'rvp'].forEach(dept => {
+                // Clear main inputs in the default section
+                const section = document.getElementById(`${dept}-section`);
+                if (section) {
+                  const inputs = section.querySelectorAll('input');
+                  inputs.forEach(input => input.value = '');
+                }
+                
+                // Clear any additional contact inputs
+                const additionalInputs = document.getElementById(`${dept}-inputs`);
+                if (additionalInputs) {
+                  additionalInputs.innerHTML = '';
+                }
+              });
+        
+              // Group contacts by department
+              const groupedContacts = contacts.reduce((acc, contact) => {
+                if (contact.department) {
+                  const dept = contact.department.toLowerCase();
+                  if (!acc[dept]) acc[dept] = [];
+                  acc[dept].push(contact);
+                }
+                return acc;
+              }, {});
+        
+              // Populate department fields
+              Object.entries(groupedContacts).forEach(([dept, deptContacts]) => {
+                deptContacts.forEach((contact, index) => {
+                  if (index === 0) {
+                    // Fill the first (default) set of inputs
+                    const section = document.getElementById(`${dept}-section`);
+                    if (section) {
+                      const nameInput = section.querySelector(`input[name="${dept}_name[]"]`);
+                      const emailInput = section.querySelector(`input[name="${dept}_email[]"]`);
+                      const phoneInput = section.querySelector(`input[name="${dept}_phone[]"]`);
+                      const designationInput = section.querySelector(`input[name="${dept}_designation[]"]`);
+                      
+                      if (nameInput) nameInput.value = contact.name || '';
+                      if (emailInput) emailInput.value = contact.email || '';
+                      if (phoneInput) phoneInput.value = contact.phone || '';
+                      if (designationInput) designationInput.value = contact.designation || '';
+                    }
+                  } else {
+                    // Add additional contacts using addContact function and then set values
+                    const container = document.getElementById(`${dept}-inputs`);
+                    if (container) {
+                      addContact(dept);
+                      const newInputs = container.lastElementChild;
+                      if (newInputs) {
+                        const nameInput = newInputs.querySelector(`input[name="${dept}_name[]"]`);
+                        const emailInput = newInputs.querySelector(`input[name="${dept}_email[]"]`);
+                        const phoneInput = newInputs.querySelector(`input[name="${dept}_phone[]"]`);
+                        const designationInput = newInputs.querySelector(`input[name="${dept}_designation[]"]`);
+                        
+                        if (nameInput) nameInput.value = contact.name || '';
+                        if (emailInput) emailInput.value = contact.email || '';
+                        if (phoneInput) phoneInput.value = contact.phone || '';
+                        if (designationInput) designationInput.value = contact.designation || '';
+                      }
+                    }
+                  }
+                });
+              });
+        
+              // Show modal
+              const modal = new bootstrap.Modal(document.getElementById('contactDetailsModal'));
+              modal.show();
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to fetch contact details'
+            });
+          }
+        }
+        
+        async function updateDepartmentalInfo() {
+          try {
+            const form = document.getElementById('contact_tables_data');
+            const formData = new FormData(form);
+            const data = [];
+            
+            // Process each department's contacts
+            ['sales', 'ops', 'accounts', 'rvp'].forEach(dept => {
+              const names = formData.getAll(`${dept}_name[]`);
+              const emails = formData.getAll(`${dept}_email[]`);
+              const phones = formData.getAll(`${dept}_phone[]`);
+              const designations = formData.getAll(`${dept}_designation[]`);
+              
+              // Create contact objects for each set of inputs
+              for (let i = 0; i < names.length; i++) {
+                if (names[i] || emails[i] || phones[i] || designations[i]) {
+                  data.push({
+                    name: names[i],
+                    email: emails[i],
+                    phone: phones[i],
+                    designation: designations[i],
+                    department: dept
+                  });
+                }
+              }
+            });
+        
+            // Add contacts data to FormData
+            formData.append('contacts', JSON.stringify(data));
+        
+            // Handle logo removal flag
+            const logoPreview = document.getElementById('logoPreview');
+            if (logoPreview && logoPreview.dataset.logoRemoved === 'true') {
+              formData.append('removelogo', 'true');
+            }
+        
+            const response = await axios.put(`/api/client/${currentClientId}/departmental`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+            
+            if (response.data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Departmental information updated successfully'
+              });
+              
+              // Close modal and refresh page
+              const modal = bootstrap.Modal.getInstance(document.getElementById('contactDetailsModal'));
+              modal.hide();
+              location.reload();
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to update departmental information'
+            });
+          }
+        }
+        
+        // Helper function to remove logo
+        function removeLogo() {
+          const logoPreview = document.getElementById('logoPreview');
+          const logoInput = document.getElementById('companyLogo');
+          
+          if (logoPreview) {
+            logoPreview.innerHTML = '<p class="text-muted">No logo uploaded</p>';
+            logoPreview.dataset.logoRemoved = 'true';
+          }
+          if (logoInput) {
+            logoInput.value = '';
+          }
+        }
+        
+        // Helper function to cancel new logo upload
+        function cancelLogoUpload() {
+          const logoPreview = document.getElementById('logoPreview');
+          const logoInput = document.getElementById('companyLogo');
+          const currentLogo = logoPreview.dataset.currentLogo;
+          
+          if (currentLogo) {
+            logoPreview.innerHTML = `
+              <div class="logo-container">
+                <img src="/${currentLogo}" alt="Company Logo" 
+                     style="max-width: 100px; max-height: 100px;" class="mt-2">
+                <div class="logo-actions mt-2">
+                  <button type="button" class="btn btn-sm btn-danger" onclick="removeLogo()">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+              </div>
+            `;
+          } else {
+            logoPreview.innerHTML = '<p class="text-muted">No logo uploaded</p>';
+          }
+          
+          if (logoInput) {
+            logoInput.value = '';
+          }
+        }
+        
+        async function deleteClient(clientId) {
+          try {
+            // Show confirmation dialog
+            console.log('Delete function called with ID:', clientId);
+            const result = await Swal.fire({
+              title: 'Are you sure?',
+              text: "You won't be able to revert this!",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes, delete it!'
+            });
+        
+            if (result.isDismissed) return;
+        
+            // Send delete request
+            const response = await axios.delete(`/delete-client/${clientId}`);
+        
+            if (response.data.success) {
+              // Show success message
+              await Swal.fire(
+                'Deleted!',
+                'Client has been deleted successfully.',
+                'success'
+              );
+        
+              // Refresh the page
+              window.location.reload();
+            }
+          } catch (error) {
+            console.error('Error deleting client:', error);
+            Swal.fire(
+              'Error!',
+              'Failed to delete client. Please try again.',
+              'error'
+            );
+          }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+          const deleteButtons = document.querySelectorAll('.delete-client-btn');
+          deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+              const clientId = this.getAttribute('data-client-id');
+              deleteClient(clientId);
+            });
+          });
+        });
+        
+          function toggleVas(clientId, isChecked) {
+            const vasValue = isChecked ? 1 : 0;
+        
+            axios.put('/api/clients/vas', {
+              client_id: clientId,
+              vas: vasValue
+            })
+            .then(response => {
+              if (response.data.success) {
+                console.log('VAS updated successfully');
+              } else {
+                alert('Failed to update VAS');
+              }
+            })
+            .catch(error => {
+              console.error('Error updating VAS:', error);
+              alert('An error occurred while updating VAS');
+            });
+          }
+        
+        
+        </script>
+        
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

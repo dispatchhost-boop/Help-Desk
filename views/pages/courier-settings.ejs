@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  
+      <style>
+        .nav-pills .nav-item.show .nav-link,
+        .nav-pills .nav-link.active {
+          background: #e5efff !important;
+  
+          border-radius: 0;
+        }
+  
+        /* Active card style */
+        .active-card {
+          border: 3px solid #e5efff;
+          box-shadow: 0px 0px 15px rgba(0, 123, 255, 0.5);
+          transition: all 0.3s ease;
+        }
+  
+        .offcanvas {
+          width: 85% !important;
+          /* Adjust the width as needed */
+        }
+  
+        .offcanvas-body {
+          padding: 20px;
+        }
+  
+        /* Inactive (grayscale) style */
+        .inactive-card {
+          filter: grayscale(100%);
+          transition: all 0.3s ease;
+        }
+  
+        .row-hover:hover {
+          background-color: #dcff8b;
+          /* Change background color on hover */
+        }
+  
+        .row-active-cd {
+          background-color: #dcff8b;
+          /* Change background color on hover */
+        }
+  
+        .row-hover {
+          transition: background-color 0.3s ease;
+        }
+      </style>
+  
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat App</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">App</li>
+                  <li class="breadcrumb-item active">Chat</li>
+                </ul>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div>
+   
+        <!-- end page title end breadcrumb -->
+        <div class="row">
+          <div class="col-lg-12">
+            <div>
+  
+              <div class="card-body">
+                <!-- Nav tabs -->
+                <ul class="nav nav-pills nav-justified" role="tablist">
+                  <li class="nav-item waves-effect waves-light">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#home-1" role="tab" aria-selected="true"
+                      style="color:rgb(14, 13, 13) !important;">Courier Modes</a>
+                  </li>
+                  <li class="nav-item waves-effect waves-light">
+                    <a class="nav-link" data-bs-toggle="tab" href="#profile-1" role="tab" aria-selected="false"
+                      style="color:rgb(14, 13, 13) !important;">Courier Selection</a>
+                  </li>
+                  <li class="nav-item waves-effect waves-light">
+                    <a class="nav-link" data-bs-toggle="tab" href="#settings-1" role="tab" aria-selected="false"
+                      style="color:rgb(14, 13, 13) !important;">Custom Courier Settings</a>
+                  </li>
+                </ul>
+  
+                <!-- Tab panes -->
+                <div class="tab-content">
+                  <div class="tab-pane p-3 active" id="home-1" role="tabpanel">
+                    <div class="container mt-4">
+                      <div class="row">
+                        <!-- Card 1 - Active by default -->
+                        <div class="col-md-6 col-lg-3">
+                          <div class="card" data-card-id="1" onclick="toggleCardActive(this)"
+                            style="width: 200px;height: 275px;border-radius: 20px;justify-content: center;box-shadow: 0px 0px 4px rgb(11 81 183);">
+                            <div style="padding: 15px;">
+                              <div class="row align-items-center">
+                                <div class="col">
+                                  <h4 class="card-title" style="text-align: center;">Rapid
+                                    Dispatch</h4>
+                                </div>
+                                <div class="col-auto" style="display: flex; justify-content: center;">
+                                  <img class="card-img-top img-fluid" src="assets/images/small/fast-delivery.png"
+                                    alt="Card image cap" style="width: 50%;">
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p class="card-text text-muted p-" style="font-size: xx-small; text-align: center;">Some
+                                more
+                                quick example text to build on the card .</p>
+                            </div>
+                          </div>
+                        </div>
+  
+                        <!-- Card 2 -->
+                        <div class="col-md-6 col-lg-3">
+                          <div class="card" onclick="toggleCardActive(this)" 
+                            style="width: 200px;height: 275px;border-radius: 20px;justify-content: center;box-shadow: 0px 0px 4px rgb(11 81 183);">
+                            <div style="padding: 15px;">
+                              <div class="row align-items-center">
+                                <div class="col">
+                                  <h4 class="card-title mb-2" style="text-align: center;">
+                                    Pocket Friendly</h4>
+                                </div>
+                                <div class="col-auto" style="display: flex; justify-content: center;">
+                                  <img class="card-img-top img-fluid" src="assets/images/small/cheapest.png"
+                                    alt="Card image cap" style="width: 50%;">
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p class="card-text text-muted p-" style="font-size: xx-small; text-align: center;">Some
+                                more
+                                example text for standard delivery options.</p>
+                            </div>
+                          </div>
+                        </div>
+  
+                        <!-- Card 3 -->
+                        <div class="col-md-6 col-lg-3">
+                          <div class="card" onclick="toggleCardActive(this)"
+                            style="width: 200px;height: 275px;border-radius: 20px;justify-content: center;box-shadow: 0px 0px 4px rgb(11 81 183);">
+                            <div style="padding: 15px;">
+                              <div class="row align-items-center">
+                                <div class="col">
+                                  <h4 class="card-title mb-2" style="text-align: center;">
+                                    Recommended</h4>
+                                </div>
+                                <div class="col-auto" style="display: flex; justify-content: center;">
+                                  <img class="card-img-top img-fluid" src="assets/images/small/recommendations.png"
+                                    alt="Card image cap" style="width: 50%;">
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p class="card-text text-muted p-" style="font-size: xx-small; text-align: center;">Some
+                                more
+                                quick example text for express delivery options.</p>
+                            </div>
+                          </div>
+                        </div>
+  
+                        <!-- Card 4 -->
+                        <div class="col-md-6 col-lg-3">
+                          <div class="card" onclick="toggleCardActive(this)"
+                            style="width: 200px;height: 275px;border-radius: 20px;justify-content: center;box-shadow: 0px 0px 4px rgb(11 81 183);">
+                            <div style="padding: 15px;">
+                              <div class="row align-items-center">
+                                <div class="col">
+                                  <h4 class="card-title mb-2" data-bs-toggle="offcanvas" data-bs-target="#NewSettingsPanel" style="text-align: center;">
+                                    Create Your Own</h4>
+                                </div>
+                                <div class="col-auto" style="display: flex; justify-content: center;">
+                                  <img class="card-img-top img-fluid"  data-bs-toggle="offcanvas" data-bs-target="#NewSettingsPanel" src="assets/images/small/customize.png"
+                                    alt="Card image cap" style="width: 50%;">
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p class="card-text text-muted p-" style="font-size: xx-small; text-align: center;">Some
+                                more
+                                quick example text for same day delivery options.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+  
+                      <!-- Save Selection Button -->
+                      <div class="text-center mt-4">
+                        <button class="btn btn-primary" onclick="saveSelection()">Save Selected
+                          Mode</button>
+                      </div>
+  
+                      <!-- Placeholder to display the result -->
+                      <div class="mt-3 text-center">
+                        <p id="saveMessage"></p>
+                      </div>
+  
+                      <script>
+                        function toggleCardActive(card) {
+                          // Remove active-card class from all cards
+                          document.querySelectorAll('.card').forEach(c => {
+                            c.classList.remove('active-card');
+                          });
+                          
+                          // Add active-card class to clicked card
+                          card.classList.add('active-card');
+                        }
+                      </script>
+                    </div>
+                  </div>
+  
+                  <div class="tab-pane p-3" id="profile-1" role="tabpanel">
+                    <div class="col-md-12 col-lg-12">
+                      <div class="card">
+  
+                        <div class="card-body">
+                          <!-- Nav tabs -->
+                          <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                              <a class="nav-link active" data-bs-toggle="tab" href="#home" role="tab"
+                                aria-selected="true">Active</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-bs-toggle="tab" href="#profile" role="tab"
+                                aria-selected="false">In-Active</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" data-bs-toggle="tab" href="#settings" role="tab"
+                                aria-selected="false">Show All</a>
+                            </li>
+                          </ul>
+  
+                          <!-- Tab panes -->
+                          <div class="tab-content">
+                            <div class="tab-pane p-3 active" id="home" role="tabpanel">
+                              <div class="row m-4 p-2"
+                                style="box-shadow: 0px 0px 4px rgb(209, 209, 209); border-radius: 10px;">
+                                <div class="col-md-3">
+                                  <form class="d-flex">
+                                    <div class="input-group">
+                                      <input type="text" class="form-control" placeholder="Search"
+                                        aria-label="Recipient's username" aria-describedby="basic-addon2">
+                                      <button class="btn btn-soft-secondary" type="button" id="button-addon2"><i
+                                          class="fas fa-search"></i></button>
+                                    </div>
+                                  </form>
+                                </div>
+                                <div class="col-md-3"
+                                  style="display: flex;align-content: center;align-items: center;justify-content: space-evenly;flex-wrap: nowrap;flex-direction: row; font-weight: 500;">
+                                  Filter By
+                                  <div class="dropdown">
+                                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
+                                      id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Courier Mode
+                                      <i class="mdi mdi-chevron-down"></i>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                      <a class="dropdown-item" href="#">Action</a>
+                                      <a class="dropdown-item" href="#">Another
+                                        action</a>
+                                      <a class="dropdown-item" href="#">Something else
+                                        here</a>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-3" style="
+                                                              display: flex;
+                                                              align-content: center;
+                                                              align-items: center;
+                                                              justify-content: space-evenly;
+                                                              flex-wrap: nowrap;
+                                                              flex-direction: row;font-weight: 500;">Courier Type
+                                  <div class="dropdown">
+                                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
+                                      id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Dropdown link
+                                      <i class="mdi mdi-chevron-down"></i>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                      <a class="dropdown-item" href="#">Action</a>
+                                      <a class="dropdown-item" href="#">Another
+                                        action</a>
+                                      <a class="dropdown-item" href="#">Something else
+                                        here</a>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-md-3" style="
+                                                              display: flex;
+                                                              align-content: center;
+                                                              align-items: center;
+                                                              justify-content: space-evenly;
+                                                              flex-wrap: nowrap;
+                                                              flex-direction: row;font-weight: 500;">Sort by
+                                  <div class="dropdown">
+                                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button"
+                                      id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Dropdown link
+                                      <i class="mdi mdi-chevron-down"></i>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                      <a class="dropdown-item" href="#">Action</a>
+                                      <a class="dropdown-item" href="#">Another
+                                        action</a>
+                                      <a class="dropdown-item" href="#">Something else
+                                        here</a>
+                                    </div>
+                                  </div>
+                                </div>
+  
+                              </div>
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="row justify-content-center">
+                                    <div class="col-md-6 col-lg-2">
+                                      <div class="card">
+                                        <div class="card-body">
+                                          <div class="row d-flex justify-content-center">
+                                            <div class="col-9">
+                                              <p class="text-dark mb-0 fw-semibold">
+                                                ActivatedCouriers of 86
+                                                Couriers</p>
+                                              <h3 class="my-1 font-20 fw-bold">
+                                                24k</h3>
+                                              <p class="mb-0 text-truncate text-muted">
+                                                <span class="text-success"><i class="mdi mdi-trending-up"></i>8.5%</span>
+                                                New Sessions Today
+                                              </p>
+                                            </div>
+                                            <!--end col-->
+                                            <div class="col-3 align-self-center">
+                                              <div
+                                                class="d-flex justify-content-center align-items-center thumb-md bg-light-alt rounded-circle mx-auto">
+                                                <i class="ti ti-users font-24 align-self-center text-muted"></i>
+                                              </div>
+                                            </div>
+                                            <!--end col-->
+                                          </div>
+                                          <!--end row-->
+                                        </div>
+                                        <!--end card-body-->
+                                      </div>
+                                      <!--end card-->
+                                    </div>
+                                    <!--end col-->
+                                    <div class="col-md-6 col-lg-2">
+                                      <div class="card">
+                                        <div class="card-body">
+                                          <div class="row d-flex justify-content-center">
+                                            <div class="col-9">
+                                              <p class="text-dark mb-0 fw-semibold">
+                                                Pincode Serviceable</p>
+                                              <h3 class="my-1 font-20 fw-bold">
+                                                00:18</h3>
+                                              <p class="mb-0 text-truncate text-muted">
+                                                <span class="text-success"><i class="mdi mdi-trending-up"></i>1.5%</span>
+                                                Weekly Avg.Sessions
+                                              </p>
+                                            </div>
+                                            <!--end col-->
+                                            <div class="col-3 align-self-center">
+                                              <div
+                                                class="d-flex justify-content-center align-items-center thumb-md bg-light-alt rounded-circle mx-auto">
+                                                <i class="ti ti-clock font-24 align-self-center text-muted"></i>
+                                              </div>
+                                            </div>
+                                            <!--end col-->
+                                          </div>
+                                          <!--end row-->
+                                        </div>
+                                        <!--end card-body-->
+                                      </div>
+                                      <!--end card-->
+                                    </div>
+                                    <!--end col-->
+                                    <div class="col-md-6 col-lg-2">
+                                      <div class="card">
+                                        <div class="card-body">
+                                          <div class="row d-flex justify-content-center">
+                                            <div class="col-9">
+                                              <p class="text-dark mb-0 fw-semibold">
+                                                Pincode Active for Pickup
+                                              </p>
+                                              <h3 class="my-1 font-20 fw-bold">
+                                                $2400</h3>
+                                              <p class="mb-0 text-truncate text-muted">
+                                                <span class="text-danger"><i class="mdi mdi-trending-down"></i>35%</span>
+                                                Bounce Rate Weekly
+                                              </p>
+                                            </div>
+                                            <!--end col-->
+                                            <div class="col-3 align-self-center">
+                                              <div
+                                                class="d-flex justify-content-center align-items-center thumb-md bg-light-alt rounded-circle mx-auto">
+                                                <i class="ti ti-activity font-24 align-self-center text-muted"></i>
+                                              </div>
+                                            </div>
+                                            <!--end col-->
+                                          </div>
+                                          <!--end row-->
+                                        </div>
+                                        <!--end card-body-->
+                                      </div>
+                                      <!--end card-->
+                                    </div>
+                                    <!--end col-->
+                                    <div class="col-md-6 col-lg-2">
+                                      <div class="card">
+                                        <div class="card-body">
+                                          <div class="row d-flex justify-content-center">
+                                            <div class="col-9">
+                                              <p class="text-dark mb-0 fw-semibold">
+                                                RTO Pincodes</p>
+                                              <h3 class="my-1 font-20 fw-bold">
+                                                85000</h3>
+                                              <p class="mb-0 text-truncate text-muted">
+                                                <span class="text-success"><i class="mdi mdi-trending-up"></i>10.5%</span>
+                                                Completions Weekly
+                                              </p>
+                                            </div>
+                                            <!--end col-->
+                                            <div class="col-3 align-self-center">
+                                              <div
+                                                class="d-flex justify-content-center align-items-center thumb-md bg-light-alt rounded-circle mx-auto">
+                                                <i class="ti ti-confetti font-24 align-self-center text-muted"></i>
+                                              </div>
+                                            </div>
+                                            <!--end col-->
+                                          </div>
+                                          <!--end row-->
+                                        </div>
+                                        <!--end card-body-->
+                                      </div>
+                                      <!--end card-->
+                                    </div>
+                                    <!--end col-->
+                                    <div class="col-md-6 col-lg-2">
+                                      <div class="card">
+                                        <div class="card-body">
+                                          <div class="row d-flex justify-content-center">
+                                            <div class="col-9">
+                                              <p class="text-dark mb-0 fw-semibold">
+                                                Out of Delivery Pincode</p>
+                                              <h3 class="my-1 font-20 fw-bold">
+                                                85000</h3>
+                                              <p class="mb-0 text-truncate text-muted">
+                                                <span class="text-success"><i class="mdi mdi-trending-up"></i>10.5%</span>
+                                                Completions Weekly
+                                              </p>
+                                            </div>
+                                            <!--end col-->
+                                            <div class="col-3 align-self-center">
+                                              <div
+                                                class="d-flex justify-content-center align-items-center thumb-md bg-light-alt rounded-circle mx-auto">
+                                                <i class="ti ti-confetti font-24 align-self-center text-muted"></i>
+                                              </div>
+                                            </div>
+                                            <!--end col-->
+                                          </div>
+                                          <!--end row-->
+                                        </div>
+                                        <!--end card-body-->
+                                      </div>
+                                      <!--end card-->
+                                    </div>
+                                  </div>
+                                  <!--end row-->
+  
+                                  <!--end card-->
+                                </div>
+                                <!--end col-->
+  
+                                <!--end col-->
+                              </div>
+                              <!-- Data row displaying 1st row -->
+                              <div class="row card row-hover"
+                                style="display: flex; flex-direction: row;justify-content: space-evenly;align-items: center;">
+  
+                                <div class="col-md-1 p-2 mt-3"><img src="\assets\images\small\DTDC_logo.png" alt="dtdc"
+                                    style="width: 70%;text-align: center;">
+                                  <h6 class="mt-2">Ekart Surface 5kg</h5>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly; align-items: center;">
+                                  <i class="ti ti-truck menu-icon"
+                                    style="font-size: 40px;color: #5a99fc;font-weight: 100;"></i>
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: stretch;flex-wrap: wrap;align-content: center;">
+                                  <P><i class="fa-solid fa-phone"></i>
+                                    &nbsp;Call Before Delivery: Available</P>
+                                  <p><i class="fa-solid fa-location-dot"></i>
+                                    &nbsp;Tracking
+                                    Service: Real
+                                    Time</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;flex-wrap: nowrap;">
+                                  <i class="fa-solid fa-boxes-packing"></i>&nbsp; POD:
+                                  Instant
+                                </div>
+                                <div class="col-md-2"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <i class="fa-solid fa-user"></i> Delivery Boy Number:
+                                  Not
+                                  Available
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: space-around;flex-wrap: wrap;align-content: space-between;">
+                                  <button type="button" class="btn btn-outline-primary mb-2"><i
+                                      class="mdi mdi-power me-2"></i>Deactivate</button>
+                                  <p>Activated on: Sep 27, 2024</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasright"
+                                    aria-controls="offcanvasright" style="border: none;background: no-repeat;">
+                                    <i class="fas fa-angle-double-right"
+                                      style="font-size: 30px;color: green;font-weight: 600;"></i>
+                                  </button>
+                                  <!-- Trigger Button -->
+  
+  
+                                </div>
+                              </div>
+                              <!-- Data row displaying 2st row -->
+                              <div class="row card row-hover"
+                                style="display: flex; flex-direction: row;justify-content: space-evenly;align-items: center;">
+  
+                                <div class="col-md-1 p-2 mt-3"><img src="\assets\images\small\Delhivery_Logo.png"
+                                    alt="dtdc" style="width: 70%;text-align: center;">
+                                  <h6 class="mt-2">Ekart Surface 5kg</h5>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly; align-items: center;">
+                                  <i class="ti ti-truck menu-icon"
+                                    style="font-size: 40px;color: #5a99fc;font-weight: 100;"></i>
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: stretch;flex-wrap: wrap;align-content: center;">
+                                  <P><i class="fa-solid fa-phone"></i>
+                                    &nbsp;Call Before Delivery: Available</P>
+                                  <p><i class="fa-solid fa-location-dot"></i>
+                                    &nbsp;Tracking
+                                    Service: Real
+                                    Time</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;flex-wrap: nowrap;">
+                                  <i class="fa-solid fa-boxes-packing"></i>&nbsp; POD:
+                                  Instant
+                                </div>
+                                <div class="col-md-2"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <i class="fa-solid fa-user"></i> Delivery Boy Number:
+                                  Not
+                                  Available
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: space-around;flex-wrap: wrap;align-content: space-between;">
+                                  <button type="button" class="btn btn-outline-primary mb-2"><i
+                                      class="mdi mdi-power me-2"></i>Deactivate</button>
+                                  <p>Activated on: Sep 27, 2024</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalLarge"
+                                    style="border: none;background: no-repeat;">
+                                    <i class="fas fa-angle-double-right"
+                                      style="font-size: 30px;color: green;font-weight: 600;"></i>
+                                  </button>
+  
+                                </div>
+                              </div>
+                              <!-- Data row displaying 3st row -->
+                              <div class="row card row-hover"
+                                style="display: flex; flex-direction: row;justify-content: space-evenly;align-items: center;">
+  
+                                <div class="col-md-1 p-2 mt-3"><img src="\assets\images\small\Blue_Dart_logo.png"
+                                    alt="dtdc" style="width: 70%;text-align: center;">
+                                  <h6 class="mt-2">Ekart Surface 5kg</h5>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly; align-items: center;">
+                                  <i class="fa-solid fa-jet-fighter-up"
+                                    style="font-size: 40px;color: #5a99fc;font-weight: 600;"></i>
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: stretch;flex-wrap: wrap;align-content: center;">
+                                  <P><i class="fa-solid fa-phone"></i>
+                                    &nbsp;Call Before Delivery: Available</P>
+                                  <p><i class="fa-solid fa-location-dot"></i>
+                                    &nbsp;Tracking
+                                    Service: Real
+                                    Time</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: flex-start;align-items: center;flex-wrap: nowrap;">
+                                  <i class="fa-solid fa-boxes-packing"></i>&nbsp; POD:
+                                  Instant
+                                </div>
+                                <div class="col-md-2"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <i class="fa-solid fa-user"></i> Delivery Boy Number:
+                                  Not
+                                  Available
+                                </div>
+                                <div class="col-md-2 mt-3"
+                                  style="display: flex;flex-direction: row;justify-content: space-around;flex-wrap: wrap;align-content: space-between;">
+                                  <button type="button" class="btn btn-outline-primary mb-2"><i
+                                      class="mdi mdi-power me-2"></i>Deactivate</button>
+                                  <p>Activated on: Sep 27, 2024</p>
+                                </div>
+                                <div class="col-md-1"
+                                  style="display: flex;flex-direction: row;justify-content: space-evenly;align-items: center;">
+                                  <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalLarge"
+                                    style="border: none;background: no-repeat;">
+                                    <i class="fas fa-angle-double-right"
+                                      style="font-size: 30px;color: green;font-weight: 600;"></i>
+                                  </button>
+  
+                                </div>
+                              </div>
+  
+                            </div>
+  
+  
+  
+                            <!-- incative button -->
+                            <div class="tab-pane p-3 inactive" id="profile" role="tabpanel">
+                              <p class="mb-0 text-muted">
+                                inactive section
+                              </p>
+                            </div>
+                            <!-- show all button -->
+                            <div class="tab-pane p-3 all" id="settings" role="tabpanel">
+                              <p class="text-muted mb-0">
+                                show all section
+                              </p>
+                            </div>
+                          </div>
+  
+                        </div><!--end card-body-->
+  
+  
+                      </div><!--end card-->
+  
+                    </div><!--end col-->
+  
+                  </div>
+                  <div class="tab-pane p-3" id="settings-1" role="tabpanel">
+                    <p class="text-muted mb-0">
+                      Trust fund seitan letterpress, keytar raw denim keffiyeh etsy.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!--end card-body-->
+        </div><!--end card-->
+      </div><!--end col-->
+  
+  <!-- Start Rightbar/offcanvas (New Panel) -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="NewSettingsPanel" aria-labelledby="NewSettingsPanelLabel">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="m-0 font-14" id="NewSettingsPanelLabel">New Settings</h5>
+      <button type="button" class="btn-close text-reset p-0 m-0 align-self-center" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">  
+  
+        <!-- Shipment Conditions Section -->
+        <h6 class="mb-3">Select Shipment Conditions</h6>
+        <div id="conditionContainer">
+            <div class="row mb-2 condition-row">
+                <div class="col-sm-5">
+                    <select class="form-select condition-select">
+                        <option selected disabled>Select Condition Type</option>
+                        <option value="payment_mode">Payment Mode</option>
+                        <option value="weight">Weight</option>
+                        <option value="zone_wise">Zone Wise</option>
+                        <option value="order_value">Order Value</option>
+                        <option value="state">State</option>
+                        <option value="pincode">Pincode</option>
+                        <option value="city">City</option>
+                        <option value="dangerous_goods">Dangerous Goods (DG)</option>
+                        <option value="product_sku">Product SKU</option>
+                        <option value="channel_id">Channel ID</option>
+                        <option value="service_codes">Service Codes</option>
+                        <option value="awb_assigned_time">AWB Assigned Time</option>
+                        <option value="order_tags">Order Tags</option>
+                        <option value="product_category">Product Category</option>
+                        <option value="pickup_location_id">Pickup Location ID</option>
+                        <option value="order_quantity">Order Quantity</option>
+                        <option value="block_next_rules">Block Next Rules</option>
+                    </select>
+                </div>
+                <div class="col-sm-5 condition-value">
+                    <!-- Input field dynamically insert hoga -->
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-danger remove-condition">✕</button>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-success mt-2" id="addCondition">+ Add Condition</button>
+        <!-- End Shipment Conditions Section -->
+  
+    </div>
+  </div>
+  <!-- End Rightbar/offcanvas -->
+  
+  <script>
+    function createConditionRow() {
+      const container = document.getElementById("conditionContainer");
+  
+      const newCondition = document.createElement("div");
+      newCondition.classList.add("row", "mb-2", "condition-row");
+  
+      newCondition.innerHTML = `
+          <div class="col-sm-5">
+              <select class="form-select condition-select">
+                  <option selected disabled>Select Condition Type</option>
+                  <option value="payment_mode">Payment Mode</option>
+                  <option value="weight">Weight</option>
+                  <option value="zone_wise">Zone Wise</option>
+                  <option value="order_value">Order Value</option>
+                  <option value="state">State</option>
+                  <option value="pincode">Pincode</option>
+                  <option value="city">City</option>
+                  <option value="dangerous_goods">Dangerous Goods (DG)</option>
+                  <option value="product_sku">Product SKU</option>
+                  <option value="channel_id">Channel ID</option>
+                  <option value="service_codes">Service Codes</option>
+                  <option value="awb_assigned_time">AWB Assigned Time</option>
+                  <option value="order_tags">Order Tags</option>
+                  <option value="product_category">Product Category</option>
+                  <option value="pickup_location_id">Pickup Location ID</option>
+                  <option value="order_quantity">Order Quantity</option>
+                  <option value="block_next_rules">Block Next Rules</option>
+              </select>
+          </div>
+          <div class="col-sm-5 condition-value"></div>
+          <div class="col-sm-2">
+              <button class="btn btn-danger remove-condition">✕</button>
+          </div>
+      `;
+  
+      container.appendChild(newCondition);
+      addEventListeners(newCondition);
+  }
+  
+  function addEventListeners(conditionRow) {
+      const selectElement = conditionRow.querySelector(".condition-select");
+      const valueContainer = conditionRow.querySelector(".condition-value");
+  
+      selectElement.addEventListener("change", function () {
+          valueContainer.innerHTML = ""; // Clear previous inputs
+  
+          // Remove existing check marks in options
+          for (let option of this.options) {
+              option.text = option.text.replace(" ✔", "").trim();
+          }
+  
+          // Add check mark symbol to the selected option (right side)
+          if (this.selectedIndex > 0) {
+              this.options[this.selectedIndex].text += " ✔"; // Add check mark symbol
+          }
+  
+          // Show input field or dropdown based on selected condition
+          if (["payment_mode", "service_codes", "order_tags", "block_next_rules"].includes(this.value)) {
+              valueContainer.innerHTML = `
+                  <select class="form-select">
+                      <option>Select an Option</option>
+                      <option value="option1">Option 1</option>
+                      <option value="option2">Option 2</option>
+                  </select>
+              `;
+          } else {
+              valueContainer.innerHTML = `
+                  <input type="text" class="form-control" placeholder="Enter value">
+              `;
+          }
+      });
+  
+      // Remove condition row when clicking the remove button
+      conditionRow.querySelector(".remove-condition").addEventListener("click", function () {
+          conditionRow.remove();
+      });
+  }
+  
+  // Add new condition row on button click
+  document.getElementById("addCondition").addEventListener("click", createConditionRow);
+  
+  // Initialize the first row
+  document.querySelectorAll(".condition-row").forEach(addEventListeners);
+  
+  </script>
+  
+  
+      <!-- Offcanvas Content -->
+      <div class="offcanvas offcanvas-end" id="offcanvasright" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+          <h5 id="offcanvasRightLabel">Courier Complete Settings</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <!-- Your form content here -->
+          <div class="row card row-active-cd"
+            style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center;">
+            <div class="col-md-1 p-2 mt-3">
+              <img src="\assets\images\small\Delhivery_Logo.png" alt="dtdc" style="width: 70%; text-align: center;">
+              <h6 class="mt-2">Ekart Surface 5kg</h6>
+            </div>
+            <div class="col-md-1"
+              style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center;">
+              <i class="ti ti-truck menu-icon" style="font-size: 40px; color: #5a99fc; font-weight: 100;"></i>
+            </div>
+            <div class="col-md-2 mt-3"
+              style="display: flex; flex-direction: row; justify-content: flex-start; align-items: stretch; flex-wrap: wrap; align-content: center;">
+              <p><i class="fa-solid fa-phone"></i>&nbsp;Call Before Delivery: Available</p>
+              <p><i class="fa-solid fa-location-dot"></i>&nbsp;Tracking Service: Real Time</p>
+            </div>
+            <div class="col-md-1"
+              style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center; flex-wrap: nowrap;">
+              <i class="fa-solid fa-boxes-packing"></i>&nbsp;POD: Instant
+            </div>
+            <div class="col-md-2"
+              style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center;">
+              <i class="fa-solid fa-user"></i>&nbsp;Delivery Boy Number: Not Available
+            </div>
+            <div class="col-md-2 mt-3"
+              style="display: flex; flex-direction: row; justify-content: space-around; flex-wrap: wrap; align-content: space-between;">
+              <button type="button" class="btn btn-outline-primary mb-2">
+                <i class="mdi mdi-power me-2"></i>Deactivate
+              </button>
+              <p>Activated on: Sep 27, 2024</p>
+            </div>
+          </div>
+          <div class="row">
+            <!-- <div class="col-md-2"></div> -->
+            <div class="col-md-6">
+              <div class="bg-light p-4 rounded shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <label class="h5">RTO Pincodes</label>
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm mr-3" ng-click="openPincodePopup('rto','block')">Block
+                      Pincodes</button>
+                    <button class="btn btn-outline-primary btn-sm" ng-click="openPincodePopup('rto','unblock')">Unblock
+                      Pincodes</button>
+                  </div>
+                </div>
+  
+                <div class="row mb-4" ng-controller="DownloadController"
+                  ng-if="isOwnKeyUser == false || show_auto_sync_serviceability == false || use_sr_postcodes == 1">
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','overall')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Courier Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','client_specific')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Account Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','custom')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Custom Pincodes</div>
+                  </div>
+                </div>
+  
+                <p class="border-top pt-3">
+                  <strong>Note<sup class="text-danger">*</sup>:</strong>
+                  View & download high probability RTO pincodes for Ecom Express Surface 10kg. Click on
+                  the Block Pincodes button to remove these pincodes from your account. Dear Seller, the
+                  RTO pincode will be disabled for COD orders only.
+                </p>
+              </div>
+            </div>
+  
+            <div class="col-md-6">
+              <div class="bg-light p-4 rounded shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <label class="h5">RTO Pincodes</label>
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm mr-3" ng-click="openPincodePopup('rto','block')">Block
+                      Pincodes</button>
+                    <button class="btn btn-outline-primary btn-sm" ng-click="openPincodePopup('rto','unblock')">Unblock
+                      Pincodes</button>
+                  </div>
+                </div>
+  
+                <div class="row mb-4" ng-controller="DownloadController"
+                  ng-if="isOwnKeyUser == false || show_auto_sync_serviceability == false || use_sr_postcodes == 1">
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','overall')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Courier Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','client_specific')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Account Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','custom')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Custom Pincodes</div>
+                  </div>
+                </div>
+  
+                <p class="border-top pt-3">
+                  <strong>Note<sup class="text-danger">*</sup>:</strong>
+                  View & download high probability RTO pincodes for Ecom Express Surface 10kg. Click on
+                  the Block Pincodes button to remove these pincodes from your account. Dear Seller, the
+                  RTO pincode will be disabled for COD orders only.
+                </p>
+              </div>
+            </div>
+  
+          </div>
+          <div class="row">
+            <!-- <div class="col-md-2"></div> -->
+            <div class="col-md-6 mt-4">
+              <div class="bg-light p-4 rounded shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <label class="h5">RTO Pincodes</label>
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm mr-3" ng-click="openPincodePopup('rto','block')">Block
+                      Pincodes</button>
+                    <button class="btn btn-outline-primary btn-sm" ng-click="openPincodePopup('rto','unblock')">Unblock
+                      Pincodes</button>
+                  </div>
+                </div>
+  
+                <div class="row mb-4" ng-controller="DownloadController"
+                  ng-if="isOwnKeyUser == false || show_auto_sync_serviceability == false || use_sr_postcodes == 1">
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','overall')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Courier Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','client_specific')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Account Pincodes</div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <span class="h3 text-primary ng-binding">0</span>
+                    <i ng-click="download_pincode(courier.id,'rto_pincode','custom')"
+                      class="text-primary fa fa-download fa-2x ml-2"></i>
+                    <div class="mt-2">Custom Pincodes</div>
+                  </div>
+                </div>
+  
+                <p class="border-top pt-3">
+                  <strong>Note<sup class="text-danger">*</sup>:</strong>
+                  View & download high probability RTO pincodes for Ecom Express Surface 10kg. Click on
+                  the Block Pincodes button to remove these pincodes from your account. Dear Seller, the
+                  RTO pincode will be disabled for COD orders only.
+                </p>
+              </div>
+            </div>
+  
+  
+  
+          </div>
+        </div>
+  
+  
+      </div>
+ 
+        <script>
+          // axios.defaults.headers.post['Content-Type'] =
+          //   'application/x-www-form-urlencoded';
+  
+          // // Set default headers for GET requests
+          // axios.defaults.headers.get['Accept'] = 'application/json';
+          //for the select option of the payment type
+          document
+            .getElementById('paymentType')
+            .addEventListener('change', function () {
+              var paymentType = this.value;
+              var codAmountDiv = document.getElementById('codAmount');
+              var checkDetailsDiv = document.getElementById('checkDetails');
+  
+              if (paymentType === 'COD') {
+                codAmountDiv.style.display = 'block'; // Show the COD Amount input box
+                checkDetailsDiv.style.display = 'none';
+                document.getElementById('divCheckAmount').style.display = 'none';
+                // Hide the Check details input boxes
+              } else if (paymentType === 'check-on-delivery') {
+                checkDetailsDiv.style.display = 'block'; // Show the Check details input boxes
+                document.getElementById('divCheckAmount').style.display = 'block';
+  
+                codAmountDiv.style.display = 'none'; // Hide the COD Amount input box
+              } else {
+                codAmountDiv.style.display = 'none'; // Hide all extra input boxes
+                checkDetailsDiv.style.display = 'none';
+                document.getElementById('divCheckAmount').style.display = 'none';
+              }
+            });
+          // to here
+          document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.getElementById('phone');
+            checkPhoneNumberLength(phoneInput);
+          });
+          const orderTypeDropdown = document.getElementById('orderType');
+          const addWpidButton = document.getElementById('add-wpid-button');
+          function chooseOrderType() {
+            const selectedValue = orderTypeDropdown.value;
+            if (selectedValue === 'multiple') {
+              addWpidButton.style.display = 'block';
+            } else {
+              addWpidButton.style.display = 'none';
+              window.location.href = window.location.href;
+            }
+          }
+          // working of addres  here
+          document.addEventListener('DOMContentLoaded', function () {
+            let selectedAddresses = new Map(); // Map to store selected addresses linked to specific buttons
+            let activeButton = null;
+  
+            // Fetch data and populate the modal when the page loads
+            axios
+              .get('/predispatch/get_warehouse_addresses')
+              .then(function (response) {
+                populateModal(response.data);
+              })
+              .catch(function (error) {
+                console.error('Error fetching locations:', error);
+              });
+  
+            function populateModal(locations) {
+              var modalBody = document.getElementById('modalBody');
+              modalBody.innerHTML = ''; // Clear previous content
+  
+              locations.forEach(function (location) {
+                var row = `
+                            <tr>
+                                <td>${location.serial}</td>
+                                <td>${location.warehouse_person}</td>
+                                <td>${location.warehouse_address}</td>
+                                <td>${location.warehouse_pincode}</td>
+                                <td>${location.warehouse_city}</td>
+                                <td>${location.warehouse_state}</td>
+                                <td>${location.warehouse_contact_email_person}</td>
+                                <td>${location.warehouse_contact_person}</td>
+                                <td>${location.working_hours_from} to ${location.working_hours_to}</td>
+                                <td>${location.preferred_slot}</td>
+                                <td><button class="btn btn-info select-btn" data-id="${location.serial}">Select</button></td>
+                            </tr>
+                        `;
+                modalBody.innerHTML += row;
+              });
+            }
+  
+            // Show modal when any modal button is clicked
+            document.addEventListener('click', function (event) {
+              if (event.target && event.target.matches('.open-modal-button')) {
+                var locationsModal = new bootstrap.Modal(
+                  document.getElementById('locationsModal')
+                );
+                locationsModal.show();
+                activeButton = event.target; // Set the active button
+              }
+  
+              // Handle address selection from modal
+              if (event.target && event.target.matches('.select-btn')) {
+                var warehouseID = event.target.getAttribute('data-id');
+  
+                axios
+                  .get(`/predispatch/api/location/${warehouseID}`)
+                  .then(function (response) {
+                    updateSelectedAddress(activeButton, response.data);
+                    var locationsModal = bootstrap.Modal.getInstance(
+                      document.getElementById('locationsModal')
+                    );
+                    locationsModal.hide();
+                  })
+                  .catch(function (error) {
+                    console.error('Error fetching location details:', error);
+                  });
+              }
+            });
+  
+            function updateSelectedAddress(button, details) {
+              if (selectedAddresses.has(button)) {
+                // Update existing address in tables
+                updateAddressInTables(button, details);
+              } else {
+                // Add new address to tables
+                addAddressToTables(button, details);
+              }
+              selectedAddresses.set(button, details); // Use the button as the key
+              displaySelectedAddress(button);
+            }
+  
+            function displaySelectedAddress(button) {
+              const details = selectedAddresses.get(button);
+              if (details) {
+                // Find the input field associated with the button
+                console.log("display addres", details);
+                console.log("details", button)
+  
+                const inputField = button;
+                console.log("display input field", inputField);
+                if (inputField) {
+                  inputField.value = `${details.warehouse_address}, ${details.warehouse_city}, ${details.warehouse_state},${details.warehouse_pincode}`;
+                }
+              }
+            }
+  
+            function addAddressToTables(button, details) {
+              addAddressToTable(button, details);
+              addAddressToReturnTable(details); // Add details to the return table
+            }
+  
+            function addAddressToTable(button, details) {
+              var tableBody = document.getElementById('detailsTableBody');
+              var wpidInput = button
+                .closest('.row')
+                .querySelector('input[name="wpid[]"]');
+              var wpidInputValue = wpidInput
+                ? wpidInput.value
+                : 'No previous input value';
+  
+              var row = `
+                        <tr data-button-id="${button.getAttribute('id')}">
+                            <td>${details.serial}</td>
+                            <td>${wpidInputValue}</td>
+                            <td>${details.warehouse_person}</td>
+                            <td>${details.warehouse_address}</td>
+                            <td>${details.warehouse_pincode}</td>
+                            <td>${details.warehouse_city}</td>
+                            <td>${details.warehouse_state}</td>
+                            <td>${details.warehouse_contact_email_person}</td>
+                            <td>${details.warehouse_contact_person}</td>
+                            <td>${details.working_hours_from} to ${details.working_hours_to
+                }</td>
+                            <td>${details.preferred_slot}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${details.serial
+                }">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+              tableBody.innerHTML += row; // Add the new row to the pickup location table
+            }
+  
+            function addAddressToReturnTable(details) {
+              var returnTableBody = document.getElementById(
+                'returnDetailsTableBody'
+              );
+  
+              var row = `
+                        <tr data-serial="${details.serial}">
+                            <td>${details.serial}</td>
+                            <td>${details.return_warehouse_person || 'N/A'}</td>
+                            <td>${details.return_warehouse_address || 'N/A'}</td>
+                            <td>${details.return_warehouse_pincode || 'N/A'}</td>
+                            <td>${details.return_warehouse_city || 'N/A'}</td>
+                            <td>${details.return_warehouse_state || 'N/A'}</td>
+                            <td>${details.return_warehouse_contact_email_person || 'N/A'
+                }</td>
+                            <td>${details.return_warehouse_contact_person || 'N/A'}</td>
+                            <td>${details.return_working_hours_from
+                  ? `${details.return_working_hours_from} to ${details.return_working_hours_to}`
+                  : 'N/A'
+                }</td>
+                            <td>${details.return_preferred_slot || 'N/A'}</td>
+                        </tr>
+                    `;
+              returnTableBody.innerHTML += row; // Add the new row to the return location table
+            }
+  
+            function updateAddressInTables(button, details) {
+              updateAddressInTable(button, details);
+              updateAddressInReturnTable(details); // Update details in the return table
+            }
+  
+            function updateAddressInTable(button, details) {
+              const rows = document.querySelectorAll(
+                `#detailsTableBody tr[data-button-id="${button.getAttribute(
+                  'id'
+                )}"]`
+              );
+              rows.forEach((row) => {
+                row.innerHTML = `
+                            <td>${details.serial}</td>
+                            <td>${details.wpid || ''}</td>
+                            <td>${details.warehouse_person}</td>
+                            <td>${details.warehouse_address}</td>
+                            <td>${details.warehouse_pincode}</td>
+                            <td>${details.warehouse_city}</td>
+                            <td>${details.warehouse_state}</td>
+                            <td>${details.warehouse_contact_email_person}</td>
+                            <td>${details.warehouse_contact_person}</td>
+                            <td>${details.working_hours_from} to ${details.working_hours_to
+                  }</td>
+                            <td>${details.preferred_slot}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${details.serial
+                  }">Delete</button>
+                            </td>
+                        `;
+              });
+            }
+  
+            function updateAddressInReturnTable(details) {
+              const rows = document.querySelectorAll(
+                `#returnDetailsTableBody tr[data-serial="${details.serial}"]`
+              );
+              rows.forEach((row) => {
+                row.innerHTML = `
+                            <td>${details.serial}</td>
+                            <td>${details.return_warehouse_person || 'N/A'}</td>
+                            <td>${details.return_warehouse_address || 'N/A'}</td>
+                            <td>${details.return_warehouse_pincode || 'N/A'}</td>
+                            <td>${details.return_warehouse_city || 'N/A'}</td>
+                            <td>${details.return_warehouse_state || 'N/A'}</td>
+                            <td>${details.return_warehouse_contact_email_person || 'N/A'
+                  }</td>
+                            <td>${details.return_warehouse_contact_person || 'N/A'}</td>
+                            <td>${details.return_working_hours_from
+                    ? `${details.return_working_hours_from} to ${details.return_working_hours_to}`
+                    : 'N/A'
+                  }</td>
+                            <td>${details.return_preferred_slot || 'N/A'}</td>
+                        `;
+              });
+            }
+  
+            // Handle delete actions
+            document.addEventListener('click', function (event) {
+              if (event.target && event.target.matches('.delete-btn')) {
+                var warehouseID = event.target.getAttribute('data-id');
+                event.preventDefault();
+                console.log('Delete button clicked for warehouse ID:', warehouseID);
+  
+                // Find the button associated with this warehouseID and remove from selectedAddresses
+                selectedAddresses.forEach((address, button) => {
+                  if (address.serial == warehouseID) {
+                    removeAddressFromTables(button, warehouseID);
+                    selectedAddresses.delete(button);
+                    clearInputField(button); // Clear the input field on deletion
+                  }
+                });
+              }
+            });
+  
+            function removeAddressFromTables(button, warehouseID) {
+              removeAddressFromTable(button, warehouseID); // Remove from pickup table
+              removeAddressFromReturnTable(warehouseID); // Remove from return table
+            }
+  
+            function removeAddressFromTable(button, warehouseID) {
+              const rows = document.querySelectorAll(
+                `#detailsTableBody tr[data-button-id="${button.getAttribute(
+                  'id'
+                )}"]`
+              );
+              rows.forEach((row) => {
+                if (
+                  row.querySelector('.delete-btn').getAttribute('data-id') ==
+                  warehouseID
+                ) {
+                  row.remove();
+                  console.log('Row removed successfully for ID:', warehouseID);
+                }
+              });
+            }
+  
+            function removeAddressFromReturnTable(warehouseID) {
+              const rows = document.querySelectorAll(
+                `#returnDetailsTableBody tr[data-serial="${warehouseID}"]`
+              );
+              rows.forEach((row) => {
+                row.remove();
+                console.log(
+                  'Row removed successfully from return table for ID:',
+                  warehouseID
+                );
+              });
+            }
+  
+            function clearInputField(button) {
+              const inputField = button.previousElementSibling;
+              if (inputField) {
+                inputField.value = '';
+              }
+              const wpidInput = button
+                .closest('.row')
+                .querySelector('input[name="wpid[]"]');
+              if (wpidInput) {
+                wpidInput.value = ''; // Clear the wpid input field
+              }
+            }
+          });
+  
+          // to here
+          // Add an event listener to the order type dropdown
+          orderTypeDropdown.addEventListener('change', chooseOrderType);
+          // generating order id automatic
+          const autoOrderIdButton = document.getElementById('autoOrderId');
+          const orderIdInput = document.querySelector('.orderid');
+          autoOrderIdButton.addEventListener('click', () => {
+            const orderId = generateId();
+            orderIdInput.value = orderId;
+          });
+          function generateId() {
+            return (
+              'AWB' + Math.floor(1000000000 + Math.random() * 9000000000).toString()
+            );
+          }
+          // generate single pod
+          document
+            .getElementById('firstPID')
+            .addEventListener('click', function () {
+              const wpidInput = document.querySelector('.wpid-id');
+              wpidInput.value = generateRandomPoid();
+            });
+          function generateRandomPoid() {
+            // Replace this with your actual PO ID generation logic
+            return 'PONO' + Math.floor(Math.random() * 1000000);
+          }
+          // generate for multiple poid
+          function autoGenerateWpid(button) {
+            const wpidInput = button.previousElementSibling; // Gets the input field preceding the button
+            wpidInput.value = generateRandomPoid();
+          }
+          document.getElementById('open-popup').addEventListener('click', () => {
+            document.getElementById('popup').style.display = 'flex';
+          });
+          // for the number
+          function checkPhoneNumberLength(inputField) {
+            const mobileHelp = document.getElementById('mobileHelp');
+  
+            if (inputField.value.length < 10) {
+              mobileHelp.style.display = 'block';
+              inputField.setAttribute('maxlength', '10');
+            } else {
+              mobileHelp.style.display = 'none';
+              inputField.removeAttribute('maxlength');
+            }
+          }
+          function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+          }
+  
+          // Function to add a new product section within the current WPID
+          function addProduct(button) {
+            // Find the closest product-container to the button that was clicked
+            const productContainer = button.closest('.product-container');
+  
+            // Create a new product section
+            const newProductSection = document.createElement('div');
+            newProductSection.className = 'product-section';
+  
+            newProductSection.innerHTML = `
+                     
+                    
+                    <div class="row mb-3 col-md-12">
+                        <div class="col-md-3">
+                            <label for="product_name" class="form-label">Product Name*</label>
+                            <input type="text" class="form-control border-custom" name="product_name[]" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="Category" class="form-label">Category</label>
+                            <input type="text" class="form-control border-custom" name="Category[]">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="Quantity" class="form-label">Quantity*(Of products)</label>
+                            <input type="number" class="form-control border-custom" name="Quantity[]" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="order_value" class="form-label">Order value*</label>
+                            <input type="number" class="form-control border-custom" name="order_value[]" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="hsn_id" class="form-label">HSN ID</label>
+                            <input type="text" class="form-control border-custom" name="hsn_id[]">
+                        </div>
+                        <div class="col-md-1 mt-4">
+                            <button type="button" class="close-btn mt-2 btn-danger" onclick="removeProduct(this)"><span class="material-symbols-outlined ">
+                            close
+                            </span></button>
+                        </div>
+                    </div>
+                `;
+  
+            // Find the "Add more product" button
+            // Find the "Add more product" button
+            const buttonContainer = productContainer.querySelector('.btn-add');
+  
+            // Ensure buttonContainer is correctly found
+            if (buttonContainer) {
+              // Insert the new product section before the button container
+              buttonContainer
+                .closest('.row')
+                .insertAdjacentElement('beforebegin', newProductSection);
+            } else {
+              console.error('Add more product button not found');
+            }
+          }
+  
+          function addWpid(button) {
+            // Find the closest card-body to the button that was clicked
+            const wpidContainer = document.getElementById('wpid-container');
+  
+            // Create a new WPID section
+            const newWpidSection = document.createElement('div');
+            newWpidSection.className = 'wpid-section';
+  
+            newWpidSection.innerHTML = `
+                    
+                            <div class="row  col-md-12 align-items-center">
+                                <div class="col-md-8 d-flex align-items-center">
+                                 <hr class="hrlines w-100">
+                                </div>
+                                <div class="col-md-1 mx-auto d-flex justify-content-end align-items-end>
+                                    <button type="button" class="close-btn mt-2 btn-danger" onclick="removeWpid(this)"><span class="material-symbols-outlined btn-danger">
+                                                                      close
+                                        </span></button>
+                                </div>
+                            </div>
+                            <div class="row mb-3 col-md-12 ">
+                                <div class="col-md-3">
+                                    <label for="wpid" class="form-label">POID*</label>
+                                    <input type="text" class="form-control border-custom wpid-id" name="wpid[]" required>
+                                    <button  class="btn-add rounded-pill wpidinputclass mt-2" type="button" onclick="autoGenerateWpid(this)"><span class="material-symbols-outlined"> add </span>AutoGenerate PO.Id</button>
+                                </div>
+                                 <div class="col-md-3">
+                                        <label for="choosePolocation"
+                                          >Choose PO location</label
+                                        >
+                                        <input
+                                          type="text"
+                                          class="form-control border-custom"
+                                          placeholder="Enter PO location"
+                                          name="po_location[]"
+                                        />
+                                        <button
+                                          type="button"
+                                          class="btn btn-add mt-2 open-modal-button"
+                                        >
+                                          select location
+                                        </button>
+                                      </div>
+                            </div>
+                            <div class="product-container">
+                                <!-- Initial Product Section -->
+                                <div class="product-section">
+                                    
+                                    <div class="row mb-3 col-md-12">
+                                        <div class="col-md-3">
+                                            <label for="product_name" class="form-label">Product Name*</label>
+                                            <input type="text" class="form-control border-custom" name="product_name[]" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="Category" class="form-label">Category</label>
+                                            <input type="text" class="form-control border-custom" name="Category[]">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="Quantity" class="form-label">Quantity*(Of products)</label>
+                                            <input type="number" class="form-control border-custom" name="Quantity[]" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="order_value" class="form-label">Order value*</label>
+                                            <input type="number" class="form-control border-custom" name="order_value[]" required>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="hsn_id" class="form-label">HSN ID</label>
+                                            <input type="text" class="form-control border-custom" name="hsn_id[]">
+                                        </div>
+                                        
+            
+                                    </div>
+                            <div class="row mb-3 col-md-12">
+                                <div class="col-md-4">
+                                    <button type="button" class="btn-add rounded-pill" onclick="addProduct(this)">Add more product</button>
+                                </div>
+                                <div class="col-md-8">
+                                    <hr class="hrlines">
+                                </div>
+                            </div>
+                            <div class="box-container">
+                                <!-- Box Fields -->
+                                <div class="box-entry">
+                                  <div class="row mb-3 col-md-12 align-items-end">
+                                            <div class="col-md-2">
+                                              <label for="weight" class="form-label"
+                                                >Total Weight
+                                                <i class="fa-solid fa-circle-info"></i
+                                              ></label>
+                                              <input
+                                                type="number"
+                                                class="form-control border-custom"
+                                                name="weight_box[]"
+                                                required
+                                              />
+                                            </div>
+                                            <div class="col-md-3 justify-content mx-auto">
+                                              <label
+                                                
+                                                class="form-label chooseDimensionUnit"
+                                                >Choose Dimension Unit*</label
+                                              >
+                                              <select class="form-control border-custom unit-select" onchange="updatePlaceholders(this)">
+                                                <option value="cm">CM</option>
+                                                <option value="feet">FEET</option>
+                                                <option value="inches">INCHES</option>
+                                              </select>
+                                            </div>
+                                          </div>
+                                    <div class="row mb-3 col-md-12">
+                                        <div class="col-md-3">
+                                            <label for="Quantity_box" class="form-label">Quantity of </label>
+                                            <input type="number" class="form-control border-custom" name="Quantity_box[]" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="Length" class="form-label">Length*(in numbers)</label>
+                                            <input type="number" class="form-control border-custom" name="Length[]" placeholder="In cms" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="Breadth" class="form-label">Breadth*</label>
+                                            <input type="number" class="form-control border-custom" name="Breadth[]" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="Height" class="form-label">Height*</label>
+                                            <input type="number" class="form-control border-custom" name="Height[]" required>
+                                        </div>
+                                        <div class="col-md-2 mb-0">
+                                            <button type="button" class="btn-add rounded-pill" onclick="addBox(this)">Add Boxes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3 col-md-12 align-items-center">
+                        <!-- Add any additional elements if needed -->
+                    </div>
+                `;
+  
+            // Append the new WPID section to the card-body
+            wpidContainer.appendChild(newWpidSection);
+          }
+          //   alert('added1');
+  
+          // Function to add new box fields within the current product section
+          function addBox(button) {
+            const boxContainer = button.closest('.box-container');
+  
+            const newBoxEntry = document.createElement('div');
+            newBoxEntry.className = 'box-entry';
+  
+            newBoxEntry.innerHTML = `
+                    
+                    <div class="row mb-3 col-md-12">
+                          
+                        <div class="col-md-2">
+                            <label for="Quantity_box" class="form-label">Quantity of boxes</label>
+                            <input type="number" class="form-control border-custom" name="Quantity_box[]" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="Length" class="form-label">Length</label>
+                            <input type="number" class="form-control border-custom" name="Length[]" placeholder="In cms" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="Breadth" class="form-label">Breadth*</label>
+                            <input type="number" class="form-control border-custom" name="Breadth[]" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="Height" class="form-label">Height*</label>
+                            <input type="number" class="form-control border-custom" name="Height[]" required>
+                        </div>
+                        <div class="col-md-1 mt-4">
+                            <button type="button" class="close-btn mt-2 btn-danger" onclick="removeBox(this)"><span class="material-symbols-outlined ">
+                            close
+                            </span></button>
+                        </div>
+                        
+                    </div>
+                `;
+  
+            boxContainer.appendChild(newBoxEntry);
+          }
+          function updatePlaceholders(select) {
+            // Find the closest .box-entry
+            const boxEntry = select.closest('.box-entry');
+  
+            // Get the selected unit value
+            const unit = select.value;
+            const placeholderText = `In ${unit.toLowerCase()}`;
+  
+            // Find the input fields within the .box-entry
+            const lengthInput = boxEntry.querySelector('input[name="Length[]"]');
+            const breadthInput = boxEntry.querySelector('input[name="Breadth[]"]');
+            const heightInput = boxEntry.querySelector('input[name="Height[]"]');
+  
+            // Update the placeholders
+            if (lengthInput) lengthInput.placeholder = placeholderText;
+            if (breadthInput) breadthInput.placeholder = placeholderText;
+            if (heightInput) heightInput.placeholder = placeholderText;
+          }
+          // Function to remove a WPID section
+          function removeWpid(button) {
+            const wpidSection = button.closest('.wpid-section');
+            wpidSection.remove();
+          }
+          // added return statement to fill return address
+          document
+            .getElementById('return_return-same')
+            .addEventListener('change', function () {
+              if (this.checked) {
+                // Get values from the pickup address section
+                const warehouseName =
+                  document.getElementById('warehouse-name').value;
+                const pincode = document.getElementById('pickup-pincode').value;
+                const country = document.getElementById('country').value;
+                const state = document.getElementById('warehouse_state').value;
+                const city = document.getElementById('warehouse_city').value;
+                const address = document.getElementById('warehouse_address').value;
+                const contactName = document.getElementById('contact-name').value;
+                const phone = document.getElementById('phone_warehouse').value;
+                const email = document.getElementById('email_warehouse').value;
+                const fromTime = document.getElementById('from-time').value;
+                const toTime = document.getElementById('to-time').value;
+                const days = document.getElementById('days').value;
+                const slot = document.getElementById('slot').value;
+  
+                // Set values in the return address section
+                document.getElementById('warehouse_return_name').value =
+                  warehouseName;
+                document.getElementById('return_pickup-pincode').value = pincode;
+                document.getElementById('return_country').value = country;
+                document.getElementById('return_warehouse_state').value = state;
+                document.getElementById('return_warehouse_city').value = city;
+                document.getElementById('return_warehouse_address').value = address;
+                document.getElementById('return_contact-name').value = contactName;
+                document.getElementById('return_phone_warehouse').value = phone;
+                document.getElementById('return_email_warehouse').value = email;
+                document.getElementById('return_from-time').value = fromTime;
+                document.getElementById('return_to-time').value = toTime;
+                document.getElementById('return_days').value = days;
+                document.getElementById('return_slot').value = slot;
+              } else {
+                // Clear return address section if checkbox is unchecked
+                document.getElementById('warehouse_return_name').value = '';
+                document.getElementById('return_pickup-pincode').value = '';
+                document.getElementById('return_country').value = '';
+                document.getElementById('return_warehouse_state').value = '';
+                document.getElementById('return_warehouse_city').value = '';
+                document.getElementById('return_warehouse_address').value = '';
+                document.getElementById('return_contact-name').value = '';
+                document.getElementById('return_phone_warehouse').value = '';
+                document.getElementById('return_email_warehouse').value = '';
+                document.getElementById('return_from-time').value = '';
+                document.getElementById('return_to-time').value = '';
+                document.getElementById('return_days').value = '';
+                document.getElementById('return_slot').value = '';
+              }
+            });
+  
+          // Function to remove a product section
+          function removeProduct(button) {
+            // Find the closest .row element that contains the cross button
+            const row = button.closest('.row');
+  
+            // Remove the .row element from the DOM
+            if (row) {
+              row.parentNode.removeChild(row);
+            } else {
+              console.error('Row not found');
+            }
+          }
+  
+          // Function to remove a box entry
+          function removeBox(button) {
+            const boxEntry = button.closest('.box-entry');
+            boxEntry.remove();
+          }
+  
+          // Function to update the remaining number of boxes based on input
+          function updateRemainingBoxes() {
+            const totalBoxesInput = document.querySelector('input[name="boxes"]');
+            const totalBoxes = parseInt(totalBoxesInput.value, 10) || 0;
+  
+            const productSections = document.querySelectorAll('.product-section');
+            let totalBoxEntries = 0;
+  
+            productSections.forEach((section) => {
+              const boxEntries = section.querySelectorAll('.box-entry');
+              boxEntries.forEach((entry) => {
+                const quantityInput = entry.querySelector(
+                  'input[name="Quantity_box"]'
+                );
+                totalBoxEntries += parseInt(quantityInput.value, 10) || 0;
+              });
+            });
+  
+            const remainingBoxes = totalBoxes - totalBoxEntries;
+            // console.log(Remaining Boxes: ${remainingBoxes});
+  
+            // Implement your logic to display remaining boxes or handle errors here.
+          }
+  
+          function backToIndex() {
+            window.location.href = '/index';
+          }
+          //   document.addEventListener('DOMContentLoaded', () => {
+          //     alert('please update it');
+          //   });
+          // document
+          //   .getElementById('closeCreateOrder')
+          //   .addEventListener('click', backToIndex);
+  
+          //   document.addEventListener('DOMContentLoaded', function () {
+  
+          function collectFormData() {
+            const formData = {};
+            const orderid = document.querySelector('input[name="orderid"]').value;
+            const orderDate = document.querySelector(
+              'input[name="orderDate"]'
+            ).value;
+            const paymentType = document.querySelector(
+              'select[id="paymentType"]'
+            ).value;
+            let additionalData = {};
+            console.log('value of payment type', paymentType);
+  
+            // Conditionally handle additional fields based on payment type
+            if (paymentType === 'COD') {
+              console.log('on cod');
+              console.log(
+                'on cod value ',
+                document.getElementById('amount_cash').value
+              );
+              additionalData = {
+                amountCash: document.getElementById('amount_cash').value,
+                // console.log("amount cash",amountCash)
+              };
+            } else if (paymentType === 'check-on-delivery') {
+              additionalData = {
+                checkFavourOf: document.getElementById('checkFavour').value,
+  
+                // enterName: document.querySelector('input[id="enterName"]').value,
+                checkAmount: document.getElementById('checkAmount').value,
+              };
+            }
+            console.log('additional data', additionalData);
+            const consigneeDetails = {
+              name: document.querySelector('input[name="name"]').value,
+              email: document.querySelector('input[name="email"]').value,
+              phone: document.querySelector('input[name="phone"]').value,
+              address: document.querySelector('input[name="address"]').value,
+              pincode: document.querySelector('input[name="pincode"]').value,
+              state: document.querySelector('input[name="state"]').value,
+              city: document.querySelector('input[name="city"]').value,
+              nearby: document.querySelector('input[name="Nearby"]').value,
+            };
+  
+            // Access the form by its ID
+            const form = document.getElementById('forming');
+  
+            if (!form) {
+              console.error('Form not found');
+              return formData;
+            }
+  
+            // Iterate over each WPID section
+            document.querySelectorAll('.wpid-section').forEach((wpidSection) => {
+              const poid = wpidSection.querySelector('.wpid-id').value;
+  
+              const products = [];
+              const boxesDimension = [];
+              let totalBoxes = 0;
+              // let totalweight = 0;
+              const poLocation = wpidSection.querySelector(
+                'input[name="po_location[]"]'
+              ).value;
+              console.log('hello any nul?', poLocation);
+              const totalweight = wpidSection.querySelector(
+                'input[name="weight_box[]"]'
+              ).value;
+              const selectedUnit =
+                wpidSection.querySelector('select.unit-select').value;
+              //   alert(poLocation);
+              // Iterate over each product in the WPID section
+              // wpidSection.querySelector('.');
+              wpidSection
+                .querySelectorAll('.product-section')
+                .forEach((productSection) => {
+                  const productName = productSection.querySelector(
+                    'input[name="product_name[]"]'
+                  ).value;
+                  const quantity = productSection.querySelector(
+                    'input[name="Quantity[]"]'
+                  ).value;
+                  const category = productSection.querySelector(
+                    'input[name="Category[]"]'
+                  ).value;
+                  const orderValue = productSection.querySelector(
+                    'input[name="order_value[]"]'
+                  ).value;
+                  const hsnId = productSection.querySelector(
+                    'input[name="hsn_id[]"]'
+                  ).value;
+  
+                  products.push({
+                    productName: productName,
+                    quantity: quantity,
+                    category: category,
+                    orderValue: orderValue,
+                    hsnId: hsnId,
+                    poLocation: poLocation,
+                  });
+                });
+  
+              // Calculate total boxes
+              wpidSection.querySelectorAll('.box-entry').forEach((boxEntry) => {
+                const quantityBox = boxEntry.querySelector(
+                  'input[name="Quantity_box[]"]'
+                ).value;
+                const length = boxEntry.querySelector(
+                  'input[name="Length[]"]'
+                ).value;
+                const Breadth = boxEntry.querySelector(
+                  'input[name="Breadth[]"]'
+                ).value;
+                const Height = boxEntry.querySelector(
+                  'input[name="Height[]"]'
+                ).value;
+  
+                boxesDimension.push({
+                  quantityBox: quantityBox,
+                  length: length,
+                  breadth: Breadth,
+                  Height: Height,
+                });
+  
+                totalBoxes += parseInt(quantityBox, 10);
+                // const totalweight = boxEntry.querySelector(
+                //   'input[name="weight_box[]"]'
+                // ).value;
+              });
+  
+              // Add to formData object
+              formData[poid] = {
+                products: products,
+                boxesDimensions: boxesDimension,
+                totalBoxes: totalBoxes.toString(),
+                totalWeigth: totalweight,
+                dimensionUnit: selectedUnit,
+              };
+            });
+            console.log('totalWeight', formData);
+  
+            return {
+              orderid,
+              formData,
+              consigneeDetails,
+              orderDate,
+              paymentType,
+              additionalData,
+            };
+          }
+          document;
+          document
+            .getElementById('addWarehouseDetails')
+            .addEventListener('click', function (event) {
+              event.preventDefault();
+              const formData = {
+                warehouseName: document.getElementById('warehouse-name').value,
+                pincode: document.getElementById('pickup-pincode').value,
+                country: document.getElementById('country').value,
+                state: document.getElementById('warehouse_state').value,
+                city: document.getElementById('warehouse_city').value,
+                address: document.getElementById('warehouse_address').value,
+                contactName: document.getElementById('contact-name').value,
+                phoneWarehouse: document.getElementById('phone_warehouse').value,
+                emailWarehouse: document.getElementById('email_warehouse').value,
+                // returnSame: document.getElementById('return-same').checked,
+                fromTime: document.getElementById('from-time').value,
+                toTime: document.getElementById('to-time').value,
+                days: document.getElementById('days').value,
+                slot: document.getElementById('slot').value,
+                returnWarehouseName: document.getElementById(
+                  'warehouse_return_name'
+                ).value,
+                returnPincode: document.getElementById('return_pickup-pincode')
+                  .value,
+                returnCountry: document.getElementById('return_country').value,
+                returnState: document.getElementById('return_warehouse_state')
+                  .value,
+                returnCity: document.getElementById('return_warehouse_city').value,
+                returnAddress: document.getElementById('return_warehouse_address')
+                  .value,
+                returnContactName: document.getElementById('return_contact-name')
+                  .value,
+                returnPhoneWarehouse: document.getElementById(
+                  'return_phone_warehouse'
+                ).value,
+                returnEmail: document.getElementById('return_email_warehouse')
+                  .value,
+                returnFromTime: document.getElementById('return_from-time').value,
+                returnToTime: document.getElementById('return_to-time').value,
+                returnDays: document.getElementById('return_days').value,
+                returnSlot: document.getElementById('return_slot').value,
+              };
+              console.log('details of this', formData);
+              axios
+                .post('/predispatch/add_warehouse', formData)
+                .then((response) => {
+                  console.log('Data saved successfully:', response);
+                  // Show success alert using SweetAlert
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Warehouse details saved successfully.',
+                    confirmButtonText: 'OK',
+                  }).then(() => {
+                    // Optionally, you can redirect or perform other actions here
+                    // For example, close the modal or reset the form
+                    document.getElementById('warehouseForm').reset();
+                    closePopup(); // Call a function to close the modal if needed
+                  });
+                })
+                .catch((error) => {
+                  console.error('Error saving data:', error);
+                  // Show error alert using SweetAlert
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'There was an error saving the warehouse details. Please try again.',
+                    confirmButtonText: 'OK',
+                  });
+                });
+            });
+  
+          document
+            .getElementById('submitform')
+            .addEventListener('click', function (event) {
+              event.preventDefault();
+  
+              // Collect form data using the custom function
+              const {
+                orderid,
+                formData,
+                consigneeDetails,
+                orderDate,
+                paymentType,
+                additionalData,
+              } = collectFormData();
+  
+              console.log('Collected Form Data:', formData);
+              console.log("additinal in before post", additionalData)
+              //   alert(orderid);
+  
+              // Define the backend URL
+              const backendUrl = '/predispatch/create_order'; // Replace with your actual backend URL
+  
+              // Send the form data to the backend
+              axios
+                .post(
+                  backendUrl,
+                  {
+                    formData,
+                    orderid,
+                    consigneeDetails,
+                    orderDate,
+                    paymentType,
+                    ...additionalData,
+                  },
+                  {
+                    headers: {
+                      Accept: '*/*',
+                      'Content-Type': 'application/json', // Use 'application/json' for JSON data
+                    },
+                  }
+                )
+                .then((response) => {
+                  console.log('Form submitted successfully:', response.data);
+                  Swal.fire({
+                    title: 'Success!',
+                    text: 'Form submitted successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                  }).then(() => {
+                    // Optionally, redirect or perform other actions
+                    window.location.href = '/predispatch/get_unprocessed_order';
+                  });
+                })
+                .catch((error) => {
+                  console.error(
+                    'Error submitting form:',
+                    error.response ? error.response.data : error.message
+                  );
+  
+                  // Handle and display errors
+                  let errorMessage = 'An error occurred.';
+  
+                  if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.errors
+                  ) {
+                    // Display validation errors
+                    const errors = error.response.data.errors;
+                    errorMessage = Object.values(errors).flat().join(', ');
+                  } else if (error.response && error.response.data.message) {
+                    // Display general error message
+                    errorMessage = error.response.data.message;
+                  } else if (error.message) {
+                    // Display network or other errors
+                    errorMessage = error.message;
+                  }
+  
+                  Swal.fire({
+                    title: 'Error!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                  });
+                });
+            });
+          // from here we are doing the apis for number if number exist then automatic data submission after sel
+          // all are js here
+          function handlePhoneBlur(phoneNumber) {
+            // Only fetch addresses if the phone number is 10 digits long
+            if (phoneNumber.length === 10) {
+              fetchAddresses(phoneNumber);
+            }
+          }
+  
+          function fetchAddresses(phoneNumber) {
+            axios
+              .post('/predispatch/get-addresses', { phoneNumber })
+              .then((response) => {
+                if (response.data.success) {
+                  const addresses = response.data.addresses;
+  
+                  if (addresses.length > 0) {
+                    // Use SweetAlert to ask the user if they want to use the previous address
+                    Swal.fire({
+                      title: 'Previous Address Found',
+                      text: 'Do you want to use your previous address?',
+                      icon: 'question',
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes',
+                      cancelButtonText: 'No',
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        // If user clicks 'Yes', populate the address modal
+                        populateAddressModal(addresses);
+                      } else {
+                        // If user clicks 'No', return without showing the modal
+                        return;
+                      }
+                    });
+                  } else {
+                    // No addresses found, do nothing or provide a non-intrusive message
+                    console.log('No addresses found for this phone number.');
+                  }
+                } else {
+                  // Handle unexpected responses if necessary
+                  console.log('Unexpected response from server');
+                }
+              })
+              .catch((error) => {
+                console.error('Error fetching addresses:', error);
+              });
+          }
+  
+          function populateAddressModal(addresses) {
+            console.log('Populating addresses', addresses);
+            const addressList = document.getElementById('addressList');
+            addressList.innerHTML = ''; // Clear any previous list items
+  
+            addresses.forEach((address, index) => {
+              const listItem = document.createElement('li');
+              listItem.className =
+                'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+              listItem.textContent = `${address.address}, Near by${address.nearby}, ${address.city}, ${address.state}, ${address.pincode}`;
+              listItem.onclick = () => selectAddress(address);
+              addressList.appendChild(listItem);
+            });
+  
+            // Show the modal
+            const addressModal = new bootstrap.Modal(
+              document.getElementById('addressModal')
+            );
+            addressModal.show();
+          }
+  
+          function selectAddress(address) {
+            console.log(address);
+            // Populate the form fields with the selected address
+            document.getElementById('address').value = address.address;
+            document.getElementById('city').value = address.city;
+            document.getElementById('state').value = address.state;
+            document.getElementById('pincode').value = address.pincode;
+            document.getElementById('Nearby').value = address.nearby;
+  
+            // Hide the modal after selection
+            const addressModal = bootstrap.Modal.getInstance(
+              document.getElementById('addressModal')
+            );
+            addressModal.hide();
+          }
+          document.addEventListener('DOMContentLoaded', function () {
+            // Get the modal element
+            let modal = document.getElementById('addressModal');
+  
+            // Get the custom close button
+            let closeButton = document.getElementById('customCloseButton');
+  
+            // Add click event listener to the close button
+            closeButton.addEventListener('click', function () {
+              // Hide the modal using Bootstrap's modal('hide') method
+              $('#addressModal').modal('hide');
+            });
+          });
+          // });
+  
+          //   alert('Form submitted successfully');
+          console.log('Form submitted successfully end');
+        </script>
+               <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        </div>
+
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

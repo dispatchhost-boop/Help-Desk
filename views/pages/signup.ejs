@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sign Up | CRM</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: url('/assets/images/aaaa.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+     
+      color: #333;
+    }
+
+    .signup-container {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+
+    }
+
+    .signup-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .signup-header h2 {
+      color: #2563eb;
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .signup-header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+
+    .required-field::after {
+      content: " *";
+      color: #ef4444;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      /* background-color: #f8fafc; */
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      background-color: white;
+    }
+
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      margin: 1.5rem 0;
+    }
+
+    .checkbox-group input {
+      width: auto;
+      margin-right: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .checkbox-group label {
+      font-weight: 400;
+      color: #475569;
+      font-size: 0.95rem;
+    }
+
+    .checkbox-group a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .checkbox-group a:hover {
+      text-decoration: underline;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 0.9rem;
+      background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 0.9rem;
+      background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+    }
+
+    .btn-secondary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .verify-email-preview {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.95rem;
+      color: #1e40af;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    .resend-timer {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .resend-timer p {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .circle-timer {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 4px solid #f59e0b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #334155;
+      background-color: #fef3c7;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+</style>
+</head>
+<body>
+
+  <div class="signup-container">
+    <div class="signup-header">
+      <h2>Create Your Logistics Partner Account</h2>
+      <p>Join our network and streamline your shipping operations</p>
+    </div>
+    
+    <div id="polling-message" class="verify-email-preview"></div>
+    
+    <div class="resend-timer" id="resend-timer">
+      <p>Resend email in</p>
+      <div class="circle-timer" id="circle-timer">30</div>
+    </div>
+    
+    <form id="signupForm" class="signup-form" autocomplete="off">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="signup-name" class="required-field">Full Name</label>
+          <input type="text" id="signup-name" name="name" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="signup-organization" class="required-field">Organization Name</label>
+          <input type="text" id="signup-organization" name="organization" required placeholder="Acme Inc.">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="signup-email" class="required-field">Work Email Address</label>
+        <input type="email" id="signup-email" name="email" required placeholder="you@company.com" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label for="signup-phone" class="required-field">Phone Number</label>
+        <input type="tel" id="signup-phone" name="phone" required placeholder="+1 (555) 123-4567">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="segment-type" class="required-field">Segment Type</label>
+          <select id="segment-type" name="segment_type" required>
+            <option value="">Select segment</option>
+            <option value="express">Express</option>
+            <option value="ecom">Ecom</option>
+            
+          </select>
+        </div>
+        
+        <!-- Ecom: No. of Parcels Per Month -->
+        <div class="form-group" id="ecom-volume-group" style="display: none;">
+          <label for="signup-parcels" class="required-field">No. of Shipment Per Month</label>
+          <select id="signup-parcels" name="monthly_parcels" required>
+  <option value="">Select shipment</option>
+  <option value="1">0 - 500 Shipment</option>
+  <option value="2">500 - 1000 Shipment</option>
+  <option value="3">1000 - 1500 Shipment</option>
+  <option value="4">1500 - 2000 Shipment</option>
+  <option value="5">2000 - 2500 Shipment</option>
+  <option value="6">2500 - 3000 Shipment</option>
+  <option value="7">3000 - 3500 Shipment</option>
+  <option value="8">3500 - 4000 Shipment</option>
+  <option value="9">4000 Above</option>
+</select>
+        </div>
+        
+        <!-- Express: Business Volume -->
+        <div class="form-group" id="express-volume-group" style="display: none;">
+          <label for="express-business-volume" class="required-field">Business Volume</label>
+          <select id="businessVolume" name="business_volume" class="form-select">
+            <option value="">-- Select Volume --</option>
+            <option value="1">Basic (0.00 - 25000.00 /Month)</option>
+            <option value="3">LitePro (50001.00 - 100000.00 /Month)</option>
+            <option value="4">Premium (100001.00 - 250000.00 /Month)</option>
+            <option value="5">Advance (250001.00 - 500000.00 /Month)</option>
+            <option value="6">AdvancedPro (500001.00 -  /Month)</option>
+            <option value="7">Enterprise ( -  /Month)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="signup-company-type" class="required-field">Business Category</label>
+          <select id="signup-company-type" name="company_type" required>
+            <option value="">Select type</option>
+            <option>Retailer</option>
+            <option>E-commerce</option>
+            <option>Manufacturer</option>
+            <option>Distributor</option>
+            <option>Service Provider</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="signup-password" class="required-field">Password</label>
+        <input type="password" id="signup-password" name="password" required placeholder="Create a strong password">
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="agree" required>
+        <label for="agree">
+          I agree to the <a href="#">privacy policy</a> and <a href="#">terms of use</a>
+        </label>
+      </div>
+      
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <span class="spinner-border spinner-border-sm me-1" id="submitSpinner" style="display: none;"></span>
+          Register Account
+        </button>
+        <button type="button" class="btn-secondary" id="resendBtn">
+          <span class="spinner" id="resendSpinner" style="display: none;"></span>
+          Resend Email
+        </button>
+      </div>
+    </form>
+  </div>
+  <script>
+    const signupForm = document.getElementById("signupForm");
+    const pollingDiv = document.getElementById("polling-message");
+    const resendBtn = document.getElementById("resendBtn");
+    const resendTimer = document.getElementById("resend-timer");
+    const circleTimer = document.getElementById("circle-timer");
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
+    const submitSpinner = document.getElementById("submitSpinner");
+  
+    signupForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+  
+      // Disable button immediately
+      if (submitBtn.disabled) return;
+      submitBtn.disabled = true;
+      submitBtn.classList.remove("btn-primary");
+      submitBtn.classList.add("btn-secondary");
+      submitSpinner.style.display = "inline-block";
+  
+      const name = document.getElementById('signup-name').value.trim();
+      const organization = document.getElementById('signup-organization').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value.trim();
+      // const monthly_parcels = document.getElementById('signup-parcels').value;
+      const company_type = document.getElementById('signup-company-type').value;
+      const segment_type = document.getElementById('segment-type').value;
+      const phone = document.getElementById('signup-phone').value.trim();
+
+  // Get the correct business volume field
+  let monthly_parcels = '';
+  let business_volume = '';
+
+  if (segment_type === 'ecom') {
+    monthly_parcels = document.getElementById('signup-parcels').value;
+  } else if (segment_type === 'express') {
+    business_volume = document.getElementById('businessVolume').value;
+  }
+  const payload = {
+    name,
+    organization,
+    email,
+    password,
+    company_type,
+    segment_type,
+    phone
+  };
+
+  // Only add the relevant field
+  if (segment_type === 'ecom') {
+    payload.monthly_parcels = monthly_parcels;
+  } else if (segment_type === 'express') {
+    payload.business_volume = business_volume;
+  }
+  
+      try {
+        const res = await axios.post('/signup',payload);
+  
+        pollingDiv.style.display = "block";
+  
+        let secondsLeft = 30;
+        pollingDiv.innerHTML = `
+          ⏳ Please verify your email to continue onboarding... 
+          <br><span id="email-wait">${secondsLeft}</span> seconds
+        `;
+  
+        localStorage.setItem("signupEmail", email);
+        startPolling(email);
+        signupForm.reset();
+  
+        // Countdown for 30 seconds before enabling button again
+        const emailWait = document.getElementById("email-wait");
+        const countdown = setInterval(() => {
+          secondsLeft--;
+          emailWait.innerText = secondsLeft;
+          if (secondsLeft <= 0) {
+            clearInterval(countdown);
+  
+            // ✅ Enable button again
+            submitBtn.disabled = false;
+            submitSpinner.style.display = "none";
+  
+            // ✅ Restore primary color
+            submitBtn.classList.add("btn-primary");
+            submitBtn.classList.remove("btn-secondary");
+          }
+        }, 1000);
+  
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitSpinner.style.display = "none";
+  
+        // Restore primary style in case of error
+        submitBtn.classList.add("btn-primary");
+        submitBtn.classList.remove("btn-secondary");
+  
+        const message = err.response?.data?.message || "Failed to register.";
+        pollingDiv.style.display = "block";
+        pollingDiv.innerHTML = `❌ ${message}`;
+  
+        const status = err.response?.data?.status;
+        if (status === 2) {
+          localStorage.setItem("signupEmail", email);
+          startResendTimer();
+        }
+      }
+    });
+  
+    function startPolling(email) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/check-verification-status?email=${email}`);
+          const data = await res.json();
+  
+          if (data.verified) {
+            clearInterval(interval);
+            localStorage.removeItem("signupEmail");
+  
+            signupForm.style.display = "none";
+            resendBtn.style.display = "none";
+            resendTimer.style.display = "none";
+  
+            let secondsLeft = 10;
+            pollingDiv.innerHTML = `
+              ✅ Email verified. Your account is ready. Redirecting in
+              <span id="countdown">${secondsLeft}</span> seconds...
+              <br><a href="/">Go Now</a>
+            `;
+  
+            const countdownSpan = document.getElementById("countdown");
+            const countdownInterval = setInterval(() => {
+              secondsLeft--;
+              countdownSpan.innerText = secondsLeft;
+              if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = "/";
+              }
+            }, 1000);
+          }
+        } catch (err) {
+          console.error("Polling failed:", err);
+        }
+      }, 3000);
+    }
+  
+    resendBtn.onclick = async () => {
+      const email = localStorage.getItem("signupEmail");
+      if (!email) return;
+  
+      resendBtn.disabled = true;
+      resendBtn.innerText = "⏳ Sending...";
+  
+      try {
+        const res = await axios.post('/resend-verification', { email });
+        pollingDiv.innerHTML = `📧 ${res.data.message}`;
+        startResendTimer();
+      } catch (err) {
+        pollingDiv.innerHTML = `❌ ${err.response?.data?.message || "Failed to resend email."}`;
+      }
+  
+      resendBtn.innerText = "🔄 Resend Email";
+      resendBtn.disabled = false;
+    };
+  
+    let resendTimerInterval = null;
+    function startResendTimer() {
+      if (resendTimerInterval) {
+        clearInterval(resendTimerInterval);
+        resendTimerInterval = null;
+      }
+  
+      resendBtn.style.display = "none";
+      resendTimer.style.display = "block";
+  
+      let wait = 30;
+      circleTimer.innerText = wait;
+  
+      resendTimerInterval = setInterval(() => {
+        wait--;
+        circleTimer.innerText = wait;
+        if (wait <= 0) {
+          clearInterval(resendTimerInterval);
+          resendTimerInterval = null;
+          resendTimer.style.display = "none";
+          resendBtn.style.display = "inline-block";
+        }
+      }, 1000);
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+  const segmentType = document.getElementById('segment-type');
+  const ecomGroup = document.getElementById('ecom-volume-group');
+  const expressGroup = document.getElementById('express-volume-group');
+  const ecomSelect = document.getElementById('signup-parcels');
+  const expressSelect = document.getElementById('express-business-volume');
+
+  segmentType.addEventListener('change', function () {
+    if (this.value === 'ecom') {
+      ecomGroup.style.display = '';
+      expressGroup.style.display = 'none';
+      ecomSelect.required = true;
+      expressSelect.required = false;
+    } else if (this.value === 'express') {
+      ecomGroup.style.display = 'none';
+      expressGroup.style.display = '';
+      ecomSelect.required = false;
+      expressSelect.required = true;
+    } else {
+      ecomGroup.style.display = 'none';
+      expressGroup.style.display = 'none';
+      ecomSelect.required = false;
+      expressSelect.required = false;
+    }
+  });
+});
+  </script>
+  <script src="/js/aadhaar-kyc.js"></script>
+  
+</body>
+</html>

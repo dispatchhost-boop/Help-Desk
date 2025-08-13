@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      .chat-container {
+        max-width: 1400px;
+        height: 95vh;
+        margin: auto;
+        background: #fff;
+        display: flex;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      }
+    
+      /* customer List Section */
+      .customers-sidebar {
+        width: 25%;
+        background-color: #f3f7fb;
+        border-right: 1px solid #d6dce5;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+    
+      .customers-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+      }
+    
+      .customers-search {
+        position: relative;
+        margin-bottom: 1rem;
+      }
+    
+      .customers-search input {
+        width: 100%;
+        padding: 8px 12px 8px 35px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 0.9rem;
+      }
+    
+      .customers-search i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+      }
+    
+      .customers-list {
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+    
+      .customer-item {
+        padding: 15px;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+      }
+    
+      .customer-item:hover {
+        background-color: #e9f0fb;
+      }
+    
+      .customer-item.active {
+        background-color: #e3f2fd;
+        border-left: 3px solid #0d6efd;
+      }
+       /* Add this to your existing styles */
+       .customer-subitem {
+        padding-left: 25px;
+        background-color: #f9f9f9;
+        border-top: none;
+      }
+      
+      .customer-avatar {
+        background-color: #6c757d;
+      }
+    
+      .customer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #0d6efd;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+    
+      .customer-info {
+        flex-grow: 1;
+        overflow: hidden;
+      }
+    
+      .customer-name {
+        font-weight: 600;
+        color: #2c3e50;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    
+      .customer-company {
+        font-size: 0.85rem;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    
+      .customer-meta {
+        font-size: 0.75rem;
+        color: #888;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+    
+      .customer-time {
+        margin-bottom: 5px;
+      }
+    
+      .customer-badge {
+        background-color: #0d6efd;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+      }
+    
+      /* Chat Section */
+      .chat-main {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        background-color: #f7faff;
+      }
+    
+      .chat-header {
+        background-color: #25D366;
+        color: white;
+        padding: 1rem;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    
+      .chat-messages {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        background: #e5ddd5;
+        display: flex;
+        flex-direction: column;
+      }
+    
+      .chat-input {
+        padding: 1rem;
+        background-color: #f0f2f5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-top: 1px solid #d6dce5;
+      }
+    
+      .chat-input input {
+        flex: 1;
+        border-radius: 25px;
+        border: 1px solid #ccd6e0;
+        padding: 12px 20px;
+        outline: none;
+        background: white;
+      }
+    
+      .chat-input button {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #54656f;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+    
+      .chat-input button:hover {
+        color: #25D366;
+      }
+    
+      .message {
+        max-width: 70%;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 7.5px;
+        position: relative;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+    
+      .message span.timestamp {
+        display: block;
+        font-size: 0.75rem;
+        color: #667781;
+        margin-top: 4px;
+        text-align: right;
+      }
+    
+      .message.sent {
+        background-color: #d9fdd3;
+        align-self: flex-end;
+        border-top-right-radius: 0;
+        color: #111b21;
+      }
+    
+      .message.received {
+        background-color: #ffffff;
+        align-self: flex-start;
+        border-top-left-radius: 0;
+        color: #111b21;
+      }
+    
+      /* Orders Section */
+      .orders-sidebar {
+        width: 25%;
+        background-color: #fff;
+        border-left: 1px solid #d6dce5;
+        display: flex;
+        flex-direction: column;
+      }
+    
+      .orders-header {
+        padding: 1.5rem 1.5rem 0.5rem;
+        border-bottom: 1px solid #e0e0e0;
+      }
+    
+      .orders-list {
+        padding: 0 1rem;
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+    
+      .order-item {
+        padding: 15px;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+    
+      .order-item:hover {
+        background-color: #f8f9fa;
+      }
+    
+      .order-item.active {
+        background-color: #e9f0fb;
+        border-left: 3px solid #0d6efd;
+      }
+    
+      .order-id {
+        font-weight: 600;
+        color: #0b5ed7;
+        margin-bottom: 5px;
+      }
+    
+      .order-date {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 5px;
+      }
+    
+      .order-status {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    
+      .order-status.delivered {
+        background-color: #d1e7dd;
+        color: #0f5132;
+      }
+    
+      .order-status.transit {
+        background-color: #cfe2ff;
+        color: #084298;
+      }
+    
+      .order-status.pending {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+    
+      .order-status.cancelled {
+        background-color: #f8d7da;
+        color: #842029;
+      }
+    
+      .order-amount {
+        font-weight: 500;
+        margin-top: 5px;
+        color: #333;
+      }
+    
+      .no-orders {
+        padding: 2rem;
+        text-align: center;
+        color: #6c757d;
+      }
+    
+      .no-chat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #6c757d;
+        text-align: center;
+        padding: 2rem;
+      }
+    
+      .no-chat i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #adb5bd;
+      }
+    
+      @media (max-width: 1200px) {
+        .orders-sidebar {
+          display: none;
+        }
+        .chat-main {
+          width: 75%;
+        }
+      }
+    
+      @media (max-width: 768px) {
+        .customers-sidebar {
+          display: none;
+        }
+        .chat-main {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+      <!-- HEADER -->
+      <%- include('../partials/header') %>
+
+      <!-- SIDEBAR -->
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <!-- MAIN CONTENT -->
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Chat</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item">
+                    <a href="/"><i class="fa fa-dashboard"></i></a>
+                  </li>
+                  <li class="breadcrumb-item">Chat</li>
+                  <li class="breadcrumb-item active">Chat Ui</li>
+                </ul>
+              </div>
+              <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="d-flex flex-row-reverse">
+                  <div class="page_action">
+                    <button type="button" class="btn btn-primary">
+                      <i class="fa fa-download"></i> Download report
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      <i class="fa fa-plus"></i> Add new
+                    </button>
+                  </div>
+                  <div class="p-2 d-flex"></div>
+                </div>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- Add your page-specific content here -->
+          <div class="row mb-5">         
+            <!-- end page title end breadcrumb -->
+            <% if (whatsAppSubscriber && whatsAppWalletBalance >= 1) { %>
+            <div class="chat-container">
+              <!-- First Section: customer List -->
+              <div class="customers-sidebar">
+                <div class="customers-header">
+                  <h5 class="mb-0">WhatsApp customers</h5>
+                  <button class="btn btn-sm btn-light"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div class="customers-search">
+                  <i class="fas fa-search"></i>
+                  <input type="text" placeholder="Search customers..." id="customersearchInput">
+                </div>
+                <div class="customers-list" id="customersList">
+                  <!-- customer items will be populated by JavaScript -->
+                </div>
+              </div>
+              
+              <!-- Second Section: Chat Area -->
+              <div class="chat-main">
+                <div class="chat-header">
+                  <div>
+                    <div class="fw-bold" id="chatHeaderName">Select a customer</div>
+                    <div class="small" id="chatHeaderOrder"></div>
+                  </div>
+                  <div>
+                    <i class="fab fa-whatsapp me-2" style="font-size: 1.2rem;"></i>
+                    <i class="fas fa-ellipsis-v"></i>
+                  </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                  <div class="no-chat">
+                    <i class="fab fa-whatsapp" style="font-size: 4rem; color: #25D366;"></i>
+                    <h4>Select a customer and order to start chatting</h4>
+                    <p>Your WhatsApp conversation history will appear here</p>
+                  </div>
+                </div>
+                <div class="chat-input">
+                  <button><i class="far fa-smile"></i></button>
+                  <button><i class="fas fa-paperclip"></i></button>
+                  <input type="text" id="messageInput" placeholder="Type a message" onkeypress="handleKeyPress(event)" disabled />
+                  <button onclick="sendMessage()" id="sendButton" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+              </div>
+          
+              <!-- Third Section: Orders List -->
+              <div class="orders-sidebar">
+                <div class="orders-header">
+                  <h5 class="mb-3">customer Orders</h5>
+                  <p class="text-muted small mb-3">Select an order to view conversation</p>
+                </div>
+                <div class="orders-list" id="ordersList">
+                  <div class="no-orders">
+                    <i class="fas fa-box mb-3" style="font-size: 2rem;"></i>
+                    <h5>No customer selected</h5>
+                    <p>Please select a customer to view their orders</p>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            <% } %>
+            <% if (!whatsAppSubscriber) { %>
+              <div class="subscription-message">
+                <div class="alert alert-warning text-center">
+                  <h5>Subscribe to our WhatsApp service!</h5>
+                  <p>Stay updated with the latest news and offers. Click the button below to subscribe.</p>
+                  <button class="btn btn-primary" onclick="subscribeWhatsApp()">Subscribe Now</button>
+                </div>
+              </div>
+            <% } %>
+            <% if (whatsAppSubscriber && whatsAppWalletBalance < 1) { %>
+              <div class="subscription-message">
+                <div class="alert alert-warning text-center">
+                  <h5>You are a subscribed user</h5>
+                  <p>You need to recharge your WhatsApp wallet to continue chatting with your customers.</p>
+                  <button class="btn btn-primary" id="rerecharge">Recharge Now</button>
+                </div>
+              </div>
+            <% } %>
+            
+          
+          
+          </div><!-- container -->
+          <div class="modal" id="whatsappRechargeModal" tabindex="-1" aria-labelledby="whatsappRechargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content rounded-lg shadow p-3">
+                <div class="d-flex justify-content-end">
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="text-center pt-2">
+                  <i class="fa-solid fa-wallet" style="font-size: 50px;color: #3786fe;"></i>
+                  <h5 class="mt-2" style="color: gray;">Recharge WhatsApp Wallet</h5> <!-- Updated title -->
+                </div>
+                <div class="modal-body">
+                  <div class="alert alert-success text-center mb-4">
+                    <span class="fw-bold">New!</span> Minimum balance required to ship is now
+                    <span class="text-decoration-line-through">₹500</span> ₹100
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="whatsappAmount">Enter Recharge Amount</label> <!-- Updated for clarity -->
+                    <div class="input-group">
+                      <span class="input-group-text">₹</span>
+                      <input class="form-control" id="whatsappAmount" type="text" value="1000" /> <!-- Updated ID -->
+                    </div>
+                    <p class="text-muted small mt-1">Note: Minimum recharge value ₹500</p>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Select Predefined Amount</label>
+                    <div class="d-flex justify-content-between">
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="1000">₹1000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="2000">₹2000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="3000">₹3000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="4000">₹4000</button>
+                      <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn" data-value="5000">₹5000</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn w-100" id="whatsappProceedBtn" style="background-color: #5196ff;color: white;">Proceed To Payment</button> <!-- Updated ID -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+        
+        <script>
+          // Store organized data in a JavaScript variable for easy access
+          const organizedData = <%- JSON.stringify(organizedData) %>;
+          console.log("organizedData", organizedData);
+          const client_id = organizedData[0].client_id;
+        
+          // Function to populate the customer list
+          function populateCustomers() {
+            const customersList = document.getElementById('customersList');
+            customersList.innerHTML = ''; // Clear existing list
+        
+            organizedData.forEach(order => {
+              const customer = order.customer_name; // Get customer name
+              const customer_phone = order.customer_phone; // Get customer phone
+        
+              const customerItem = document.createElement('div');
+              customerItem.className = 'customer-item';
+              customerItem.innerHTML = `
+                <div class="customer-name" onclick="loadOrders('${customer_phone}', ${order.client_id})">${customer}</div>
+              `;
+              customersList.appendChild(customerItem);
+            });
+          }
+        
+          // Function to load orders for a selected customer
+          function loadOrders(customer_phone, clientId) {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = ''; // Clear existing orders
+        
+            axios.get(`/api/customers/${customer_phone}/${clientId}/orders`)
+              .then(response => {
+                const orders = response.data;
+                console.log("orders in the ", orders);
+        
+                if (orders.length === 0) {
+                  ordersList.innerHTML = `
+                    <div class="no-orders">
+                      <i class="fas fa-box mb-3" style="font-size: 2rem;"></i>
+                      <h5>No orders found for this customer</h5>
+                    </div>
+                  `;
+                  return;
+                }
+        
+                // Populate orders list
+                orders.forEach(order => {
+                  const orderItem = document.createElement('div');
+                  orderItem.className = 'order-item';
+                  orderItem.innerHTML = `
+                    <div class="order-number" onclick="loadMessages(${order.order_number}, ${order.client_id}, '${order.customer_name}', '${customer_phone}')">${order.order_number}</div>
+                  `;
+                  ordersList.appendChild(orderItem);
+                });
+        
+                // Automatically load messages for the first order
+                if (orders.length > 0) {
+                  loadMessages(orders[0].order_number, orders[0].client_id, orders[0].customer_name, customer_phone);
+                }
+              })
+              .catch(error => {
+                console.error('Error fetching orders:', error);
+                ordersList.innerHTML = `
+                  <div class="no-orders">
+                    <h5>Error loading orders. Please try again later.</h5>
+                  </div>
+                `;
+              });
+          }
+        
+          // Function to load messages for a selected order
+          function loadMessages(orderId, clientId, customerName, customerPhone) {
+            console.log("order details", orderId, clientId, customerName);
+            const chatHeaderName = document.getElementById('chatHeaderName');
+            const chatHeaderOrder = document.getElementById('chatHeaderOrder');
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            chatMessages.innerHTML = ''; // Clear existing messages
+            axios.get(`/api/orders/${orderId}/${clientId}/messages`)
+                .then(response => {
+                    const messages = response.data;
+                    if (messages.length > 0) {
+                        messages.forEach(message => {
+                            const messageItem = document.createElement('div');
+                            messageItem.className = message.direction === 'sent' ? 'message sent' : 'message received';
+                            messageItem.innerHTML = `
+                                <div class="message-text">${message.message_text}</div>
+                                <div class="message-time">${new Date(message.created_at).toLocaleTimeString()}</div>
+                            `;
+                            chatMessages.appendChild(messageItem);
+                        });
+                    } else {
+                        chatMessages.innerHTML = `
+                            <div class="no-chat">
+                                <h4>No messages found for this order</h4>
+                            </div>
+                        `;
+                    }
+                    // Update chat header
+                    chatHeaderName.innerText = `Customer Name: ${customerName}`; // Adjust as needed
+                    chatHeaderOrder.innerText = `Order #${orderId}`; // Adjust as needed
+                    chatHeaderName.dataset.phonenumber = customerPhone; // Save phone number in data attribute
+                    // Enable the input field and send button
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+                    messageInput.focus(); // Optionally focus the input field
+                })
+                .catch(error => {
+                    console.error('Error fetching messages:', error);
+                    chatMessages.innerHTML = `
+                        <div class="no-chat">
+                            <h4>Error loading messages. Please try again later.</h4>
+                        </div>
+                    `;
+                });
+          }
+        
+          // Function to send a message
+          function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            const orderId = document.getElementById('chatHeaderOrder').innerText.split('#')[1].trim(); // Extract order ID from header
+            const clientId = client_id;
+            const senderType = 'client'; // or 'admin' based on your logic
+            const direction = 'sent'; // Assuming the message is sent by the client
+        
+            // Get the customer's phone number from the chat header or another source
+            const customerPhone = chatHeaderName.dataset.phonenumber; // corrected here
+        
+            if (!messageText) {
+              alert('Please enter a message before sending.');
+              return;
+            }
+        
+            // Send message to the server
+            axios.post('/api/messages', {
+              order_id: orderId,
+              client_id: clientId,
+              sender_type: senderType,
+              message_text: messageText,
+              attachment_url: null, // Add if you have attachments
+              direction: direction,
+              customer_phone: customerPhone // Include the customer's phone number
+            })
+            .then(response => {
+              const newMessage = response.data;
+              // Append the new message to the chat
+              const chatMessages = document.getElementById('chatMessages');
+              const messageItem = document.createElement('div');
+              messageItem.className = 'message sent';
+              messageItem.innerHTML = `
+                <div class="message-text">${newMessage.message_text}</div>
+                <div class="message-time">${new Date(newMessage.created_at).toLocaleTimeString()}</div>
+              `;
+              chatMessages.appendChild(messageItem);
+              messageInput.value = ''; // Clear the input field
+            })
+            .catch(error => {
+              console.error('Error sending message:', error);
+              alert('Error sending message. Please try again later.');
+            });
+          }
+        
+          // Handle key press for sending message on Enter key
+          function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+              sendMessage();
+            }
+          }
+        
+          // Call populateCustomers on page load
+          document.addEventListener('DOMContentLoaded', populateCustomers);
+        </script>
+        <script>
+          document.getElementById('walletIcon').addEventListener('click', openWhatsappRechargeModal);
+          document.getElementById('rerecharge').addEventListener('click', openWhatsappRechargeModal);
+        
+          function openWhatsappRechargeModal() {
+            const whatsappRechargeModal = new bootstrap.Modal(document.getElementById('whatsappRechargeModal'));
+            whatsappRechargeModal.show();
+          }
+        
+        
+          document.getElementById('whatsappProceedBtn').addEventListener('click', async function () {
+              const amountInput = document.getElementById('whatsappAmount'); // Updated to use the new input ID
+              const amount = parseInt(amountInput.value.replace(/[^0-9]/g, ''));
+        
+              if (isNaN(amount) || amount < 500) { // Check for minimum amount
+                  alert('Please enter a valid amount of ₹500 or more.');
+                  return;
+              }
+        
+              try {
+                  const response = await axios.post('/api/whatsapp/initiate-payment', { // Updated API endpoint
+                      amount: amount,
+                      merchantTransactionId: 'MTDS' + Date.now(),
+                      merchantUserId: 'MUIDDS' + Date.now()
+                  }, {
+                      headers: {
+                          'Content-Type': 'application/json'
+                      }
+                  });
+        
+                  if (response.data.success) {
+                      // Redirect to the payment URL
+                      // window.location.href = response.data.data.data.instrumentResponse.redirectInfo.url;
+                      // console.log("response.data.data.data.instrumentResponse.redirectInfo.url", response.data.data.data.instrumentResponse.redirectInfo.url);
+                      window.location.href = response.data.data.redirectUrl;
+                  } else {
+                      alert('Payment initiation failed');
+                  }
+              } catch (error) {
+                  console.error('Payment error:', error);
+                  alert('Payment initiation failed: ' + error.message);
+              }
+          });
+          
+          async function subscribeWhatsApp() {
+          // Step 1: Ask for the subscription amount
+          const { value: amount } = await Swal.fire({
+            title: 'Subscription Amount',
+            text: "Please enter the amount for subscription (minimum 5000):",
+            input: 'number',
+            inputPlaceholder: 'Enter amount',
+            showCancelButton: true,
+            confirmButtonText: 'Proceed to Payment',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+              if (!value || value < 1) {
+                return 'You need to enter a valid amount of at least 5000!';
+              }
+            }
+          });
+        
+          // If the user cancels the input
+          if (amount === undefined) {
+            Swal.fire('Cancelled', 'Subscription cancelled', 'info');
+            return;
+          }
+        
+          // Step 2: Initiate payment
+          try {
+            const response = await axios.post('/api/whatsapp/initiate-payment', {
+              amount: amount,
+              merchantTransactionId: 'MTDS' + Date.now(),
+              merchantUserId: 'MUIDDS' + Date.now()
+            }, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+        
+            if (response.data.success) {
+              // Redirect to the payment URL
+              window.location.href = response.data.data.redirectUrl;
+        
+              // Optionally, you can handle the subscription after payment completion
+              // This part depends on how you want to manage the flow after redirection
+              // For example, you might want to set up a webhook to confirm payment completion
+              // and then call the subscribe API.
+        
+              // Uncomment the following lines if you want to automatically subscribe after redirection
+              
+              const subscribeResponse = await axios.post('/api/whatsapp/subscribe');
+              if (subscribeResponse.data.success) {
+                await Swal.fire({
+                  title: 'Subscribed Successfully!',
+                  text: subscribeResponse.data.message,
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  timer: 3000,
+                  willClose: () => {
+                    window.location.reload();
+                  }
+                });
+              } else {
+                Swal.fire('Subscription failed', subscribeResponse.data.message, 'error');
+              }
+              
+            } else {
+              Swal.fire('Payment failed', response.data.message, 'error');
+            }
+          } catch (error) {
+            Swal.fire('Error', "Error processing your request.", 'error');
+            console.error(error);
+          }
+        }
+        
+        
+        
+        
+        
+        </script>
+        
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+      </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="/js/main.js"></script>
+  </body>
+</html>

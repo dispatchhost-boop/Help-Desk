@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('../partials/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard</title>
+        <link href="assets/libs/mobius1-selectr/selectr.min.css" rel="stylesheet" type="text/css" />
+        <link href="assets/libs/huebee/huebee.min.css" rel="stylesheet" type="text/css" />
+        <link href="assets/libs/vanillajs-datepicker/css/datepicker.min.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+        <style>
+            table.dataTable.no-footer {
+                border-bottom: 1px solid #e9e9e9 !important;
+            }
+
+            table.dataTable thead th,
+            table.dataTable thead td {
+                padding: 10px 18px;
+                border-bottom: 1px solid #f0eded !important;
+            }
+
+            table.dataTable tbody tr {
+                background: linear-gradient(135deg, #fdfcfb 0%, #fbffdc 100%);
+            }
+
+            .select2 {
+                overflow-y: auto;
+            }
+
+            .select2-search__field {
+                width: 200px !important;
+            }
+
+            .form-label {
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+            }
+
+            .form-control {
+                font-size: 10px;
+            }
+
+            .btn-close:focus {
+                box-shadow: none;
+            }
+
+            .charges-section {
+                display: flex;
+                justify-content: space-between;
+                text-align: center;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 10px;
+            }
+
+            h5 {
+                color: #5a99fc !important;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+
+            .modal-content .modal-header {
+                background-color: #f0ffff !important;
+            }
+
+            .modal-title,
+            h5 {
+                color: #303e67 !important;
+            }
+
+            .form-section {
+                background-color: #f0ffff;
+                padding: 1rem;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+                font-size: 14px;
+            }
+
+            @media (min-width: 992px) {
+                .modal-lg,
+                .modal-xl {
+                    --bs-modal-width: 1061px;
+                }
+            }
+
+            .offcanvas {
+                width: 85% !important;
+            }
+
+            .offcanvas-body {
+                padding: 20px;
+            }
+        </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+
+        <!-- HEADER -->
+        <%- include('../partials/header') %>
+
+            <!-- SIDEBAR -->
+            <%- include('../partials/left-sidebar') %>
+                <%- include('../partials/right-iconbar') %>
+
+                    <!-- MAIN CONTENT -->
+                    <div id="main-content">
+                        <div class="container-fluid">
+                            <div class="block-header">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <h2>Aggrigator List</h2>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item">
+                                                <a href="/"><i class="fa fa-dashboard"></i></a>
+                                            </li>
+                                            <li class="breadcrumb-item">Configuration</li>
+                                            <li class="breadcrumb-item active">Aggregator List</li>
+                                        </ul>
+                                    </div>
+                                    <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="d-flex flex-row-reverse">
+                                            <div class="page_action">
+                                                <button type="button" class="btn btn-primary">
+                                                    <i class="fa fa-download"></i> Download report
+                                                </button>
+                                                <button type="button" class="btn btn-secondary">
+                                                    <i class="fa fa-plus"></i> Add new
+                                                </button>
+                                            </div>
+                                            <div class="p-2 d-flex"></div>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+
+                            <!-- Add your page-specific content here -->
+                            <div class="mb-5">
+                                <!-- Search Section -->
+                                <form class="app-search d-none d-lg-block mb-3">
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" id="search-input" placeholder="Search aggregators..." autocomplete="off">
+                                        <button class="btn btn-soft-secondary" type="button" id="button-addon2">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Data Table -->
+                                <table class="table" id="aggregator_details">
+                                    <thead>
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>Aggregator Name</th>
+                                            <th>Service Type</th>
+                                            <th>Category</th>
+                                            <th>Variant</th>
+                                            <th>Volume/shipment</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (aggrigatorList && aggrigatorList.length > 0) { %>
+                                            <% let serialNumber = 1; %>
+                                            <% aggrigatorList.forEach(function(aggregator) { %>
+                                                <%
+                                                    // Dynamic logo based on tagged_api
+                                                    const courierName = (aggregator.tagged_api || '').toLowerCase();
+                                                    let logoPath = '/assets/images/logos/logo-dark.png';
+                                                    
+                                                    if (courierName.includes('delhivery')) {
+                                                        logoPath = '/assets/images/logos/delhivery.png';
+                                                    } else if (courierName.includes('express') || courierName.includes('expressbees')) {
+                                                        logoPath = '/assets/images/logos/expressbees.png'; 
+                                                    } else if (courierName.includes('dtdc')) {
+                                                        logoPath = '/assets/images/logos/dtdc.png';
+                                                    } else if (courierName.includes('bluedart')) {
+                                                        logoPath = '/assets/images/BlueDart.png';
+                                                    } else if (courierName.includes('fedex')) {
+                                                        logoPath = '/assets/images/FedEx.png';
+                                                    } else if (aggregator.logo_path) {
+                                                        logoPath = aggregator.logo_path;
+                                                    }
+                                                %>
+                                                <tr>
+                                                    <td><%= serialNumber++ %></td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="<%= logoPath %>" 
+                                                                 alt="<%= aggregator.aggrigator_name %>"
+                                                                 class="rounded border me-2"
+                                                                 style="width: 75px;height: 60px;object-fit: contain;padding: 5px;">
+                                                            <span><%= aggregator.aggrigator_name %></span>
+                                                        </div>
+                                                    </td>
+                                                    <td><%= aggregator.service_type %></td>
+                                                    <td><%= aggregator.courier_type %></td>
+                                                    <td>
+                                                        <% if (aggregator.delhivery_api_variant == 1) { %>
+                                                            <span class="badge bg-info">Dispatch</span>
+                                                        <% } else if (aggregator.delhivery_api_variant == 2) { %>
+                                                            <span class="badge bg-success">QuickNFly</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-secondary">Normal</span>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (aggregator.packet_shipment == 0) { %>
+                                                          <% if (aggregator.business_volume == 1) { %>
+                                                            <span class="badge badge-info">Basic</span><br><small>(0 - 25,000)</small>
+                                                          <% } else if (aggregator.business_volume == 2) { %>
+                                                            <span class="badge badge-info">Lite</span><br><small>(25,001 - 50,000)</small>
+                                                          <% } else if (aggregator.business_volume == 3) { %>
+                                                            <span class="badge badge-info">LitePro</span><br><small>(50,001 - 100,000)</small>
+                                                          <% } else if (aggregator.business_volume == 4) { %>
+                                                            <span class="badge badge-info">Premium</span><br><small>(100,001 - 250,000)</small>
+                                                          <% } else if (aggregator.business_volume == 5) { %>
+                                                            <span class="badge badge-info">Advance</span><br><small>(250,001 - 500,000)</small>
+                                                          <% } else if (aggregator.business_volume == 6) { %>
+                                                            <span class="badge badge-info">AdvancedPro</span><br><small>(500,001+)</small>
+                                                          <% } else if (aggregator.business_volume == 7) { %>
+                                                            <span class="badge badge-info">Enterprise</span>
+                                                          <% } %>
+                                                        <% } else { %>
+                                                          <% if (aggregator.packet_shipment == 1) { %>
+                                                            <span>0-500(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 2) { %>
+                                                            <span>500-1000(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 3) { %>
+                                                            <span>1000-1500(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 4) { %>
+                                                            <span>1500-2000(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 5) { %>
+                                                            <span>2000-2500(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 6) { %>
+                                                            <span>2500-3000(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 7) { %>
+                                                            <span>3000-3500(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 8) { %>
+                                                            <span>3500-4000(PKT)</span>
+                                                          <% } else if (aggregator.packet_shipment == 9) { %>
+                                                            <span>4000+</span>
+                                                          <% } %>
+                                                        <% } %>
+                                                      </td>
+                                                    <td>
+                                                        <div style="display: flex; gap: 2px;">
+                                                            <!-- Edit Dropdown -->
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                                    <i class="fas fa-edit" style="color:#5a99fc"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu">
+                                                                    
+                                                                    <li><a class="dropdown-item" href="javascript:void(0)"
+                                                                        onclick="editAdditionalCharges('<%= aggregator.Aggrigator_id %>','<%= aggregator.courier_type%>')">Additional Charges</a></li>
+                                                                    <% if (aggregator.courier_type.toLowerCase() === 'ltl') { %>
+                                                                        <li><hr class="dropdown-divider"></li>
+                                                                        <li><a class="dropdown-item" href="#"
+                                                                            onclick="editLTLRateList('<%= aggregator.Aggrigator_id %>')">LTL Rate List</a></li>
+                                                                        <li><a class="dropdown-item" href="#"
+                                                                            onclick="editLTLZoneMapping('<%= aggregator.Aggrigator_id %>')">LTL Zone Mapping</a></li>
+                                                                        <li><a class="dropdown-item" href="#" 
+                                                                            onclick="editLTLTAT('<%= aggregator.Aggrigator_id %>')">LTL TAT</a></li>
+                                                                    <% } else if (aggregator.courier_type.toLowerCase() === 'express' || aggregator.courier_type.toLowerCase() === 'ecom') { %>
+                                                                        <li><hr class="dropdown-divider"></li>
+                                                                        <li><a class="dropdown-item" href="#"
+                                                                            onclick="editExpressRateList('<%= aggregator.Aggrigator_id %>','<%= aggregator.courier_type%>')">Express Rate List</a></li>
+                                                                    <% } %>
+                                                                </ul>
+                                                            </div>
+                                                            <!-- Delete Button -->
+                                                            <button class="btn btn-sm" onclick="deleteAggregator('<%= aggregator.Aggrigator_id %>')">
+                                                                <i class="fas fa-trash" style="color:rgb(255, 159, 159)"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="7">No aggregators found.</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+
+                                <!-- Modal (Outside the Loop) -->
+                                
+
+                                <!-- Modal for Uploading CSV -->
+
+                                <!-- krishna  -->
+                                <!-- Optional Offcanvas (for more details) -->
+                               
+                               
+                                <!-- forwarding modal end -->
+                            </div>
+                 
+
+                               
+
+                                
+
+
+                             
+
+                            
+                                
+
+                                
+                                <script>
+                                    let editModal, departmentalModal, additionalChargesModal, parentalModal, rateListModal, zoneMappingModal, tatModal;
+
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Initialize all modals
+                                        editModal = new bootstrap.Modal(document.getElementById('editAggrigatorModal'));
+                                        departmentalModal = new bootstrap.Modal(document.getElementById('departmentalInfoModal'));
+                                        additionalChargesModal = new bootstrap.Modal(document.getElementById('additionalChargesModal'));
+                                        parentalModal = new bootstrap.Modal(document.getElementById('parentalDetailsModal'));
+                                        rateListModal = new bootstrap.Modal(document.getElementById('rateListModal'));
+                                        zoneMappingModal = new bootstrap.Modal(document.getElementById('zoneMappingModal'));
+                                        tatModal = new bootstrap.Modal(document.getElementById('tatModal'));
+                                    });
+
+                                    // Function to edit parental details
+                                    
+
+                                    
+
+                                    async function editAdditionalCharges(id) {
+                                        // Implementation for editing additional charges
+                                    }
+
+                                    async function editRateList(id) {
+                                        // Implementation for editing rate list
+                                    }
+
+                                    async function editZoneMapping(id) {
+                                        // Implementation for editing zone mapping
+                                    }
+
+                                    async function editTAT(id) {
+                                        // Implementation for editing TAT
+                                    }
+                                </script>
+
+
+                                <script>
+                                    function deleteAggregator(aggregatorId) {
+                                        // Show confirmation dialog
+                                        Swal.fire({
+                                            title: 'Delete Aggregator',
+                                            text: 'Are you sure you want to delete this aggregator?',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#d33',
+                                            cancelButtonColor: '#3085d6',
+                                            confirmButtonText: 'Yes, delete it!',
+                                            cancelButtonText: 'Cancel'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                // Show loading state
+                                                Swal.fire({
+                                                    title: 'Deleting...',
+                                                    text: 'Please wait while we delete the aggregator',
+                                                    allowOutsideClick: false,
+                                                    didOpen: () => {
+                                                        Swal.showLoading();
+                                                    }
+                                                });
+
+                                                // Make API call to delete the aggregator
+                                                axios.delete(`/api/aggrigator/${aggregatorId}`)
+                                                    .then(response => {
+                                                        if (response.data.success) {
+                                                            Swal.fire({
+                                                                icon: 'success',
+                                                                title: 'Deleted!',
+                                                                text: 'Aggregator has been deleted successfully.',
+                                                                timer: 2000,
+                                                                showConfirmButton: false
+                                                            }).then(() => {
+                                                                // Reload the page to reflect changes
+                                                                window.location.reload();
+                                                            });
+                                                        } else {
+                                                            Swal.fire({
+                                                                icon: 'error',
+                                                                title: 'Error!',
+                                                                text: response.data.message || 'Failed to delete aggregator.'
+                                                            });
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error deleting aggregator:', error);
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Error!',
+                                                            text: 'An error occurred while deleting the aggregator.'
+                                                        });
+                                                    });
+                                            }
+                                        });
+                                    }
+                                </script>
+
+                        </div>
+
+                        <!-- FOOTER -->
+                        <%- include('../partials/footer') %>
+                    </div>
+    </div>
+
+    <!-- SCRIPTS (Always at the bottom before </body>) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- DataTables Initialization -->
+    <script>
+        $(document).ready(function() {
+            $('#aggregator_details').DataTable({
+                "pageLength": 10,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "columnDefs": [
+                    { "orderable": false, "targets": [6] }, // Disable sorting for Action column
+                    { "searchable": false, "targets": [6] }  // Disable searching for Action column
+                ],
+                "language": {
+                    "lengthMenu": "Show _MENU_ entries",
+                    "zeroRecords": "No aggregators found",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "search": "Search aggregators:",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
+                }
+            });
+            
+            // Custom search functionality
+            $('#search-input').on('keyup', function() {
+                $('#aggregator_details').DataTable().search(this.value).draw();
+            });
+            
+            $('#button-addon2').on('click', function() {
+                const searchValue = $('#search-input').val();
+                $('#aggregator_details').DataTable().search(searchValue).draw();
+            });
+        });
+    </script>
+    
+    <script src="/js/main.js"></script>
+ 
+</body>
+
+</html>

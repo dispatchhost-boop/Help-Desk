@@ -1,0 +1,658 @@
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+
+<style>
+/* Smooth Animated Design Enhancements */
+.navbar-right .btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-right .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.navbar-right .btn:hover::before {
+    left: 100%;
+}
+
+.navbar-right .btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(14, 133, 255, 0.3);
+}
+
+.navbar-right .btn:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Track Shipment Button Hover - Smooth Animation */
+.navbar-right .btn[data-bs-target="#trackShipmentModal"]:hover {
+    background: #0e85ff !important;
+    color: white !important;
+}
+
+.navbar-right .btn[data-bs-target="#trackShipmentModal"]:hover i,
+.navbar-right .btn[data-bs-target="#trackShipmentModal"]:hover span {
+    color: white !important;
+    transform: scale(1.05);
+}
+
+/* Quick Actions Button Hover - Smooth Animation */
+.navbar-right .btn#quickActionsBtn:hover {
+    background: #0e85ff !important;
+    color: white !important;
+}
+
+.navbar-right .btn#quickActionsBtn:hover i,
+.navbar-right .btn#quickActionsBtn:hover span {
+    color: white !important;
+    transform: scale(1.05);
+}
+
+/* Tenant Selector Button Hover - Smooth Animation */
+.navbar-right .btn#tenantDropdownBtn:hover {
+    background: #0e85ff !important;
+    color: white !important;
+}
+
+.navbar-right .btn#tenantDropdownBtn:hover i,
+.navbar-right .btn#tenantDropdownBtn:hover span,
+.navbar-right .btn#tenantDropdownBtn:hover div span {
+    color: white !important;
+    transform: scale(1.05);
+}
+
+/* Wallet Button Hover - Smooth Animation */
+.navbar-right .btn[data-bs-target="#rechargeModal"]:hover {
+    background: #0e85ff !important;
+    color: white !important;
+}
+
+.navbar-right .btn[data-bs-target="#rechargeModal"]:hover i,
+.navbar-right .btn[data-bs-target="#rechargeModal"]:hover span {
+    color: white !important;
+    transform: scale(1.05);
+}
+
+/* Notifications Button Hover - Smooth Animation */
+.navbar-right .btn:has(.fa-bell):hover {
+    background: #0e85ff !important;
+    color: white !important;
+}
+
+.navbar-right .btn:has(.fa-bell):hover i {
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Logout Button Hover - Red Animation */
+.navbar-right .btn:has(.fa-power-off):hover {
+    background: #ff4d4d !important;
+    color: white !important;
+    box-shadow: 0 8px 25px rgba(255, 77, 77, 0.3);
+}
+
+.navbar-right .btn:has(.fa-power-off):hover i {
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Dropdown Item Hover - Smooth Animation */
+.dropdown-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(14, 133, 255, 0.1), transparent);
+    transition: left 0.3s;
+}
+
+.dropdown-item:hover::before {
+    left: 100%;
+}
+
+.dropdown-item:hover {
+    background: #f0f8ff;
+    transform: translateX(4px) scale(1.02);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15);
+}
+
+/* Icon Pulse Animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.navbar-right .btn:hover i {
+    animation: pulse 0.6s ease-in-out;
+}
+
+/* Custom dropdown styles */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 200px;
+    padding: 8px 0;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #16181b;
+}
+
+.dropdown-item:active {
+    background-color: #e9ecef;
+    color: #16181b;
+}
+
+/* Ensure dropdowns are positioned correctly */
+.dropdown {
+    position: relative;
+}
+
+/* Fix for Bootstrap 5 dropdown positioning */
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+</style>
+
+<body data-theme="light" class="font-nunito">
+
+    <div id="wrapper" class="theme-cyan">
+
+     <!-- Page Loader -->
+        <div class="page-loader-wrapper">
+            <div class="loader">
+                <div class="m-t-80"><img src="/assets/images/logo-dark.png" width="500" height=""
+                        alt="small logo dispatch"></div>
+                <p style="color:rgb(32, 33, 33)">Dispatch Solutions Loading.......</p>
+            </div>
+        </div>
+
+        <!-- Top navbar div start -->
+        <nav class="navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-brand">
+                    <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-bars"></i></button>
+                    <button type="button" class="btn-toggle-fullwidth"><i class="fa fa-bars"></i></button>
+                    <a href="/index"><img src="/assets/images/logo-dark.png" alt="logo dispatch" width="35" height="35"
+                            style="margin-left: 12px;"></a>
+                </div>
+                <!-- user show -->
+                 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+              
+                <div class="navbar-right">
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <!-- Track Shipment Button -->
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#trackShipmentModal"
+                            style="border-radius: 50px; background: white; color: #0e85ff; font-weight: 600; padding: 8px 12px; display: flex; align-items: center; gap: 6px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15); font-size: 12px; border: none; position: relative; overflow: hidden;">
+                            <i class="fa-solid fa-truck" style="font-size: 10px; color: #0e85ff; transition: all 0.3s ease;"></i>
+                            <span style="font-size: 12px; font-weight: 600; color: #0e85ff; transition: all 0.3s ease;">Track Shipment</span>
+                        </button>
+
+                        <!-- QUICK ACTIONS AND TENANT SELECTOR -->
+                        <div class="d-flex align-items-center gap-2">
+
+                            <!-- Quick Actions -->
+                            <div class="dropdown me-2">
+                                <button class="btn btn-sm btn-light d-flex align-items-center gap-1" type="button"
+                                    id="quickActionsBtn" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="border-radius: 50px; background: white; color: #0e85ff; font-weight: 600; padding: 8px 12px; display: flex; align-items: center; gap: 6px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15); font-size: 12px; border: none; position: relative; overflow: hidden;">
+                                    <i class="fa fa-bolt" style="font-size: 10px; color: #0e85ff; transition: all 0.3s ease;"></i>
+                                    <span id="quickActionsLabel" style="font-size: 12px; font-weight: 600; color: #0e85ff; transition: all 0.3s ease;">Quick</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" id="quickDropdownMenu"
+                                    style="width: 220px; border-radius: 12px; box-shadow: 0 8px 25px rgba(14, 133, 255, 0.15); padding: 8px; background: white;">
+                                    <!-- Dynamically injected items -->
+                                </ul>
+                            </div>
+
+                            <!-- Tenant Selector -->
+                            <div class="dropdown me-2">
+                                <button class="btn btn-sm btn-light d-flex align-items-center gap-1" type="button"
+                                    id="tenantDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="border-radius: 50px; background: white; color: #0e85ff; font-weight: 600; padding: 8px 12px; display: flex; align-items: center; gap: 8px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15); font-size: 12px; border: none; position: relative; overflow: hidden;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+                                        <i class="fa fa-globe" style="font-size: 10px; color: #0e85ff; transition: all 0.3s ease;"></i>
+                                        <span style="font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #0e85ff; margin-top: 1px; transition: all 0.3s ease;">EXPRESS</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; text-align: left; margin-top: -1px;">
+                                        <span class="tenant-name" style="font-size: 12px; font-weight: 600; line-height: 1; color: #0e85ff; transition: all 0.3s ease;">Express</span>
+                                        <span class="tenant-type" style="font-size: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #0e85ff; margin-top: -1px; transition: all 0.3s ease;">EXPRESS</span>
+                                    </div>
+                                    <i class="fa fa-chevron-down" style="font-size: 8px; color: #0e85ff; margin-left: 4px; margin-top: 2px; transition: all 0.3s ease;"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" id="tenantDropdown"
+                                    style="border-radius: 12px; box-shadow: 0 8px 25px rgba(14, 133, 255, 0.15); padding: 8px; background: white;">
+
+                                    <li><a class="dropdown-item tenant-item" href="/express" data-slug="express"
+                                            data-tenant="Express" data-type="EXPRESS" 
+                                            style="font-size: 12px; padding: 12px 16px; border-radius: 8px; margin: 2px 0; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                                            <i class="fa fa-shipping-fast" style="color: #0e85ff; font-size: 10px;"></i>
+                                            B2C Express
+                                        </a></li>
+                                    <li><a class="dropdown-item tenant-item" href="/ecom" data-slug="ecom"
+                                            data-tenant="ecom" data-type="ecom" 
+                                            style="font-size: 12px; padding: 12px 16px; border-radius: 8px; margin: 2px 0; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                                            <i class="fa fa-shopping-cart" style="color: #0e85ff; font-size: 10px;"></i>
+                                            eCommerce
+                                        </a></li>
+                                    <!-- <li>
+                                        <a class="dropdown-item tenant-item" href="/ltl" data-slug="ltl" data-tenant=""
+                                            data-type="ASHREYLOGISTIC B2B"
+                                            style="font-size: 12px; padding: 12px 16px; border-radius: 8px; margin: 2px 0; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between; color: #1e293b; font-weight: 500;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <i class="fa fa-truck" style="color: #0e85ff; font-size: 10px;"></i>
+                                                B2B Heavy Shipment
+                                            </div>
+                                            <span class="badge" style="background: #0e85ff; color: white; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 600;">Coming Soon</span>
+                                        </a>
+                                    </li> -->
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <!-- Wallet Button -->
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#rechargeModal"
+                            style="border-radius: 50px; background: white; color: #0e85ff; font-weight: 600; padding: 8px 12px; display: flex; align-items: center; gap: 6px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15); font-size: 12px; border: none; position: relative; overflow: hidden;">
+                            <i class="fa-solid fa-credit-card" style="font-size: 10px; color: #0e85ff; transition: all 0.3s ease;"></i>
+                            <span style="font-size: 12px; font-weight: 600; color: #0e85ff; transition: all 0.3s ease;">
+                                <% if (typeof walletBalance !=='undefined' ) { %>
+                                    ₹<%= walletBalance %>
+                                <% } else { %>
+                                    ₹0
+                                <% } %>
+                            </span>
+                        </button>
+
+                        <!-- Notifications Button -->
+                        <button type="button" class="btn"
+                            style="border-radius: 50px; background: white; color: #0eff5e; font-weight: 600; padding: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(14, 133, 255, 0.15); width: 36px; height: 36px; border: none; position: relative; overflow: hidden;">
+                            <i class="fa-solid fa-bell" style="font-size: 10px; color: #0eff1a; transition: all 0.3s ease;"></i>
+                        </button>
+
+                        <!-- Logout Button -->
+                        <a href="/logout" class="btn"
+                            style="border-radius: 50px; background: white; color: #ff4d4d; font-weight: 600; padding: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(255, 77, 77, 0.15); width: 36px; height: 36px; text-decoration: none; border: none; position: relative; overflow: hidden;">
+                            <i class="fa fa-power-off" style="font-size: 10px; color: #ff4d4d; transition: all 0.3s ease;"></i>
+                        </a>
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+
+
+
+        </nav>
+
+
+
+        <div class="modal" id="rechargeModal" tabindex="-1" aria-labelledby="rechargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content rounded-lg shadow p-3">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="text-center pt-2">
+                        <i class="fa-solid fa-wallet" style="font-size: 50px;color: #3786fe;"></i>
+                        <h5 class="mt-2" style="color: gray;">Recharge Wallet</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-success text-center mb-4">
+                            <span class="fw-bold">New!</span> Minimum balance required to ship is now
+                            <span class="text-decoration-line-through">₹500</span> ₹100
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="amount">Enter Recharge Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input class="form-control" id="amount" type="text" value="1000" />
+                            </div>
+                            <p class="text-muted small mt-1">Note: Minimum recharge value ₹500</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Predefined Amount</label>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn"
+                                    data-value="1000">₹1000</button>
+                                <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn"
+                                    data-value="2000">₹2000</button>
+                                <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn"
+                                    data-value="3000">₹3000</button>
+                                <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn"
+                                    data-value="4000">₹4000</button>
+                                <button class="btn btn-outline-secondary flex-fill mx-1 amount-btn"
+                                    data-value="5000">₹5000</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn w-100" id="proceedBtn"
+                            style="background-color: #5196ff;color: white;">Proceed To
+                            Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="trackShipmentModal" tabindex="-1" aria-labelledby="trackShipmentModalLabel"
+            aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="trackShipmentModalLabel">Track Your Shipment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="trackingNumber"
+                                placeholder="Enter tracking number" aria-label="Tracking number">
+                            <button class="btn btn-primary" type="button" id="trackButton">Track</button>
+                        </div>
+                        <div id="trackingResult" class="mt-3" style="display: none;">
+                            <!-- Results will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const amountInput = document.getElementById("amount");
+                const amountButtons = document.querySelectorAll(".amount-btn");
+                let selectedAmount = "";
+
+                amountButtons.forEach(button => {
+                    button.addEventListener("click", function () {
+                        amountInput.value = this.dataset.value;
+                        selectedAmount = this.dataset.value;
+                    });
+                });
+
+                document.getElementById("proceedBtn").addEventListener("click", async function () {
+                    const amount = parseInt(amountInput.value.replace(/[^0-9]/g, ''));
+
+                    try {
+                        const response = await axios.post('/api/phonepay/initiate-payment', {
+                            amount: amount,
+                            merchantTransactionId: 'MTDS' + Date.now(),
+                            merchantUserId: 'MUIDDS' + Date.now()
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (response.data.success) {
+                            // window.location.href = response.data.data.data.instrumentResponse.redirectInfo.url;
+                            window.location.href = response.data.data.redirectUrl;
+                        } else {
+                            alert('Payment initiation failed');
+                        }
+                    } catch (error) {
+                        console.error('Payment error:', error);
+                        alert('Payment initiation failed: ' + error.message);
+                    }
+                });
+                // / Fix for track shipment modal fade issue
+                const trackShipmentModal = document.getElementById('trackShipmentModal');
+                console.log("tarck shipment m,doal", trackShipmentModal); // Check if the element is nul
+
+                // Remove fade class when modal is hidden
+                trackShipmentModal.addEventListener('hidden.bs.modal', function () {
+                    console.log("clicked in close button of the modal");
+                    // Clear tracking input and result when modal is closed
+                    document.getElementById('trackingNumber').value = '';
+                    document.getElementById('trackingResult').style.display = 'none';
+                    document.getElementById('trackingResult').innerHTML = '';
+                    trackShipmentModal.classList.remove('fade');
+                });
+
+                // Ensure fade class is removed when modal is about to be shown
+                trackShipmentModal.addEventListener('show.bs.modal', function () {
+                    trackShipmentModal.classList.remove('fade');
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const trackButton = document.getElementById('trackButton');
+                const trackingInput = document.getElementById('trackingNumber');
+                const trackingResult = document.getElementById('trackingResult');
+
+                trackButton.addEventListener('click', async function () {
+                    const trackingNumber = trackingInput.value.trim();
+
+                    if (!trackingNumber) {
+                        trackingResult.style.display = 'block';
+                        trackingResult.innerHTML = `
+                          <div class="alert alert-warning">
+                              Please enter a tracking number
+                          </div>
+                      `;
+                        return;
+                    }
+
+                    try {
+                        trackButton.disabled = true;
+                        trackButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Tracking...';
+
+                        const response = await axios.post('/api/track-shipment', {
+                            trackingNumber: trackingNumber
+                        });
+
+                        trackingResult.style.display = 'block';
+
+                        if (response.data.success) {
+                            const shipmentData = response.data.shipmentDetails;
+                            const currentStatus = response.data.currentStatus;
+                            const timeline = response.data.timeline;
+
+                            trackingResult.innerHTML = `
+                              <div class="card">
+                                  <div class="card-body">
+                                      <h6 class="card-title">Shipment Details</h6>
+                                      <div class="row">
+                                          <div class="col-md-6">
+                                              <p><strong>Tracking Number:</strong> ${shipmentData.trackingNumber}</p>
+                                              <p><strong>Order Date:</strong> ${shipmentData.orderDate}</p>
+                                              <p><strong>Status:</strong> ${shipmentData.status}</p>
+                                              <p><strong>Consignee:</strong> ${shipmentData.consigneeName}</p>
+                                          </div>
+                                          <div class="col-md-6">
+                                              <p><strong>Destination:</strong> ${shipmentData.destinationAddress}</p>
+                                              <p><strong>Pincode:</strong> ${shipmentData.destinationPincode}</p>
+                                              <p><strong>Payment Mode:</strong> ${shipmentData.paymentMode}</p>
+                                              <p><strong>Weight/Boxes:</strong> ${shipmentData.weight}${shipmentData.weightUnit} / ${shipmentData.boxes} boxes</p>
+                                          </div>
+                                      </div>
+          
+                                      <h6 class="mt-4">Current Status</h6>
+                                      <div class="alert alert-info">
+                                          <p class="mb-1"><strong>${currentStatus.status}</strong></p>
+                                          <p class="mb-1">Location: ${currentStatus.location}</p>
+                                          <small>Last Updated: ${currentStatus.lastUpdated}</small>
+                                      </div>
+          
+                                      <h6 class="mt-3">Tracking History</h6>
+                                      <div class="timeline">
+                                          ${timeline.map(detail => `
+                                              <div class="timeline-item border-bottom py-2">
+                                                  <p class="mb-1"><strong>${detail.date}</strong></p>
+                                                  <p class="mb-1">${detail.status}</p>
+                                                  <p class="mb-1"><small class="text-muted">Location: ${detail.location}</small></p>
+                                                  ${detail.details ? `<small class="text-muted d-block">${detail.details}</small>` : ''}
+                                              </div>
+                                          `).join('')}
+                                      </div>
+                                  </div>
+                              </div>
+                          `;
+                        } else {
+                            trackingResult.innerHTML = `
+                              <div class="alert alert-warning">
+                                  ${response.data.message}
+                              </div>
+                          `;
+                        }
+                    } catch (error) {
+                        trackingResult.style.display = 'block';
+                        trackingResult.innerHTML = `
+                          <div class="alert alert-danger">
+                              ${error.response?.data?.message || 'Error tracking shipment. Please try again later.'}
+                          </div>
+                      `;
+                    } finally {
+                        trackButton.disabled = false;
+                        trackButton.innerHTML = 'Track';
+                    }
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Find the logout button (adjust selector if needed)
+                const logoutBtn = document.querySelector('a[href="/logout"]');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function () {
+                        localStorage.removeItem('selectedSlug');
+                    });
+                }
+
+                // Fix dropdown functionality
+                const quickActionsBtn = document.getElementById('quickActionsBtn');
+                const tenantDropdownBtn = document.getElementById('tenantDropdownBtn');
+                const quickDropdownMenu = document.getElementById('quickDropdownMenu');
+                const tenantDropdown = document.getElementById('tenantDropdown');
+
+                // Quick Actions dropdown
+                if (quickActionsBtn && quickDropdownMenu) {
+                    quickActionsBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Toggle dropdown
+                        const isVisible = quickDropdownMenu.style.display === 'block';
+                        quickDropdownMenu.style.display = isVisible ? 'none' : 'block';
+                        
+                        // Update aria-expanded
+                        quickActionsBtn.setAttribute('aria-expanded', !isVisible);
+                    });
+                }
+
+                // Tenant Selector dropdown
+                if (tenantDropdownBtn && tenantDropdown) {
+                    tenantDropdownBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Toggle dropdown
+                        const isVisible = tenantDropdown.style.display === 'block';
+                        tenantDropdown.style.display = isVisible ? 'none' : 'block';
+                        
+                        // Update aria-expanded
+                        tenantDropdownBtn.setAttribute('aria-expanded', !isVisible);
+                    });
+                }
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!quickActionsBtn?.contains(e.target) && !quickDropdownMenu?.contains(e.target)) {
+                        if (quickDropdownMenu) {
+                            quickDropdownMenu.style.display = 'none';
+                            quickActionsBtn?.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                    
+                    if (!tenantDropdownBtn?.contains(e.target) && !tenantDropdown?.contains(e.target)) {
+                        if (tenantDropdown) {
+                            tenantDropdown.style.display = 'none';
+                            tenantDropdownBtn?.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+
+                // Handle tenant item clicks
+                const tenantItems = document.querySelectorAll('.tenant-item');
+                tenantItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        const slug = this.getAttribute('data-slug');
+                        const tenant = this.getAttribute('data-tenant');
+                        const type = this.getAttribute('data-type');
+                        
+                        // Store selected tenant info
+                        localStorage.setItem('selectedSlug', slug);
+                        localStorage.setItem('selectedTenant', tenant);
+                        localStorage.setItem('selectedType', type);
+                        
+                        // Update button text
+                        const tenantName = document.querySelector('.tenant-name');
+                        const tenantType = document.querySelector('.tenant-type');
+                        if (tenantName) tenantName.textContent = tenant;
+                        if (tenantType) tenantType.textContent = type;
+                        
+                        // Close dropdown
+                        tenantDropdown.style.display = 'none';
+                        tenantDropdownBtn.setAttribute('aria-expanded', 'false');
+                    });
+                });
+            });
+        </script>
+
+
+
+
+    </div>
+
+</body>
