@@ -1,21 +1,19 @@
 // models/index.js
-const sequelize = require('../config/sequelize'); // <-- important (was ./sequelize)
+const sequelize = require('../config/sequelize');
 const { DataTypes } = require('sequelize');
 
-const CategoryFactory = require('./Category');
-const SubCategoryFactory = require('./SubCategory');
-const SubCategoryAddFieldFactory = require('./SubCategoryAddField');
-const SubCategoryMandatoryFieldFactory = require('./SubCategoryMandatoryField');
+// Initialize all models
+const Category = require('./Category')(sequelize, DataTypes);
+const SubCategory = require('./SubCategory')(sequelize, DataTypes);
+const SubCategoryAddField = require('./SubCategoryAddField')(sequelize, DataTypes);
+const SubCategoryMandatoryField = require('./SubCategoryMandatoryField')(sequelize, DataTypes);
+const Ticket = require('./Ticket')(sequelize, DataTypes);
 
-const Category = CategoryFactory(sequelize, DataTypes);
-const SubCategory = SubCategoryFactory(sequelize, DataTypes);
-const SubCategoryAddField = SubCategoryAddFieldFactory(sequelize, DataTypes);
-const SubCategoryMandatoryField = SubCategoryMandatoryFieldFactory(sequelize, DataTypes);
-
-// Associations
+// Set up associations
 Category.associate({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
 SubCategory.associate({ Category, SubCategoryAddField, SubCategoryMandatoryField });
 SubCategoryAddField.associate({ SubCategory });
 SubCategoryMandatoryField.associate({ SubCategory });
 
-module.exports = { sequelize, Category, SubCategory, SubCategoryAddField, SubCategoryMandatoryField };
+module.exports = { sequelize, Category, SubCategory, SubCategoryAddField, SubCategoryMandatoryField, Ticket
+};

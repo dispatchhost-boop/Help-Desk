@@ -16,12 +16,13 @@ const axios = require('axios')
 
 
 route.get('/support/categories', userController.getSupportCategories);
+route.post('/api/support/tickets', userController.createTicket);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
 
 // ======================
 // AUTHENTICATION ROUTES
-// ======================
+// ======================      
 route.get('/', userController.loginPage)
 route.post('/', userController.loginAuth)
 route.get('/signup', userController.getSignup)

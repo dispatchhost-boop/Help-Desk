@@ -53,88 +53,116 @@ const checkServiceability = require('../services/checkServiceability.js');
 const calculateAdditionalCharges = require('../services/calculateAdditionalCharges.js');
 const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
+const TicketModel = require('../models/Ticket');
+const { DataTypes } = require('sequelize'); 
 
 
-// async function getSupportCategories(req, res) {
-//   try {
-//     await sequelize.authenticate();
-//     const { raised_from = 'ucp' } = req.query;
 
-//     const categories = await Category.findAll({
-//       where: { raised_from },
-//       attributes: ['id', 'name'],
-//       include: [
-//         {
-//           model: SubCategory,
-//           as: 'sub_categories',
-//           attributes: ['id', 'name', 'self_help'],
-//           include: [
-//             { association: 'add_fields', attributes: ['field_name'] },
-//             { association: 'mandatory_fields', attributes: ['field_name'] }
-//           ]
-//         }
-//       ],
-//       order: [
-//         ['id', 'ASC'],
-//         [{ model: SubCategory, as: 'sub_categories' }, 'id', 'ASC']
-//       ]
-//     });
+const Ticket = TicketModel(sequelize, DataTypes);
+async function createTicket(req, res) {
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const { awb_or_lr_no, category, sub_category, description, additional_fields } = req.body;
 
-//     // Define categories that should have a default empty subcategory
-//     const categoriesWithDefaultSubcategory = [
-//       'Self collect / drop',
-//       'Cancel delivery / pickup',
-//       'Behaviour complaint against staff'
-//     ];
 
-//     const formattedResponse = {
-//       category_list: (categories || []).map(category => {
-//         let subCategoryList = category.sub_categories || [];
+    // Generate ticket ID
+    const ticketId = `TKT-${new Date().toISOString().split('T')[0]}-${Math.floor(10000 + Math.random() * 90000)}`;
+    
+    const [ecomLr, expLr, createLr] = await Promise.all([
+      sequelize.query(`SELECT * FROM tbl_ecom_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction
+      }),
+      sequelize.query(`SELECT * FROM tbl_exp_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction
+      }),
+      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction
+      })
+    ]);
+
+    const shipmentData = ecomLr[0] || expLr[0] || createLr[0];
+    
+    if (!shipmentData) {
+      await transaction.rollback();
+      return res.status(404).json({
+        success: false,
+        error: 'Shipment not found'
+      });
+    }
+
+    // Create ticket
+    const ticket = await Ticket.create({
+      ticket_id: ticketId,
+      awb_or_lr_no,
+      category,
+      sub_category,
+      description,
+      additional_fields,
+      status: 'Open'
+    }, { transaction });
+
+    await transaction.commit();
+
+
+    const response = {
+      success: true,
+      ticket_id: ticket.ticket_id,
+      created_at: ticket.createdAt,
+      shipment_details: {
+        lr_info: {
+          lr_no: shipmentData.lr_no,
+          order_id: shipmentData.order_id,
+          client_id: shipmentData.client_id,
+          tagged_api: shipmentData.tagged_api,
+          aggregator_id: shipmentData.aggrigator_id,
+          forwarder_id: shipmentData.forwarder_id,
+          status: shipmentData.status, 
+          eta: shipmentData.eta,
+          pickup_zone: shipmentData.pickup_zone,
+          destination_zone: shipmentData.destination_zone,
+          created_at: shipmentData.created_at
+        },
+        financial_details: {
+          insurance_type: shipmentData.insurance_type,
+          volumetric_weight: shipmentData.volumetric_weight,
+          chargeable_weight: shipmentData.chargable_weight,
+          base_rate: shipmentData.base_rate,
+          total_additional: shipmentData.total_additional,
+          total_gst: shipmentData.total_gst,
+          total_lr_charges: shipmentData.total_lr_charges,
+          billing_status: shipmentData.billing_status
+        },
+        weight_details: {
+          total_weight: `${shipmentData.chargable_weight || 0} kg`,
+          volumetric_weight: `${shipmentData.volumetric_weight || 0} kg`
+        }
+      },
+      issue_details: {
+        category,
+        sub_category,
+        description,
+        additional_fields
+      }
+    };
+
+    res.status(201).json(response);
         
-//         // Add default subcategory if needed
-//         if (subCategoryList.length === 0 && categoriesWithDefaultSubcategory.includes(category.name)) {
-//           subCategoryList = [{
-//             name: "",
-//             self_help: null,
-//             add_fields: [{ field_name: "list_awb" }],
-//             mandatory_fields: [
-//               { field_name: "waybill number" },
-//               ...(category.name === "Behaviour complaint against staff" ? [{ field_name: "Description" }] : [])
-//             ]
-//           }];
-//         }
+      } catch (error) {
+        await transaction.rollback();
+        
+          return res.status(500).json({ error: 'userController--->userController.createTicket', details: error.message});
+      }
+    }
 
-//         return {
-//           name: category.name,
-//           sub_category_list: subCategoryList.map(subCategory => ({
-//             name: subCategory.name,
-//             self_help: subCategory.self_help === 'incorrect_or_missing_pod' ? 'incorrect_or_missing_pod' : 
-//                       subCategory.self_help === 'damage_shipment' ? 'damage_shipment' :
-//                       subCategory.self_help === 'missing_shipment' ? 'missing_shipment' :
-//                       subCategory.self_help === 'mismatch_shipment' ? 'mismatch_shipment' :
-//                       subCategory.self_help === 'raise_claim' ? 'raise_claim' :
-//                       subCategory.self_help === 'weight_dispute' ? 'weight_dispute' :
-//                       subCategory.self_help === 'download_invoices_cn' ? 'download_invoices_cn' :
-//                       subCategory.self_help === 'bank_account_details' ? 'bank_account_details' : null,
-//             add_fields: (subCategory.add_fields || []).map(f => f.field_name),
-//             mandatory_fields: (subCategory.mandatory_fields || []).map(f => f.field_name)
-//           }))
-//         };
-//       })
-//     };
 
-//     res.json(formattedResponse);
-//   } catch (error) {
-//     console.error('Error in getSupportCategories:', {
-//       message: error.message,
-//       stack: error.stack
-//     });
-//     res.status(500).json({
-//       error: 'Internal server error',
-//       details: process.env.NODE_ENV === 'development' ? error.message : undefined
-//     });
-//   }
-// }
+
 
 
 async function getSupportCategories(req, res) {
@@ -30221,4 +30249,5 @@ module.exports = {
   apiPackageExpressRateList,
   apiPackageEcomRateList,
   getSupportCategories,
+  createTicket
 }
