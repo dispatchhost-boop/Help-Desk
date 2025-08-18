@@ -8,6 +8,8 @@ const SubCategory = require('./SubCategory')(sequelize, DataTypes);
 const SubCategoryAddField = require('./SubCategoryAddField')(sequelize, DataTypes);
 const SubCategoryMandatoryField = require('./SubCategoryMandatoryField')(sequelize, DataTypes);
 const Ticket = require('./Ticket')(sequelize, DataTypes);
+const EcomLR = require('./tbl_ecom_lr')(sequelize, DataTypes);
+const ExpLR  = require('./tbl_exp_lr')(sequelize, DataTypes);
 
 // Set up associations
 Category.associate({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
@@ -15,5 +17,4 @@ SubCategory.associate({ Category, SubCategoryAddField, SubCategoryMandatoryField
 SubCategoryAddField.associate({ SubCategory });
 SubCategoryMandatoryField.associate({ SubCategory });
 
-module.exports = { sequelize, Category, SubCategory, SubCategoryAddField, SubCategoryMandatoryField, Ticket
-};
+module.exports = { sequelize, Category, SubCategory, SubCategoryAddField, SubCategoryMandatoryField, Ticket, EcomLR, ExpLR };

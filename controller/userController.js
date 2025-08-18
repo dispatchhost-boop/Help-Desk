@@ -1,4 +1,4 @@
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR } = require('../models/index.js');
 
 const { mySqlQury } = require('../middleware/db');
 const jwt = require('jsonwebtoken');
@@ -58,108 +58,340 @@ const { DataTypes } = require('sequelize');
 
 
 
-const Ticket = TicketModel(sequelize, DataTypes);
-async function createTicket(req, res) {
-  const transaction = await sequelize.transaction();
-  
+
+
+// controller/userController.js
+
+
+async function getClientLRNumbers(req, res) {
   try {
-    const { awb_or_lr_no, category, sub_category, description, additional_fields } = req.body;
-
-
-    // Generate ticket ID
-    const ticketId = `TKT-${new Date().toISOString().split('T')[0]}-${Math.floor(10000 + Math.random() * 90000)}`;
-    
-    const [ecomLr, expLr, createLr] = await Promise.all([
-      sequelize.query(`SELECT * FROM tbl_ecom_lr WHERE lr_no = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
-        type: sequelize.QueryTypes.SELECT,
-        transaction
-      }),
-      sequelize.query(`SELECT * FROM tbl_exp_lr WHERE lr_no = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
-        type: sequelize.QueryTypes.SELECT,
-        transaction
-      }),
-      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
-        type: sequelize.QueryTypes.SELECT,
-        transaction
-      })
-    ]);
-
-    const shipmentData = ecomLr[0] || expLr[0] || createLr[0];
-    
-    if (!shipmentData) {
-      await transaction.rollback();
-      return res.status(404).json({
-        success: false,
-        error: 'Shipment not found'
-      });
+    const clientId = parseInt(req.params.clientId, 10);
+    if (Number.isNaN(clientId)) {
+      return res.status(400).json({ ok: false, message: 'Invalid clientId' });
     }
 
-    // Create ticket
-    const ticket = await Ticket.create({
-      ticket_id: ticketId,
+    const limit  = parseInt(req.query.limit, 10)  || 100;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    const [ecom, exp] = await Promise.all([
+      EcomLR.findAll({
+        attributes: ['lr_no', 'created_at'],
+        where: { client_id: clientId },
+        limit, offset,
+        order: [['id', 'DESC']],
+      }),
+      ExpLR.findAll({
+        attributes: ['lr_no', 'created_at'],
+        where: { client_id: clientId },
+        limit, offset,
+        order: [['id', 'DESC']],
+      }),
+    ]);
+
+    const data = [
+      ...ecom.map(r => ({ source: 'tbl_ecom_lr', lr_no: r.lr_no, created_at: r.created_at })),
+      ...exp.map(r => ({ source: 'tbl_exp_lr',  lr_no: r.lr_no, created_at: r.created_at })),
+    ];
+
+    return res.json({
+      ok: true,
+      client_id: clientId,
+      counts: { ecom: ecom.length, exp: exp.length, total: data.length },
+      data,
+      pagination: { limit, offset, returned: data.length }
+    });
+  } catch (err) {
+    console.error('getClientLRNumbers error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+
+
+// controllers/ticketController.js
+
+const Ticket = TicketModel(sequelize, DataTypes);
+
+const {
+  EMAIL_FROM = 'onboarding@dispatch.co.in',
+  EMAIL_HOST,
+  EMAIL_PORT,
+  EMAIL_PASS,
+} = process.env;
+
+/** Simple email sanity check */
+const isValidEmail = (e = '') =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(String(e).trim());
+
+/** Normalize, validate and dedupe email lists */
+function normalizeEmails(...lists) {
+  const out = new Set();
+  lists.flat().forEach((e) => {
+    if (typeof e === 'string' && isValidEmail(e)) out.add(e.trim());
+  });
+  return Array.from(out);
+}
+
+/** Create a nodemailer transporter if config exists */
+function getTransporter() {
+  if (!EMAIL_HOST || !EMAIL_PORT || !EMAIL_FROM || !EMAIL_PASS) return null;
+  const secure = String(EMAIL_PORT) === '465';
+  return nodemailer.createTransport({
+    host: EMAIL_HOST,
+    port: Number(EMAIL_PORT),
+    secure,
+    auth: { user: EMAIL_FROM, pass: EMAIL_PASS },
+  });
+}
+
+/** Attempt to send a basic email about the created ticket */
+async function sendTicketEmail({ to, cc, ticket, shipment, issue }) {
+  const transporter = getTransporter();
+  if (!transporter) return { sent: false, error: 'Mail transport not configured' };
+
+  const subject = `New Support Ticket ${ticket.ticket_id} – ${issue.category}/${issue.sub_category}`;
+  const text = [
+    `Ticket: ${ticket.ticket_id}`,
+    `LR: ${ticket.awb_or_lr_no}`,
+    `Category: ${issue.category}`,
+    `Sub-Category: ${issue.sub_category}`,
+    `Description: ${issue.description}`,
+    '',
+    `Client ID: ${shipment?.client_id ?? '-'}`,
+    `Tagged API: ${shipment?.tagged_api ?? '-'}`,
+    `Pickup Zone: ${shipment?.pickup_zone ?? '-'}`,
+    `Destination Zone: ${shipment?.destination_zone ?? '-'}`,
+  ].join('\n');
+
+  const html = `
+    <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;">
+      <h2>New Support Ticket: ${ticket.ticket_id}</h2>
+      <p><b>LR:</b> ${ticket.awb_or_lr_no}</p>
+      <p><b>Category:</b> ${issue.category} &nbsp; | &nbsp; <b>Sub-Category:</b> ${issue.sub_category}</p>
+      <p><b>Description:</b><br/>${(issue.description || '').replace(/\n/g, '<br/>')}</p>
+      <hr/>
+      <p><b>Client ID:</b> ${shipment?.client_id ?? '-'} &nbsp; | &nbsp;
+         <b>Tagged API:</b> ${shipment?.tagged_api ?? '-'}</p>
+      <p><b>Pickup Zone:</b> ${shipment?.pickup_zone ?? '-'} &nbsp; | &nbsp;
+         <b>Destination Zone:</b> ${shipment?.destination_zone ?? '-'}</p>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: EMAIL_FROM,
+      to: to.length ? to.join(',') : undefined,
+      cc: cc.length ? cc.join(',') : undefined,
+      subject,
+      text,
+      html,
+    });
+    return { sent: true, error: null };
+  } catch (err) {
+    return { sent: false, error: err?.message || 'Unknown email error' };
+  }
+}
+
+async function createTicket(req, res) {
+  const transaction = await sequelize.transaction();
+  try {
+    const {
       awb_or_lr_no,
       category,
       sub_category,
       description,
       additional_fields,
-      status: 'Open'
-    }, { transaction });
+      notify = {},
+    } = req.body;
+
+    // ---- Resolve notify ----
+    const notifyEnabled = Boolean(notify.enabled);
+    // Ensure EMAIL_FROM is also in "to" as requested
+    let finalTo = normalizeEmails(notify.to || [], EMAIL_FROM);
+    let finalCc = normalizeEmails(notify.cc || []);
+
+    // remove any CC that is already in To
+    finalCc = finalCc.filter(e => !finalTo.includes(e));
+
+    // If for some reason To is still empty, fall back to EMAIL_FROM
+    if (!finalTo.length) finalTo = normalizeEmails(EMAIL_FROM);
+
+    // ---- Generate ticket id ----
+    const ticketId = `TKT-${new Date().toISOString().split('T')[0]}-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    // ---- Find shipment ----
+    const [ecomLr, expLr, createLr] = await Promise.all([
+      sequelize.query(`SELECT * FROM tbl_ecom_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+      sequelize.query(`SELECT * FROM tbl_exp_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, {
+        replacements: { lrNo: awb_or_lr_no },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+    ]);
+
+    const s = (ecomLr && ecomLr[0]) || (expLr && expLr[0]) || (createLr && createLr[0]);
+
+    if (!s) {
+      await transaction.rollback();
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+
+    // ---- Build response-friendly JSON blobs (also stored in *_raw) ----
+    const lrInfo = {
+      lr_no: s.lr_no,
+      order_id: s.order_id,
+      client_id: s.client_id,
+      tagged_api: s.tagged_api,
+      aggregator_id: s.aggrigator_id,
+      forwarder_id: s.forwarder_id,
+      status: s.status,
+      eta: s.eta,
+      pickup_zone: s.pickup_zone,
+      destination_zone: s.destination_zone,
+      created_at: s.created_at,
+    };
+
+    const financial = {
+      insurance_type: s.insurance_type,
+      volumetric_weight: s.volumetric_weight,
+      chargeable_weight: s.chargable_weight,
+      base_rate: s.base_rate,
+      total_additional: s.total_additional,
+      total_gst: s.total_gst,
+      total_lr_charges: s.total_lr_charges,
+      billing_status: s.billing_status,
+    };
+
+    const weight = {
+      total_weight: `${s.chargable_weight || 0} kg`,
+      volumetric_weight: `${s.volumetric_weight || 0} kg`,
+    };
+
+    // ---- Create row with ALL flattened fields populated ----
+    const ticket = await Ticket.create(
+      {
+        ticket_id: ticketId,
+        awb_or_lr_no,
+        category,
+        sub_category,
+        description,
+        status: 'Open',
+        additional_fields,
+
+        // flattened shipment columns
+        lr_no: s.lr_no,
+        order_id: s.order_id,
+        client_id: s.client_id,
+        tagged_api: s.tagged_api,
+        aggregator_id: s.aggrigator_id,
+        forwarder_id: s.forwarder_id,
+        shipment_status: s.status,
+        eta: s.eta,
+        pickup_zone: s.pickup_zone,
+        destination_zone: s.destination_zone,
+        shipment_created_at: s.created_at,
+
+        insurance_type: s.insurance_type,
+        volumetric_weight: s.volumetric_weight,
+        chargeable_weight: s.chargable_weight,
+        base_rate: s.base_rate,
+        total_additional: s.total_additional,
+        total_gst: s.total_gst,
+        total_lr_charges: s.total_lr_charges,
+        billing_status: s.billing_status,
+
+        shipment_details_raw: { ...lrInfo, ...financial }, // optional: combine or store separate
+        weight_details_raw: weight,
+
+        // notify (mark sent=false for now; will update after email)
+        notify_enabled: notifyEnabled,
+        notify_email_from: EMAIL_FROM,
+        notify_to: finalTo,
+        notify_cc: finalCc,
+        notify_sent: false,
+        notify_error: null,
+        notification_raw: notifyEnabled
+          ? { from: EMAIL_FROM, to: finalTo, cc: finalCc }
+          : null,
+      },
+      { transaction }
+    );
 
     await transaction.commit();
 
+    // ---- Send email after commit, then update notify_* flags ----
+    let emailResult = { sent: false, error: null };
+    if (notifyEnabled) {
+      try {
+        emailResult = await sendTicketEmail({
+          from: EMAIL_FROM,
+          to: finalTo,
+          cc: finalCc,
+          ticket_id: ticket.ticket_id,
+          issue: { category, sub_category, description, additional_fields },
+          shipment: lrInfo,
+          financial,
+          weight,
+        });
 
-    const response = {
+        // persist email result
+        await Ticket.update(
+          { notify_sent: !!emailResult.sent, notify_error: emailResult.error || null },
+          { where: { ticket_id: ticket.ticket_id } }
+        );
+      } catch (err) {
+        emailResult = { sent: false, error: err.message || String(err) };
+        await Ticket.update(
+          { notify_sent: false, notify_error: emailResult.error },
+          { where: { ticket_id: ticket.ticket_id } }
+        );
+      }
+    }
+
+    // ---- Build API response using the same shapes you showed ----
+    return res.status(201).json({
       success: true,
       ticket_id: ticket.ticket_id,
-      created_at: ticket.createdAt,
+      created_at: ticket.created_at,
       shipment_details: {
-        lr_info: {
-          lr_no: shipmentData.lr_no,
-          order_id: shipmentData.order_id,
-          client_id: shipmentData.client_id,
-          tagged_api: shipmentData.tagged_api,
-          aggregator_id: shipmentData.aggrigator_id,
-          forwarder_id: shipmentData.forwarder_id,
-          status: shipmentData.status, 
-          eta: shipmentData.eta,
-          pickup_zone: shipmentData.pickup_zone,
-          destination_zone: shipmentData.destination_zone,
-          created_at: shipmentData.created_at
-        },
-        financial_details: {
-          insurance_type: shipmentData.insurance_type,
-          volumetric_weight: shipmentData.volumetric_weight,
-          chargeable_weight: shipmentData.chargable_weight,
-          base_rate: shipmentData.base_rate,
-          total_additional: shipmentData.total_additional,
-          total_gst: shipmentData.total_gst,
-          total_lr_charges: shipmentData.total_lr_charges,
-          billing_status: shipmentData.billing_status
-        },
-        weight_details: {
-          total_weight: `${shipmentData.chargable_weight || 0} kg`,
-          volumetric_weight: `${shipmentData.volumetric_weight || 0} kg`
-        }
+        lr_info: lrInfo,
+        financial_details: financial,
+        weight_details: weight,
       },
       issue_details: {
         category,
         sub_category,
         description,
-        additional_fields
-      }
-    };
+        additional_fields,
+      },
+      notification: {
+        enabled: notifyEnabled,
+        email_from: EMAIL_FROM,
+        to: finalTo,
+        cc: finalCc,
+        sent: emailResult.sent,
+        error: emailResult.error,
+      },
+    });
+  } catch (error) {
+    try { await transaction.rollback(); } catch {}
+    return res.status(500).json({
+      error: 'userController--->userController.createTicket',
+      details: error.message,
+    });
+  }
+}
 
-    res.status(201).json(response);
-        
-      } catch (error) {
-        await transaction.rollback();
-        
-          return res.status(500).json({ error: 'userController--->userController.createTicket', details: error.message});
-      }
-    }
+module.exports = { createTicket };
 
 
 
@@ -30249,5 +30481,7 @@ module.exports = {
   apiPackageExpressRateList,
   apiPackageEcomRateList,
   getSupportCategories,
-  createTicket
+  createTicket,
+  getClientLRNumbers,
+  
 }

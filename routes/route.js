@@ -14,11 +14,14 @@ const axios = require('axios')
 // HELPDESK ROUTES
 // ======================
 
-
+route.get('/api/clients/:clientId/lr-nos', userController.getClientLRNumbers);
 route.get('/support/categories', userController.getSupportCategories);
 route.post('/api/support/tickets', userController.createTicket);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
+
+
+
 
 // ======================
 // AUTHENTICATION ROUTES
@@ -539,38 +542,52 @@ route.get('/ecom/create-order', auth, userController.getEcomCreateOrder)
 
 // /api/clients
 route.get('/api/all-clients', auth, async (req, res) => {
-  const { id: currentUserId, level } = req.user;
+  const { id: currentUserId } = req.user;
 
   try {
-    // Only client or allowed user can see sub-clients
     const query = `
       WITH RECURSIVE nested_users AS (
-          -- 1️⃣ Include itself first
-          SELECT id, parent_id, level, TRIM(CONCAT_WS(' ', first_name, NULLIF(last_name, ''))) AS full_name, company_name
-          FROM tbl_admin
-          WHERE id = ?
+        -- 1) seed with the current user
+        SELECT
+          id,
+          parent_id,
+          level,
+          CONCAT_WS(' ', NULLIF(first_name, ''), NULLIF(last_name, '')) AS full_name,
+          company_name,
+          email
+        FROM tbl_admin
+        WHERE id = ?
 
-            UNION ALL
+        UNION ALL
 
-          -- 2️⃣ Include all nested children (level 2 and 3)
-          SELECT a.id, a.parent_id, a.level, CONCAT(a.first_name, ' ', a.last_name) AS full_name, a.company_name
-          FROM tbl_admin a
-          INNER JOIN nested_users nu ON a.parent_id = nu.id
-          WHERE a.level IN (2,3)
+        -- 2) include all descendants (levels 2 & 3)
+        SELECT
+          a.id,
+          a.parent_id,
+          a.level,
+          CONCAT_WS(' ', NULLIF(a.first_name, ''), NULLIF(a.last_name, '')) AS full_name,
+          a.company_name,
+          a.email
+        FROM tbl_admin a
+        INNER JOIN nested_users nu ON a.parent_id = nu.id
+        WHERE a.level IN (2, 3)
       )
-      -- 3️⃣ Final selection
-      SELECT id, parent_id, level, full_name, company_name
-      FROM nested_users;
+      -- 3) final selection (dedup just in case) 
+      SELECT DISTINCT
+        id, parent_id, level, full_name, company_name, email
+      FROM nested_users
+      ORDER BY level, company_name, full_name;
     `;
 
     const clients = await mySqlQury(query, [currentUserId]);
-    console.log("clients data",clients)
+
     res.json({ clients });
   } catch (error) {
-    console.error("Error fetching clients:", error);
-    res.status(500).json({ error: "Failed to fetch clients" });
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
+
  
 // /api/clients/:clientId/users
 route.get('/api/clients/:clientId/users', auth, async (req, res) => {
@@ -2828,6 +2845,18 @@ route.get('/express/shipment-tracking', (req, res) => {
   const role = req.user?.role || req.session?.role || null;
 
   res.render('pages/express/shipment-tracking', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+route.get('/helpdesk', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/helpdesk', {
     bodyClass: 'profile-page',
     activePage: 'profile',
     title: 'Client List',
