@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard • Helpdesk</title>
+
+    <!-- OPTIONAL: If your API needs a Bearer token, expose it here -->
+    <meta name="auth-bearer" content="<%- (typeof authToken !== 'undefined' && authToken) ? authToken : '' %>">
+
+    <!-- jQuery FIRST (single include), then DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables + Bootstrap 5 + Responsive -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+    <style>
+      /* ===== Card & Table Polish ===== */
+      .dsc-card { border:1px solid #e5e7eb; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.04); }
+      .dsc-card-head { padding:16px 18px; border-bottom:1px solid #eef0f3; }
+      .dsc-card-title { margin:0; font-size:1.1rem; font-weight:700; }
+      .dsc-subtle { color:#6b7280; font-size:.9rem; }
+      .dsc-tools .btn { border-radius:10px; }
+
+      .dsc-badge { padding:.35rem .55rem; border-radius:999px; font-size:.72rem; font-weight:700; }
+      .dsc-badge-open { background:#eef6ff; color:#1e64a7; border:1px solid #cfe6ff; }
+      .dsc-badge-closed { background:#ecfdf5; color:#047857; border:1px solid #bbf7d0; }
+      .dsc-badge-unknown { background:#f3f4f6; color:#374151; border:1px solid #e5e7eb; }
+
+      .dsc-chip { display:inline-flex; align-items:center; gap:6px; padding:.25rem .5rem; border-radius:999px; font-size:.72rem; border:1px solid transparent; }
+      .dsc-pri-high { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
+      .dsc-pri-med  { background:#fff7ed; color:#9a3412; border-color:#fed7aa; }
+      .dsc-pri-norm { background:#eef2ff; color:#3730a3; border-color:#c7d2fe; }
+      .dsc-chip-hint { font-size:.7rem; color:#6b7280; margin-left:6px; }
+
+      .dsc-table thead th { font-size:.8rem; letter-spacing:.02em; text-transform:uppercase; color:#6b7280; }
+      td.dsc-ctl { width:40px; text-align:center; }
+
+      .dsc-avatar { width:24px; height:24px; border-radius:50%; background:#e5e7eb; color:#111827; font-size:.75rem; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
+      .dsc-row-toggle { border:none; background:transparent; }
+      .dsc-row-toggle i { transition:transform .2s ease; color:#6b7280; }
+      tr.shown .dsc-row-toggle i { transform:rotate(90deg); color:#4f46e5; }
+
+      .dsc-details { background:#fafafa; border-left:3px solid #4f46e5; border-radius:8px; padding:12px; }
+      .dsc-muted { color:#6b7280; }
+
+      /* Spinner overlay: class toggle */
+      .dsc-spinner {
+        display:none; position:absolute; inset:0; background:rgba(255,255,255,.75);
+        z-index:9; align-items:center; justify-content:center;
+      }
+      .dsc-spinner.is-on { display:flex; }
+
+      .alert-fixed { position:sticky; top:0; z-index:10; border-radius:0; }
+
+      /* ===== Details grid helpers ===== */
+      .dsc-grid { display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:12px; }
+      .col-span-1 { grid-column: span 1 / span 1; }  .col-span-2 { grid-column: span 2 / span 2; }
+      .col-span-3 { grid-column: span 3 / span 3; }  .col-span-4 { grid-column: span 4 / span 4; }
+      .col-span-5 { grid-column: span 5 / span 5; }  .col-span-6 { grid-column: span 6 / span 6; }
+      .col-span-7 { grid-column: span 7 / span 7; }  .col-span-8 { grid-column: span 8 / span 8; }
+      .col-span-9 { grid-column: span 9 / span 9; }  .col-span-10{ grid-column: span 10 / span 10; }
+      .col-span-11{ grid-column: span 11 / span 11; } .col-span-12{ grid-column: span 12 / span 12; }
+      .dsc-kv { padding:8px 10px; background:#fff; border:1px dashed #e5e7eb; border-radius:10px; }
+      .dsc-kv small { display:block; color:#6b7280; margin-bottom:2px; }
+      .dsc-kv span  { font-weight:700; color:#111827; }
+
+      @media (max-width: 768px) { .dsc-grid { grid-template-columns:repeat(6, minmax(0,1fr)); } }
+      @media (max-width: 480px) { .dsc-grid { grid-template-columns:repeat(4, minmax(0,1fr)); } }
+
+      /* ====== GAP + WRAP FIXES ====== */
+      .dsc-grid { grid-auto-flow:dense; align-items:start; }
+      .dsc-kv { display:flex; flex-direction:column; min-width:0; }
+      .dsc-kv span { overflow-wrap:anywhere; word-break:break-word; }
+
+      /* Map Bootstrap-like col-md-* to grid spans on desktop */
+      @media (min-width: 768px) {
+        .col-md-2 { grid-column: span 2 / span 2; }
+        .col-md-3 { grid-column: span 3 / span 3; }
+        .col-md-4 { grid-column: span 4 / span 4; }
+        .col-md-5 { grid-column: span 5 / span 5; }
+        .col-md-6 { grid-column: span 6 / span 6; }
+        .col-md-8 { grid-column: span 8 / span 8; }
+      }
+
+      /* Trim extra padding that DataTables adds to its child row */
+      table.dataTable tbody tr.child td.child { padding: .5rem .75rem !important; }
+    </style>
+  </head>
+
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+      <%- include('../partials/header') %>
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Helpdesk</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>
+                  <li class="breadcrumb-item">Vas Setting</li>
+                  <li class="breadcrumb-item active">Helpdesk</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error banner -->
+          <div id="errorBanner" class="alert alert-danger alert-fixed d-none" role="alert">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <strong>Failed to load helpdesk tickets.</strong>
+                <div id="errorDetails" class="small mt-1"></div>
+              </div>
+              <button class="btn btn-sm btn-light" onclick="document.getElementById('errorBanner').classList.add('d-none')">Dismiss</button>
+            </div>
+          </div>
+
+          <!-- Table Card -->
+          <div class="card dsc-card position-relative">
+            <div class="dsc-spinner" id="spinner">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+
+            <div class="dsc-card-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div>
+                <h3 class="dsc-card-title">Helpdesk Tickets</h3>
+                <div class="dsc-subtle">Overview of latest tickets, status & shipment context</div>
+              </div>
+              <div class="dsc-tools d-flex align-items-center gap-2">
+                <select id="statusFilter" class="form-select form-select-sm" style="min-width:140px">
+                  <option value="">All Status</option>
+                  <option value="Open">Open</option>
+                  <option value="Closed">Closed</option>
+                </select>
+                <button id="btnExport" class="btn btn-outline-secondary btn-sm">
+                  <i class="fa-solid fa-file-export me-1"></i> Export CSV
+                </button>
+                <button id="btnRefresh" class="btn btn-primary btn-sm">
+                  <i class="fa-solid fa-rotate me-1"></i> Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="p-3">
+              <div class="table-responsive">
+                <table id="ticketsTable" class="table table-hover align-middle table-striped dsc-table" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Ticket ID</th>
+                      <th>AWB / LR</th>
+                      <th>Category / Subcategory</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Shipment St.</th>
+                      <th>Created At</th>
+                      <th>Updated At</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div id="emptyState" class="text-center d-none py-4 dsc-muted">
+                <i class="fa-regular fa-circle-question fa-2x mb-2"></i>
+                <div>No tickets found.</div>
+              </div>
+            </div>
+          </div>
+          <!-- /Table Card -->
+        </div>
+      </div>
+
+      <!-- DataTables scripts AFTER jQuery -->
+      <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+      <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+      <script>
+        /* =========================
+           CONFIG & GLOBAL STATE
+        ========================== */
+        const API_URL = 'http://localhost:5000/api/support/overview?limit=50&offset=0&admin_limit=20';
+        const TZ = 'Asia/Kolkata';
+        const AUTH_TOKEN = document.querySelector('meta[name="auth-bearer"]')?.content?.trim() || '';
+
+        // Build per-client admin endpoint
+        const ADMIN_API = (clientId) => `http://localhost:5000/api/clients/${clientId}/admins?is_active=1&limit=20`;
+
+        let dt;
+        const ticketById = new Map();   // ticket_id -> full row
+        let ADM = {};                   // client_id -> admin object (cache)
+
+        const spinner = (on) => $('#spinner').toggleClass('is-on', !!on);
+
+        /* =========================
+           PRIORITY & TIME HELPERS
+        ========================== */
+        const PRIORITY_CFG = {
+          useAgeEscalation: true,
+          highAfterHours: 48,
+          mediumAfterHours: 24
+        };
+
+        function getAgeHours(iso) {
+          if (!iso) return null;
+          const t = Date.parse(iso);
+          if (Number.isNaN(t)) return null;
+          return (Date.now() - t) / 36e5; // ms -> hours
+        }
+
+        function timeAgo(iso) {
+          const h = getAgeHours(iso);
+          if (h == null) return '';
+          if (h < 1) return `${Math.max(1, Math.round(h*60))}m`;
+          if (h < 24) return `${Math.floor(h)}h`;
+          const d = Math.floor(h/24);
+          const rh = Math.floor(h - d*24);
+          return rh ? `${d}d ${rh}h` : `${d}d`;
+        }
+
+        /**
+         * Compute ticket priority with clear reasons.
+         * Order: High(3) > Medium(2) > Normal(1)
+         */
+        function computePriority(row) {
+          if (row.notify_error) {
+            return { label:'High', cls:'dsc-pri-high', order:3, reason:'notify_error', ageH:getAgeHours(row.created_at) };
+          }
+          if (row.notify_enabled && (row.shipment_status == null)) {
+            return { label:'High', cls:'dsc-pri-high', order:3, reason:'notify_on_but_no_shipment', ageH:getAgeHours(row.created_at) };
+          }
+
+          const ageH = getAgeHours(row.created_at);
+          if (PRIORITY_CFG.useAgeEscalation && ageH != null) {
+            if (ageH >= PRIORITY_CFG.highAfterHours) {
+              return { label:'High', cls:'dsc-pri-high', order:3, reason:`age>=${PRIORITY_CFG.highAfterHours}h`, ageH };
+            }
+            if (ageH >= PRIORITY_CFG.mediumAfterHours) {
+              return { label:'Medium', cls:'dsc-pri-med', order:2, reason:`age>=${PRIORITY_CFG.mediumAfterHours}h`, ageH };
+            }
+          }
+
+          if (Number(row.shipment_status) >= 5) {
+            return { label:'Medium', cls:'dsc-pri-med', order:2, reason:'shipment_status>=5', ageH };
+          }
+
+          return { label:'Normal', cls:'dsc-pri-norm', order:1, reason:'default', ageH };
+        }
+
+        /* =========================
+           MISC UTILS
+        ========================== */
+        function fmtDate(s) {
+          if (!s) return '—';
+          try {
+            const d = new Date(s);
+            return d.toLocaleString('en-IN', {
+              timeZone: TZ, year:'numeric', month:'short', day:'2-digit',
+              hour:'2-digit', minute:'2-digit'
+            }).replace(',', '');
+          } catch { return s; }
+        }
+
+        function safeParse(json) { if (!json) return null; try { return JSON.parse(json); } catch { return null; } }
+
+        function statusBadge(status) {
+          if (!status) return `<span class="dsc-badge dsc-badge-unknown">—</span>`;
+          const s = String(status).toLowerCase();
+          if (s === 'open')   return `<span class="dsc-badge dsc-badge-open">Open</span>`;
+          if (s === 'closed') return `<span class="dsc-badge dsc-badge-closed">Closed</span>`;
+          return `<span class="dsc-badge dsc-badge-unknown">${status}</span>`;
+        }
+
+        function shipStatusBadge(v) {
+          return (v==null) ? `<span class="dsc-badge dsc-badge-unknown">—</span>` : `<span class="dsc-badge dsc-badge-unknown">#${v}</span>`;
+        }
+
+        function initials(name){ return (name||'?').trim().split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
+
+        // Chip now shows Name • Company, Email, Phone
+        function buildAdminChip(admin) {
+          if (!admin) return '<span class="dsc-muted">—</span>';
+          const init = initials(admin.full_name || admin.first_name || admin.email);
+          const name = admin.full_name || admin.first_name || 'Admin';
+          const company = admin.company_name || admin.organization || admin.client_name || '';
+          const email = admin.email || '';
+          const phone = admin.phone_no ? ((admin.country_code ? `+${admin.country_code} ` : '') + admin.phone_no) : '';
+
+          return `<span class="d-inline-flex align-items-center gap-2">
+              <span class="dsc-avatar">${init}</span>
+              <span>
+                <strong>${name}</strong>${company ? ` <span class="dsc-muted">• ${company}</span>` : ''}
+                ${email ? `<div class="dsc-muted" style="font-size:.72rem">${email}</div>` : ''}
+                ${phone ? `<div class="dsc-muted" style="font-size:.72rem">${phone}</div>` : ''}
+              </span>
+            </span>`;
+        }
+
+        function makeCopyBtn(text, title='Copy') {
+          const safe = (text ?? '').toString();
+          return `<button type="button" class="btn btn-sm btn-light border" data-copy="${encodeURIComponent(safe)}" title="${title}">
+            <i class="fa-regular fa-copy"></i>
+          </button>`;
+        }
+
+        // Lazy-fetch admin info (with phone) per client and cache it
+        async function fetchClientAdmin(clientId) {
+          try {
+            if (!clientId) return null;
+            // If cached and already has phone/email, reuse
+            const cached = ADM[clientId];
+            if (cached && (cached.phone_no || cached.email)) return cached;
+
+            const headers = { 'Accept':'application/json', 'X-Requested-With':'XMLHttpRequest' };
+            if (AUTH_TOKEN) headers['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+
+            const res = await fetch(ADMIN_API(clientId), { method:'GET', headers, credentials:'include' });
+            if (!res.ok) return cached || null;
+            const json = await res.json();
+            const admin = (json && json.data && json.data[0]) ? json.data[0] : null;
+            if (admin) ADM[clientId] = admin;
+            return admin;
+          } catch (e) {
+            return ADM[clientId] || null;
+          }
+        }
+
+        function formatDetails(row, admin) {
+          const add = safeParse(row.additional_fields) || {};
+          const wt  = safeParse(row.weight_details_raw) || {};
+          const to  = safeParse(row.notify_to) || [];
+          const cc  = safeParse(row.notify_cc) || [];
+
+          // data-admin-chip allows us to update the chip after async fetch
+          return `
+            <div class="dsc-details">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="fw-bold">Details</div>
+                <div class="d-flex gap-2">
+                  ${makeCopyBtn(row.ticket_id,'Copy Ticket ID')}
+                </div>
+              </div>
+              <div class="dsc-grid">
+                <div class="dsc-kv col-span-12 col-md-10">
+                  <small>Client Admin</small>
+                  <span data-admin-chip="${row.ticket_id}">${buildAdminChip(admin)}</span>
+                </div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Tagged API</small><span>${row.tagged_api || '—'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Forwarder ID</small><span>${row.forwarder_id ?? '—'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Pickup Zone</small><span>${row.pickup_zone || '—'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Destination Zone</small><span>${row.destination_zone || '—'}</span></div>
+                <div class="dsc-kv col-span-12 col-md-4"><small>Shipment Created</small><span>${fmtDate(row.shipment_created_at)}</span></div>
+
+                <div class="dsc-kv col-span-6 col-md-4"><small>Volumetric Wt</small><span>${wt.volumetric_weight || row.volumetric_weight || '—'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Chargeable Wt</small><span>${wt.total_weight || row.chargeable_weight || '—'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Base Rate</small><span>₹ ${row.base_rate || '0.00'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Addl. Charges</small><span>₹ ${row.total_additional || '0.00'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>GST</small><span>₹ ${row.total_gst || '0.00'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-4"><small>Total LR Charges</small><span>₹ ${row.total_lr_charges || '0.00'}</span></div>
+
+                <div class="dsc-kv col-span-12 col-md-8"><small>Waybill / AWB List</small><span>${Array.isArray(add.list_awb)? add.list_awb.join(', ') : (add.waybill_number || '—')}</span></div>
+
+                <div class="dsc-kv col-span-6 col-md-4"><small>Notify Enabled</small><span>${row.notify_enabled ? 'Yes' : 'No'}</span></div>
+                <div class="dsc-kv col-span-6 col-md-5"><small>Notify From</small><span>${row.notify_email_from || '—'}</span></div>
+                <div class="dsc-kv col-span-12 col-md-6"><small>Notify To</small><span>${to.join(', ') || '—'}</span></div>
+              </div>`;
+        }
+
+        function toRow(row) {
+          const pri = computePriority(row);
+          const cat = row.category || '—';
+          const sub = row.sub_category || '—';
+          const ageTxt = timeAgo(row.created_at);
+          const reasonText = {
+            notify_error: 'Notification error',
+            notify_on_but_no_shipment: 'Notify ON but shipment missing',
+            default: 'Default',
+          }[pri.reason] || pri.reason;
+
+          return [
+            `<button class="dsc-row-toggle" title="Details"><i class="fa-solid fa-chevron-right"></i></button>`,
+            `<div class="fw-bold">${row.ticket_id}</div>`,
+            `<code>${row.awb_or_lr_no || row.lr_no || '—'}</code>`,
+            `<div><div>${cat}</div><div class="dsc-muted" style="font-size:.75rem">${sub}</div></div>`,
+            `<span title="${reasonText}" class="d-inline-flex align-items-center">
+               <span class="dsc-chip ${pri.cls}"><i class="fa-solid fa-bolt-lightning"></i> ${pri.label}</span>
+               ${ageTxt ? `<span class="dsc-chip-hint">• ${ageTxt} old</span>` : ''}
+             </span>`,
+            statusBadge(row.status),
+            shipStatusBadge(row.shipment_status),
+            `<span data-order="${row.created_at || ''}">${fmtDate(row.created_at)}</span>`,
+            `<span data-order="${row.updated_at || ''}">${fmtDate(row.updated_at)}</span>`,
+            { _id: row.ticket_id }
+          ];
+        }
+
+        /* =========================
+           DATA LOAD
+        ========================== */
+        async function loadData() {
+          $('#errorBanner').addClass('d-none');
+          $('#errorDetails').empty();
+          spinner(true);
+
+          try {
+            const headers = { 'Accept':'application/json', 'X-Requested-With':'XMLHttpRequest' };
+            if (AUTH_TOKEN) headers['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+
+            const res = await fetch(API_URL, { method:'GET', headers, credentials:'include' });
+            const text = await res.text();
+
+            if (!res.ok) { showError(`HTTP ${res.status} ${res.statusText}`, text); return; }
+
+            let json;
+            try { json = JSON.parse(text); }
+            catch { showError('Parse error', 'Response was not valid JSON.'); return; }
+
+            // Seed admins cache if present (may not include phone)
+            let adminsByClient = {};
+            if (json.admins_by_client) {
+              for (const cid in json.admins_by_client) {
+                const bundle = json.admins_by_client[cid];
+                adminsByClient[cid] = (bundle && bundle.data && bundle.data[0]) ? bundle.data[0] : null;
+              }
+            }
+            ADM = adminsByClient;
+
+            // Store rows
+            const apiRows = json.tickets?.data || [];
+            ticketById.clear();
+            apiRows.forEach(r => ticketById.set(r.ticket_id, r));
+
+            // Table rows
+            const rows = apiRows.map(r => toRow(r));
+            const $table = $('#ticketsTable');
+
+            if (dt) {
+              dt.clear().rows.add(rows).draw();
+            } else {
+              dt = $table.DataTable({
+                data: rows,
+                columns: [
+                  { title:'', className:'dsc-ctl', orderable:false },
+                  { title:'Ticket ID' },
+                  { title:'AWB / LR' },
+                  { title:'Category / Subcategory' },
+                  { title:'Priority' },
+                  { title:'Status' },
+                  { title:'Shipment St.' },
+                  { title:'Created At' },
+                  { title:'Updated At' },
+                  { visible:false }
+                ],
+                order: [[7, 'desc']],
+                pageLength: 10,
+                responsive: true,
+                language: {
+                  search: "Search:",
+                  lengthMenu: "Show _MENU_",
+                  info: "Showing _START_ to _END_ of _TOTAL_"
+                }
+              });
+
+              // Toggle details
+              $table.on('click', 'button.dsc-row-toggle', async function() {
+                const tr  = $(this).closest('tr');
+                const row = dt.row(tr);
+
+                if (row.child.isShown()) { row.child.hide(); tr.removeClass('shown'); return; }
+
+                const data = row.data();
+                const payload = data[9] || {};
+                const ticketIdFromPayload = payload._id;
+                const ticketIdFromText = $(data[1]).text().trim();
+                const ticketId = ticketIdFromPayload || ticketIdFromText;
+
+                const full = ticketById.get(ticketId) || {};
+                const clientId = full.client_id;
+                let admin = ADM[clientId] || null;
+
+                // Render immediately with whatever we have
+                row.child(formatDetails(full, admin)).show();
+                tr.addClass('shown');
+
+                const child = row.child();
+
+                // Now ensure we have phone/email by fetching the client admins API
+                const freshAdmin = await fetchClientAdmin(clientId);
+                if (freshAdmin) {
+                  // Update chip only (no full re-render)
+                  child.find(`[data-admin-chip="${ticketId}"]`).html(buildAdminChip(freshAdmin));
+                }
+
+                // Copy buttons etc.
+                child.find('[data-copy]').on('click', function() {
+                  const text = decodeURIComponent($(this).data('copy'));
+                  navigator.clipboard.writeText(text).then(()=>{
+                    $(this).html('<i class="fa-solid fa-check"></i>');
+                    setTimeout(()=>$(this).html('<i class="fa-regular fa-copy"></i>'), 800);
+                  });
+                });
+              });
+
+              // Status filter
+              $('#statusFilter').on('change', function() {
+                const v = this.value || '';
+                dt.column(5).search(v, true, false).draw();
+              });
+            }
+
+            // Empty state
+            if (!rows.length) { $('#emptyState').removeClass('d-none'); }
+            else { $('#emptyState').addClass('d-none'); }
+
+          } catch (err) {
+            showError('Network/Code error', err?.message || String(err));
+          } finally {
+            spinner(false);
+          }
+        }
+
+        function showError(title, detail) {
+          $('#errorDetails').html(`<div><code>${title}</code></div><div class="mt-1 small">${(detail || '').slice(0, 600)}</div>`);
+          $('#errorBanner').removeClass('d-none');
+          spinner(false);
+        }
+
+        /* =========================
+           CSV EXPORT
+        ========================== */
+        function exportCSV() {
+          if (!dt) return;
+          const headers = ['Ticket ID','AWB/LR','Category','Subcategory','Priority','Status','Shipment Status','Created At','Updated At'];
+          const rows = dt.rows({ search:'applied' }).data().toArray().map(r => {
+            const div = document.createElement('div');
+            div.innerHTML = r[3];
+            const parts = Array.from(div.querySelectorAll('div')).map(x=>x.textContent.trim());
+            const category = parts[0] || '';
+            const sub = (parts[1] || '').replace(/^—\s*/, '');
+
+            return [
+              $(r[1]).text().trim(),
+              $(r[2]).text().trim(),
+              category,
+              sub,
+              $(r[4]).text().trim(),
+              $(r[5]).text().trim(),
+              $(r[6]).text().trim(),
+              $(r[7]).text().trim(),
+              $(r[8]).text().trim(),
+            ];
+          });
+
+          let csv = headers.join(',') + '\n';
+          rows.forEach(arr => { csv += arr.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',') + '\n'; });
+
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `helpdesk_tickets_${Date.now()}.csv`;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        /* =========================
+           INIT
+        ========================== */
+        $(function(){
+          loadData();
+          $('#btnRefresh').on('click', loadData);
+          $('#btnExport').on('click', exportCSV);
+        });
+      </script>
+
+      <!-- IMPORTANT: ensure your footer partial does NOT re-include jQuery again. -->
+      <%- include('../partials/footer') %>
+    </div>
+  </body>
+</html>

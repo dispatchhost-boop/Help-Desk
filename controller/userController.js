@@ -384,7 +384,7 @@ async function sendTicketEmail({ to, cc, ticket, shipment, issue }) {
       <p><b>Description:</b><br/>${(issue.description || '').replace(/\n/g, '<br/>')}</p>
       <hr/>
       <p><b>Client ID:</b> ${shipment?.client_id ?? '-'} &nbsp; | &nbsp;
-         <b>Tagged API:</b> ${shipment?.tagged_api ?? '-'}</p>
+         <b>Courrier:</b> ${shipment?.tagged_api ?? '-'}</p>
       <p><b>Pickup Zone:</b> ${shipment?.pickup_zone ?? '-'} &nbsp; | &nbsp;
          <b>Destination Zone:</b> ${shipment?.destination_zone ?? '-'}</p>
     </div>
@@ -413,9 +413,21 @@ async function createTicket(req, res) {
       category,
       sub_category,
       description,
-      additional_fields,
+      additional_fields = {},
       notify = {},
     } = req.body;
+
+    // ---------- helpers ----------
+    const firstNonEmpty = (...vals) =>
+      vals.find(v => typeof v === 'string' && v.trim().length > 0) || null;
+
+    // Resolve a single LR with robust fallbacks
+    const resolvedLrFromBody = firstNonEmpty(
+      awb_or_lr_no,
+      additional_fields.lr_no,
+      additional_fields.waybill_number,
+      Array.isArray(additional_fields.list_awb) ? additional_fields.list_awb[0] : null
+    );
 
     // ---- Resolve notify ----
     const notifyEnabled = Boolean(notify.enabled);
@@ -432,20 +444,21 @@ async function createTicket(req, res) {
     // ---- Generate ticket id ----
     const ticketId = `TKT-${new Date().toISOString().split('T')[0]}-${Math.floor(10000 + Math.random() * 90000)}`;
 
-    // ---- Find shipment ----
+    // ---- Find shipment (try with the most reliable LR we have) ----
+    const lrForQuery = resolvedLrFromBody || awb_or_lr_no || '';
     const [ecomLr, expLr, createLr] = await Promise.all([
       sequelize.query(`SELECT * FROM tbl_ecom_lr WHERE lr_no = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
+        replacements: { lrNo: lrForQuery },
         type: sequelize.QueryTypes.SELECT,
         transaction,
       }),
       sequelize.query(`SELECT * FROM tbl_exp_lr WHERE lr_no = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
+        replacements: { lrNo: lrForQuery },
         type: sequelize.QueryTypes.SELECT,
         transaction,
       }),
-      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, {
-        replacements: { lrNo: awb_or_lr_no },
+      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, { // note: column name in your DB is 'lr_No'
+        replacements: { lrNo: lrForQuery },
         type: sequelize.QueryTypes.SELECT,
         transaction,
       }),
@@ -458,9 +471,12 @@ async function createTicket(req, res) {
       return res.status(404).json({ success: false, error: 'Shipment not found' });
     }
 
-    // ---- Build response-friendly JSON blobs (also stored in *_raw) ----
+    // Single source of truth for LR going forward
+    const finalLrNo = firstNonEmpty(s.lr_no, resolvedLrFromBody);
+
+    // ---- Build response-friendly JSON blobs ----
     const lrInfo = {
-      lr_no: s.lr_no,
+      lr_no: finalLrNo, // ensure populated even if DB row had null
       order_id: s.order_id,
       client_id: s.client_id,
       tagged_api: s.tagged_api,
@@ -493,15 +509,19 @@ async function createTicket(req, res) {
     const ticket = await Ticket.create(
       {
         ticket_id: ticketId,
-        awb_or_lr_no,
+        awb_or_lr_no: finalLrNo, // <-- store resolved LR
         category,
         sub_category,
         description,
         status: 'Open',
-        additional_fields,
+        additional_fields: {
+          ...additional_fields,
+          lr_no: finalLrNo, // ensure saved in JSON too
+          waybill_number: additional_fields.waybill_number || finalLrNo,
+        },
 
         // flattened shipment columns
-        lr_no: s.lr_no,
+        lr_no: finalLrNo,
         order_id: s.order_id,
         client_id: s.client_id,
         tagged_api: s.tagged_api,
@@ -522,10 +542,10 @@ async function createTicket(req, res) {
         total_lr_charges: s.total_lr_charges,
         billing_status: s.billing_status,
 
-        shipment_details_raw: { ...lrInfo, ...financial }, // optional: combine or store separate
+        shipment_details_raw: { ...lrInfo, ...financial },
         weight_details_raw: weight,
 
-        // notify (mark sent=false for now; will update after email)
+        // notify
         notify_enabled: notifyEnabled,
         notify_email_from: EMAIL_FROM,
         notify_to: finalTo,
@@ -545,20 +565,24 @@ async function createTicket(req, res) {
     let emailResult = { sent: false, error: null };
     if (notifyEnabled) {
       try {
- emailResult = await sendTicketEmail({
-   from: EMAIL_FROM,
-  to: finalTo,
-   cc: finalCc,
-  ticket: { ticket_id: ticket.ticket_id },   // <-- add THIS
-  issue: { category, sub_category, description, additional_fields },
-  shipment: lrInfo,
-  financial,
-  weight,
-  // (optional) keep ctx too if your template uses it, but the critical part is `ticket`
-});
+        emailResult = await sendTicketEmail({
+          from: EMAIL_FROM,
+          to: finalTo,
+          cc: finalCc,
 
+          // IMPORTANT: include awb_or_lr_no here for templates that read ticket.awb_or_lr_no
+          ticket: { ticket_id: ticket.ticket_id, awb_or_lr_no: finalLrNo },
 
-        // persist email result
+          // Some templates read issue.additional_fields.*, so keep it intact with lr_no filled
+          issue: { category, sub_category, description, additional_fields: { ...additional_fields, lr_no: finalLrNo, waybill_number: additional_fields.waybill_number || finalLrNo } },
+
+          // Some templates read shipment.lr_no (flat); keep it here too
+          shipment: { ...lrInfo, lr_no: finalLrNo },
+
+          financial,
+          weight,
+        });
+
         await Ticket.update(
           { notify_sent: !!emailResult.sent, notify_error: emailResult.error || null },
           { where: { ticket_id: ticket.ticket_id } }
@@ -572,7 +596,7 @@ async function createTicket(req, res) {
       }
     }
 
-    // ---- Build API response using the same shapes you showed ----
+    // ---- API response ----
     return res.status(201).json({
       success: true,
       ticket_id: ticket.ticket_id,
@@ -586,7 +610,7 @@ async function createTicket(req, res) {
         category,
         sub_category,
         description,
-        additional_fields,
+        additional_fields: { ...additional_fields, lr_no: finalLrNo, waybill_number: additional_fields.waybill_number || finalLrNo },
       },
       notification: {
         enabled: notifyEnabled,
@@ -605,6 +629,7 @@ async function createTicket(req, res) {
     });
   }
 }
+
 
 module.exports = { createTicket };
 
