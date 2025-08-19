@@ -262,7 +262,7 @@ const syncShopifyOrders = async () => {
 
       const locations = locationResponse.data.locations || [];
       const orders = orderResponse.data.orders || [];
-      console.log("orders data whole",orders)
+      // console.log("orders data whole",orders)
 
       for (const order of orders) {
         const order_id =order.order_number;

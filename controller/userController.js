@@ -1,7 +1,8 @@
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket } = require('../models/index.js');
 
 const { mySqlQury } = require('../middleware/db');
 const jwt = require('jsonwebtoken');
+const { Op, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const access = require('../middleware/access');
 const axios = require('axios');
@@ -60,7 +61,219 @@ const { DataTypes } = require('sequelize');
 
 
 
+
+
+
+
+
+// GET /api/support/overview
+// Pull tickets (with optional filters), extract client_ids, then call /api/clients/:clientId/admins for each
 // controller/userController.js
+
+async function getSupportTicketsWithAdmins(req, res) {
+  try {
+    // ---- Ticket query params ----
+    const limit  = parseInt(req.query.limit, 10)  || 50;   // tickets page size
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const q = (req.query.q || '').trim();
+    const status = (req.query.status || '').trim();
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
+    const endDate   = req.query.endDate   ? new Date(req.query.endDate)   : null;
+
+    // ---- Admin sub-call params ----
+    const adminLimit = parseInt(req.query.admin_limit, 10) || 20; // per-client admins page size
+    const adminsEndpointBase =
+      process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+    // ---- Build ticket WHERE ----
+    const ticketWhere = {};
+    if (q) {
+      ticketWhere[Op.or] = [
+        { ticket_id:        { [Op.like]: `%${q}%` } },
+        { lr_no:            { [Op.like]: `%${q}%` } },
+        { awb_or_lr_no:     { [Op.like]: `%${q}%` } },
+        { category:         { [Op.like]: `%${q}%` } },
+        { sub_category:     { [Op.like]: `%${q}%` } },
+        { description:      { [Op.like]: `%${q}%` } },
+        { shipment_status:  { [Op.like]: `%${q}%` } },
+        { pickup_zone:      { [Op.like]: `%${q}%` } },
+        { destination_zone: { [Op.like]: `%${q}%` } },
+      ];
+    }
+    if (status) ticketWhere.status = status;
+    if (startDate || endDate) {
+      ticketWhere.created_at = {};
+      if (startDate) ticketWhere.created_at[Op.gte] = startDate;
+      if (endDate)   ticketWhere.created_at[Op.lte] = endDate;
+    }
+
+    // ---- Fetch tickets (paged) ----
+    const tickets = await SupportTicket.findAndCountAll({
+      where: ticketWhere,
+      order: [['created_at', 'DESC']],
+      limit,
+      offset
+    });
+
+    // ---- Distinct client_ids across ALL matching tickets (not limited by pagination) ----
+    const allClientIdsResult = await SupportTicket.findAll({
+      attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('client_id')), 'client_id']],
+      where: ticketWhere,
+      raw: true
+    });
+    const distinctClientIds = allClientIdsResult
+      .map(r => r.client_id)
+      .filter(v => v !== null && v !== undefined && String(v).trim() !== '' && Number(v) !== 0)
+      .map(v => String(v).trim());
+
+    // If no clients found, respond with tickets only
+    if (!distinctClientIds.length) {
+      return res.json({
+        ok: true,
+        client_ids: [],
+        tickets: {
+          total: tickets.count,
+          returned: tickets.rows.length,
+          limit,
+          offset,
+          data: tickets.rows,
+        },
+        admins_by_client: {},
+      });
+    }
+
+    // ---- Call existing admins API for each client_id ----
+    const authHeader = req.headers.authorization || '';
+    const adminCalls = distinctClientIds.map(clientId =>
+      axios.get(
+        `${adminsEndpointBase}/api/clients/${encodeURIComponent(clientId)}/admins`,
+        {
+          params: { is_active: 1, limit: adminLimit },
+          headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        }
+      )
+      .then(r => ({ client_id: clientId, payload: r.data }))
+      .catch(err => ({
+        client_id: clientId,
+        error: true,
+        message: err?.response?.data?.message || err.message || 'admins call failed'
+      }))
+    );
+
+    const adminsResults = await Promise.all(adminCalls);
+
+    const adminsByClient = {};
+    adminsResults.forEach(r => {
+      adminsByClient[r.client_id] = r.error ? { ok: false, error: r.message } : r.payload;
+    });
+
+    return res.json({
+      ok: true,
+      client_ids: distinctClientIds,
+      tickets: {
+        total: tickets.count,
+        returned: tickets.rows.length,
+        limit,
+        offset,
+        data: tickets.rows,
+      },
+      admins_by_client: adminsByClient
+    });
+  } catch (err) {
+    console.error('getSupportTicketsWithAdmins error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function getAdminsByClientId(req, res) {
+  try {
+    const clientIdNum = parseInt(req.params.clientId, 10);
+    if (Number.isNaN(clientIdNum)) {
+      return res.status(400).json({ ok: false, message: 'Invalid clientId' });
+    }
+    const clientIdStr = String(clientIdNum);
+
+    const limit  = parseInt(req.query.limit, 10)  || 50;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const q = (req.query.q || '').trim();
+
+    // normalize is_active filter if provided
+    let isActiveFilter;
+    if (typeof req.query.is_active !== 'undefined') {
+      const v = String(req.query.is_active).toLowerCase();
+      isActiveFilter = (v === '1' || v === 'true') ? 1 : 0;
+    }
+
+    // ---- KEY CHANGE: expand where to cover id/client_id/parent_id, number OR string ----
+    const where = {
+      [Op.or]: [
+        { client_id: clientIdNum },
+        { client_id: clientIdStr },
+        { id: clientIdNum },
+        { parent_id: clientIdNum },
+      ],
+    };
+
+    if (typeof isActiveFilter !== 'undefined') where.is_active = isActiveFilter;
+
+    if (q) {
+      where[Op.and] = (where[Op.and] || []).concat({
+        [Op.or]: [
+          { first_name:   { [Op.like]: `%${q}%` } },
+          { last_name:    { [Op.like]: `%${q}%` } },
+          { email:        { [Op.like]: `%${q}%` } },
+          { company_name: { [Op.like]: `%${q}%` } },
+        ]
+      });
+    }
+
+    const { rows, count } = await Admin.findAndCountAll({
+      attributes: { exclude: ['password', 'verify_token'] },
+      where,
+      order: [['id', 'DESC']],
+      limit,
+      offset,
+    });
+
+    const data = rows.map(r => ({
+      ...r.toJSON(),
+      full_name: `${r.first_name || ''} ${r.last_name || ''}`.trim(),
+    }));
+
+    return res.json({
+      ok: true,
+      client_id: clientIdNum,
+      counts: { total: count, returned: data.length },
+      data,
+      pagination: { limit, offset, returned: data.length }
+    });
+  } catch (err) {
+    console.error('getAdminsByClientId error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+module.exports = { getAdminsByClientId };
+
+
 
 
 async function getClientLRNumbers(req, res) {
@@ -332,16 +545,18 @@ async function createTicket(req, res) {
     let emailResult = { sent: false, error: null };
     if (notifyEnabled) {
       try {
-        emailResult = await sendTicketEmail({
-          from: EMAIL_FROM,
-          to: finalTo,
-          cc: finalCc,
-          ticket_id: ticket.ticket_id,
-          issue: { category, sub_category, description, additional_fields },
-          shipment: lrInfo,
-          financial,
-          weight,
-        });
+ emailResult = await sendTicketEmail({
+   from: EMAIL_FROM,
+  to: finalTo,
+   cc: finalCc,
+  ticket: { ticket_id: ticket.ticket_id },   // <-- add THIS
+  issue: { category, sub_category, description, additional_fields },
+  shipment: lrInfo,
+  financial,
+  weight,
+  // (optional) keep ctx too if your template uses it, but the critical part is `ticket`
+});
+
 
         // persist email result
         await Ticket.update(
@@ -30483,5 +30698,6 @@ module.exports = {
   getSupportCategories,
   createTicket,
   getClientLRNumbers,
-  
+  getAdminsByClientId,
+  getSupportTicketsWithAdmins
 }

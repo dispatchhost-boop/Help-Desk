@@ -8,17 +8,24 @@ const userController = require('../controller/userController');
 const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require('../middleware/multer');
 route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
 require('../crone/crone.js')
-const axios = require('axios')
+const axios = require('axios');
+const { log } = require('console');
 
 // ======================
 // HELPDESK ROUTES
 // ======================
+
+// List admins for a given client_id
+route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
+route.get('/api/clients/:clientId/admins', userController.getAdminsByClientId);
 
 route.get('/api/clients/:clientId/lr-nos', userController.getClientLRNumbers);
 route.get('/support/categories', userController.getSupportCategories);
 route.post('/api/support/tickets', userController.createTicket);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
+route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
+
 
 
 
@@ -554,7 +561,9 @@ route.get('/api/all-clients', auth, async (req, res) => {
           level,
           CONCAT_WS(' ', NULLIF(first_name, ''), NULLIF(last_name, '')) AS full_name,
           company_name,
-          email
+          email,
+          country_code,
+          phone_no
         FROM tbl_admin
         WHERE id = ?
 
@@ -567,14 +576,23 @@ route.get('/api/all-clients', auth, async (req, res) => {
           a.level,
           CONCAT_WS(' ', NULLIF(a.first_name, ''), NULLIF(a.last_name, '')) AS full_name,
           a.company_name,
-          a.email
+          a.email,
+          a.country_code,
+          a.phone_no
         FROM tbl_admin a
         INNER JOIN nested_users nu ON a.parent_id = nu.id
         WHERE a.level IN (2, 3)
       )
       -- 3) final selection (dedup just in case) 
       SELECT DISTINCT
-        id, parent_id, level, full_name, company_name, email
+        id,
+        parent_id,
+        level,
+        full_name,
+        company_name,
+        email,
+        country_code,
+        phone_no
       FROM nested_users
       ORDER BY level, company_name, full_name;
     `;
@@ -587,6 +605,7 @@ route.get('/api/all-clients', auth, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
+
 
  
 // /api/clients/:clientId/users
