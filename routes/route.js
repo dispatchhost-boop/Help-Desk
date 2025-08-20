@@ -2883,6 +2883,18 @@ route.get('/helpdesk', (req, res) => {
   });
 });
 
+route.get('/view-support-tickets', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/view-support-tickets', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
 
 route.use('/', express.static(path.join(__dirname, './')))
 

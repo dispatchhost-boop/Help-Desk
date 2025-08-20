@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
+    
     <style>
       /* ===== Card & Table Polish ===== */
       .dsc-card { border:1px solid #e5e7eb; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.04); }
@@ -178,6 +178,7 @@
           <!-- /Table Card -->
         </div>
       </div>
+
 
       <!-- DataTables scripts AFTER jQuery -->
       <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
@@ -578,6 +579,9 @@
           loadData();
           $('#btnRefresh').on('click', loadData);
           $('#btnExport').on('click', exportCSV);
+          
+          // Initialize chat functionality
+          initializeChat();
         });
       </script>
 

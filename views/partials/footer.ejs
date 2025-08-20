@@ -51,14 +51,16 @@
 
       <div class="modal-body">
         <!-- Top actions -->
-        <div class="hc-actions mb-3">
-          <button type="button" class="hc-action" id="hcGoKB">
-            <i class="fas fa-book-open"></i><span>View knowledge base</span>
-          </button>
-          <button type="button" class="hc-action" id="hcGoTickets">
-            <i class="fas fa-ticket-alt"></i><span>View support tickets</span>
-          </button>
-        </div>
+      <div class="hc-actions mb-3">
+  <a class="hc-action" id="hcGoKB" href="/knowledge-base">
+    <i class="fas fa-book-open"></i><span>View knowledge base</span>
+  </a>
+
+  <a class="hc-action" id="hcGoTickets" href="/view-support-tickets">
+    <i class="fas fa-ticket-alt"></i><span>View support tickets</span>
+  </a>
+</div>
+
 
         <!-- HOME -->
         <div id="hcHome">
@@ -1012,6 +1014,12 @@
   });
 })();
 </script>
+
+
+      
+
+  
+    
 
 <!-- Vendor scripts -->
 <script src="/assets/bundles/vendorscripts.bundle.js"></script>
