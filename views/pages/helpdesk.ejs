@@ -89,6 +89,36 @@
 
       /* Trim extra padding that DataTables adds to its child row */
       table.dataTable tbody tr.child td.child { padding: .5rem .75rem !important; }
+      
+      /* Status update styles */
+      .status-update-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+      }
+      
+      .status-select {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        width: auto;
+        display: inline-block;
+      }
+      
+      /* Toast notification */
+      .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1055;
+        min-width: 250px;
+      }
+      
+      .toast {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 0.375rem;
+      }
     </style>
   </head>
 
@@ -109,6 +139,16 @@
                   <li class="breadcrumb-item">Vas Setting</li>
                   <li class="breadcrumb-item active">Helpdesk</li>
                 </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toast notification container -->
+          <div class="toast-container">
+            <div id="statusToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body" id="toastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
               </div>
             </div>
           </div>
@@ -140,6 +180,7 @@
                   <option value="">All Status</option>
                   <option value="Open">Open</option>
                   <option value="Closed">Closed</option>
+                  <option value="Resolved">Resolved</option>
                 </select>
                 <button id="btnExport" class="btn btn-outline-secondary btn-sm">
                   <i class="fa-solid fa-file-export me-1"></i> Export CSV
@@ -164,6 +205,7 @@
                       <th>Shipment St.</th>
                       <th>Created At</th>
                       <th>Updated At</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -179,11 +221,45 @@
         </div>
       </div>
 
+      <!-- Status Update Modal -->
+      <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Update Ticket Status</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p class="mb-2">Ticket ID: <span id="modalTicketId" class="fw-semibold"></span></p>
+              <select class="form-select" id="statusSelect">
+                <option value="Open">Open</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+                <option value="Pending">Pending</option>
+              </select>
+              <div class="mt-3">
+                <label for="statusNotes" class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" id="statusNotes" rows="2"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" id="saveStatusBtn">
+                <span class="spinner-border spinner-border-sm d-none" id="statusSpinner" role="status"></span>
+                Update Status
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- DataTables scripts AFTER jQuery -->
       <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
       <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
       <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+      
+      <!-- Bootstrap JS for modal functionality -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
       <script>
         /* =========================
@@ -278,6 +354,8 @@
           const s = String(status).toLowerCase();
           if (s === 'open')   return `<span class="dsc-badge dsc-badge-open">Open</span>`;
           if (s === 'closed') return `<span class="dsc-badge dsc-badge-closed">Closed</span>`;
+          if (s === 'resolved') return `<span class="dsc-badge dsc-badge-closed">Resolved</span>`;
+          if (s === 'pending') return `<span class="dsc-badge dsc-badge-unknown">Pending</span>`;
           return `<span class="dsc-badge dsc-badge-unknown">${status}</span>`;
         }
 
@@ -400,8 +478,117 @@
             shipStatusBadge(row.shipment_status),
             `<span data-order="${row.created_at || ''}">${fmtDate(row.created_at)}</span>`,
             `<span data-order="${row.updated_at || ''}">${fmtDate(row.updated_at)}</span>`,
+            `<button class="btn btn-sm btn-outline-secondary change-status-btn" data-ticket-id="${row.ticket_id}">
+              Change Status
+            </button>`,
             { _id: row.ticket_id }
           ];
+        }
+
+        /* =========================
+           STATUS UPDATE FUNCTIONS
+        ========================== */
+        function openStatusModal(ticketId) {
+          const ticket = ticketById.get(ticketId);
+          if (!ticket) return;
+          
+          document.getElementById('modalTicketId').textContent = ticketId;
+          document.getElementById('statusSelect').value = ticket.status || 'Open';
+          document.getElementById('statusNotes').value = '';
+          
+          const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+          modal.show();
+        }
+
+        async function updateTicketStatus() {
+          const ticketId = document.getElementById('modalTicketId').textContent;
+          const newStatus = document.getElementById('statusSelect').value;
+          const notes = document.getElementById('statusNotes').value;
+          
+          if (!ticketId) return;
+          
+          const saveBtn = document.getElementById('saveStatusBtn');
+          const spinner = document.getElementById('statusSpinner');
+          
+          // Show loading state
+          saveBtn.disabled = true;
+          spinner.classList.remove('d-none');
+          
+          try {
+            const headers = { 
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            };
+            
+            if (AUTH_TOKEN) {
+              headers['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+            }
+            
+            const response = await fetch(`http://localhost:5000/api/support/tickets/${ticketId}/status/${newStatus}`, {
+              method: 'PUT',
+              headers: headers,
+              body: JSON.stringify({ notes: notes })
+            });
+            
+            if (response.ok) {
+              // Update the ticket in our local data
+              const ticket = ticketById.get(ticketId);
+              if (ticket) {
+                ticket.status = newStatus;
+                ticket.updated_at = new Date().toISOString();
+                
+                // Update the DataTable
+                if (dt) {
+                  dt.rows().every(function() {
+                    const rowData = this.data();
+                    if (rowData[10] && rowData[10]._id === ticketId) {
+                      // Update the status cell
+                      const statusCell = this.cell(this.index(), 5);
+                      statusCell.data(statusBadge(newStatus));
+                      
+                      // Update the updated_at cell
+                      const updatedCell = this.cell(this.index(), 8);
+                      updatedCell.data(`<span data-order="${ticket.updated_at}">${fmtDate(ticket.updated_at)}</span>`);
+                      
+                      // Redraw the row
+                      this.invalidate();
+                      return false;
+                    }
+                  });
+                  dt.draw(false); // Redraw without resetting paging/filtering
+                }
+              }
+              
+              // Show success message
+              showToast(`Status updated to ${newStatus} successfully!`, 'success');
+              
+              // Close the modal
+              bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+            } else {
+              const errorText = await response.text();
+              throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+          } catch (error) {
+            console.error('Error updating status:', error);
+            showToast('Error updating status. Please try again.', 'error');
+          } finally {
+            // Reset button state
+            saveBtn.disabled = false;
+            spinner.classList.add('d-none');
+          }
+        }
+
+        function showToast(message, type = 'success') {
+          const toastElement = document.getElementById('statusToast');
+          const toastMessage = document.getElementById('toastMessage');
+          
+          // Set message and styling based on type
+          toastMessage.textContent = message;
+          toastElement.className = `toast align-items-center text-white bg-${type} border-0`;
+          
+          // Show the toast
+          const toast = new bootstrap.Toast(toastElement);
+          toast.show();
         }
 
         /* =========================
@@ -459,6 +646,7 @@
                   { title:'Shipment St.' },
                   { title:'Created At' },
                   { title:'Updated At' },
+                  { title:'Action', className:'text-center', orderable: false },
                   { visible:false }
                 ],
                 order: [[7, 'desc']],
@@ -479,7 +667,7 @@
                 if (row.child.isShown()) { row.child.hide(); tr.removeClass('shown'); return; }
 
                 const data = row.data();
-                const payload = data[9] || {};
+                const payload = data[10] || {};
                 const ticketIdFromPayload = payload._id;
                 const ticketIdFromText = $(data[1]).text().trim();
                 const ticketId = ticketIdFromPayload || ticketIdFromText;
@@ -515,6 +703,12 @@
               $('#statusFilter').on('change', function() {
                 const v = this.value || '';
                 dt.column(5).search(v, true, false).draw();
+              });
+              
+              // Status change button click
+              $table.on('click', '.change-status-btn', function() {
+                const ticketId = $(this).data('ticket-id');
+                openStatusModal(ticketId);
               });
             }
 
@@ -580,8 +774,8 @@
           $('#btnRefresh').on('click', loadData);
           $('#btnExport').on('click', exportCSV);
           
-          // Initialize chat functionality
-          initializeChat();
+          // Status update modal save button
+          document.getElementById('saveStatusBtn').addEventListener('click', updateTicketStatus);
         });
       </script>
 

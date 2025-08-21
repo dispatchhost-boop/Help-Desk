@@ -187,6 +187,51 @@ async function getSupportTicketsWithAdmins(req, res) {
 
 
 
+async function updateSupportTicketStatus(req, res) {
+  try {
+    // ---- Params from URL ----
+    const ticketId = (req.params.ticketId || "").trim();
+    const newStatus = (req.params.status || "").trim();
+
+    if (!ticketId || !newStatus) {
+      return res.status(400).json({
+        ok: false,
+        message: "Both ticketId and status are required in the URL"
+      });
+    }
+
+    // ---- Find the ticket ----
+    const ticket = await SupportTicket.findOne({
+      where: { ticket_id: ticketId }
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        ok: false,
+        message: `Ticket not found for ID: ${ticketId}`
+      });
+    }
+
+    // ---- Update status ----
+    ticket.status = newStatus;
+    ticket.updated_at = new Date();
+
+    await ticket.save();
+
+    return res.json({
+      ok: true,
+      message: "Ticket status updated successfully",
+      ticket
+    });
+  } catch (err) {
+    console.error("updateSupportTicketStatus error:", err);
+    return res.status(500).json({
+      ok: false,
+      message: "Server error"
+    });
+  }
+}
+
 
 
 
@@ -30724,5 +30769,6 @@ module.exports = {
   createTicket,
   getClientLRNumbers,
   getAdminsByClientId,
-  getSupportTicketsWithAdmins
+  getSupportTicketsWithAdmins,
+  updateSupportTicketStatus
 }

@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Support Tickets</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('../partials/head') %>
+    <style>
     body { background:#f9fafb; font-family: 'Inter', sans-serif; }
     .page-title { font-size: 20px; font-weight: 600; color:#111827; }
     .card { border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -19,10 +16,29 @@
     .status-closed { background:#fee2e2; color:#b91c1c; }
     .status-resolved { background:#dcfce7; color:#15803d; }
   </style>
-</head>
-<body class="p-4">
+  </head>
 
-  <div class="container-fluid">
+  <body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+      <%- include('../partials/header') %>
+      <%- include('../partials/left-sidebar') %>
+      <%- include('../partials/right-iconbar') %>
+
+      <div id="main-content">
+        <div class="container-fluid">
+          <div class="block-header">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <h2>Helpdesk</h2>
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html"><i class="fa fa-dashboard"></i></a></li>
+                  <li class="breadcrumb-item">Vas Setting</li>
+                  <li class="breadcrumb-item active">Helpdesk</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+ <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="page-title">Support</h4>
       <button class="btn btn-dark btn-sm rounded-pill">+ Raise a Ticket</button>
@@ -72,139 +88,184 @@
       <ul class="pagination justify-content-center" id="pagination"></ul>
     </nav>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    let allTickets = [];
-    let currentPage = 1;
-    const pageSize = 10; // show 10 per page
+  let allTickets = [];
+  let currentPage = 1;
+  const pageSize = 10; // show 10 per page
+  let currentStatusFilter = "Open"; // default tab
 
-    async function loadTickets() {
-      try {
-        const res = await fetch("http://localhost:5000/api/support/overview?limit=50&offset=0&admin_limit=20");
-        const json = await res.json();
+  async function loadTickets() {
+    try {
+      const res = await fetch("http://localhost:5000/api/support/overview?limit=50&offset=0&admin_limit=20");
+      const json = await res.json();
 
-        if (!json.tickets || json.tickets.returned === 0) {
-          document.getElementById("ticketBody").innerHTML = `<tr><td colspan="6" class="no-records">No Records Found</td></tr>`;
-          return;
-        }
-
-        const admins = json.admins_by_client || {};
-        allTickets = json.tickets.data.map(t => {
-          const adminInfo = admins[t.client_id]?.data?.[0] || {};
-          return {
-            ...t,
-            raisedBy: adminInfo.full_name || "Unknown"
-          };
-        });
-
-        renderTickets();
-        renderPagination();
-      } catch (err) {
-        console.error(err);
-        document.getElementById("ticketBody").innerHTML = `<tr><td colspan="6" class="no-records">Error loading tickets</td></tr>`;
-      }
-    }
-
-    function renderTickets() {
-      const tbody = document.getElementById("ticketBody");
-      tbody.innerHTML = "";
-
-      const start = (currentPage - 1) * pageSize;
-      const end = start + pageSize;
-      const pageTickets = allTickets.slice(start, end);
-
-      if (!pageTickets.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="no-records">No Records Found</td></tr>`;
+      if (!json.tickets || json.tickets.returned === 0) {
+        document.getElementById("ticketBody").innerHTML = `<tr><td colspan="6" class="no-records">No Records Found</td></tr>`;
         return;
       }
 
-      pageTickets.forEach(t => {
-        let statusClass = "status-open";
-        if (t.status === "Closed") statusClass = "status-closed";
-        if (t.status === "Resolved") statusClass = "status-resolved";
-
-        const row = `
-          <tr>
-            <td>
-              <div class="fw-semibold">${t.ticket_id}</div>
-              <div class="text-muted small">${t.awb_or_lr_no || "-"}</div>
-            </td>
-            <td>${t.raisedBy}</td>
-            <td>
-              <div>${t.category || "-"}</div>
-              <div class="text-muted small">${t.sub_category || ""}</div>
-            </td>
-            <td class="text-muted small">${new Date(t.created_at).toLocaleString()}</td>
-            <td class="text-muted small">${new Date(t.updated_at).toLocaleString()}</td>
-            <td><span class="status-badge ${statusClass}">${t.status}</span></td>
-          </tr>
-        `;
-        tbody.insertAdjacentHTML("beforeend", row);
+      const admins = json.admins_by_client || {};
+      allTickets = json.tickets.data.map(t => {
+        const adminInfo = admins[t.client_id]?.data?.[0] || {};
+        return {
+          ...t,
+          raisedBy: adminInfo.full_name || "Unknown"
+        };
       });
-    }
 
-    function renderPagination() {
-      const pagination = document.getElementById("pagination");
-      pagination.innerHTML = "";
-      const totalPages = Math.ceil(allTickets.length / pageSize);
-
-      // Prev button
-      pagination.innerHTML += `
-        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-          <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
-        </li>
-      `;
-
-      // Page numbers
-      for (let i = 1; i <= totalPages; i++) {
-        pagination.innerHTML += `
-          <li class="page-item ${i === currentPage ? 'active' : ''}">
-            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-          </li>
-        `;
-      }
-
-      // Next button
-      pagination.innerHTML += `
-        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-          <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
-        </li>
-      `;
-    }
-
-    function changePage(page) {
-      const totalPages = Math.ceil(allTickets.length / pageSize);
-      if (page < 1 || page > totalPages) return;
-      currentPage = page;
       renderTickets();
       renderPagination();
+    } catch (err) {
+      console.error(err);
+      document.getElementById("ticketBody").innerHTML = `<tr><td colspan="6" class="no-records">Error loading tickets</td></tr>`;
+    }
+  }
+
+  function renderTickets() {
+    const tbody = document.getElementById("ticketBody");
+    tbody.innerHTML = "";
+
+    // 🔹 filter by status
+    const filteredTickets = allTickets.filter(t => t.status === currentStatusFilter);
+
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    const pageTickets = filteredTickets.slice(start, end);
+
+    if (!pageTickets.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="no-records">No Records Found</td></tr>`;
+      return;
     }
 
-    // --- Search + Filter Logic ---
-    document.getElementById("searchBox").addEventListener("input", applyFilter);
-    document.getElementById("filterSelect").addEventListener("change", applyFilter);
+    pageTickets.forEach(t => {
+      let statusClass = "status-open";
+      if (t.status === "Closed") statusClass = "status-closed";
+      if (t.status === "Resolved") statusClass = "status-resolved";
 
-    function applyFilter() {
-      const searchValue = document.getElementById("searchBox").value.toLowerCase();
-      const filterType = document.getElementById("filterSelect").value;
+      const row = `
+        <tr>
+          <td>
+            <div class="fw-semibold">${t.ticket_id}</div>
+            <div class="text-muted small">${t.awb_or_lr_no || "-"}</div>
+          </td>
+          <td>${t.raisedBy}</td>
+          <td>
+            <div>${t.category || "-"}</div>
+            <div class="text-muted small">${t.sub_category || ""}</div>
+          </td>
+          <td class="text-muted small">${new Date(t.created_at).toLocaleString()}</td>
+          <td class="text-muted small">${new Date(t.updated_at).toLocaleString()}</td>
+          <td><span class="status-badge ${statusClass}">${t.status}</span></td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML("beforeend", row);
+    });
+  }
 
-      const filtered = allTickets.filter(t => {
-        if (filterType === "ticket") {
-          return t.ticket_id.toLowerCase().includes(searchValue);
-        } else if (filterType === "awb") {
-          return (t.awb_or_lr_no || "").toLowerCase().includes(searchValue);
-        }
-        return true;
-      });
+  function renderPagination() {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
 
-      allTickets = filtered; // update list
+    const filteredTickets = allTickets.filter(t => t.status === currentStatusFilter);
+    const totalPages = Math.ceil(filteredTickets.length / pageSize);
+
+    // Prev button
+    pagination.innerHTML += `
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+      </li>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      pagination.innerHTML += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>
+      `;
+    }
+
+    // Next button
+    pagination.innerHTML += `
+      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+      </li>
+    `;
+  }
+
+  function changePage(page) {
+    const filteredTickets = allTickets.filter(t => t.status === currentStatusFilter);
+    const totalPages = Math.ceil(filteredTickets.length / pageSize);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderTickets();
+    renderPagination();
+  }
+
+  // --- Tab click logic ---
+  document.querySelectorAll(".nav-link").forEach(tab => {
+    tab.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      document.querySelectorAll(".nav-link").forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+
+      currentStatusFilter = this.textContent.trim(); // "Open" / "Resolved" / "Closed"
       currentPage = 1;
       renderTickets();
       renderPagination();
-    }
+    });
+  });
 
-    loadTickets();
-  </script>
-</body>
+  // --- Search + Filter Logic ---
+  document.getElementById("searchBox").addEventListener("input", applyFilter);
+  document.getElementById("filterSelect").addEventListener("change", applyFilter);
+
+  function applyFilter() {
+    const searchValue = document.getElementById("searchBox").value.toLowerCase();
+    const filterType = document.getElementById("filterSelect").value;
+
+    // Reset base to only current status
+    let filtered = allTickets.filter(t => t.status === currentStatusFilter);
+
+    filtered = filtered.filter(t => {
+      if (filterType === "ticket") {
+        return t.ticket_id.toLowerCase().includes(searchValue);
+      } else if (filterType === "awb") {
+        return (t.awb_or_lr_no || "").toLowerCase().includes(searchValue);
+      }
+      return true;
+    });
+
+    // override render with filtered set
+    const tbody = document.getElementById("ticketBody");
+    tbody.innerHTML = "";
+    filtered.forEach(t => {
+      let statusClass = "status-open";
+      if (t.status === "Closed") statusClass = "status-closed";
+      if (t.status === "Resolved") statusClass = "status-resolved";
+
+      const row = `
+        <tr>
+          <td>${t.ticket_id}<br/><small>${t.awb_or_lr_no || "-"}</small></td>
+          <td>${t.raisedBy}</td>
+          <td>${t.category || "-"}<br/><small>${t.sub_category || ""}</small></td>
+          <td>${new Date(t.created_at).toLocaleString()}</td>
+          <td>${new Date(t.updated_at).toLocaleString()}</td>
+          <td><span class="status-badge ${statusClass}">${t.status}</span></td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML("beforeend", row);
+    });
+  }
+
+  loadTickets();
+</script>
+
+  <!-- IMPORTANT: ensure your footer partial does NOT re-include jQuery again. -->
+      <%- include('../partials/footer') %>
+    </div>
+    </div>
+  </body>
 </html>

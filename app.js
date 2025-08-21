@@ -60,7 +60,7 @@ io.on("connection", (socket) => {
 
   if (onlineUsers[receiverId]) {
       io.to(onlineUsers[receiverId]).emit("receiveMessage", data);
-    }
+}
   });
   socket.on("disconnect", () => {
     console.log("❌ Client disconnected", socket.id);
@@ -106,6 +106,7 @@ app.use((req, res, next) => {
       res.locals.userFullName = `${decoded.name || ''} ${decoded.last_name || ''}`;
       res.locals.name = decoded.name;
       res.locals.Rolename = decoded.roleName;
+      // res.locals.roleName = req.user.roleName; 
       res.locals.userLogoPath = decoded.logo_path;
      res.locals.companyName = decoded.company_name;
 

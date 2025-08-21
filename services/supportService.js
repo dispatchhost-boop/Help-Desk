@@ -3,7 +3,8 @@ const { Category, SubCategory } = require('../models');
 const categoriesWithDefaultSubcategory = [
   'Self collect / drop',
   'Cancel delivery / pickup',
-  'Behaviour complaint against staff'
+  'Behaviour complaint against staff',
+  'Others'
 ];
 
 const selfHelpMappings = {

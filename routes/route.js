@@ -16,6 +16,10 @@ const { log } = require('console');
 // ======================
 
 // List admins for a given client_id
+
+// Update ticket status by ticketId and new status
+route.put('/api/support/tickets/:ticketId/status/:status', userController.updateSupportTicketStatus);
+
 route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
 route.get('/api/clients/:clientId/admins', userController.getAdminsByClientId);
 
