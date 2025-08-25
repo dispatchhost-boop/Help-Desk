@@ -1293,15 +1293,46 @@ document.addEventListener('submit', async function (e) {
   }
 });
 
+document.getElementById('submitRto')?.addEventListener('click', async function () {
+  const remarks = document.getElementById('rtoRemarks').value.trim();
+  if (!remarks) return alert('Please enter remarks');
 
-                        document.getElementById('submitRto')?.addEventListener('click', function () {
-                            const remarks = document.getElementById('rtoRemarks').value.trim();
-                            if (!remarks) return alert('Please enter remarks');
-                            alert('RTO submitted: ' + remarks);
-                            document.getElementById('rtoRemarks').value = '';
-                            closeAllModals();
-                        });
+  // Build payload
+  const payload = {
+    order_id: 26,   // ⚡ replace with dynamic order id from row
+    product: document.getElementById('rtoProduct').textContent,
+    payment_mode: document.getElementById('rtoPayment').textContent.toLowerCase(),
+    pending_days: parseInt(document.getElementById('rtoPending').textContent) || 2,
+    remarks
+  };
 
+  try {
+    console.log("🚀 Sending RTO payload:", payload);
+
+    const res = await fetch("http://localhost:5000/rto-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+    console.log("📦 API Response:", json);
+
+    if (res.ok) {
+      alert("✅ RTO request submitted!");
+      closeAllModals();
+      document.getElementById('rtoRemarks').value = '';
+    } else {
+      alert("❌ Failed: " + (json.error || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("❌ RTO API call error:", err);
+    alert("❌ Network/server error: " + err.message);
+  }
+});
+
+                        
+                        
                         document.getElementById('submitEscalate')?.addEventListener('click', function () {
                             const remarks = document.getElementById('escalateRemarks').value.trim();
                             if (!remarks) return alert('Please enter remarks');

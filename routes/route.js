@@ -15,6 +15,8 @@ const { log } = require('console');
 // route.post('/delivery-reattempt', userController.createReattempt);
 route.post('/delivery-reattempt', userController.createReattempt);
 
+route.post('/rto-request', userController.createRto);
+
 
 
 

@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts  } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests  } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -58,6 +58,37 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+async function createRto(req, res) {
+  try {
+    console.log('🔍 [createRto] Request started...');
+    console.log('📦 Payload:', req.body);
+
+    const { order_id, product, payment_mode, pending_days, remarks } = req.body;
+
+    if (!remarks) {
+      return res.status(400).json({ ok: false, error: "Remarks are required" });
+    }
+
+    const newRto = await TblRtoRequests.create({
+      order_id,
+      product,
+      payment_mode,
+      pending_since: pending_days,
+      remarks
+    });
+
+    console.log('✅ [createRto] Saved successfully:', newRto.toJSON());
+
+    return res.json({ ok: true, data: newRto });
+  } catch (err) {
+    console.error('❌ [createRto] Error:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
 
 
 async function createReattempt(req, res) {
@@ -30884,6 +30915,7 @@ module.exports = {
   getSupportTicketsWithAdmins,
   updateSupportTicketStatus,
   getAllOrderDetails,
-   createReattempt
+   createReattempt,
+   createRto
 
 }
