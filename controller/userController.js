@@ -62,6 +62,30 @@ const { DataTypes } = require('sequelize');
 
 
 
+async function getNdrActions(req, res) {
+  try {
+
+    const [escalations, rtos, reattempts] = await Promise.all([
+      TblEscalation.findAll({ order: [["created_at", "DESC"]] }),
+      TblRtoRequests.findAll({ order: [["created_at", "DESC"]] }),
+      TblDeliveryReattempts.findAll({ order: [["created_at", "DESC"]] }),
+    ]);
+
+
+    return res.json({
+      ok: true,
+      data: {
+        escalations,
+        rtos,
+        reattempts,
+      },
+    });
+  } catch (err) {
+    console.error("❌ [getNdrActions] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
 
 async function createEscalation(req, res) {
   try {
@@ -30944,6 +30968,6 @@ module.exports = {
   getAllOrderDetails,
    createReattempt,
    createRto,
-   createEscalation
-
+   createEscalation,
+   getNdrActions
 }

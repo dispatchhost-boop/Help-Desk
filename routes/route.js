@@ -13,6 +13,7 @@ const { log } = require('console');
 
 ///======================NDR ROUTES==================================///
 // route.post('/delivery-reattempt', userController.createReattempt);
+route.get("/ndr-actions", userController.getNdrActions);
 route.post('/delivery-reattempt', userController.createReattempt);
 
 route.post('/rto-request', userController.createRto);
