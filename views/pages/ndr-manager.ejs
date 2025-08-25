@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            /* Enhanced Tabs */
+            .dsc-tabs-container {
+                background: #f1f5f9;
+                border-radius: 8px;
+                padding: 6px;
+                display: flex;
+                gap: 4px;
+                overflow-x: auto;
+                white-space: nowrap;
+                width: fit-content;
+                box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .dsc-tab-btn {
+                font-size: 13px;
+                color: #4b5563;
+                border-radius: 6px;
+                padding: 8px 16px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                flex-shrink: 0;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            }
+
+            .dsc-tab-btn:hover:not(.active) {
+                color: #1e40af;
+                background: #e0e7ff;
+            }
+
+            .dsc-tab-btn.active {
+                background: #3b82f6;
+                color: #fff;
+                font-weight: 600;
+                box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+            }
+
+            /* Enhanced Buttons */
+            .dsc-filter-btn,
+            .dsc-icon-btn {
+                background: #3b82f6;
+                color: #fff;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            }
+
+            .dsc-filter-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .dsc-filter-btn:hover {
+                background: #2563eb;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+            }
+
+            .dsc-icon-btn {
+                padding: 8px;
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
+            .dsc-icon-btn:hover {
+                background: #2563eb;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+            }
+
+            /* Enhanced Inputs */
+            .dsc-input,
+            .dsc-search {
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 13px;
+                color: #374151;
+                transition: all 0.2s ease;
+                background: #fff;
+            }
+
+            .dsc-input:focus,
+            .dsc-search:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+            .dsc-input[readonly] {
+                background: #f9fafb;
+                cursor: pointer;
+            }
+
+            .dsc-search::placeholder {
+                color: #9ca3af;
+            }
+
+            /* Enhanced Advanced Filters */
+            .advanced-filters-container {
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 16px 0;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                border-left: 4px solid #3b82f6;
+            }
+
+            .filter-badge {
+                display: inline-flex;
+                align-items: center;
+                background: #3b82f6;
+                color: #fff;
+                border-radius: 9999px;
+                padding: 2px 8px;
+                font-size: 11px;
+                margin-left: 6px;
+                font-weight: 600;
+            }
+
+            /* Table Container */
+            .table-responsive {
+                overflow-x: auto;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Enhanced Table Styles */
+            .dsc-table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                margin-top: 16px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+            }
+
+            .dsc-table-header {
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border-bottom: 2px solid #3b82f6;
+            }
+
+            .dsc-table-header th {
+                padding: 12px 16px;
+                text-align: left;
+                font-weight: 700;
+                color: #334155;
+                font-size: 12px;
+                letter-spacing: 0.2px;
+                text-transform: uppercase;
+                border-right: 1px solid #e2e8f0;
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: inherit;
+            }
+
+            .dsc-table-header th:last-child {
+                border-right: none;
+            }
+
+            /* Table Body */
+            .dsc-table-content {
+                background: #fff;
+            }
+
+            .dsc-table-content tr {
+                border-bottom: 1px solid #f1f5f9;
+                transition: background 0.2s ease;
+            }
+
+            .dsc-table-content tr:hover {
+                background: #f8fafc;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .dsc-table-content tr:nth-child(even) {
+                background: #fafbfc;
+            }
+
+            .dsc-table-content tr:nth-child(even):hover {
+                background: #f1f5f9;
+            }
+
+            .dsc-table-content td {
+                padding: 12px 16px;
+                border-right: 1px solid #e2e8f0;
+                vertical-align: top;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                white-space: normal;
+                line-height: 1.4;
+            }
+
+            .dsc-table-content td:last-child {
+                border-right: none;
+            }
+
+            /* Table Content Styling */
+            .dsc-table-content td .fw-semibold {
+                font-weight: 600;
+                color: #1e293b;
+                margin-bottom: 4px;
+            }
+
+            .dsc-table-content td .small {
+                font-size: 11px;
+                color: #6b7280;
+                line-height: 1.3;
+            }
+
+            .dsc-table-content td .badge {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Empty state styling */
+            .dsc-empty-state {
+                text-align: center;
+                padding: 20px;
+                color: #6b7280;
+            }
+
+            .dsc-empty-state img {
+                margin-bottom: 16px;
+            }
+
+            .dsc-empty-state p {
+                margin: 8px 0;
+            }
+
+            /* Table cell with colspan styling */
+            .dsc-table-content td[colspan="100%"] {
+                text-align: center;
+                padding: 40px 20px;
+                border: none;
+            }
+
+            /* Ensure proper table spacing */
+            .dsc-table {
+                margin-bottom: 20px;
+            }
+
+            /* Better badge colors */
+            .badge.bg-warning {
+                background-color: #f59e0b !important;
+                color: #fff !important;
+            }
+
+            .badge.bg-light {
+                background-color: #f3f4f6 !important;
+                color: #374151 !important;
+            }
+
+            .badge.bg-info {
+                background-color: #06b6d4 !important;
+                color: #fff !important;
+            }
+
+            .badge.bg-danger {
+                background-color: #ef4444 !important;
+                color: #fff !important;
+            }
+
+            .badge.bg-success {
+                background-color: #10b981 !important;
+                color: #fff !important;
+            }
+
+            .badge.bg-primary {
+                background-color: #3b82f6 !important;
+                color: #fff !important;
+            }
+
+            .badge.bg-secondary {
+                background-color: #6b7280 !important;
+                color: #fff !important;
+            }
+
+            /* Enhanced Pagination */
+            .dsc-pagination-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                margin-top: 16px;
+                padding: 12px 0;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .dsc-page-size {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .pagination {
+                margin: 0;
+                display: flex;
+                gap: 4px;
+            }
+
+            .page-item .page-link {
+                border-radius: 6px;
+                padding: 6px 12px;
+                font-size: 13px;
+                color: #3b82f6;
+                border: 1px solid #e2e8f0;
+                transition: all 0.2s ease;
+            }
+
+            .page-item.active .page-link {
+                background: #3b82f6;
+                border-color: #3b82f6;
+                color: #fff;
+            }
+
+            .page-item.disabled .page-link {
+                color: #9ca3af;
+                background: #f9fafb;
+            }
+
+            .page-item:not(.active):not(.disabled) .page-link:hover {
+                background: #f1f5f9;
+                border-color: #d1d5db;
+            }
+
+            /* Responsive tweaks */
+            @media (max-width: 768px) {
+                .dsc-table {
+                    font-size: 12px;
+                }
+
+                .dsc-table-header th,
+                .dsc-table-content td {
+                    padding: 8px 12px;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .dsc-table {
+                    font-size: 11px;
+                }
+
+                .dsc-table-header th,
+                .dsc-table-content td {
+                    padding: 6px 8px;
+                }
+            }
+
+            /* Modal Styles */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .modal-overlay.active {
+                display: flex;
+                opacity: 1;
+            }
+
+            .modal-container {
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                max-width: 500px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            }
+
+            .modal-overlay.active .modal-container {
+                transform: scale(1);
+            }
+
+            .modal-header {
+                padding: 20px 20px 0;
+                border-bottom: 1px solid #e5e7eb;
+                margin-bottom: 20px;
+            }
+
+            .modal-title {
+                margin: 0;
+                color: #1e293b;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #6b7280;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+            }
+
+            .modal-close:hover {
+                background: #f3f4f6;
+                color: #374151;
+            }
+
+            .modal-body {
+                padding: 0 20px 20px;
+            }
+
+            .modal-footer {
+                padding: 20px;
+                border-top: 1px solid #e5e7eb;
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 600;
+                color: #374151;
+                font-size: 14px;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 14px;
+                transition: border-color 0.2s ease;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+            .form-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                color: #374151;
+            }
+
+            .form-checkbox input[type="checkbox"] {
+                margin: 0;
+            }
+
+            .history-item {
+                padding: 12px 0;
+                border-bottom: 1px solid #f3f4f6;
+            }
+
+            .history-item:last-child {
+                border-bottom: none;
+            }
+
+            .history-date {
+                font-weight: 600;
+                color: #1e293b;
+                margin-bottom: 4px;
+            }
+
+            .history-status {
+                color: #6b7280;
+                font-size: 14px;
+            }
+
+            /* Unified Button Styles */
+            .btn {
+                padding: 6px 12px;
+                border-radius: 6px;
+                border: 1px solid transparent;
+                font-size: 12px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                line-height: 1.2;
+                height: 28px;
+            }
+
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 11px;
+                height: 24px;
+            }
+
+            .btn-xs {
+                padding: 2px 6px;
+                font-size: 10px;
+                height: 22px;
+            }
+
+            .btn-primary {
+                background: #3b82f6;
+                color: white;
+                border-color: #3b82f6;
+            }
+
+            .btn-primary:hover {
+                background: #2563eb;
+                border-color: #2563eb;
+            }
+
+            .btn-outline-primary {
+                background: transparent;
+                color: #3b82f6;
+                border-color: #3b82f6;
+            }
+
+            .btn-outline-primary:hover {
+                background: #3b82f6;
+                color: white;
+            }
+
+            .btn-outline-secondary {
+                background: transparent;
+                color: #6b7280;
+                border-color: #6b7280;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #6b7280;
+                color: white;
+            }
+
+            .btn-success {
+                background: #10b981;
+                color: white;
+                border-color: #10b981;
+            }
+
+            .btn-success:hover {
+                background: #059669;
+                border-color: #059669;
+            }
+
+            .btn-danger {
+                background: #ef4444;
+                color: white;
+                border-color: #ef4444;
+            }
+
+            .btn-danger:hover {
+                background: #dc2626;
+                border-color: #dc2626;
+            }
+
+            .btn-warning {
+                background: #f59e0b;
+                color: white;
+                border-color: #f59e0b;
+            }
+
+            .btn-warning:hover {
+                background: #d97706;
+                border-color: #d97706;
+            }
+
+            .btn-info {
+                background: #06b6d4;
+                color: white;
+                border-color: #06b6d4;
+            }
+
+            .btn-info:hover {
+                background: #0891b2;
+                border-color: #0891b2;
+            }
+
+            .btn-link {
+                background: none;
+                border: none;
+                color: #3b82f6;
+                text-decoration: underline;
+                padding: 0;
+                font-size: 12px;
+                height: auto;
+            }
+
+            /* Table button styling */
+            .dsc-table-content .btn {
+                margin: 2px 0;
+                width: 100%;
+                max-width: 120px;
+            }
+
+            .dsc-table-content .btn-sm {
+                width: auto;
+                min-width: 80px;
+            }
+
+            .dsc-table-content .btn-xs {
+                width: auto;
+                min-width: 60px;
+            }
+
+            .action-buttons-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            /* Modal animation improvements */
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9) translateY(-20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+
+            .modal-overlay.active .modal-container {
+                animation: modalFadeIn 0.3s ease-out;
+            }
+        </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+    <div id="wrapper" class="theme-cyan">
+        <!-- HEADER -->
+        <%- include('../partials/header') %>
+
+            <!-- SIDEBAR -->
+            <%- include('../partials/left-sidebar') %>
+                <%- include('../partials/right-iconbar') %>
+
+                    <!-- MAIN CONTENT -->
+                    <div id="main-content">
+                        <div class="container pt-4">
+                            <!-- Page Header -->
+                            <div class="block-header">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <h2>NDR Manager</h2>
+                                        <ul class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/"><i class="fa fa-dashboard"></i></a>
+                                            </li>
+                                            <li class="breadcrumb-item active">NDR</li>
+                                            <li class="breadcrumb-item active">NDR Manager</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class=" mb-5">
+                                <!-- Tabs -->
+                                <div class="dsc-tabs-container mb-3" id="dscTabsContainer" role="tablist"
+                                    aria-label="Shipment status tabs">
+                                    <button class="dsc-tab-btn active" id="tab-action-pending" data-tab="action-pending"
+                                        role="tab" aria-selected="true" type="button">Action Pending</button>
+                                    <button class="dsc-tab-btn" id="tab-action-taken" data-tab="action-taken" role="tab"
+                                        aria-selected="false" type="button">Action Taken</button>
+                                    <button class="dsc-tab-btn" id="tab-delivered" data-tab="delivered" role="tab"
+                                        aria-selected="false" type="button">Delivered</button>
+                                    <button class="dsc-tab-btn" id="tab-rto" data-tab="rto" role="tab"
+                                        aria-selected="false" type="button">RTO</button>
+                                    <button class="dsc-tab-btn" id="tab-all" data-tab="all" role="tab"
+                                        aria-selected="false" type="button">All</button>
+                                </div>
+
+                                <!-- Controls -->
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"
+                                    id="dscControls">
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <input type="text" id="dscDateRange" class="dsc-input" readonly
+                                            value="15/07/2025 ~ 14/08/2025" style="width:180px" />
+                                        <button class="dsc-icon-btn" id="dscRefreshBtn" aria-label="Refresh"
+                                            type="button" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                                        <button class="dsc-filter-btn" id="dscMoreFiltersBtn" type="button"
+                                            title="More Filters">
+                                            <i class="fas fa-sliders-h"></i> More Filters <span id="activeFilterCount"
+                                                class="filter-badge" style="display:none;">0</span>
+                                        </button>
+                                        <button class="dsc-icon-btn" id="dscDownloadBtn" aria-label="Download"
+                                            type="button" title="Download CSV"><i class="fas fa-download"></i></button>
+                                        <button class="dsc-icon-btn" id="dscUploadBtn" aria-label="Upload" type="button"
+                                            title="Upload"><i class="fas fa-upload"></i></button>
+                                        <button class="dsc-icon-btn" id="dscUndoBtn" aria-label="Undo" type="button"
+                                            title="Reset Search"><i class="fas fa-undo"></i></button>
+                                    </div>
+                                    <div style="min-width:200px;max-width:400px;flex-grow:1;">
+                                        <input type="search" id="dscSearchInput"
+                                            placeholder="Awb, order id, buyer name, buyer email"
+                                            class="dsc-search w-100" />
+                                    </div>
+                                </div>
+
+                                <!-- Advanced Filters -->
+                                <div class="advanced-filters-container" id="advancedFiltersContainer"
+                                    style="display:none;">
+                                    <h6 class="mb-3" style="color:#1e293b;font-weight:600;"><i
+                                            class="fas fa-filter me-2"></i>Advanced Filters</h6>
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-sm">
+                                            <label for="attempts-filter" class="form-label mb-1 small fw-semibold"><i
+                                                    class="fas fa-redo me-1"></i> No of Attempts</label>
+                                            <select class="form-select form-select-sm" id="attempts-filter">
+                                                <option value="">Select attempt</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm">
+                                            <label for="ndr-reasons-filter" class="form-label mb-1 small fw-semibold"><i
+                                                    class="fas fa-exclamation-circle me-1"></i> NDR Reasons</label>
+                                            <select class="form-select form-select-sm" id="ndr-reasons-filter">
+                                                <option value="">-- Select NDR reason --</option>
+                                                <option value="UND09">Out of Delivery Area</option>
+                                                <option value="UND10">Payment/Qty/Bill Dispute</option>
+                                                <option value="UND14">Customer Refused Delivery - OTP Verified</option>
+                                                <option value="UND02">COD amount not ready</option>
+                                                <option value="UND05">Customer Refused Delivery</option>
+                                                <option value="UND17">Act of God/Natural calamity</option>
+                                                <option value="UND04">Customer not Contactable</option>
+                                                <option value="UND15">Delivery Exception</option>
+                                                <option value="UND06">Customer requested future delivery</option>
+                                                <option value="UND07">Door/Premises/Office closed</option>
+                                                <option value="UND08">Entry Restricted Area</option>
+                                                <option value="UND16">Local Holiday</option>
+                                                <option value="UND13">Customer requested self pickup</option>
+                                                <option value="UND18">Not Attempted</option>
+                                                <option value="UND03">Customer not Available</option>
+                                                <option value="UND11">Customer did not show ID card</option>
+                                                <option value="UND01">Address Incomplete/Incorrect</option>
+                                                <option value="UND12">Customer Requested Open Delivery</option>
+                                                <option value="UND19">OTP Not Available</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Action Taken filter (only shows on Action Taken tab via JS) -->
+                                        <div class="col-sm" id="action-taken-filter" style="display:none;">
+                                            <label for="action-taken-select"
+                                                class="form-label mb-1 small fw-semibold"><i
+                                                    class="fas fa-check-circle me-1"></i> Action Taken</label>
+                                            <select class="form-select form-select-sm" id="action-taken-select">
+                                                <option value="">-- Select Action Taken --</option>
+                                                <option value="RTO">RTO</option>
+                                                <option value="REATTEMPT">Re-attempt</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-sm">
+                                            <label for="courier-filter" class="form-label mb-1 small fw-semibold"><i
+                                                    class="fas fa-truck me-1"></i> Child Courier</label>
+                                            <select class="form-select form-select-sm" id="courier-filter">
+                                                <option value="">-- Select child courier --</option>
+                                                <option value="2001">Delhivery Surface</option>
+                                                <option value="6001">BlueDart Express</option>
+                                                <option value="5002">XpressBees Air</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-sm">
+                                            <label for="last-updated-date" class="form-label mb-1 small fw-semibold"><i
+                                                    class="far fa-calendar-alt me-1"></i> Last Updated Date</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    value="15/07/2025 ~ 14/08/2025" id="last-updated-date"
+                                                    autocomplete="off">
+                                                <button class="btn btn-outline-secondary btn-sm" type="button"
+                                                    id="resetDateBtn" title="Reset Date"><i
+                                                        class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-auto d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-secondary" id="resetFilterBtn"><i
+                                                    class="fas fa-undo me-1"></i> Reset All</button>
+                                            <button class="btn btn-sm btn-primary" id="applyFilterBtn"><i
+                                                    class="fas fa-check me-1"></i> Apply Filters</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Unified Data Table -->
+                                <div class="table-responsive">
+                                    <table class="dsc-table" id="mainDataTable">
+                                        <thead class="dsc-table-header" id="tableHeader">
+                                            <!-- Headers will be dynamically updated based on active tab -->
+                                        </thead>
+                                        <tbody class="dsc-table-content" id="mainTableContent"></tbody>
+                                    </table>
+                                </div>
+
+
+                                <!-- Pagination bar -->
+                                <div class="dsc-pagination-bar" id="paginationBar" style="display:none;">
+                                    <div class="dsc-page-size">
+                                        <label for="pageSize" class="mb-0 small text-muted">Rows:</label>
+                                        <select id="pageSize" class="form-select form-select-sm" style="width:auto;">
+                                            <option value="10" selected>10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span id="entriesInfo" class="small text-muted">Showing 0 of 0</span>
+                                    </div>
+                                    <nav aria-label="Table pagination">
+                                        <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+                                    </nav>
+                                </div>
+
+                                <div class="table-spacer"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ===== MODALS: paste just before </body> ===== -->
+
+                    <!-- Product Details Modal -->
+                    <div class="modal-overlay" id="productDetailsModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Product Details</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label mb-0 text-dark">Order ref. no.</label>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span id="productOrderRef">#—</span>
+                                        
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label mb-0 text-dark">Product Name</label>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span id="productName">—</span>
+                                       
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label mb-0 text-dark">Quantity</label>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span id="productQuantity">—</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label class="form-label mb-0 text-dark">Price</label>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span id="productPrice">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-secondary btn-sm" data-close>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Show History Modal -->
+                    <div class="modal-overlay" id="showHistoryModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Request History</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body" id="showHistoryBody">
+                                <!-- filled by JS -->
+                            </div>
+                            <div class="modal-footer d-flex flex-row justify-content-between" style="padding: 18px;">
+                                <button class="btn btn-sm btn-primary me-2">Re-attempt</button>
+                                <button class="btn btn-sm btn-warning me-2">RTO</button>
+                                <button class="btn btn-sm btn-danger me-2">Escalate</button>
+                                <button class="btn  btn-info me-2">Escalate to Courier</button>
+                                <button class="btn btn-sm btn-outline-secondary" data-close>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Reattempt Modal -->
+                    <div class="modal-overlay" id="reattemptModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Request for delivery Reattempted</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="p-3 text-dark">
+                                      <label class="d-block mb-2">
+                                        Reason for delivery failure:
+                                        <span class="reason-text">Undelivered - Customer not available</span>
+                                      </label>
+                                      <hr />
+                                      <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="incorrectCheck" />
+                                        <label class="form-check-label" for="incorrectCheck">
+                                          Above reason is incorrect
+                                        </label>
+                                      </div>
+                                      <div class="form-check mb-0">
+                                        <input class="form-check-input" type="checkbox" id="reattemptCheck" checked />
+                                        <label class="form-check-label" for="reattemptCheck">
+                                          Request for reattempt
+                                        </label>
+                                      </div>
+                                    </div>
+                            
+                                    <div class="form-section">
+                                      <div class="row g-3 mb-3">
+                                        <div class="col-12 col-sm-6">
+                                          <label for="reattemptedDate" class="form-label">Reattempted Date</label>
+                                          <input type="text" class="form-control" id="reattemptedDate" value="17/08/2025" />
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                          <label for="phone" class="form-label">Phone</label>
+                                          <input type="text" class="form-control" id="phone" value="9899972243" />
+                                        </div>
+                                      </div>
+                            
+                                      <div class="mb-3">
+                                        <label for="landmark" class="form-label">Landmark</label>
+                                        <input type="text" class="form-control" id="landmark" />
+                                      </div>
+                            
+                                      <div class="row g-3 mb-3">
+                                        <div class="col-12 col-sm-6">
+                                          <label for="address1" class="form-label">Address 1</label>
+                                          <input type="text" class="form-control" id="address1" value="D-34, Ambiance Mall" />
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                          <label for="address2" class="form-label">Address 2</label>
+                                          <input type="text" class="form-control" id="address2" value="Test address road" />
+                                        </div>
+                                      </div>
+                            
+                                      <div class="row g-3 mb-3">
+                                        <div class="col-12 col-sm-4">
+                                          <label for="city" class="form-label">City</label>
+                                          <input type="text" class="form-control" id="city" value="karnal" />
+                                        </div>
+                                        <div class="col-12 col-sm-4">
+                                          <label for="state" class="form-label">State</label>
+                                          <input type="text" class="form-control" id="state" value="HARYANA" />
+                                        </div>
+                                        <div class="col-12 col-sm-4">
+                                          <label for="pinCode" class="form-label">Pin Code</label>
+                                          <input type="text" class="form-control" id="pinCode" value="132001" />
+                                        </div>
+                                      </div>
+                            
+                                      <div>
+                                        <label for="remarks" class="form-label">Remarks <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="remarks" rows="2"></textarea>
+                                      </div>
+                                    </div>
+                            
+                                    <div class="d-flex justify-content-end gap-3 p-3 border-top bg-white rounded-bottom">
+                                      <button type="button" class="btn btn-sm btn-outline-secondary" data-close>CANCEL</button>
+                                      <button type="submit" class="btn btn-sm btn-primary">REATTEMPT</button>
+                                    </div>
+                                  </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- RTO Modal -->
+                    <div class="modal-overlay" id="rtoModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Return to Origin</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="form-label col-4 mb-0">Product</label>
+                                    <div class="col-8">
+                                        <p id="rtoProduct" class="mb-0">—</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="form-label col-4 mb-0">Payment</label>
+                                    <div class="col-8">
+                                        <p id="rtoPayment" class="mb-0">—</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="form-label col-4 mb-0">Pending</label>
+                                    <div class="col-8">
+                                        <p id="rtoPending" class="mb-0">—</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="form-label col-4 mb-0">Remarks *</label>
+                                    <div class="col-8">
+                                        <textarea class="form-control" id="rtoRemarks" placeholder="Remarks goes here"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-sm btn-outline-secondary" data-close>CANCEL</button>
+                                <button class="btn btn-sm btn-primary" id="submitRto">RTO</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Escalate Modal -->
+                    <div class="modal-overlay" id="escalateModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">NDR Escalate</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="form-label">Reason for delivery failure</label>
+                                    <p id="escalateReason">—</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Remarks *</label>
+                                    <textarea class="form-control" id="escalateRemarks"
+                                        placeholder="Remarks goes here"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-sm btn-outline-secondary" data-close>CANCEL</button>
+                                <button class="btn btn-sm btn-primary" id="submitEscalate">ESCALATE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Escalate to Courier Modal -->
+                    <div class="modal-overlay" id="escalateToCourierModal">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Escalate to Courier</h3>
+                                <button class="modal-close" data-close>&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="form-label">Remarks *</label>
+                                    <textarea class="form-control" id="escalateToCourierRemarks"
+                                        placeholder="Remarks goes here"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-sm btn-outline-secondary" data-close>CANCEL</button>
+                                <button class="btn btn-sm btn-primary" id="submitEscalateToCourier">ESCALATE TO
+                                    COURIER</button>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        /* ===== Modal helpers ===== */
+                        function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+                        function closeAllModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+                        /* Close by [x] or Cancel buttons (data-close), by clicking outside, or ESC */
+                        document.addEventListener('click', (e) => {
+                            const ov = e.target.closest('.modal-overlay');
+                            if (ov && e.target === ov) { closeAllModals(); } // click outside container
+
+                            if (e.target.matches('[data-close]')) {
+                                closeAllModals();
+                            }
+                        });
+                        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
+
+                        /* ===== Event delegation for table buttons ===== */
+                        document.addEventListener('click', function (e) {
+                            const t = e.target.closest('button'); if (!t) return;
+
+                            /* Product Details */
+                            if (t.classList.contains('view-product-details')) {
+                                const ref = t.getAttribute('data-ref') || '';
+                                const product = t.getAttribute('data-product') || '';
+                                const price = t.getAttribute('data-price') || '';
+                                const qty = t.getAttribute('data-qty') || '1';
+                                document.getElementById('productOrderRef').textContent = '#' + ref;
+                                document.getElementById('productName').textContent = product;
+                                document.getElementById('productQuantity').textContent = qty;
+                                document.getElementById('productPrice').textContent = price;
+                                openModal('productDetailsModal');
+                            }
+
+                            /* Show History */
+                            if (t.classList.contains('show-history')) {
+                                const reason = t.getAttribute('data-reason') || '—';
+                                const body = document.getElementById('showHistoryBody');
+                                body.innerHTML = `
+          <div class="history-item">
+            <div class="history-date">Delivery Attempt: ${new Date().toLocaleDateString('en-GB')}</div>
+            <div class="history-status">Delivery Failed: ${reason}</div>
+          </div>
+          <div class="history-item">
+            <div class="history-date">Order Picked At: ${new Date().toLocaleDateString('en-GB')}</div>
+          </div>
+        `;
+                                openModal('showHistoryModal');
+                            }
+
+                            /* Reattempt */
+                            if (t.classList.contains('reattempt-btn')) {
+                                const reason = t.getAttribute('data-reason') || '';
+                                const phone = t.getAttribute('data-phone') || '';
+                                const address = t.getAttribute('data-address') || '';
+                                
+                                // Update the reason text span
+                                document.querySelector('#reattemptModal .reason-text').textContent = reason;
+                                
+                                // Update phone input
+                                document.getElementById('phone').value = phone;
+                                
+                                // Parse address and update address fields
+                                const addressParts = address.split(', ');
+                                if (addressParts.length >= 4) {
+                                    document.getElementById('address1').value = addressParts[0] || '';
+                                    document.getElementById('address2').value = addressParts[1] || '';
+                                    document.getElementById('city').value = addressParts[2] || '';
+                                    document.getElementById('state').value = addressParts[3] || '';
+                                    document.getElementById('pinCode').value = addressParts[4] || '';
+                                }
+                                
+                                // Set reattempt date to tomorrow
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                document.getElementById('reattemptedDate').value = tomorrow.toLocaleDateString('en-GB');
+                                
+                                openModal('reattemptModal');
+                            }
+
+                            /* RTO */
+                            if (t.classList.contains('rto-btn')) {
+                                const product = t.getAttribute('data-product') || '';
+                                const payment = t.getAttribute('data-payment') || '';
+                                const pending = t.getAttribute('data-pending') || '';
+                                document.getElementById('rtoProduct').textContent = product;
+                                document.getElementById('rtoPayment').textContent = payment;
+                                document.getElementById('rtoPending').textContent = (pending ? pending + ' days' : '—');
+                                openModal('rtoModal');
+                            }
+
+                            /* Escalate */
+                            if (t.classList.contains('escalate-btn')) {
+                                const reason = t.getAttribute('data-reason') || '';
+                                document.getElementById('escalateReason').textContent = reason;
+                                openModal('escalateModal');
+                            }
+
+                            /* Escalate to Courier */
+                            if (t.classList.contains('escalate-to-courier-btn')) {
+                                openModal('escalateToCourierModal');
+                            }
+                        });
+
+                        /* ===== Submit buttons (demo alerts—replace with API calls) ===== */
+                        // Handle reattempt form submission
+                        document.addEventListener('submit', function(e) {
+                            if (e.target.closest('#reattemptModal form')) {
+                                e.preventDefault();
+                                const remarks = document.getElementById('remarks').value.trim();
+                                if (!remarks) return alert('Please enter remarks');
+                                
+                                // Get all form data
+                                const formData = {
+                                    reason: document.querySelector('#reattemptModal .reason-text').textContent,
+                                    phone: document.getElementById('phone').value,
+                                    address1: document.getElementById('address1').value,
+                                    address2: document.getElementById('address2').value,
+                                    city: document.getElementById('city').value,
+                                    state: document.getElementById('state').value,
+                                    pinCode: document.getElementById('pinCode').value,
+                                    reattemptedDate: document.getElementById('reattemptedDate').value,
+                                    remarks: remarks
+                                };
+                                
+                                alert('REATTEMPT submitted: ' + JSON.stringify(formData, null, 2));
+                                e.target.reset();
+                                closeAllModals();
+                            }
+                        });
+
+                        document.getElementById('submitRto')?.addEventListener('click', function () {
+                            const remarks = document.getElementById('rtoRemarks').value.trim();
+                            if (!remarks) return alert('Please enter remarks');
+                            alert('RTO submitted: ' + remarks);
+                            document.getElementById('rtoRemarks').value = '';
+                            closeAllModals();
+                        });
+
+                        document.getElementById('submitEscalate')?.addEventListener('click', function () {
+                            const remarks = document.getElementById('escalateRemarks').value.trim();
+                            if (!remarks) return alert('Please enter remarks');
+                            alert('ESCALATE submitted: ' + remarks);
+                            document.getElementById('escalateRemarks').value = '';
+                            closeAllModals();
+                        });
+
+                        document.getElementById('submitEscalateToCourier')?.addEventListener('click', function () {
+                            const remarks = document.getElementById('escalateToCourierRemarks').value.trim();
+                            if (!remarks) return alert('Please enter remarks');
+                            alert('ESCALATE TO COURIER submitted: ' + remarks);
+                            document.getElementById('escalateToCourierRemarks').value = '';
+                            closeAllModals();
+                        });
+                    </script>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Elements
+                            const moreFiltersBtn = document.getElementById('dscMoreFiltersBtn');
+                            const advancedFiltersContainer = document.getElementById('advancedFiltersContainer');
+                            const applyFilterBtn = document.getElementById('applyFilterBtn');
+                            const resetFilterBtn = document.getElementById('resetFilterBtn');
+                            const activeFilterCount = document.getElementById('activeFilterCount');
+                            const refreshBtn = document.getElementById('dscRefreshBtn');
+                            const downloadBtn = document.getElementById('dscDownloadBtn');
+                            const uploadBtn = document.getElementById('dscUploadBtn');
+                            const undoBtn = document.getElementById('dscUndoBtn');
+                            const dateRangeInput = document.getElementById('dscDateRange');
+
+                            const attemptsFilter = document.getElementById('attempts-filter');
+                            const ndrReasonsFilter = document.getElementById('ndr-reasons-filter');
+                            const courierFilter = document.getElementById('courier-filter');
+                            const lastUpdatedDate = document.getElementById('last-updated-date');
+                            const resetDateBtn = document.getElementById('resetDateBtn');
+                            const actionTakenFilterWrap = document.getElementById('action-taken-filter');
+                            const actionTakenSelect = document.getElementById('action-taken-select');
+
+                            const tabsContainer = document.getElementById("dscTabsContainer");
+                            const searchInput = document.getElementById("dscSearchInput");
+
+                            const paginationBar = document.getElementById('paginationBar');
+                            const paginationControls = document.getElementById('paginationControls');
+                            const pageSizeSelect = document.getElementById('pageSize');
+                            const entriesInfo = document.getElementById('entriesInfo');
+
+                            // Initialize date pickers
+                            function initDatePickers() {
+                                // Mock date range picker initialization
+                                dateRangeInput.addEventListener('click', function () {
+                                    alert('Date range picker would open here in a real implementation');
+                                });
+
+                                lastUpdatedDate.addEventListener('click', function () {
+                                    alert('Last updated date picker would open here in a real implementation');
+                                });
+
+                                resetDateBtn.addEventListener('click', function () {
+                                    lastUpdatedDate.value = '15/07/2025 ~ 14/08/2025';
+                                    updateActiveFilterCount();
+                                });
+                            }
+
+                            // Button click handlers
+                            function setupButtonHandlers() {
+                                // Refresh button
+                                refreshBtn.addEventListener('click', function () {
+                                    refreshBtn.innerHTML = '<i class="fas fa-spinner loading-spinner"></i>';
+                                    setTimeout(function () {
+                                        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                                        currentPage = 1;
+                                        renderTableRows(currentTab, currentQuery);
+                                        showToast('Data refreshed successfully');
+                                    }, 800);
+                                });
+
+                                // Download button
+                                downloadBtn.addEventListener('click', function () {
+                                    downloadBtn.innerHTML = '<i class="fas fa-spinner loading-spinner"></i>';
+                                    setTimeout(function () {
+                                        downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+                                        showToast('Export started. Preparing CSV file...');
+                                        // In a real app, this would trigger a file download
+                                    }, 1000);
+                                });
+
+                                // Upload button
+                                uploadBtn.addEventListener('click', function () {
+                                    alert('File upload dialog would open here in a real implementation');
+                                });
+
+                                // Undo button (reset search)
+                                undoBtn.addEventListener('click', function () {
+                                    searchInput.value = '';
+                                    currentPage = 1;
+                                    renderTableRows(currentTab, '');
+                                    showToast('Search cleared');
+                                });
+                            }
+
+                            let dscData = {
+  "action-pending": [],
+  "action-taken": [],
+  "delivered": [],
+  "rto": [],
+  "all": []
+};
+let allOrders = [];
+
+                            // Toast notification
+                            function showToast(message) {
+                                const toast = document.createElement('div');
+                                toast.style.position = 'fixed';
+                                toast.style.bottom = '20px';
+                                toast.style.right = '20px';
+                                toast.style.backgroundColor = '#3b82f6';
+                                toast.style.color = 'white';
+                                toast.style.padding = '12px 16px';
+                                toast.style.borderRadius = '6px';
+                                toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                                toast.style.zIndex = '1000';
+                                toast.style.transition = 'all 0.3s ease';
+                                toast.style.transform = 'translateY(20px)';
+                                toast.style.opacity = '0';
+                                toast.innerHTML = message;
+
+                                document.body.appendChild(toast);
+
+                                setTimeout(() => {
+                                    toast.style.transform = 'translateY(0)';
+                                    toast.style.opacity = '1';
+                                }, 10);
+
+                                setTimeout(() => {
+                                    toast.style.opacity = '0';
+                                    toast.style.transform = 'translateY(-20px)';
+                                    setTimeout(() => {
+                                        document.body.removeChild(toast);
+                                    }, 300);
+                                }, 3000);
+                            }
+
+                            // Toggle advanced filters
+                            moreFiltersBtn.addEventListener('click', function () {
+                                const isVisible = advancedFiltersContainer.style.display === 'block';
+                                advancedFiltersContainer.style.display = isVisible ? 'none' : 'block';
+                                moreFiltersBtn.classList.toggle('active', !isVisible);
+                            });
+ async function fetchOrderDetails() {
+  try {
+    const res = await fetch("http://localhost:5000/api/get-order-details");
+    const json = await res.json();
+
+    if (json.ok && Array.isArray(json.data)) {
+      allOrders = json.data;
+
+      dscData["action-pending"] = allOrders;  // show in default tab
+      dscData["all"] = allOrders;
+
+      renderTableRows("action-pending");
+    } else {
+      console.error("Invalid API response:", json);
+      renderEmptyState();
+    }
+  } catch (err) {
+    console.error("API fetch failed", err);
+    renderEmptyState();
+  }
+}
+
+
+                            // Active filter count
+                            function updateActiveFilterCount() {
+                                let count = 0;
+                                if (attemptsFilter.value) count++;
+                                if (ndrReasonsFilter.value) count++;
+                                if (courierFilter.value) count++;
+                                if (lastUpdatedDate.value !== '15/07/2025 ~ 14/08/2025') count++;
+                                if (actionTakenSelect.value && actionTakenFilterWrap.style.display === 'block') count++;
+
+                                if (count > 0) {
+                                    activeFilterCount.style.display = 'inline-flex';
+                                    activeFilterCount.textContent = count;
+                                    moreFiltersBtn.classList.add('active');
+                                } else {
+                                    activeFilterCount.style.display = 'none';
+                                    moreFiltersBtn.classList.remove('active');
+                                }
+                            }
+
+                            // Apply/Reset filters
+                            applyFilterBtn.addEventListener('click', function () {
+                                applyFilterBtn.innerHTML = '<i class="fas fa-spinner loading-spinner me-1"></i> Applying...';
+                                setTimeout(function () {
+                                    updateActiveFilterCount();
+                                    advancedFiltersContainer.style.display = 'none';
+                                    moreFiltersBtn.classList.remove('active');
+                                    applyFilterBtn.innerHTML = '<i class="fas fa-check me-1"></i> Apply Filters';
+                                    currentPage = 1;
+                                    renderTableRows(currentTab, currentQuery);
+                                    showToast('Filters applied successfully');
+                                }, 800);
+                            });
+
+                            resetFilterBtn.addEventListener('click', function () {
+                                attemptsFilter.value = '';
+                                ndrReasonsFilter.value = '';
+                                courierFilter.value = '';
+                                actionTakenSelect.value = '';
+                                lastUpdatedDate.value = '15/07/2025 ~ 14/08/2025';
+                                updateActiveFilterCount();
+                                currentPage = 1;
+                                renderTableRows(currentTab, currentQuery);
+                                showToast('Filters reset');
+                            });
+
+                            // Event listeners for filter changes
+                            attemptsFilter.addEventListener('change', updateActiveFilterCount);
+                            ndrReasonsFilter.addEventListener('change', updateActiveFilterCount);
+                            courierFilter.addEventListener('change', updateActiveFilterCount);
+                            lastUpdatedDate.addEventListener('change', updateActiveFilterCount);
+                            actionTakenSelect.addEventListener('change', updateActiveFilterCount);
+                            updateActiveFilterCount();
+
+                            // State
+                            let currentTab = 'action-pending';
+                            let currentQuery = '';
+                            let currentPage = 1;
+                            let pageSize = parseInt(pageSizeSelect.value, 10);
+
+                            // Sample data
+                        
+
+                            // Table show/hide function
+                            function showTable(tabKey) {
+                                // Always show the main table
+                                document.getElementById('mainDataTable').style.display = 'table';
+
+                                // Remove all existing tab classes
+                                const mainTable = document.getElementById('mainDataTable');
+                                mainTable.classList.remove('action-pending', 'action-taken', 'delivered', 'rto', 'all');
+
+                                // Add the appropriate tab class for CSS styling
+                                mainTable.classList.add(tabKey);
+
+                                // Show Action Taken filter only on Action Taken tab
+                                actionTakenFilterWrap.style.display = (tabKey === 'action-taken') ? 'block' : 'none';
+
+                                // Update table headers based on active tab
+                                const tableHeader = document.getElementById('tableHeader');
+                                tableHeader.innerHTML = ''; // Clear existing headers
+
+                                if (tabKey === 'action-pending') {
+                                    // Action Pending: 10 columns
+                                    tableHeader.innerHTML = `
+                                        <tr>
+                                            <th>ORDER DETAILS</th>
+                                            <th>PRODUCT DETAILS</th>
+                                            <th>PAYMENT TYPE</th>
+                                            <th>CUSTOMER DETAILS</th>
+                                            <th>SHIPPING DETAILS</th>
+                                            <th>PENDING SINCE</th>
+                                            <th>ESCALATION STATUS</th>
+                                            <th>NON DELIVERY INFO</th>
+                                            <th>UNDEL REASON</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    `;
+                                } else if (["action-taken", "delivered", "rto"].includes(tabKey)) {
+                                    // Action Taken, Delivered, RTO: 10 columns
+                                    tableHeader.innerHTML = `
+                                        <tr>
+                                            <th>SHIPMENT DETAILS</th>
+                                            <th>COURIER</th>
+                                            <th>NDR REASON</th>
+                                            <th>CUSTOMER DETAILS</th>
+                                            <th>UPDATED CUSTOMER DETAILS</th>
+                                            <th>SELLER REMARKS</th>
+                                            <th>PAYMENT MODE</th>
+                                            <th>LAST UPDATED</th>
+                                            <th>LAST ACTION TAKEN</th>
+                                            <th>LAST ACTION BY</th>
+                                        </tr>
+                                    `;
+                                } else {
+                                    // All tab: 7 columns
+                                    tableHeader.innerHTML = `
+                                        <tr>
+                                            <th>SHIPMENT DETAILS</th>
+                                            <th>COURIER</th>
+                                            <th>NDR REASON</th>
+                                            <th>CUSTOMER DETAILS</th>
+                                            <th>PAYMENT MODE</th>
+                                            <th>LAST UPDATED</th>
+                                            <th>LAST ACTION BY</th>
+                                        </tr>
+                                    `;
+                                }
+                            }
+
+                            function renderEmptyState() {
+                                const emptyStateHTML = `
+                                <tr>
+                                    <td colspan="100%" class="text-center py-5">
+                                        <div class="dsc-empty-state">
+                                            <img alt="Empty state" src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" style="width: 64px; height: 64px; opacity: 0.5;" />
+                                            <p class="mt-3 mb-1">No records found matching your criteria</p>
+                                            <p class="text-muted small">Try adjusting your filters or search terms</p>
+                                        </div>
+                                    </td>
+                                </tr>`;
+
+                                // Update all table contents with empty state
+                                document.getElementById('mainTableContent').innerHTML = emptyStateHTML;
+
+                                paginationBar.style.display = 'none';
+                            }
+
+function rowToHTML(order, tabKey) {
+  const esc = (v) => String(v ?? "").replace(/"/g, "&quot;");
+  const consignee = order.consignee || {};
+  const client = order.client || {};
+  const lrList = order.lr_info || [];
+  const products = order.products || [];
+  const orderMeta = order.order_meta || {};
+  const paymentMode = orderMeta.payment_mode || "-";
+
+  const paymentBadge = paymentMode.toLowerCase() === "cod"
+    ? `<span class="badge bg-warning">COD</span>`
+    : `<span class="badge bg-success">Prepaid</span>`;
+
+  // --- Product details ---
+  let productHTML = "—";
+  if (products.length > 0) {
+    productHTML = `
+      <div class="fw-semibold">${esc(products[0].name)}</div>
+      <div class="small">Qty: ${products[0].quantity}, ₹${products[0].price}</div>
+      ${products.length > 1
+        ? `<button class="btn btn-xs btn-outline-primary view-product-details"
+                   data-ref="${esc(order.order_id)}"
+                   data-product="${esc(products.map(p => p.name).join(', '))}"
+                   data-price="${esc(products.map(p => p.price).join(', '))}"
+                   data-qty="${esc(products.map(p => p.quantity).join(', '))}">
+             +${products.length - 1} more
+           </button>` : ""}
+    `;
+  }
+
+  // --- LR details ---
+  let lrHTML = "—";
+  if (lrList.length > 0) {
+    lrHTML = lrList.map(lr => `
+      <div class="fw-semibold">${esc(lr.tagged_api)} </div>
+      <div class="small">LR No: <b>${esc(lr.lr_no)}</b></div>
+      <div class="small">Charges: ₹${esc(lr.total_lr_charges)}</div>
+    `).join("<hr/>");
+  }
+
+  if (tabKey === "action-pending") {
+    return `
+      <tr>
+        <!-- Order details -->
+        <td>
+          <div class="fw-semibold">Order #${esc(order.order_id)}</div>
+          <div class="small text-muted">Ref: ${esc(orderMeta.ref_number)}</div>
+          <div class="small">Placed By: ${esc(client.first_name)} (${esc(client.company_name)})</div>
+        </td>
+
+        <!-- Product details -->
+        <td>${productHTML}</td>
+
+        <!-- Payment -->
+        <td>${paymentBadge}</td>
+
+        <!-- Customer details -->
+        <td>
+          <div>${esc(consignee.first_name)} ${esc(consignee.last_name)}</div>
+          <div class="small text-muted">${esc(consignee.phone)}</div>
+        </td>
+
+        <!-- Shipping -->
+        <td>
+          <div>${esc(consignee.address_line1)}</div>
+          <div class="small text-muted">${esc(consignee.city)}, ${esc(consignee.state)}</div>
+        </td>
+
+        <!-- LR INFO (NEW COLUMN) -->
+        <td>${lrHTML}</td>
+
+        <!-- Pending since -->
+        <td>${lrList[0]?.created_at ? new Date(lrList[0].created_at).toLocaleDateString("en-GB") : "—"}</td>
+
+        <!-- Escalation status -->
+        <td><span class="badge bg-secondary">Pending</span></td>
+
+        <!-- Non-delivery info -->
+        <td>${lrList[0]?.status === "1" ? "In Transit" : "—"}</td>
+
+        <!-- Undel reason -->
+        <td>Undelivered</td>
+
+        <!-- Actions -->
+        <td>
+          <div class="action-buttons-container">
+            <button class="btn btn-xs btn-primary reattempt-btn"
+                    data-reason="Undelivered"
+                    data-phone="${esc(consignee.phone)}"
+                    data-address="${esc(consignee.address_line1)}, ${esc(consignee.city)}, ${esc(consignee.state)}, ${esc(consignee.pincode)}">
+              REATTEMPT
+            </button>
+            <button class="btn btn-xs btn-outline-primary rto-btn"
+                    data-product="${esc(products[0]?.name || '')}"
+                    data-payment="${esc(paymentMode)}"
+                    data-pending="2">
+              RTO
+            </button>
+            <button class="btn btn-xs btn-outline-danger escalate-btn"
+                    data-reason="Undelivered">
+              ESCALATE
+            </button>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  return `<tr><td colspan="100%">Not implemented for ${tabKey}</td></tr>`;
+}
+
+
+
+
+
+
+// Pagination helpers
+                            function paginate(array, pageNumber, perPage) {
+                                const total = array.length;
+                                const totalPages = Math.max(1, Math.ceil(total / perPage));
+                                const clampedPage = Math.min(Math.max(1, pageNumber), totalPages);
+                                const start = (clampedPage - 1) * perPage;
+                                const end = Math.min(start + perPage, total);
+                                return {
+                                    slice: array.slice(start, end),
+                                    total, totalPages, page: clampedPage, startIndex: start, endIndex: end
+                                };
+                            }
+
+                            function renderPaginationControls(meta) {
+                                paginationControls.innerHTML = '';
+                                const { totalPages, page } = meta;
+
+                                function addItem(label, disabled, pageTarget, aria, icon = null) {
+                                    const li = document.createElement('li');
+                                    li.className = `page-item ${disabled ? 'disabled' : ''}`;
+                                    const a = document.createElement('a');
+                                    a.className = 'page-link';
+                                    a.href = '#';
+                                    if (icon) {
+                                        a.innerHTML = `<i class="fas fa-${icon}"></i>`;
+                                    } else {
+                                        a.textContent = label;
+                                    }
+                                    if (aria) a.setAttribute('aria-label', aria);
+                                    if (!disabled) {
+                                        a.addEventListener('click', (e) => {
+                                            e.preventDefault();
+                                            currentPage = pageTarget;
+                                            renderTableRows(currentTab, currentQuery);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        });
+                                    }
+                                    li.appendChild(a);
+                                    paginationControls.appendChild(li);
+                                }
+
+                                // Previous
+                                addItem('', page <= 1, page - 1, 'Previous', 'chevron-left');
+
+                                // First page
+                                if (page > 3) {
+                                    addItem('1', false, 1);
+                                    if (page > 4) {
+                                        const li = document.createElement('li');
+                                        li.className = 'page-item disabled';
+                                        const span = document.createElement('span');
+                                        span.className = 'page-link';
+                                        span.textContent = '...';
+                                        li.appendChild(span);
+                                        paginationControls.appendChild(li);
+                                    }
+                                }
+
+                                // Page numbers around current
+                                const start = Math.max(1, page - 2);
+                                const end = Math.min(totalPages, page + 2);
+
+                                for (let p = start; p <= end; p++) {
+                                    const li = document.createElement('li');
+                                    li.className = `page-item ${p === page ? 'active' : ''}`;
+                                    const a = document.createElement('a');
+                                    a.className = 'page-link';
+                                    a.href = '#';
+                                    a.textContent = p;
+                                    if (p !== page) {
+                                        a.addEventListener('click', (e) => {
+                                            e.preventDefault();
+                                            currentPage = p;
+                                            renderTableRows(currentTab, currentQuery);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        });
+                                    }
+                                    li.appendChild(a);
+                                    paginationControls.appendChild(li);
+                                }
+
+                                // Last page
+                                if (page < totalPages - 2) {
+                                    if (page < totalPages - 3) {
+                                        const li = document.createElement('li');
+                                        li.className = 'page-item disabled';
+                                        const span = document.createElement('span');
+                                        span.className = 'page-link';
+                                        span.textContent = '...';
+                                        li.appendChild(span);
+                                        paginationControls.appendChild(li);
+                                    }
+                                    addItem(totalPages, false, totalPages);
+                                }
+
+                                // Next
+                                addItem('', page >= totalPages, page + 1, 'Next', 'chevron-right');
+                            }
+
+                            function updateEntriesInfo(meta) {
+                                const { total, startIndex, endIndex } = meta;
+                                if (total === 0) {
+                                    entriesInfo.textContent = `Showing 0 of 0 entries`;
+                                } else {
+                                    entriesInfo.textContent = `Showing ${startIndex + 1}–${endIndex} of ${total} entries`;
+                                }
+                            }
+
+                            function applySearchFilter(rows, q) {
+                                if (!q) return rows;
+                                const needle = q.trim().toLowerCase();
+                                return rows.filter(r =>
+                                    Object.values(r).some(v =>
+                                        String(v ?? '').toLowerCase().includes(needle)
+                                    )
+                                );
+                            }
+
+                            function renderTableRows(tabKey, query = "") {
+                                currentTab = tabKey;
+                                currentQuery = query;
+
+                                showTable(tabKey);
+
+                                let baseRows = dscData[tabKey] || [];
+
+                                // Apply filters if needed
+                                if (attemptsFilter.value) {
+                                    // In a real app, filter by attempts
+                                }
+                                if (ndrReasonsFilter.value) {
+                                    baseRows = baseRows.filter(r => r.ndrReason.includes(ndrReasonsFilter.selectedOptions[0].text));
+                                }
+                                if (courierFilter.value) {
+                                    baseRows = baseRows.filter(r => r.courier === courierFilter.selectedOptions[0].text);
+                                }
+                                if (actionTakenSelect.value && tabKey === 'action-taken') {
+                                    baseRows = baseRows.filter(r => r.action.includes(actionTakenSelect.value));
+                                }
+
+                                const filtered = applySearchFilter(baseRows, query);
+
+                                if (!filtered.length) {
+                                    renderEmptyState();
+                                    return;
+                                }
+
+                                // Pagination
+                                const meta = paginate(filtered, currentPage, pageSize);
+                                const html = meta.slice.map(row => rowToHTML(row, tabKey)).join("");
+
+                                // Update the main table content
+                                document.getElementById('mainTableContent').innerHTML = html;
+
+                                // Show pagination bar + info
+                                paginationBar.style.display = 'flex';
+                                updateEntriesInfo(meta);
+                                renderPaginationControls(meta);
+                            }
+
+                            // Initialize everything
+                            function init() {
+  initDatePickers();
+  setupButtonHandlers();
+  fetchOrderDetails(); // load from API
+}
+
+
+                            // Initial setup
+                            init();
+
+                            // Tabs
+                            tabsContainer.addEventListener("click", (e) => {
+                                const btn = e.target.closest(".dsc-tab-btn");
+                                if (!btn) return;
+                                document.querySelectorAll(".dsc-tab-btn").forEach(t => {
+                                    t.classList.remove("active");
+                                    t.setAttribute("aria-selected", "false");
+                                });
+                                btn.classList.add("active");
+                                btn.setAttribute("aria-selected", "true");
+                                currentPage = 1;
+                                const tabKey = btn.getAttribute("data-tab");
+                                renderTableRows(tabKey, searchInput.value || "");
+                            });
+
+                            // Search
+                            searchInput.addEventListener("input", function () {
+                                currentPage = 1;
+                                renderTableRows(currentTab, this.value);
+                            });
+
+                            // Page size change
+                            pageSizeSelect.addEventListener('change', function () {
+                                pageSize = parseInt(this.value, 10) || 10;
+                                currentPage = 1;
+                                renderTableRows(currentTab, currentQuery);
+                            });
+                        });
+                    </script>
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <!-- FOOTER -->
+                    <%- include('../partials/footer') %>
+    </div>
+</body>
+
+</html>

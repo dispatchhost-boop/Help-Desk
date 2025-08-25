@@ -1,4 +1,6 @@
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket } = require('../models/index.js');
+// const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails } = require('../models/index.js');
+
 
 const { mySqlQury } = require('../middleware/db');
 const jwt = require('jsonwebtoken');
@@ -60,10 +62,75 @@ const { DataTypes } = require('sequelize');
 
 
 
+async function getAllOrderDetails(req, res) {
+  try {
+    console.log('🔍 [getAllOrderDetails] Query started...');
 
+    // Fetch EXPRESS + ECOM separately
+    const expressOrders = await ExpOrders.findAll({
+      include: [
+        { model: ExpLR, as: 'exp_lrs' },
+        { model: ExpProductDetails, as: 'products' },
+        { model: ConsigneeDetails, as: 'consignee' },
+        { model: Admin, as: 'client' }
+      ]
+    });
 
+    const ecomOrders = await EcomOrders.findAll({
+      include: [
+        { model: EcomLR, as: 'ecom_lrs' },
+        { model: EcomProductDetails, as: 'products' },
+        { model: EcomConsigneeDetails, as: 'consignee' },
+        { model: Admin, as: 'client' }
+      ]
+    });
 
+    console.log(`✅ Found Express: ${expressOrders.length}, Ecom: ${ecomOrders.length}`);
 
+    const payload = [
+      ...expressOrders.map(order => ({
+        type: 'express',
+        id: order.id,
+        order_id: order.id,   // 🔑 integer
+        order_meta: {
+          id: order.id,
+          ref_number: order.ref_number,
+          payment_mode: order.payment_mode,
+          box_qty: order.box_qty,
+          total_qty: order.total_qty,
+          grand_total: order.grand_total
+        },
+        products: order.products || [],
+        lr_info: order.exp_lrs || [],
+        client: order.client || null,
+        consignee: order.consignee || null
+      })),
+      ...ecomOrders.map(order => ({
+        type: 'ecom',
+        id: order.id,
+        order_id: order.id,   // 🔑 integer
+        order_meta: {
+          id: order.id,
+          ref_number: order.ref_number,
+          payment_mode: order.payment_mode,
+          box_qty: order.box_qty,
+          total_qty: order.total_qty,
+          grand_total: order.grand_total
+        },
+        products: order.products || [],
+        lr_info: order.ecom_lrs || [],
+        client: order.client || null,
+        consignee: order.consignee || null
+      }))
+    ];
+
+    return res.json({ ok: true, total: payload.length, data: payload });
+
+  } catch (err) {
+    console.error('❌ [getAllOrderDetails] Error:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
 
 
 // GET /api/support/overview
@@ -696,8 +763,6 @@ async function getSupportCategories(req, res) {
     });
   }
 }
-
-
 const loginPage = (req, res, next) => {
   // console.log("req,post", req.body)
   res.render('pages/login', { title: 'Log In', layout: 'partials/layout-auth' })
@@ -30770,5 +30835,6 @@ module.exports = {
   getClientLRNumbers,
   getAdminsByClientId,
   getSupportTicketsWithAdmins,
-  updateSupportTicketStatus
+  updateSupportTicketStatus,
+  getAllOrderDetails
 }

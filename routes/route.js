@@ -11,6 +11,16 @@ require('../crone/crone.js')
 const axios = require('axios');
 const { log } = require('console');
 
+
+
+route.get('/api/get-order-details', userController.getAllOrderDetails);
+
+
+
+
+
+
+
 // ======================
 // HELPDESK ROUTES
 // ======================
@@ -2900,6 +2910,18 @@ route.get('/view-support-tickets', (req, res) => {
   });
 });
 
+route.get('/ndr-manager', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/ndr-manager', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
 route.use('/', express.static(path.join(__dirname, './')))
 
 // Layout
@@ -2940,4 +2962,4 @@ route.get('/dark-topbar', (req, res, next) => {
   res.render('layouts/dark-topbar', { title: 'Metrica', layout: 'partials/layout-vertical2' })
 })
 
-module.exports = route;   
+module.exports = route;

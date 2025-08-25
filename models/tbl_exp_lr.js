@@ -2,7 +2,8 @@
 module.exports = (sequelize, DataTypes) => {
   const ExpLR = sequelize.define('ExpLR', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    order_id: DataTypes.STRING,
+    // order_id: DataTypes.STRING,
+     order_id: DataTypes.BIGINT, 
     client_id: DataTypes.INTEGER,
     lr_no: DataTypes.STRING,
     tagged_api: DataTypes.STRING,
