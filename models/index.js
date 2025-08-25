@@ -23,7 +23,7 @@ const Admin                     = require('./Admin')(sequelize, DataTypes);
 const SupportTicket             = require('./SupportTicket')(sequelize, DataTypes);
 const TblDeliveryReattempts   = require('./TblDeliveryReattempts')(sequelize, DataTypes);
 const TblRtoRequests   = require('./TblRtoRequests')(sequelize, DataTypes);
-
+const TblEscalation   = require('./TblEscalation')(sequelize, DataTypes);
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
 SubCategory.associate?.({ Category, SubCategoryAddField, SubCategoryMandatoryField });
@@ -149,5 +149,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation
 };

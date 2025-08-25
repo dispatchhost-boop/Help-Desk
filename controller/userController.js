@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests  } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation  } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -58,6 +58,33 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+
+
+
+async function createEscalation(req, res) {
+  try {
+   
+
+    const { order_id, reason, remarks } = req.body;
+
+    if (!order_id || !reason || !remarks) {
+      return res.status(400).json({ ok: false, error: "order_id, reason and remarks are required" });
+    }
+
+    const newEscalation = await TblEscalation.create({
+      order_id,
+      reason,
+      remarks
+    });
+
+
+    return res.json({ ok: true, data: newEscalation });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
 
 
 async function createRto(req, res) {
@@ -30916,6 +30943,7 @@ module.exports = {
   updateSupportTicketStatus,
   getAllOrderDetails,
    createReattempt,
-   createRto
+   createRto,
+   createEscalation
 
 }

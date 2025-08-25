@@ -17,6 +17,8 @@ route.post('/delivery-reattempt', userController.createReattempt);
 
 route.post('/rto-request', userController.createRto);
 
+route.post('/escalation', userController.createEscalation);
+
 
 
 
