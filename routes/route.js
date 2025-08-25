@@ -11,6 +11,11 @@ require('../crone/crone.js')
 const axios = require('axios');
 const { log } = require('console');
 
+///======================NDR ROUTES==================================///
+// route.post('/delivery-reattempt', userController.createReattempt);
+route.post('/delivery-reattempt', userController.createReattempt);
+
+
 
 
 route.get('/api/get-order-details', userController.getAllOrderDetails);

@@ -1,24 +1,22 @@
+// migrations/20250825075340-fix-exp-lr-orderid-fk.js
 'use strict';
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // 1) Remove old foreign key constraint (if exists)
-    await queryInterface.removeConstraint('tbl_exp_lr', 'fk_lr_order').catch(() => {});
-
-    // 2) Change order_id column to BIGINT to match tbl_exp_orders.id
+    // First, make sure tbl_exp_lr.order_id is INT and not VARCHAR
     await queryInterface.changeColumn('tbl_exp_lr', 'order_id', {
-      type: Sequelize.BIGINT,
-      allowNull: false,
+      type: Sequelize.INTEGER,
+      allowNull: false
     });
 
-    // 3) Add proper foreign key linking tbl_exp_lr.order_id -> tbl_exp_orders.id
+    // Then add FK to tbl_exp_orders.id
     await queryInterface.addConstraint('tbl_exp_lr', {
       fields: ['order_id'],
       type: 'foreign key',
-      name: 'fk_lr_order',
+      name: 'fk_tbl_exp_lr_order_id',
       references: {
         table: 'tbl_exp_orders',
-        field: 'id', // numeric PK
+        field: 'id'
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
@@ -26,11 +24,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // Revert back
-    await queryInterface.removeConstraint('tbl_exp_lr', 'fk_lr_order').catch(() => {});
+    await queryInterface.removeConstraint('tbl_exp_lr', 'fk_tbl_exp_lr_order_id');
     await queryInterface.changeColumn('tbl_exp_lr', 'order_id', {
-      type: Sequelize.STRING,
-      allowNull: true,
+      type: Sequelize.STRING, // fallback if it was string before
+      allowNull: false
     });
   }
 };

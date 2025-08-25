@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts  } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -60,11 +60,61 @@ const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
 
 
+async function createReattempt(req, res) {
+  try {
+   
+
+    // 1) Extract payload
+    const {
+      order_id,
+      reason,
+      reason_incorrect,    // frontend boolean
+      request_reattempt,   // frontend boolean
+      reattempted_date,
+      phone,
+      landmark,
+      address1,
+      address2,
+      city,
+      state,
+      pin_code,
+      remarks
+    } = req.body;
+
+  
+    // 2) Save to DB (map fields to DB column names)
+    const newReattempt = await TblDeliveryReattempts.create({
+      order_id,
+      reason,
+      is_reason_incorrect: reason_incorrect ? 1 : 0,
+      request_for_reattempt: request_reattempt ? 1 : 0,
+      reattempted_date,
+      phone,
+      landmark,
+      address_line1: address1,
+      address_line2: address2,
+      city,
+      state,
+      pincode: pin_code,
+      remarks
+    });
+
+    // 3) Response
+    return res.json({ ok: true, data: newReattempt });
+
+  } catch (err) {
+    // 4) Error Handling
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
 
 
 async function getAllOrderDetails(req, res) {
   try {
-    console.log('🔍 [getAllOrderDetails] Query started...');
 
     // Fetch EXPRESS + ECOM separately
     const expressOrders = await ExpOrders.findAll({
@@ -85,7 +135,6 @@ async function getAllOrderDetails(req, res) {
       ]
     });
 
-    console.log(`✅ Found Express: ${expressOrders.length}, Ecom: ${ecomOrders.length}`);
 
     const payload = [
       ...expressOrders.map(order => ({
@@ -133,9 +182,7 @@ async function getAllOrderDetails(req, res) {
 }
 
 
-// GET /api/support/overview
-// Pull tickets (with optional filters), extract client_ids, then call /api/clients/:clientId/admins for each
-// controller/userController.js
+
 
 async function getSupportTicketsWithAdmins(req, res) {
   try {
@@ -30836,5 +30883,7 @@ module.exports = {
   getAdminsByClientId,
   getSupportTicketsWithAdmins,
   updateSupportTicketStatus,
-  getAllOrderDetails
+  getAllOrderDetails,
+   createReattempt
+
 }

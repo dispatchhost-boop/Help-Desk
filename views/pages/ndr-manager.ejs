@@ -1216,30 +1216,83 @@
 
                         /* ===== Submit buttons (demo alerts—replace with API calls) ===== */
                         // Handle reattempt form submission
-                        document.addEventListener('submit', function(e) {
-                            if (e.target.closest('#reattemptModal form')) {
-                                e.preventDefault();
-                                const remarks = document.getElementById('remarks').value.trim();
-                                if (!remarks) return alert('Please enter remarks');
-                                
-                                // Get all form data
-                                const formData = {
-                                    reason: document.querySelector('#reattemptModal .reason-text').textContent,
-                                    phone: document.getElementById('phone').value,
-                                    address1: document.getElementById('address1').value,
-                                    address2: document.getElementById('address2').value,
-                                    city: document.getElementById('city').value,
-                                    state: document.getElementById('state').value,
-                                    pinCode: document.getElementById('pinCode').value,
-                                    reattemptedDate: document.getElementById('reattemptedDate').value,
-                                    remarks: remarks
-                                };
-                                
-                                alert('REATTEMPT submitted: ' + JSON.stringify(formData, null, 2));
-                                e.target.reset();
-                                closeAllModals();
-                            }
-                        });
+                       // Handle reattempt form submission
+// Handle reattempt form submission
+document.addEventListener('submit', async function (e) {
+  if (e.target.closest('#reattemptModal form')) {
+    e.preventDefault();
+
+    const remarks = document.getElementById('remarks').value.trim();
+    if (!remarks) return alert('Please enter remarks');
+
+    // Build payload as per backend API
+    const payload = {
+      order_id: 26, // ⚡ replace with dynamic order id if available
+      reason: document.querySelector('#reattemptModal .reason-text').textContent,
+      reason_incorrect: document.getElementById('incorrectCheck').checked,
+      request_reattempt: document.getElementById('reattemptCheck').checked,
+      reattempted_date: document.getElementById('reattemptedDate').value,
+      phone: document.getElementById('phone').value,
+      landmark: document.getElementById('landmark').value,
+      address1: document.getElementById('address1').value,
+      address2: document.getElementById('address2').value,
+      city: document.getElementById('city').value,
+      state: document.getElementById('state').value,
+      pin_code: document.getElementById('pinCode').value,
+      remarks: remarks
+    };
+
+    try {
+      console.log("🚀 Sending payload:", payload);
+
+      const res = await fetch("http://localhost:5000/delivery-reattempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      console.log("📡 Response status:", res.status, res.statusText);
+
+      const rawText = await res.text();   // get raw response first
+      console.log("📄 Raw Response:", rawText);
+
+      let json;
+      try {
+        json = JSON.parse(rawText);       // try to parse as JSON
+      } catch (e) {
+        throw new Error("Invalid JSON response from server: " + rawText);
+      }
+
+      console.log("📦 API Parsed JSON:", json);
+
+   if (res.ok && json.ok) {
+  const msg = "✅ Reattempt created successfully!";
+  if (typeof showToast === "function") {
+    showToast(msg);
+  } else {
+    alert(msg); // fallback if toast not available
+  }
+  closeAllModals();
+} else {
+  const errMsg = json.error || json.message || "❌ Something went wrong.";
+  if (typeof showToast === "function") {
+    showToast(errMsg);
+  } else {
+    alert(errMsg);
+  }
+}
+    } catch (error) {
+        console.error("❌ Error during API call:", error);
+        const errMsg = "❌ Network or server error: " + error.message;
+        if (typeof showToast === "function") {
+            showToast(errMsg);
+        } else {
+            alert(errMsg);
+        }
+        }    
+  }
+});
+
 
                         document.getElementById('submitRto')?.addEventListener('click', function () {
                             const remarks = document.getElementById('rtoRemarks').value.trim();

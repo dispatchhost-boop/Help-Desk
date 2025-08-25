@@ -20,6 +20,7 @@ route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
 // ======================
 route.get('/', userController.loginPage)
 route.post('/', userController.loginAuth)
+route.post('/delivery-reattempt', userController.createReattempt);
 route.get('/signup', userController.getSignup)
 route.post('/signup', userController.postSignup)
 route.get('/verify/:token', userController.getVerifyToken)

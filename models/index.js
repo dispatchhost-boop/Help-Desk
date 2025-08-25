@@ -21,6 +21,7 @@ const EcomConsigneeDetails      = require('./TblEcomConsigneeDetails')(sequelize
 
 const Admin                     = require('./Admin')(sequelize, DataTypes);
 const SupportTicket             = require('./SupportTicket')(sequelize, DataTypes);
+const TblDeliveryReattempts   = require('./TblDeliveryReattempts')(sequelize, DataTypes);
 
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
@@ -147,5 +148,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin
+  Admin,TblDeliveryReattempts
 };
