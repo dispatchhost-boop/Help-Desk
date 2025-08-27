@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation  } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason,   } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -60,6 +60,49 @@ const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
 
 
+async function addNdrReason(req, res) {
+  try {
+    const { order_id, reason } = req.body;
+
+    if (!order_id || !reason) {
+      return res.status(400).json({ ok: false, error: "Missing fields" });
+    }
+
+    const newReason = await NdrReason.create({
+      order_id,
+      reason
+    });
+
+    return res.json({ ok: true, data: newReason });
+  } catch (err) {
+    console.error("❌ [addNdrReason] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+// Fetch history for one order
+async function getNdrHistory(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({ ok: false, error: "Missing fields" });
+    }
+
+    const history = await NdrReason.findAll({
+      where: { order_id},
+      order: [["created_at", "DESC"]]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistory] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
 
 
 async function getNdrActions(req, res) {
@@ -30969,5 +31012,7 @@ module.exports = {
    createReattempt,
    createRto,
    createEscalation,
-   getNdrActions
+   getNdrActions,
+  addNdrReason,
+  getNdrHistory
 }

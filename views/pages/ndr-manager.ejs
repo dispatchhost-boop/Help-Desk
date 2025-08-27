@@ -683,6 +683,42 @@
 </head>
 
 <body data-theme="light" class="font-nunito">
+    <script>
+  // ✅ Global toast helper
+  function showToast(message, type = "info") {
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor =
+      type === "success" ? "#10b981" :
+      type === "error" ? "#ef4444" :
+      "#3b82f6"; // default info
+    toast.style.color = 'white';
+    toast.style.padding = '12px 16px';
+    toast.style.borderRadius = '6px';
+    toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    toast.style.zIndex = '1000';
+    toast.style.transition = 'all 0.3s ease';
+    toast.style.transform = 'translateY(20px)';
+    toast.style.opacity = '0';
+    toast.innerHTML = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+    }, 10);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+</script>
+
     <div id="wrapper" class="theme-cyan">
         <!-- HEADER -->
         <%- include('../partials/header') %>
@@ -1067,13 +1103,20 @@
                         </div>
                     </div>
                     <!-- Escalate Modal -->
-                    <div class="modal-overlay" id="escalateModal">
+                                       <div class="modal-overlay" id="escalateModal">
                         <div class="modal-container">
                             <div class="modal-header">
                                 <h3 class="modal-title">NDR Escalate</h3>
                                 <button class="modal-close" data-close>&times;</button>
                             </div>
                             <div class="modal-body">
+                                <!-- Add order ID display -->
+                                <div class="form-group row align-items-center mb-3">
+                                    <label class="form-label col-4 mb-0">Order ID</label>
+                                    <div class="col-8">
+                                        <p id="escalateOrderId" class="mb-0">—</p>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label class="form-label">Reason for delivery failure</label>
                                     <p id="escalateReason">—</p>
@@ -1132,81 +1175,111 @@
                             const t = e.target.closest('button'); if (!t) return;
 
                             /* Product Details */
-                            if (t.classList.contains('view-product-details')) {
-                                const ref = t.getAttribute('data-ref') || '';
-                                const product = t.getAttribute('data-product') || '';
-                                const price = t.getAttribute('data-price') || '';
-                                const qty = t.getAttribute('data-qty') || '1';
-                                document.getElementById('productOrderRef').textContent = '#' + ref;
-                                document.getElementById('productName').textContent = product;
-                                document.getElementById('productQuantity').textContent = qty;
-                                document.getElementById('productPrice').textContent = price;
-                                openModal('productDetailsModal');
-                            }
+                           if (t.classList.contains('view-product-details')) {
+  const ref = t.getAttribute('data-ref') || '';
+  const product = t.getAttribute('data-product') || '';
+  const price = t.getAttribute('data-price') || '';
+  const qty = t.getAttribute('data-qty') || '1';
 
-                            /* Show History */
+  document.getElementById('productOrderRef').textContent = '#' + ref;
+  document.getElementById('productName').textContent = product;
+  document.getElementById('productQuantity').textContent = qty;
+  document.getElementById('productPrice').textContent = price;
+
+  openModal('productDetailsModal');
+}
+
+
                             if (t.classList.contains('show-history')) {
-                                const reason = t.getAttribute('data-reason') || '—';
-                                const body = document.getElementById('showHistoryBody');
-                                body.innerHTML = `
-          <div class="history-item">
-            <div class="history-date">Delivery Attempt: ${new Date().toLocaleDateString('en-GB')}</div>
-            <div class="history-status">Delivery Failed: ${reason}</div>
-          </div>
-          <div class="history-item">
-            <div class="history-date">Order Picked At: ${new Date().toLocaleDateString('en-GB')}</div>
-          </div>
-        `;
-                                openModal('showHistoryModal');
-                            }
+//   const orderId = parseInt(t.getAttribute('data-order-id'), 10);
+const orderId = order.order_id || orderMeta.orderid || order.id;
+
+
+  getNdrHistory(orderId).then(history => {
+    const body = document.getElementById('showHistoryBody');
+    let html = "";
+
+    // Escalations
+    history.escalations.forEach(e => {
+      html += `<p>🚩 Escalated (${new Date(e.createdAt).toLocaleDateString()}): ${e.reason} – ${e.remarks}</p>`;
+    });
+
+    // RTO
+    history.rtos.forEach(r => {
+      html += `<p>📦 RTO (${new Date(r.createdAt).toLocaleDateString()}): ${r.product}, ${r.payment_mode} – ${r.remarks}</p>`;
+    });
+
+    // Reattempts
+    history.reattempts.forEach(rt => {
+      html += `<p>🔄 Reattempt (${new Date(rt.createdAt).toLocaleDateString()}): ${rt.reason} – ${rt.remarks}</p>`;
+    });
+
+    if (!html) html = "<p>No history found for this order.</p>";
+
+    body.innerHTML = html;
+    openModal('showHistoryModal');
+  });
+}
+
 
                             /* Reattempt */
-                            if (t.classList.contains('reattempt-btn')) {
-                                const reason = t.getAttribute('data-reason') || '';
-                                const phone = t.getAttribute('data-phone') || '';
-                                const address = t.getAttribute('data-address') || '';
-                                
-                                // Update the reason text span
-                                document.querySelector('#reattemptModal .reason-text').textContent = reason;
-                                
-                                // Update phone input
-                                document.getElementById('phone').value = phone;
-                                
-                                // Parse address and update address fields
-                                const addressParts = address.split(', ');
-                                if (addressParts.length >= 4) {
-                                    document.getElementById('address1').value = addressParts[0] || '';
-                                    document.getElementById('address2').value = addressParts[1] || '';
-                                    document.getElementById('city').value = addressParts[2] || '';
-                                    document.getElementById('state').value = addressParts[3] || '';
-                                    document.getElementById('pinCode').value = addressParts[4] || '';
-                                }
-                                
-                                // Set reattempt date to tomorrow
-                                const tomorrow = new Date();
-                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                document.getElementById('reattemptedDate').value = tomorrow.toLocaleDateString('en-GB');
-                                
-                                openModal('reattemptModal');
-                            }
+              if (t.classList.contains('reattempt-btn')) {
+  const reason = t.getAttribute('data-reason') || '';
+  const phone = t.getAttribute('data-phone') || '';
+  const address = t.getAttribute('data-address') || '';
+  const orderId = t.getAttribute('data-order-id');  
+
+  // ✅ Save orderId in the modal for submit
+  document.getElementById('reattemptModal').setAttribute('data-order-id', orderId);
+
+  // Update the reason text span
+  document.querySelector('#reattemptModal .reason-text').textContent = reason;
+
+  // Update phone input
+  document.getElementById('phone').value = phone;
+
+  // Parse address and update address fields
+  const addressParts = address.split(', ');
+  if (addressParts.length >= 4) {
+    document.getElementById('address1').value = addressParts[0] || '';
+    document.getElementById('address2').value = addressParts[1] || '';
+    document.getElementById('city').value = addressParts[2] || '';
+    document.getElementById('state').value = addressParts[3] || '';
+    document.getElementById('pinCode').value = addressParts[4] || '';
+  }
+
+  // Set reattempt date to tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('reattemptedDate').value = tomorrow.toLocaleDateString('en-GB');
+
+  openModal('reattemptModal');
+}
 
                             /* RTO */
                             if (t.classList.contains('rto-btn')) {
+                                const orderId = t.getAttribute('data-order-id'); 
+                                document.getElementById('rtoModal').setAttribute('data-order-id', orderId);
                                 const product = t.getAttribute('data-product') || '';
                                 const payment = t.getAttribute('data-payment') || '';
                                 const pending = t.getAttribute('data-pending') || '';
                                 document.getElementById('rtoProduct').textContent = product;
                                 document.getElementById('rtoPayment').textContent = payment;
                                 document.getElementById('rtoPending').textContent = (pending ? pending + ' days' : '—');
+                                 document.getElementById('reattemptModal').setAttribute('data-order-id', orderId);
                                 openModal('rtoModal');
                             }
 
                             /* Escalate */
                             if (t.classList.contains('escalate-btn')) {
-                                const reason = t.getAttribute('data-reason') || '';
-                                document.getElementById('escalateReason').textContent = reason;
-                                openModal('escalateModal');
-                            }
+    const reason = t.getAttribute('data-reason') || '';
+    const orderId = t.getAttribute('data-order-id') || '—';
+
+    document.getElementById('escalateReason').textContent = reason;
+    document.getElementById('escalateOrderId').textContent = orderId;  // <-- add this line
+    openModal('escalateModal');
+}
+
 
                             /* Escalate to Courier */
                             if (t.classList.contains('escalate-to-courier-btn')) {
@@ -1222,12 +1295,11 @@ document.addEventListener('submit', async function (e) {
   if (e.target.closest('#reattemptModal form')) {
     e.preventDefault();
 
-    const remarks = document.getElementById('remarks').value.trim();
-    if (!remarks) return alert('Please enter remarks');
+    const modal = document.getElementById('reattemptModal');
+    const orderId = modal.getAttribute('data-order-id');  // ✅ use this, not hardcoded 26
 
-    // Build payload as per backend API
     const payload = {
-      order_id: 26, // ⚡ replace with dynamic order id if available
+      order_id: orderId,
       reason: document.querySelector('#reattemptModal .reason-text').textContent,
       reason_incorrect: document.getElementById('incorrectCheck').checked,
       request_reattempt: document.getElementById('reattemptCheck').checked,
@@ -1239,67 +1311,49 @@ document.addEventListener('submit', async function (e) {
       city: document.getElementById('city').value,
       state: document.getElementById('state').value,
       pin_code: document.getElementById('pinCode').value,
-      remarks: remarks
+      remarks: document.getElementById('remarks').value.trim()
     };
 
-    try {
-      console.log("🚀 Sending payload:", payload);
+    console.log("🚀 Sending payload:", payload);
 
-      const res = await fetch("http://localhost:5000/delivery-reattempt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const res = await fetch("http://localhost:5000/delivery-reattempt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-      console.log("📡 Response status:", res.status, res.statusText);
+    const json = await res.json();
+    if (res.ok && json.ok) {
+      showToast("✅ Reattempt raised successfully!", "success");
+      closeAllModals();
 
-      const rawText = await res.text();   // get raw response first
-      console.log("📄 Raw Response:", rawText);
-
-      let json;
-      try {
-        json = JSON.parse(rawText);       // try to parse as JSON
-      } catch (e) {
-        throw new Error("Invalid JSON response from server: " + rawText);
+      // 🔄 Update only this row's attempts count
+      const rowCell = document.querySelector(
+        `tr[data-order-id="${orderId}"] td:nth-child(8)` // adjust index if needed
+      );
+      if (rowCell) {
+        let attemptsText = rowCell.querySelector("div").textContent;
+        let attempts = parseInt(attemptsText) || 0;
+        attempts++;
+        rowCell.querySelector("div").textContent = `${attempts} ${attempts === 1 ? "Attempt" : "Attempts"}`;
       }
-
-      console.log("📦 API Parsed JSON:", json);
-
-   if (res.ok && json.ok) {
-  const msg = "✅ Reattempt created successfully!";
-  if (typeof showToast === "function") {
-    showToast(msg);
-  } else {
-    alert(msg); // fallback if toast not available
-  }
-  closeAllModals();
-} else {
-  const errMsg = json.error || json.message || "❌ Something went wrong.";
-  if (typeof showToast === "function") {
-    showToast(errMsg);
-  } else {
-    alert(errMsg);
-  }
-}
-    } catch (error) {
-        console.error("❌ Error during API call:", error);
-        const errMsg = "❌ Network or server error: " + error.message;
-        if (typeof showToast === "function") {
-            showToast(errMsg);
-        } else {
-            alert(errMsg);
-        }
-        }    
+    } else {
+      showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
+    }
   }
 });
+
 
 document.getElementById('submitRto')?.addEventListener('click', async function () {
   const remarks = document.getElementById('rtoRemarks').value.trim();
   if (!remarks) return alert('Please enter remarks');
 
+  const modal = document.getElementById('rtoModal');
+  const orderId = modal.getAttribute('data-order-id');  // ✅ dynamic order id
+
   // Build payload
   const payload = {
-    order_id: 26,   // ⚡ replace with dynamic order id from row
+    order_id: orderId,
     product: document.getElementById('rtoProduct').textContent,
     payment_mode: document.getElementById('rtoPayment').textContent.toLowerCase(),
     pending_days: parseInt(document.getElementById('rtoPending').textContent) || 2,
@@ -1307,8 +1361,6 @@ document.getElementById('submitRto')?.addEventListener('click', async function (
   };
 
   try {
-    console.log("🚀 Sending RTO payload:", payload);
-
     const res = await fetch("http://localhost:5000/rto-request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1316,30 +1368,64 @@ document.getElementById('submitRto')?.addEventListener('click', async function (
     });
 
     const json = await res.json();
-    console.log("📦 API Response:", json);
-
-    if (res.ok) {
-      alert("✅ RTO request submitted!");
+    if (res.ok && json.ok) {
+      showToast("✅ RTO request submitted!", "success");
       closeAllModals();
       document.getElementById('rtoRemarks').value = '';
     } else {
-      alert("❌ Failed: " + (json.error || "Unknown error"));
+      showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
     }
   } catch (err) {
     console.error("❌ RTO API call error:", err);
-    alert("❌ Network/server error: " + err.message);
+    showToast("❌ Network/server error: " + err.message, "error");
   }
 });
 
                         
                         
-                        document.getElementById('submitEscalate')?.addEventListener('click', function () {
-                            const remarks = document.getElementById('escalateRemarks').value.trim();
-                            if (!remarks) return alert('Please enter remarks');
-                            alert('ESCALATE submitted: ' + remarks);
-                            document.getElementById('escalateRemarks').value = '';
-                            closeAllModals();
-                        });
+document.getElementById('submitEscalate')?.addEventListener('click', async function () {
+  const remarks = document.getElementById('escalateRemarks').value.trim();
+  if (!remarks) return alert('Please enter remarks');
+
+  // 🔥 take Order ID from the modal UI
+  const orderId = document.getElementById('escalateOrderId').textContent.trim();
+
+  const payload = {
+    order_id: orderId,
+    reason: document.getElementById('escalateReason').textContent,
+    remarks
+  };
+
+  try {
+    const res = await fetch("http://localhost:5000/escalation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+
+    if (res.ok && json.ok) {
+      showToast("✅ Escalation raised successfully!");
+      closeAllModals();
+
+      // 🔄 update the escalation status in the correct row
+      const statusCell = document.querySelector(
+        `tr[data-order-id="${payload.order_id}"] td[data-col="escalation-status"]`
+      );
+      if (statusCell) {
+        statusCell.innerHTML = `<span class="badge bg-danger">Raised</span>`;
+      }
+    } else {
+      alert("❌ Failed: " + (json.error || "Unknown error"));
+    }
+  } catch (err) {
+    console.error("❌ Escalation API error:", err);
+    alert("❌ Network/server error: " + err.message);
+  }
+});
+
+
+
 
                         document.getElementById('submitEscalateToCourier')?.addEventListener('click', function () {
                             const remarks = document.getElementById('escalateToCourierRemarks').value.trim();
@@ -1351,6 +1437,51 @@ document.getElementById('submitRto')?.addEventListener('click', async function (
                     </script>
 
                     <script>
+                        
+// === NDR History helper ===
+async function getNdrHistory(orderId, orderType="exp") {
+  try {
+    const res = await fetch(`http://localhost:5000/ndr-history?order_id=${orderId}&order_type=${orderType}`);
+    const json = await res.json();
+
+    if (json.ok) {
+      return json.data; // array of {id, order_id, order_type, reason, created_at}
+    } else {
+      return [];
+    }
+  } catch (err) {
+    console.error("❌ getNdrHistory error:", err);
+    return [];
+  }
+}
+
+
+
+// Save undelivered reason (generic)
+async function saveUndelReason(orderId, reason) {
+  try {
+    const res = await fetch("http://localhost:5000/update-undel-reason", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_id: orderId, reason }) // 👈 no order_type
+    });
+
+    const json = await res.json();
+    if (res.ok && json.ok) {
+      showToast("✅ Reason saved successfully!", "success");
+      return json.data;
+    } else {
+      showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
+      return null;
+    }
+  } catch (err) {
+    console.error("❌ saveUndelReason error:", err);
+    showToast("❌ Server error", "error");
+    return null;
+  }
+}
+
+                        
                         document.addEventListener('DOMContentLoaded', function () {
                             // Elements
                             const moreFiltersBtn = document.getElementById('dscMoreFiltersBtn');
@@ -1482,7 +1613,64 @@ let allOrders = [];
                                 advancedFiltersContainer.style.display = isVisible ? 'none' : 'block';
                                 moreFiltersBtn.classList.toggle('active', !isVisible);
                             });
- async function fetchOrderDetails() {
+
+
+                            let ndrActions = { escalations: [], rtos: [], reattempts: [] };
+
+async function fetchNdrActionsAll() {
+  try {
+    const res = await fetch("http://localhost:5000/ndr-actions");
+    const json = await res.json();
+    if (json.ok && json.data) {
+      ndrActions = json.data;   // save all escalations/rtos/reattempts
+    }
+  } catch (err) {
+    console.error("Failed to fetch NDR actions", err);
+  }
+}
+
+async function applyLatestReasons() {
+  const spans = document.querySelectorAll(".undel-reason");
+
+  for (const span of spans) {
+    const orderId = span.getAttribute("data-order-id");
+
+    const res = await fetch(`http://localhost:5000/ndr-history?order_id=${orderId}&order_type=exp`);
+    const json = await res.json();
+
+    if (json.ok && json.data.length > 0) {
+      const latestReason = json.data[0].reason; // latest NDR reason
+      span.textContent = latestReason;          // ✅ show in UI
+    }
+  }
+}
+
+// === Attempts Count helper ===
+async function applyAttemptsCount() {
+  const rows = document.querySelectorAll("tr[data-order-id]");
+
+  for (const row of rows) {
+    const orderId = row.getAttribute("data-order-id");
+    try {
+      const res = await fetch(`http://localhost:5000/ndr-history?order_id=${orderId}&order_type=exp`);
+      const json = await res.json();
+
+      if (json.ok) {
+        const attempts = json.data.length; // 👈 count ALL, including duplicates
+        const cell = row.querySelector('td[data-col="nd-info"] div');
+        if (cell) {
+          cell.textContent = `${attempts} ${attempts === 1 ? "Attempt" : "Attempts"}`;
+        }
+      }
+    } catch (err) {
+      console.error("❌ applyAttemptsCount error:", err);
+    }
+  }
+}
+
+
+
+async function fetchOrderDetails() {
   try {
     const res = await fetch("http://localhost:5000/api/get-order-details");
     const json = await res.json();
@@ -1490,7 +1678,27 @@ let allOrders = [];
     if (json.ok && Array.isArray(json.data)) {
       allOrders = json.data;
 
-      dscData["action-pending"] = allOrders;  // show in default tab
+      // Action Pending = Orders without any action
+      dscData["action-pending"] = allOrders.filter(o => {
+        const orderActs = ndrActions.escalations.filter(e => e.order_id === o.order_id)
+          .concat(ndrActions.rtos.filter(r => r.order_id === o.order_id))
+          .concat(ndrActions.reattempts.filter(rt => rt.order_id === o.order_id));
+        return orderActs.length === 0;
+      });
+
+      // Action Taken = Orders with at least one action (reattempt or RTO)
+      dscData["action-taken"] = allOrders.filter(o => {
+        return ndrActions.reattempts.some(rt => rt.order_id === o.order_id) ||
+               ndrActions.rtos.some(r => r.order_id === o.order_id);
+      });
+
+      // Delivered = Orders with status "delivered"
+      dscData["delivered"] = allOrders.filter(o => o.status?.toLowerCase() === "delivered");
+
+      // RTO = Orders with RTO action
+      dscData["rto"] = allOrders.filter(o => ndrActions.rtos.some(r => r.order_id === o.order_id));
+
+      // All = Everything
       dscData["all"] = allOrders;
 
       renderTableRows("action-pending");
@@ -1501,6 +1709,30 @@ let allOrders = [];
   } catch (err) {
     console.error("API fetch failed", err);
     renderEmptyState();
+  }
+}
+
+async function fetchNdrActions(orderId) {
+  try {
+    const res = await fetch("http://localhost:5000/ndr-actions");
+    const json = await res.json();
+
+    if (json.ok && json.data) {
+      const { escalations, rtos, reattempts } = json.data;
+
+      // Filter by current order
+      const orderEscalations = escalations.filter(e => e.order_id === orderId);
+      const orderRtos = rtos.filter(r => r.order_id === orderId);
+      const orderReattempts = reattempts.filter(rt => rt.order_id === orderId);
+
+      return { orderEscalations, orderRtos, orderReattempts };
+    } else {
+      console.error("Invalid NDR actions response", json);
+      return { orderEscalations: [], orderRtos: [], orderReattempts: [] };
+    }
+  } catch (err) {
+    console.error("Failed to fetch NDR actions:", err);
+    return { orderEscalations: [], orderRtos: [], orderReattempts: [] };
   }
 }
 
@@ -1595,8 +1827,8 @@ let allOrders = [];
                                             <th>PAYMENT TYPE</th>
                                             <th>CUSTOMER DETAILS</th>
                                             <th>SHIPPING DETAILS</th>
-                                            <th>PENDING SINCE</th>
-                                            <th>ESCALATION STATUS</th>
+                                              <th>PENDING SINCE</th>
+                                              <th>ESCALATION STATUS</th>
                                             <th>NON DELIVERY INFO</th>
                                             <th>UNDEL REASON</th>
                                             <th>ACTION</th>
@@ -1661,6 +1893,7 @@ function rowToHTML(order, tabKey) {
   const orderMeta = order.order_meta || {};
   const paymentMode = orderMeta.payment_mode || "-";
 
+  // --- Payment Badge ---
   const paymentBadge = paymentMode.toLowerCase() === "cod"
     ? `<span class="badge bg-warning">COD</span>`
     : `<span class="badge bg-success">Prepaid</span>`;
@@ -1669,89 +1902,98 @@ function rowToHTML(order, tabKey) {
   let productHTML = "—";
   if (products.length > 0) {
     productHTML = `
-      <div class="fw-semibold">${esc(products[0].name)}</div>
-      <div class="small">Qty: ${products[0].quantity}, ₹${products[0].price}</div>
-      ${products.length > 1
-        ? `<button class="btn btn-xs btn-outline-primary view-product-details"
-                   data-ref="${esc(order.order_id)}"
-                   data-product="${esc(products.map(p => p.name).join(', '))}"
-                   data-price="${esc(products.map(p => p.price).join(', '))}"
-                   data-qty="${esc(products.map(p => p.quantity).join(', '))}">
-             +${products.length - 1} more
-           </button>` : ""}
+      <button class="btn btn-xs btn-outline-primary view-product-details"
+              data-ref="${esc(orderMeta.ref_number || order.order_id)}"
+              data-product="${esc(products[0].name)}"
+              data-qty="${esc(products[0].quantity)}"
+              data-price="₹${esc(products[0].price)}">
+        View Detail
+      </button>
     `;
   }
 
-  // --- LR details ---
-  let lrHTML = "—";
-  if (lrList.length > 0) {
-    lrHTML = lrList.map(lr => `
-      <div class="fw-semibold">${esc(lr.tagged_api)} </div>
-      <div class="small">LR No: <b>${esc(lr.lr_no)}</b></div>
-      <div class="small">Charges: ₹${esc(lr.total_lr_charges)}</div>
-    `).join("<hr/>");
-  }
+  const orderId = order.order_id;
 
+  // --- Escalation status ---
+  const isEscalated = ndrActions.escalations.some(e => e.order_id === orderId);
+  const escalationStatusHTML = isEscalated
+    ? `<span class="badge bg-danger">Raised</span>`
+    : `<span class="badge bg-secondary">Pending</span>`;
+
+  // --- Non-Delivery Info placeholder ---
+  const ndInfoHTML = `
+    <div>0 Attempts</div>
+    <button class="btn btn-sm btn-light show-history" data-order-id="${esc(orderId)}">
+      Show History
+    </button>
+  `;
+
+  /* ---------------- TAB: ACTION PENDING ---------------- */
   if (tabKey === "action-pending") {
     return `
-      <tr>
-        <!-- Order details -->
+      <tr data-order-id="${esc(orderId)}">
         <td>
           <div class="fw-semibold">Order #${esc(order.order_id)}</div>
-          <div class="small text-muted">Ref: ${esc(orderMeta.ref_number)}</div>
+          <div class="small text-muted">AWB No: ${esc(lrList[0]?.lr_no || "—")}</div>
           <div class="small">Placed By: ${esc(client.first_name)} (${esc(client.company_name)})</div>
         </td>
-
-        <!-- Product details -->
         <td>${productHTML}</td>
+        <td>
+  ${paymentBadge}
+  <div class="small text-muted">
+    Charges: ₹${
+      esc(
+        lrList[0]?.total_lr_charges ||
+        products[0]?.price ||
+        "0.00"
+      )
+    }
+  </div>
+</td>
 
-        <!-- Payment -->
-        <td>${paymentBadge}</td>
-
-        <!-- Customer details -->
         <td>
           <div>${esc(consignee.first_name)} ${esc(consignee.last_name)}</div>
           <div class="small text-muted">${esc(consignee.phone)}</div>
         </td>
-
-        <!-- Shipping -->
         <td>
           <div>${esc(consignee.address_line1)}</div>
           <div class="small text-muted">${esc(consignee.city)}, ${esc(consignee.state)}</div>
         </td>
-
-        <!-- LR INFO (NEW COLUMN) -->
-        <td>${lrHTML}</td>
-
-        <!-- Pending since -->
-        <td>${lrList[0]?.created_at ? new Date(lrList[0].created_at).toLocaleDateString("en-GB") : "—"}</td>
-
-        <!-- Escalation status -->
-        <td><span class="badge bg-secondary">Pending</span></td>
-
-        <!-- Non-delivery info -->
-        <td>${lrList[0]?.status === "1" ? "In Transit" : "—"}</td>
-
-        <!-- Undel reason -->
-        <td>Undelivered</td>
-
-        <!-- Actions -->
+        <td>
+          ${lrList[0]?.created_at 
+            ? (() => {
+                const created = new Date(lrList[0].created_at);
+                const today = new Date();
+                const diffTime = Math.abs(today - created);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return `${diffDays} Days`;
+              })()
+            : "—"}
+        </td>
+        <td data-col="escalation-status">${escalationStatusHTML}</td>
+        <td data-col="nd-info">${ndInfoHTML}</td>
+        <td>
+          <span class="undel-reason" data-order-id="${esc(orderId)}" data-order-type="exp">—</span>
+        </td>
         <td>
           <div class="action-buttons-container">
             <button class="btn btn-xs btn-primary reattempt-btn"
-                    data-reason="Undelivered"
-                    data-phone="${esc(consignee.phone)}"
-                    data-address="${esc(consignee.address_line1)}, ${esc(consignee.city)}, ${esc(consignee.state)}, ${esc(consignee.pincode)}">
+              data-order-id="${esc(order.order_id)}"
+              data-reason="Undelivered"
+              data-phone="${esc(consignee.phone)}"
+              data-address="${esc(consignee.address_line1)}, ${esc(consignee.city)}, ${esc(consignee.state)}, ${esc(consignee.pincode)}">
               REATTEMPT
             </button>
             <button class="btn btn-xs btn-outline-primary rto-btn"
-                    data-product="${esc(products[0]?.name || '')}"
-                    data-payment="${esc(paymentMode)}"
-                    data-pending="2">
+              data-order-id="${esc(order.order_id)}"
+              data-product="${esc(products[0]?.name || '')}"
+              data-payment="${esc(paymentMode)}"
+              data-pending="2">
               RTO
             </button>
             <button class="btn btn-xs btn-outline-danger escalate-btn"
-                    data-reason="Undelivered">
+              data-reason="Undelivered"
+              data-order-id="${esc(order.order_id)}">
               ESCALATE
             </button>
           </div>
@@ -1759,12 +2001,77 @@ function rowToHTML(order, tabKey) {
       </tr>`;
   }
 
-  return `<tr><td colspan="100%">Not implemented for ${tabKey}</td></tr>`;
+  /* ---------------- TAB: ACTION TAKEN ---------------- */
+if (tabKey === "action-taken") {
+  return `
+    <tr data-order-id="${esc(orderId)}">
+      <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
+      <td>${esc(lrList[0]?.tagged_api || "—")}</td>
+      <td>${esc(order.ndrReason || "—")}</td>
+      <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+      <td>${esc(order.updated_address || "—")}</td>
+      <td>${esc(order.seller_remarks || "—")}</td>
+      <td>${paymentBadge}</td>
+              <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+
+      <td>${esc(order.last_action || "Reattempt / RTO")}</td>
+      <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+    </tr>`;
 }
 
 
+  /* ---------------- TAB: DELIVERED ---------------- */
+  if (tabKey === "delivered") {
+    return `
+      <tr data-order-id="${esc(orderId)}">
+        <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
+        <td>${esc(lrList[0]?.tagged_api || "—")}</td>
+        <td><span class="badge bg-success">Delivered</span></td>
+        <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+        <td>${esc(order.updated_address || "—")}</td>
+        <td>${esc(order.seller_remarks || "—")}</td>
+        <td>${paymentBadge}</td>
+                <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+        <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+      </tr>`;
+  }
+
+  /* ---------------- TAB: RTO ---------------- */
+/* ---------------- TAB: RTO ---------------- */
+if (tabKey === "rto") {
+  return `
+    <tr data-order-id="${esc(orderId)}">
+      <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
+      <td>${esc(lrList[0]?.tagged_api || "—")}</td>
+      <td><span class="badge bg-danger">RTO</span></td>
+      <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+      <td>${esc(order.updated_address || "—")}</td>
+      <td>${esc(order.seller_remarks || "—")}</td>
+      <td>${paymentBadge}</td>
+      <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+      <td>${esc(order.last_action || "RTO Initiated")}</td>
+    <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+    </tr>`;
+}
 
 
+  /* ---------------- TAB: ALL ---------------- */
+  if (tabKey === "all") {
+    return `
+      <tr data-order-id="${esc(orderId)}">
+        <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
+        <td>${esc(lrList[0]?.tagged_api || "—")}</td>
+        <td>${esc(order.ndrReason || order.status || "—")}</td>
+        <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+        <td>${paymentBadge}</td>
+        <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+        <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+      </tr>`;
+  }
+
+  // fallback
+  return `<tr><td colspan="100%">Not implemented</td></tr>`;
+}
 
 
 // Pagination helpers
@@ -1894,18 +2201,37 @@ function rowToHTML(order, tabKey) {
                                 let baseRows = dscData[tabKey] || [];
 
                                 // Apply filters if needed
-                                if (attemptsFilter.value) {
-                                    // In a real app, filter by attempts
-                                }
-                                if (ndrReasonsFilter.value) {
-                                    baseRows = baseRows.filter(r => r.ndrReason.includes(ndrReasonsFilter.selectedOptions[0].text));
-                                }
-                                if (courierFilter.value) {
-                                    baseRows = baseRows.filter(r => r.courier === courierFilter.selectedOptions[0].text);
-                                }
-                                if (actionTakenSelect.value && tabKey === 'action-taken') {
-                                    baseRows = baseRows.filter(r => r.action.includes(actionTakenSelect.value));
-                                }
+                     // Apply filters if needed
+if (attemptsFilter.value) {
+  // Example: filter orders where attempt count matches
+  baseRows = baseRows.filter(o =>
+    ndrActions.reattempts.filter(rt => rt.order_id === o.order_id).length +
+    ndrActions.rtos.filter(r => r.order_id === o.order_id).length >= parseInt(attemptsFilter.value)
+  );
+}
+
+if (ndrReasonsFilter.value) {
+  const selectedReason = ndrReasonsFilter.selectedOptions[0].text;
+  baseRows = baseRows.filter(o =>
+    ndrActions.reattempts.some(rt => rt.order_id === o.order_id && rt.reason === selectedReason) ||
+    ndrActions.rtos.some(r => r.order_id === o.order_id && r.reason === selectedReason)
+  );
+}
+
+if (courierFilter.value) {
+  const selectedCourier = courierFilter.selectedOptions[0].text.toLowerCase();
+  baseRows = baseRows.filter(o =>
+    (o.lr_info && o.lr_info[0]?.tagged_api?.toLowerCase().includes(selectedCourier))
+  );
+}
+
+if (actionTakenSelect.value && tabKey === 'action-taken') {
+  if (actionTakenSelect.value === "RTO") {
+    baseRows = baseRows.filter(o => ndrActions.rtos.some(r => r.order_id === o.order_id));
+  } else if (actionTakenSelect.value === "REATTEMPT") {
+    baseRows = baseRows.filter(o => ndrActions.reattempts.some(rt => rt.order_id === o.order_id));
+  }
+}
 
                                 const filtered = applySearchFilter(baseRows, query);
 
@@ -1925,13 +2251,58 @@ function rowToHTML(order, tabKey) {
                                 paginationBar.style.display = 'flex';
                                 updateEntriesInfo(meta);
                                 renderPaginationControls(meta);
+                                applyLatestReasons();
+                                applyAttemptsCount();
                             }
+                            // When user clicks "Show History"
+document.addEventListener("click", async function (e) {
+  const btn = e.target.closest(".show-history");
+  if (!btn) return;
+
+  const orderId = btn.getAttribute("data-order-id");
+
+  // 🔥 Fetch history from API
+  const history = await getNdrHistory(orderId, "exp");
+
+  let html = "";
+  history.forEach(item => {
+    html += `
+      <div class="history-item">
+        <div class="history-date">${new Date(item.created_at).toLocaleDateString("en-GB")}</div>
+        <div class="history-status">${item.reason}</div>
+      </div>`;
+  });
+
+  if (!html) html = "<p>No history found for this order.</p>";
+
+  document.getElementById("showHistoryBody").innerHTML = html;
+  openModal("showHistoryModal");
+});
+
+
+document.addEventListener("change", async function(e) {
+  const select = e.target.closest(".undel-reason");
+  if (!select) return;
+
+  const orderId = select.getAttribute("data-order-id");
+  const reason = select.value;
+
+  if (!reason) return;
+
+  const res = await saveUndelReason(orderId, reason);
+  if (res) {
+    showToast("✅ Reason updated successfully", "success");
+  }
+});
+
+
 
                             // Initialize everything
-                            function init() {
+async function init() {
   initDatePickers();
   setupButtonHandlers();
-  fetchOrderDetails(); // load from API
+  await fetchNdrActionsAll();   // 🔥 load NDR actions first
+  await fetchOrderDetails();    // then load orders
 }
 
 

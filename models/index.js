@@ -24,6 +24,9 @@ const SupportTicket             = require('./SupportTicket')(sequelize, DataType
 const TblDeliveryReattempts   = require('./TblDeliveryReattempts')(sequelize, DataTypes);
 const TblRtoRequests   = require('./TblRtoRequests')(sequelize, DataTypes);
 const TblEscalation   = require('./TblEscalation')(sequelize, DataTypes);
+const ExpNdrReason = require('./ExpNdrReason')(sequelize, DataTypes);
+const EcomNdrReason = require('./EcomNdrReason')(sequelize, DataTypes);
+const NdrReason = require('./ndrReason')(sequelize, DataTypes);
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
 SubCategory.associate?.({ Category, SubCategoryAddField, SubCategoryMandatoryField });
@@ -149,5 +152,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason
 };

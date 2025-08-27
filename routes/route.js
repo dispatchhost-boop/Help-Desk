@@ -11,6 +11,18 @@ require('../crone/crone.js')
 const axios = require('axios');
 const { log } = require('console');
 
+
+
+
+
+
+
+
+
+
+route.post("/update-undel-reason", userController.addNdrReason);
+route.get("/ndr-history", userController.getNdrHistory);
+
 ///======================NDR ROUTES==================================///
 // route.post('/delivery-reattempt', userController.createReattempt);
 route.get("/ndr-actions", userController.getNdrActions);
