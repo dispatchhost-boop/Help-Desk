@@ -27,6 +27,8 @@ const TblEscalation   = require('./TblEscalation')(sequelize, DataTypes);
 const ExpNdrReason = require('./ExpNdrReason')(sequelize, DataTypes);
 const EcomNdrReason = require('./EcomNdrReason')(sequelize, DataTypes);
 const NdrReason = require('./ndrReason')(sequelize, DataTypes);
+const CustomerAddressUpdate = require('./customer_address_update')(sequelize, DataTypes);
+
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
 SubCategory.associate?.({ Category, SubCategoryAddField, SubCategoryMandatoryField });
@@ -152,5 +154,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, CustomerAddressUpdate
 };

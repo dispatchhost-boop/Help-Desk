@@ -12,9 +12,144 @@ const axios = require('axios');
 const { log } = require('console');
 
 
+route.get("/verify", async (req, res) => {
+  const { order_id } = req.query;
+  if (!order_id) return res.status(400).send("Invalid link");
+
+  try {
+    // fetch order details to pre-fill
+    const order = await ExpOrders.findOne({ where: { order_id } });
+
+    res.render("verify-form", {
+      order_id,
+      order
+    });
+  } catch (err) {
+    console.error("Verify form error:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+
+// GET: show form
+route.get("/verify", async (req, res) => {
+  const { order_id } = req.query;
+  // (Optional) preload order details
+  res.render("verify-form", { order_id });
+});
+
+// POST: save data
+const { CustomerAddressUpdate } = require("../models");
+
+route.post("/verify", async (req, res) => {
+  const { order_id, name, email, phone, updated_address, updated_pincode } = req.body;
+
+  try {
+    await CustomerAddressUpdate.create({
+      order_id,
+      name,
+      email,
+      phone,
+      updated_address,
+      updated_pincode,
+      status: "pending"
+    });
+
+    res.send(`<h3 style="text-align:center;margin-top:40px">✅ Thank you! Your details have been submitted.</h3>`);
+  } catch (err) {
+    console.error("Save error:", err);
+    res.status(500).send("❌ Something went wrong. Please try again later.");
+  }
+});
+
+
+route.post("/api/send-whatsapp", userController.sendWhatsAppVerification);
 
 
 
+
+
+
+route.post("/update-undel-reason", userController.addNdrReason);
+route.get("/ndr-history", userController.getNdrHistory);
+
+
+
+
+// ========== WHATSAPP ADDRESS VERIFICATION ========== //
+
+// route.post("/api/send-address-verification", async (req, res) => {
+//   try {
+//     const { order_id } = req.body;
+
+//     // 1. Fetch order details from DB
+//     const order = await mySqlQury(
+//       "SELECT order_id, consignee_name, consignee_phone, consignee_address, consignee_pincode FROM tbl_exp_orders WHERE order_id = ?",
+//       [order_id]
+//     );
+
+//     if (!order || order.length === 0) {
+//       return res.status(404).json({ success: false, message: "Order not found" });
+//     }
+
+//     const customer = order[0];
+
+//     // 2. Build payload for Interakt
+//     const payload = {
+//       countryCode: "+91",
+//       phoneNumber: customer.consignee_phone,
+//       type: "Template",
+//       template: {
+//         name: "address_verification", // must match approved template in Interakt
+//         languageCode: "en",
+//         bodyValues: [
+//           customer.consignee_name,
+//           customer.consignee_address,
+//           customer.consignee_pincode,
+//           `https://yourdomain.com/verify?order_id=${customer.order_id}`
+//         ]
+//       }
+//     };
+
+//     // 3. Call Interakt API
+//     const response = await axios.post(
+//       "https://api.interakt.ai/v1/public/message/",
+//       payload,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.WHATS_APP_API}`,
+//           "Content-Type": "application/json"
+//         }
+//       }
+//     );
+
+//     res.json({ success: true, data: response.data });
+//   } catch (err) {
+//     console.error("Error sending WhatsApp:", err.response?.data || err.message);
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });
+
+
+
+
+
+
+// route.post("/api/update-address", async (req, res) => {
+//   try {
+//     const { order_id, new_address, new_pincode } = req.body;
+
+//     await mySqlQury(
+//       "UPDATE tbl_exp_orders SET corrected_address = ?, corrected_pincode = ? WHERE order_id = ?",
+//       [new_address, new_pincode, order_id]
+//     );
+
+//     res.send("✅ Address updated successfully!");
+//   } catch (err) {
+//     console.error("Error updating address:", err.message);
+//     res.status(500).send("❌ Failed to update address");
+//   }
+// });
 
 
 
@@ -2943,6 +3078,23 @@ route.get('/ndr-manager', (req, res) => {
     title: 'Client List',
     role: role
   });
+});
+
+
+
+route.get('/update-address-details', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/update-address-details', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
 });
 route.use('/', express.static(path.join(__dirname, './')))
 

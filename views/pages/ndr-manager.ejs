@@ -1622,13 +1622,17 @@ async function fetchNdrActionsAll() {
     const res = await fetch("http://localhost:5000/ndr-actions");
     const json = await res.json();
     if (json.ok && json.data) {
-      ndrActions = json.data;   // save all escalations/rtos/reattempts
+      ndrActions = json.data;
+      console.log("Loaded NDR actions:", ndrActions);
+    } else {
+      console.error("Failed to load NDR actions:", json);
+      ndrActions = { escalations: [], rtos: [], reattempts: [] };
     }
   } catch (err) {
     console.error("Failed to fetch NDR actions", err);
+    ndrActions = { escalations: [], rtos: [], reattempts: [] };
   }
 }
-
 async function applyLatestReasons() {
   const spans = document.querySelectorAll(".undel-reason");
 
@@ -1669,7 +1673,6 @@ async function applyAttemptsCount() {
 }
 
 
-
 async function fetchOrderDetails() {
   try {
     const res = await fetch("http://localhost:5000/api/get-order-details");
@@ -1686,17 +1689,39 @@ async function fetchOrderDetails() {
         return orderActs.length === 0;
       });
 
-      // Action Taken = Orders with at least one action (reattempt or RTO)
+      // Action Taken = Orders with reattempt or RTO
       dscData["action-taken"] = allOrders.filter(o => {
         return ndrActions.reattempts.some(rt => rt.order_id === o.order_id) ||
                ndrActions.rtos.some(r => r.order_id === o.order_id);
       });
 
-      // Delivered = Orders with status "delivered"
+      // Delivered
       dscData["delivered"] = allOrders.filter(o => o.status?.toLowerCase() === "delivered");
 
-      // RTO = Orders with RTO action
-      dscData["rto"] = allOrders.filter(o => ndrActions.rtos.some(r => r.order_id === o.order_id));
+      // RTO (merge from ndrActions.rtos also)
+      let rtoOrders = allOrders.filter(o => 
+        ndrActions.rtos.some(r => r.order_id === o.order_id)
+      );
+
+      // 🔥 Add missing RTO-only orders (not in allOrders)
+      ndrActions.rtos.forEach(r => {
+        if (!rtoOrders.some(o => o.order_id === r.order_id)) {
+          rtoOrders.push({
+            order_id: r.order_id,
+            consignee: { first_name: "—", last_name: "", phone: "" },
+            client: {},
+            lr_info: [],
+            products: [],
+            order_meta: { payment_mode: "—" },
+            status: "RTO",
+            last_action: "RTO Initiated",
+            last_action_by: "System",
+            updated_at: r.createdAt
+          });
+        }
+      });
+
+      dscData["rto"] = rtoOrders;
 
       // All = Everything
       dscData["all"] = allOrders;
@@ -1711,6 +1736,13 @@ async function fetchOrderDetails() {
     renderEmptyState();
   }
 }
+
+
+
+
+
+
+
 
 async function fetchNdrActions(orderId) {
   try {
@@ -1883,7 +1915,7 @@ async function fetchNdrActions(orderId) {
 
                                 paginationBar.style.display = 'none';
                             }
-
+                            
 function rowToHTML(order, tabKey) {
   const esc = (v) => String(v ?? "").replace(/"/g, "&quot;");
   const consignee = order.consignee || {};
@@ -1891,6 +1923,8 @@ function rowToHTML(order, tabKey) {
   const lrList = order.lr_info || [];
   const products = order.products || [];
   const orderMeta = order.order_meta || {};
+
+  const orderId = order.order_id;
   const paymentMode = orderMeta.payment_mode || "-";
 
   // --- Payment Badge ---
@@ -1903,89 +1937,80 @@ function rowToHTML(order, tabKey) {
   if (products.length > 0) {
     productHTML = `
       <button class="btn btn-xs btn-outline-primary view-product-details"
-              data-ref="${esc(orderMeta.ref_number || order.order_id)}"
-              data-product="${esc(products[0].name)}"
-              data-qty="${esc(products[0].quantity)}"
-              data-price="₹${esc(products[0].price)}">
+        data-ref="${esc(orderMeta.ref_number || orderId)}"
+        data-product="${esc(products[0].name)}"
+        data-qty="${esc(products[0].quantity)}"
+        data-price="₹${esc(products[0].price)}">
         View Detail
-      </button>
-    `;
+      </button>`;
   }
 
-  const orderId = order.order_id;
-
-  // --- Escalation status ---
-  const isEscalated = ndrActions.escalations.some(e => e.order_id === orderId);
+  // --- Escalation status (placeholder) ---
+  const isEscalated = (window.ndrActions?.escalations || []).some(e => e.order_id === orderId);
   const escalationStatusHTML = isEscalated
     ? `<span class="badge bg-danger">Raised</span>`
     : `<span class="badge bg-secondary">Pending</span>`;
 
-  // --- Non-Delivery Info placeholder ---
+  // --- NDR Info placeholder ---
   const ndInfoHTML = `
     <div>0 Attempts</div>
     <button class="btn btn-sm btn-light show-history" data-order-id="${esc(orderId)}">
       Show History
-    </button>
-  `;
+    </button>`;
+
+  // --- Updated address (from WhatsApp verify) ---
+  const updatedAddr = order.updated_address
+    ? `<div><span class="fw-semibold text-success">✔ Verified:</span> ${esc(order.updated_address)} (${esc(order.updated_pincode || "")})</div>`
+    : `<div class="text-muted small">— not updated —</div>`;
+
+  // --- Common values ---
+  const awb = lrList[0]?.lr_no || "—";
+  const courier = lrList[0]?.tagged_api || "—";
+  const charges = lrList[0]?.total_lr_charges || products[0]?.price || "0.00";
+  const createdAt = lrList[0]?.created_at
+    ? new Date(lrList[0].created_at).toLocaleDateString("en-GB")
+    : "—";
+  const ageDays = lrList[0]?.created_at
+    ? `${Math.ceil((Date.now() - new Date(lrList[0].created_at)) / (1000 * 60 * 60 * 24))} Days`
+    : "—";
 
   /* ---------------- TAB: ACTION PENDING ---------------- */
   if (tabKey === "action-pending") {
     return `
       <tr data-order-id="${esc(orderId)}">
         <td>
-          <div class="fw-semibold">Order #${esc(order.order_id)}</div>
-          <div class="small text-muted">AWB No: ${esc(lrList[0]?.lr_no || "—")}</div>
+          <div class="fw-semibold">Order #${esc(orderId)}</div>
+          <div class="small text-muted">AWB: ${esc(awb)}</div>
           <div class="small">Placed By: ${esc(client.first_name)} (${esc(client.company_name)})</div>
         </td>
         <td>${productHTML}</td>
         <td>
-  ${paymentBadge}
-  <div class="small text-muted">
-    Charges: ₹${
-      esc(
-        lrList[0]?.total_lr_charges ||
-        products[0]?.price ||
-        "0.00"
-      )
-    }
-  </div>
-</td>
-
+          ${paymentBadge}
+          <div class="small text-muted">Charges: ₹${esc(charges)}</div>
+        </td>
         <td>
           <div>${esc(consignee.first_name)} ${esc(consignee.last_name)}</div>
           <div class="small text-muted">${esc(consignee.phone)}</div>
         </td>
         <td>
           <div>${esc(consignee.address_line1)}</div>
-          <div class="small text-muted">${esc(consignee.city)}, ${esc(consignee.state)}</div>
+          <div class="small text-muted">${esc(consignee.city)}, ${esc(consignee.state)} - ${esc(consignee.pincode)}</div>
         </td>
-        <td>
-          ${lrList[0]?.created_at 
-            ? (() => {
-                const created = new Date(lrList[0].created_at);
-                const today = new Date();
-                const diffTime = Math.abs(today - created);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return `${diffDays} Days`;
-              })()
-            : "—"}
-        </td>
+        <td>${ageDays}</td>
         <td data-col="escalation-status">${escalationStatusHTML}</td>
         <td data-col="nd-info">${ndInfoHTML}</td>
-        <td>
-          <span class="undel-reason" data-order-id="${esc(orderId)}" data-order-type="exp">—</span>
-        </td>
+        <td><span class="undel-reason" data-order-id="${esc(orderId)}" data-order-type="${esc(order.type)}">—</span></td>
         <td>
           <div class="action-buttons-container">
             <button class="btn btn-xs btn-primary reattempt-btn"
-              data-order-id="${esc(order.order_id)}"
+              data-order-id="${esc(orderId)}"
               data-reason="Undelivered"
               data-phone="${esc(consignee.phone)}"
               data-address="${esc(consignee.address_line1)}, ${esc(consignee.city)}, ${esc(consignee.state)}, ${esc(consignee.pincode)}">
               REATTEMPT
             </button>
             <button class="btn btn-xs btn-outline-primary rto-btn"
-              data-order-id="${esc(order.order_id)}"
+              data-order-id="${esc(orderId)}"
               data-product="${esc(products[0]?.name || '')}"
               data-payment="${esc(paymentMode)}"
               data-pending="2">
@@ -1993,8 +2018,16 @@ function rowToHTML(order, tabKey) {
             </button>
             <button class="btn btn-xs btn-outline-danger escalate-btn"
               data-reason="Undelivered"
-              data-order-id="${esc(order.order_id)}">
+              data-order-id="${esc(orderId)}">
               ESCALATE
+            </button>
+            <button class="btn btn-xs btn-info verify-address-btn"
+              data-order-id="${esc(orderId)}"
+              data-name="${esc(consignee.first_name)}"
+              data-address="${esc(consignee.address_line1)}, ${esc(consignee.city)}, ${esc(consignee.state)}"
+              data-pincode="${esc(consignee.pincode)}"
+              data-phone="${esc(consignee.phone)}">
+              VERIFY ADDR
             </button>
           </div>
         </td>
@@ -2002,74 +2035,71 @@ function rowToHTML(order, tabKey) {
   }
 
   /* ---------------- TAB: ACTION TAKEN ---------------- */
-if (tabKey === "action-taken") {
-  return `
-    <tr data-order-id="${esc(orderId)}">
-      <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
-      <td>${esc(lrList[0]?.tagged_api || "—")}</td>
-      <td>${esc(order.ndrReason || "—")}</td>
-      <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
-      <td>${esc(order.updated_address || "—")}</td>
-      <td>${esc(order.seller_remarks || "—")}</td>
-      <td>${paymentBadge}</td>
-              <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
-
-      <td>${esc(order.last_action || "Reattempt / RTO")}</td>
-      <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
-    </tr>`;
-}
-
+  if (tabKey === "action-taken") {
+    return `
+      <tr data-order-id="${esc(orderId)}">
+        <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
+        <td>${esc(courier)}</td>
+      //  <td>${esc(order.ndrReason || lrList[0]?.ndr_reason || "—")}</td>
+       <td>${esc(order.ndrReason || "—")}</td>
+        <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+        <td>${updatedAddr}</td>
+        <td>${esc(order.seller_remarks || "—")}</td>
+        <td>${paymentBadge}</td>
+        <td>${createdAt}</td>
+        <td>${esc(order.last_action || "Reattempt / RTO")}</td>
+        <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+      </tr>`;
+  }
 
   /* ---------------- TAB: DELIVERED ---------------- */
   if (tabKey === "delivered") {
     return `
       <tr data-order-id="${esc(orderId)}">
-        <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
-        <td>${esc(lrList[0]?.tagged_api || "—")}</td>
+        <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
+        <td>${esc(courier)}</td>
         <td><span class="badge bg-success">Delivered</span></td>
         <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
-        <td>${esc(order.updated_address || "—")}</td>
+        <td>${updatedAddr}</td>
         <td>${esc(order.seller_remarks || "—")}</td>
         <td>${paymentBadge}</td>
-                <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+        <td>${createdAt}</td>
         <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
       </tr>`;
   }
 
   /* ---------------- TAB: RTO ---------------- */
-/* ---------------- TAB: RTO ---------------- */
-if (tabKey === "rto") {
-  return `
-    <tr data-order-id="${esc(orderId)}">
-      <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
-      <td>${esc(lrList[0]?.tagged_api || "—")}</td>
-      <td><span class="badge bg-danger">RTO</span></td>
-      <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
-      <td>${esc(order.updated_address || "—")}</td>
-      <td>${esc(order.seller_remarks || "—")}</td>
-      <td>${paymentBadge}</td>
-      <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
-      <td>${esc(order.last_action || "RTO Initiated")}</td>
-    <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
-    </tr>`;
-}
-
+  if (tabKey === "rto") {
+    return `
+      <tr data-order-id="${esc(orderId)}">
+        <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
+        <td>${esc(courier)}</td>
+        <td><span class="badge bg-danger">RTO</span></td>
+        <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+        <td>${updatedAddr}</td>
+        <td>${esc(order.seller_remarks || "—")}</td>
+        <td>${paymentBadge}</td>
+        <td>${createdAt}</td>
+        <td>${esc(order.last_action || "RTO Initiated")}</td>
+        <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+      </tr>`;
+  }
 
   /* ---------------- TAB: ALL ---------------- */
   if (tabKey === "all") {
     return `
       <tr data-order-id="${esc(orderId)}">
-        <td>Shipment #${esc(order.order_id)}<br><small>AWB: ${esc(lrList[0]?.lr_no || "—")}</small></td>
-        <td>${esc(lrList[0]?.tagged_api || "—")}</td>
-        <td>${esc(order.ndrReason || order.status || "—")}</td>
+        <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
+        <td>${esc(courier)}</td>
+       <td>${esc(order.ndrReason || lrList[0]?.ndr_reason || "—")}</td>
         <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
+        <td>${updatedAddr}</td>
         <td>${paymentBadge}</td>
-        <td>${order.updated_at ? new Date(order.updated_at).toLocaleDateString("en-GB") : "—"}</td>
+        <td>${createdAt}</td>
         <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
       </tr>`;
   }
 
-  // fallback
   return `<tr><td colspan="100%">Not implemented</td></tr>`;
 }
 
@@ -2278,6 +2308,55 @@ document.addEventListener("click", async function (e) {
   document.getElementById("showHistoryBody").innerHTML = html;
   openModal("showHistoryModal");
 });
+
+document.addEventListener('click', async function (e) {
+  const btn = e.target.closest('.verify-address-btn');
+  if (!btn) return;
+
+  const orderId = btn.getAttribute('data-order-id');
+  const name = btn.getAttribute('data-name');
+  const address = btn.getAttribute('data-address');
+  const pincode = btn.getAttribute('data-pincode');
+  const phone = btn.getAttribute('data-phone');
+
+  // Build payload
+  const payload = {
+    countryCode: "+91",
+    phoneNumber: phone,
+    type: "Template",
+    template: {
+      name: "address_verification_07", // 👈 must match approved template
+      languageCode: "en",
+      bodyValues: [
+        name,
+        address,
+        pincode
+      ],
+      buttonValues: {
+        "0": [orderId] // 👈 fills {{1}} in button URL
+      }
+    }
+  };
+
+  try {
+    const res = await fetch("http://localhost:5000/api/send-whatsapp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+
+   if (res.ok && (json.result || json.success || json.ok)) {
+  showToast("✅ WhatsApp verification sent!", "success");
+} else {
+  showToast("❌ Failed: " + (json.message || JSON.stringify(json)), "error");
+}
+  } catch (err) {
+    console.error("❌ API error:", err);
+    showToast("❌ Server error: " + err.message, "error");
+  }
+});
+
 
 
 document.addEventListener("change", async function(e) {

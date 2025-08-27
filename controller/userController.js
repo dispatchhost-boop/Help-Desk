@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason,   } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason,  CustomerAddressUpdate } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -58,6 +58,34 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+
+async function sendWhatsAppVerification(req, res) {
+  try {
+    const payload = req.body;
+
+    if (!payload || !payload.phoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendWhatsAppVerification] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
 
 
 async function addNdrReason(req, res) {
@@ -240,32 +268,43 @@ async function createReattempt(req, res) {
 
 async function getAllOrderDetails(req, res) {
   try {
-
-    // Fetch EXPRESS + ECOM separately
+    // Fetch EXPRESS Orders with status = 9 (NDR status)
     const expressOrders = await ExpOrders.findAll({
       include: [
-        { model: ExpLR, as: 'exp_lrs' },
+        { 
+          model: ExpLR, 
+          as: 'exp_lrs',
+          where: { status: 9 },
+          required: true
+        },
         { model: ExpProductDetails, as: 'products' },
         { model: ConsigneeDetails, as: 'consignee' },
         { model: Admin, as: 'client' }
       ]
     });
 
+    // Fetch ECOM Orders with status = 9 (NDR status)
     const ecomOrders = await EcomOrders.findAll({
       include: [
-        { model: EcomLR, as: 'ecom_lrs' },
+        { 
+          model: EcomLR, 
+          as: 'ecom_lrs',
+          where: { status: 9 },
+          required: true
+        },
         { model: EcomProductDetails, as: 'products' },
         { model: EcomConsigneeDetails, as: 'consignee' },
         { model: Admin, as: 'client' }
       ]
     });
 
-
+    // Format Payload with NDR reasons
     const payload = [
       ...expressOrders.map(order => ({
         type: 'express',
         id: order.id,
-        order_id: order.id,   // 🔑 integer
+        order_id: order.id,
+        status: 'ndr', // Add status field for frontend filtering
         order_meta: {
           id: order.id,
           ref_number: order.ref_number,
@@ -275,14 +314,25 @@ async function getAllOrderDetails(req, res) {
           grand_total: order.grand_total
         },
         products: order.products || [],
-        lr_info: order.exp_lrs || [],
+        lr_info: order.exp_lrs.map(lr => ({
+          ...lr.toJSON(),
+          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+        })),
         client: order.client || null,
-        consignee: order.consignee || null
+        consignee: order.consignee || null,
+        created_at: order.created_at,
+        // Add fields expected by frontend
+        seller_remarks: order.seller_remarks || '',
+        last_action: order.last_action || '',
+        last_action_by: order.last_action_by || '',
+        updated_address: order.updated_address || '',
+        updated_pincode: order.updated_pincode || ''
       })),
       ...ecomOrders.map(order => ({
         type: 'ecom',
         id: order.id,
-        order_id: order.id,   // 🔑 integer
+        order_id: order.id,
+        status: 'ndr', // Add status field
         order_meta: {
           id: order.id,
           ref_number: order.ref_number,
@@ -292,9 +342,19 @@ async function getAllOrderDetails(req, res) {
           grand_total: order.grand_total
         },
         products: order.products || [],
-        lr_info: order.ecom_lrs || [],
+        lr_info: order.ecom_lrs.map(lr => ({
+          ...lr.toJSON(),
+          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+        })),
         client: order.client || null,
-        consignee: order.consignee || null
+        consignee: order.consignee || null,
+        created_at: order.created_at,
+        // Add fields expected by frontend
+        seller_remarks: order.seller_remarks || '',
+        last_action: order.last_action || '',
+        last_action_by: order.last_action_by || '',
+        updated_address: order.updated_address || '',
+        updated_pincode: order.updated_pincode || ''
       }))
     ];
 
@@ -305,7 +365,6 @@ async function getAllOrderDetails(req, res) {
     return res.status(500).json({ ok: false, error: err.message });
   }
 }
-
 
 
 
@@ -31014,5 +31073,6 @@ module.exports = {
    createEscalation,
    getNdrActions,
   addNdrReason,
-  getNdrHistory
+  getNdrHistory,
+  sendWhatsAppVerification
 }
