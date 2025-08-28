@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason,  CustomerAddressUpdate } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail  } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -58,6 +58,70 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+
+
+
+
+
+
+
+
+
+
+const getCustomerUpdates = async (req, res) => {
+  try {
+    const updates = await UpdatedCustomerDetail.findAll({
+      order: [['created_at', 'DESC']] // latest first
+    });
+
+    res.status(200).json({
+      ok: true,
+      total: updates.length,
+      data: updates
+    });
+  } catch (error) {
+    console.error('Error fetching customer updates:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
+const postCustomerUpdate = async (req, res) => {
+  try {
+    const {
+      order_id,
+      name,
+      email,
+      phone,
+      updated_address,
+      updated_pincode,
+      status
+    } = req.body;
+
+    // Create record
+    const newUpdate = await UpdatedCustomerDetail.create({
+      order_id,
+      name,
+      email,
+      phone,
+      updated_address,
+      updated_pincode,
+      status
+    });
+
+    res.status(201).json({
+      ok: true,
+      message: 'Customer update saved successfully',
+      data: newUpdate
+    });
+
+  } catch (error) {
+    console.error('Error inserting customer update:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
 
 
 
@@ -31074,5 +31138,7 @@ module.exports = {
    getNdrActions,
   addNdrReason,
   getNdrHistory,
-  sendWhatsAppVerification
+  sendWhatsAppVerification,
+  postCustomerUpdate,
+  getCustomerUpdates
 }

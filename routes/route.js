@@ -11,57 +11,8 @@ require('../crone/crone.js')
 const axios = require('axios');
 const { log } = require('console');
 
-
-route.get("/verify", async (req, res) => {
-  const { order_id } = req.query;
-  if (!order_id) return res.status(400).send("Invalid link");
-
-  try {
-    // fetch order details to pre-fill
-    const order = await ExpOrders.findOne({ where: { order_id } });
-
-    res.render("verify-form", {
-      order_id,
-      order
-    });
-  } catch (err) {
-    console.error("Verify form error:", err);
-    res.status(500).send("Something went wrong");
-  }
-});
-
-
-// GET: show form
-route.get("/verify", async (req, res) => {
-  const { order_id } = req.query;
-  // (Optional) preload order details
-  res.render("verify-form", { order_id });
-});
-
-// POST: save data
-const { CustomerAddressUpdate } = require("../models");
-
-route.post("/verify", async (req, res) => {
-  const { order_id, name, email, phone, updated_address, updated_pincode } = req.body;
-
-  try {
-    await CustomerAddressUpdate.create({
-      order_id,
-      name,
-      email,
-      phone,
-      updated_address,
-      updated_pincode,
-      status: "pending"
-    });
-
-    res.send(`<h3 style="text-align:center;margin-top:40px">✅ Thank you! Your details have been submitted.</h3>`);
-  } catch (err) {
-    console.error("Save error:", err);
-    res.status(500).send("❌ Something went wrong. Please try again later.");
-  }
-});
-
+route.post('/api/customer/update-address', userController.postCustomerUpdate);
+route.get('/api/customer/update-address', userController.getCustomerUpdates);
 
 route.post("/api/send-whatsapp", userController.sendWhatsAppVerification);
 
