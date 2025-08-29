@@ -2,6 +2,7 @@ const express = require('express');
 const route = express.Router();
 const { mySqlQury } = require('../middleware/db');
 const {auth,ensureKYCApproved} = require('../middleware/auth')
+const addressController = require('../controller/addressController');
 const path = require('path');
 const accessControlMiddleware = require('../middleware/accessControl');
 const userController = require('../controller/userController');
@@ -9,10 +10,25 @@ const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require
 route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
 require('../crone/crone.js')
 const axios = require('axios');
+require("dotenv").config({ path: "./config.env" });
+
+
 const { log } = require('console');
 
+
+
+route.post("/send-order-dispatched", userController.sendOrderDispatchedWhatsApp);
+
+route.post('/send-address-verification', addressController.sendAddressVerification);
+route.post('/send-address-verification/ecom', addressController.sendAddressVerificationecom);
+
+
 route.post('/api/customer/update-address', userController.postCustomerUpdate);
+route.post('/api/customer/update-address/ecom', userController.postCustomerUpdateEcom);
+
+
 route.get('/api/customer/update-address', userController.getCustomerUpdates);
+route.get('/api/customer/update-address/ecom', userController.getCustomerUpdates);
 
 route.post("/api/send-whatsapp", userController.sendWhatsAppVerification);
 
@@ -112,9 +128,15 @@ route.get("/ndr-history", userController.getNdrHistory);
 ///======================NDR ROUTES==================================///
 // route.post('/delivery-reattempt', userController.createReattempt);
 route.get("/ndr-actions", userController.getNdrActions);
+route.get("/ndr-actions/ecom", userController.getNdrActionsecom);
+
 route.post('/delivery-reattempt', userController.createReattempt);
+route.post('/delivery-reattempt/ecom', userController.createReattemptecom);
+
 
 route.post('/rto-request', userController.createRto);
+route.post('/rto-request/ecom', userController.createRtoecom);
+
 
 route.post('/escalation', userController.createEscalation);
 
@@ -122,6 +144,9 @@ route.post('/escalation', userController.createEscalation);
 
 
 route.get('/api/get-order-details', userController.getAllOrderDetails);
+route.get('/api/get-order-details/ecom', userController.getAllOrderDetailsecom);
+
+
 
 
 
@@ -3018,12 +3043,24 @@ route.get('/view-support-tickets', (req, res) => {
   });
 });
 
-route.get('/ndr-manager', (req, res) => {
+route.get('/ndr-manager-express', (req, res) => {
   // Assuming req.user.role or req.session.role contains the user's role
   // Adjust as per your authentication/session implementation
   const role = req.user?.role || req.session?.role || null;
 
-  res.render('pages/ndr-manager', {
+  res.render('pages/ndr-manager-express', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+route.get('/ndr-manager-ecom', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/ndr-manager-ecom', {
     bodyClass: 'profile-page',
     activePage: 'profile',
     title: 'Client List',
@@ -3033,10 +3070,27 @@ route.get('/ndr-manager', (req, res) => {
 
 
 
-route.get('/update-address-details', auth, async (req, res) => {
+route.get('/update-address-details-express', auth, async (req, res) => {
   try {
     const role = req.user?.role || req.session?.role || null;
-    res.render('pages/update-address-details', {
+    res.render('pages/update-address-details-express', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+route.get('/update-address-details-ecom', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/update-address-details-ecom', {
       title: 'Client Package Manager',
       bodyClass: 'profile-page',
       activePage: 'client-package',

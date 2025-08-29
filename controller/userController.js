@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail  } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom  } = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -65,8 +65,35 @@ const { DataTypes } = require('sequelize');
 
 
 
+async function sendOrderDispatchedWhatsApp(req, res) {
+  try {
+    const payload = req.body;
 
+    // ✅ Basic validation
+    if (!payload || !payload.fullPhoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
 
+    // ✅ API Call to Interakt
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          // "Authorization": `Basic ${process.env.INTERAKT_API_KEY}`, // your API key from .env
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`,
+
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendOrderDispatchedWhatsApp] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
 
 
 
@@ -94,34 +121,171 @@ const postCustomerUpdate = async (req, res) => {
       name,
       email,
       phone,
-      updated_address,
-      updated_pincode,
-      status
+      status,
+      address_line1,
+      address_line2,
+      landmark,
+      country,
+      state,
+      city,
+      pincode
     } = req.body;
 
-    // Create record
-    const newUpdate = await UpdatedCustomerDetail.create({
+    // Validate required fields
+    if (!order_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'order_id is required' 
+      });
+    }
+
+    // Update address in tbl_exp_consignee_details
+    let updateData = {};
+    
+    // Split name into first and last name (if provided)
+    if (name) {
+      const nameParts = name.trim().split(' ');
+      updateData.first_name = nameParts[0] || '';
+      updateData.last_name = nameParts.slice(1).join(' ') || '';
+    }
+    
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    
+    // Update address fields
+    if (address_line1) updateData.address_line1 = address_line1;
+    if (address_line2) updateData.address_line2 = address_line2;
+    if (landmark) updateData.landmark = landmark;
+    if (country) updateData.country = country;
+    if (state) updateData.state = state;
+    if (city) updateData.city = city;
+    if (pincode) updateData.pincode = pincode;
+
+    // Check if any data was provided to update
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'No update data provided' 
+      });
+    }
+
+    // Update the record in tbl_exp_consignee_details
+    const [affectedRows] = await ConsigneeDetails.update(updateData, {
+      where: { order_id: order_id }
+    });
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Order not found' 
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Customer address updated successfully',
+      data: {
+        order_id,
+        ...updateData
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating customer address:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Internal server error',
+      message: error.message 
+    });
+  }
+};
+
+
+const postCustomerUpdateEcom = async (req, res) => {
+  try {
+    const {
       order_id,
       name,
       email,
       phone,
-      updated_address,
-      updated_pincode,
-      status
+      status,
+      address_line1,
+      address_line2,
+      landmark,
+      country,
+      state,
+      city,
+      pincode
+    } = req.body;
+
+    // Validate required fields
+    if (!order_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'order_id is required' 
+      });
+    }
+
+    // Update address in tbl_exp_consignee_details
+    let updateData = {};
+    
+    // Split name into first and last name (if provided)
+    if (name) {
+      const nameParts = name.trim().split(' ');
+      updateData.first_name = nameParts[0] || '';
+      updateData.last_name = nameParts.slice(1).join(' ') || '';
+    }
+    
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    
+    // Update address fields
+    if (address_line1) updateData.address_line1 = address_line1;
+    if (address_line2) updateData.address_line2 = address_line2;
+    if (landmark) updateData.landmark = landmark;
+    if (country) updateData.country = country;
+    if (state) updateData.state = state;
+    if (city) updateData.city = city;
+    if (pincode) updateData.pincode = pincode;
+
+    // Check if any data was provided to update
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'No update data provided' 
+      });
+    }
+
+    // Update the record in tbl_exp_consignee_details
+    const [affectedRows] = await EcomConsigneeDetails.update(updateData, {
+      where: { order_id: order_id }
     });
 
-    res.status(201).json({
+    if (affectedRows === 0) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Order not found' 
+      });
+    }
+
+    res.status(200).json({
       ok: true,
-      message: 'Customer update saved successfully',
-      data: newUpdate
+      message: 'Customer address updated successfully',
+      data: {
+        order_id,
+        ...updateData
+      }
     });
 
   } catch (error) {
-    console.error('Error inserting customer update:', error);
-    res.status(500).json({ ok: false, error: 'Internal server error' });
+    console.error('Error updating customer address:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Internal server error',
+      message: error.message 
+    });
   }
 };
-
 
 
 
@@ -197,6 +361,32 @@ async function getNdrHistory(req, res) {
 }
 
 
+
+async function getNdrActionsecom(req, res) {
+  try {
+
+    const [escalations, rtos, reattempts] = await Promise.all([
+      TblEscalationEcom.findAll({ order: [["created_at", "DESC"]] }),
+      TblRtoRequestsecom.findAll({ order: [["created_at", "DESC"]] }),
+      TblDeliveryReattemptsEcom.findAll({ order: [["created_at", "DESC"]] }),
+    ]);
+
+
+    return res.json({
+      ok: true,
+      data: {
+        escalations,
+        rtos,
+        reattempts,
+      },
+    });
+  } catch (err) {
+    console.error("❌ [getNdrActions] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
 async function getNdrActions(req, res) {
   try {
 
@@ -248,8 +438,7 @@ async function createEscalation(req, res) {
 
 async function createRto(req, res) {
   try {
-    console.log('🔍 [createRto] Request started...');
-    console.log('📦 Payload:', req.body);
+    
 
     const { order_id, product, payment_mode, pending_days, remarks } = req.body;
 
@@ -265,14 +454,39 @@ async function createRto(req, res) {
       remarks
     });
 
-    console.log('✅ [createRto] Saved successfully:', newRto.toJSON());
-
     return res.json({ ok: true, data: newRto });
   } catch (err) {
-    console.error('❌ [createRto] Error:', err);
     return res.status(500).json({ ok: false, error: err.message });
   }
 }
+
+
+
+
+async function createRtoecom(req, res) {
+  try {
+    
+
+    const { order_id, product, payment_mode, pending_days, remarks } = req.body;
+
+    if (!remarks) {
+      return res.status(400).json({ ok: false, error: "Remarks are required" });
+    }
+
+    const newRto = await TblRtoRequestsecom.create({
+      order_id,
+      product,
+      payment_mode,
+      pending_since: pending_days,
+      remarks
+    });
+
+    return res.json({ ok: true, data: newRto });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
 
 
 
@@ -329,6 +543,169 @@ async function createReattempt(req, res) {
 
 
 
+async function createReattemptecom(req, res) {
+  try {
+   
+
+    // 1) Extract payload
+    const {
+      order_id,
+      reason,
+      reason_incorrect,    // frontend boolean
+      request_reattempt,   // frontend boolean
+      reattempted_date,
+      phone,
+      landmark,
+      address1,
+      address2,
+      city,
+      state,
+      pin_code,
+      remarks
+    } = req.body;
+
+  
+    // 2) Save to DB (map fields to DB column names)
+    const newReattempt = await TblDeliveryReattemptsEcom.create({
+      order_id,
+      reason,
+      is_reason_incorrect: reason_incorrect ? 1 : 0,
+      request_for_reattempt: request_reattempt ? 1 : 0,
+      reattempted_date,
+      phone,
+      landmark,
+      address_line1: address1,
+      address_line2: address2,
+      city,
+      state,
+      pincode: pin_code,
+      remarks
+    });
+
+    // 3) Response
+    return res.json({ ok: true, data: newReattempt });
+
+  } catch (err) {
+    // 4) Error Handling
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+async function getAllOrderDetailsecom(req, res) {
+  try {
+    // Fetch EXPRESS Orders with status = 9 (NDR status)
+    // const expressOrders = await ExpOrders.findAll({
+    //   include: [
+    //     { 
+    //       model: ExpLR, 
+    //       as: 'exp_lrs',
+    //       where: { status: 9 },
+    //       required: true
+    //     },
+    //     { model: ExpProductDetails, as: 'products' },
+    //     { model: ConsigneeDetails, as: 'consignee' },
+    //     { model: Admin, as: 'client' }
+    //   ]
+    // });
+
+    // Fetch ECOM Orders with status = 9 (NDR status)
+    const ecomOrders = await EcomOrders.findAll({
+      include: [
+        { 
+          model: EcomLR, 
+          as: 'ecom_lrs',
+          where: { status: 9 },
+          required: true
+        },
+        { model: EcomProductDetails, as: 'products' },
+        { model: EcomConsigneeDetails, as: 'consignee' },
+        { model: Admin, as: 'client' }
+      ]
+    });
+
+    // Format Payload with NDR reasons
+    const payload = [
+      // ...expressOrders.map(order => ({
+      //   type: 'express',
+      //   id: order.id,
+      //   order_id: order.id,
+      //   status: 'ndr', // Add status field for frontend filtering
+      //   order_meta: {
+      //     id: order.id,
+      //     ref_number: order.ref_number,
+      //     payment_mode: order.payment_mode,
+      //     box_qty: order.box_qty,
+      //     total_qty: order.total_qty,
+      //     grand_total: order.grand_total
+      //   },
+      //   products: order.products || [],
+      //   lr_info: order.exp_lrs.map(lr => ({
+      //     ...lr.toJSON(),
+      //     ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+      //   })),
+      //   client: order.client || null,
+      //   consignee: order.consignee || null,
+      //   created_at: order.created_at,
+      //   // Add fields expected by frontend
+      //   seller_remarks: order.seller_remarks || '',
+      //   last_action: order.last_action || '',
+      //   last_action_by: order.last_action_by || '',
+      //   updated_address: order.updated_address || '',
+      //   updated_pincode: order.updated_pincode || ''
+      // })),
+
+
+      ...ecomOrders.map(order => ({
+        type: 'ecom',
+        id: order.id,
+        order_id: order.id,
+        status: 'ndr', // Add status field
+        order_meta: {
+          id: order.id,
+          ref_number: order.ref_number,
+          payment_mode: order.payment_mode,
+          box_qty: order.box_qty,
+          total_qty: order.total_qty,
+          grand_total: order.grand_total
+        },
+        products: order.products || [],
+        lr_info: order.ecom_lrs.map(lr => ({
+          ...lr.toJSON(),
+          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+        })),
+        client: order.client || null,
+        consignee: order.consignee || null,
+        created_at: order.created_at,
+        // Add fields expected by frontend
+        seller_remarks: order.seller_remarks || '',
+        last_action: order.last_action || '',
+        last_action_by: order.last_action_by || '',
+        updated_address: order.updated_address || '',
+        updated_pincode: order.updated_pincode || ''
+      }))
+    ];
+
+    return res.json({ ok: true, total: payload.length, data: payload });
+
+  } catch (err) {
+    console.error('❌ [getAllOrderDetails] Error:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
 
 async function getAllOrderDetails(req, res) {
   try {
@@ -348,19 +725,19 @@ async function getAllOrderDetails(req, res) {
     });
 
     // Fetch ECOM Orders with status = 9 (NDR status)
-    const ecomOrders = await EcomOrders.findAll({
-      include: [
-        { 
-          model: EcomLR, 
-          as: 'ecom_lrs',
-          where: { status: 9 },
-          required: true
-        },
-        { model: EcomProductDetails, as: 'products' },
-        { model: EcomConsigneeDetails, as: 'consignee' },
-        { model: Admin, as: 'client' }
-      ]
-    });
+    // const ecomOrders = await EcomOrders.findAll({
+    //   include: [
+    //     { 
+    //       model: EcomLR, 
+    //       as: 'ecom_lrs',
+    //       where: { status: 9 },
+    //       required: true
+    //     },
+    //     { model: EcomProductDetails, as: 'products' },
+    //     { model: EcomConsigneeDetails, as: 'consignee' },
+    //     { model: Admin, as: 'client' }
+    //   ]
+    // });
 
     // Format Payload with NDR reasons
     const payload = [
@@ -392,34 +769,34 @@ async function getAllOrderDetails(req, res) {
         updated_address: order.updated_address || '',
         updated_pincode: order.updated_pincode || ''
       })),
-      ...ecomOrders.map(order => ({
-        type: 'ecom',
-        id: order.id,
-        order_id: order.id,
-        status: 'ndr', // Add status field
-        order_meta: {
-          id: order.id,
-          ref_number: order.ref_number,
-          payment_mode: order.payment_mode,
-          box_qty: order.box_qty,
-          total_qty: order.total_qty,
-          grand_total: order.grand_total
-        },
-        products: order.products || [],
-        lr_info: order.ecom_lrs.map(lr => ({
-          ...lr.toJSON(),
-          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
-        })),
-        client: order.client || null,
-        consignee: order.consignee || null,
-        created_at: order.created_at,
-        // Add fields expected by frontend
-        seller_remarks: order.seller_remarks || '',
-        last_action: order.last_action || '',
-        last_action_by: order.last_action_by || '',
-        updated_address: order.updated_address || '',
-        updated_pincode: order.updated_pincode || ''
-      }))
+      // ...ecomOrders.map(order => ({
+      //   type: 'ecom',
+      //   id: order.id,
+      //   order_id: order.id,
+      //   status: 'ndr', // Add status field
+      //   order_meta: {
+      //     id: order.id,
+      //     ref_number: order.ref_number,
+      //     payment_mode: order.payment_mode,
+      //     box_qty: order.box_qty,
+      //     total_qty: order.total_qty,
+      //     grand_total: order.grand_total
+      //   },
+      //   products: order.products || [],
+      //   lr_info: order.ecom_lrs.map(lr => ({
+      //     ...lr.toJSON(),
+      //     ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+      //   })),
+      //   client: order.client || null,
+      //   consignee: order.consignee || null,
+      //   created_at: order.created_at,
+      //   // Add fields expected by frontend
+      //   seller_remarks: order.seller_remarks || '',
+      //   last_action: order.last_action || '',
+      //   last_action_by: order.last_action_by || '',
+      //   updated_address: order.updated_address || '',
+      //   updated_pincode: order.updated_pincode || ''
+      // }))
     ];
 
     return res.json({ ok: true, total: payload.length, data: payload });
@@ -31140,5 +31517,11 @@ module.exports = {
   getNdrHistory,
   sendWhatsAppVerification,
   postCustomerUpdate,
-  getCustomerUpdates
+  getCustomerUpdates,
+  getAllOrderDetailsecom,
+  getNdrActionsecom,
+  postCustomerUpdateEcom,
+  createReattemptecom,
+  createRtoecom,
+  sendOrderDispatchedWhatsApp,
 }
