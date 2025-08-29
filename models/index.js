@@ -22,8 +22,11 @@ const EcomConsigneeDetails      = require('./TblEcomConsigneeDetails')(sequelize
 const Admin                     = require('./Admin')(sequelize, DataTypes);
 const SupportTicket             = require('./SupportTicket')(sequelize, DataTypes);
 const TblDeliveryReattempts   = require('./TblDeliveryReattempts')(sequelize, DataTypes);
+const TblDeliveryReattemptsEcom   = require('./TblDeliveryReattemptsEcom')(sequelize, DataTypes);
 const TblRtoRequests   = require('./TblRtoRequests')(sequelize, DataTypes);
+const TblRtoRequestsecom   = require('./TblRtoRequestsecom')(sequelize, DataTypes);
 const TblEscalation   = require('./TblEscalation')(sequelize, DataTypes);
+const TblEscalationEcom   = require('./TblEsclationecom')(sequelize, DataTypes);
 const ExpNdrReason = require('./ExpNdrReason')(sequelize, DataTypes);
 const EcomNdrReason = require('./EcomNdrReason')(sequelize, DataTypes);
 const NdrReason = require('./ndrReason')(sequelize, DataTypes);
@@ -154,5 +157,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom
 };

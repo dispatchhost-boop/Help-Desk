@@ -34,7 +34,8 @@
         }
 
         /* Ensure select dropdowns appear above other elements */
-        .clientSelect, .userSelect {
+        .clientSelect,
+        .userSelect {
             position: relative;
             z-index: 10002 !important;
         }
@@ -146,98 +147,116 @@
         <div id="left-sidebar" class="sidebar">
             <button type="button" class="btn-toggle-offcanvas"><i class="fa fa-arrow-left"></i></button>
             <div class="sidebar-scroll">
-                          <div class="user-account" style="padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(14, 133, 255, 0.1); margin-bottom: 20px;">
+                <div class="user-account"
+                    style="padding: 16px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(14, 133, 255, 0.1); margin-bottom: 20px;">
 
 
 
-    <!-- Welcome Message -->
-    <div style="text-align: center; margin-bottom: 12px;">
-        <div style="font-size: 14px; color: #6b7280;">Welcome</div>
-        <strong style="font-size: 16px; color: #1e293b;"><%= companyName || '' %></strong>
-    </div>
-
-    <!-- Profile Photo + Name with Dropdown -->
-    <div style="display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 16px;">
-        <% if (userLogoPath) { %>
-            <img src="<%= userLogoPath %>" class="rounded-circle user-photo" alt="<%= userFullName || 'User' %>" 
-                style="width: 48px; height: 48px; border: 2px solid #0e85ff; object-fit: cover;">
-        <% } else { %>
-            <div class="rounded-circle user-photo d-flex align-items-center justify-content-center bg-secondary text-white" style="width: 48px; height: 48px;">
-                <%= (userFullName && userFullName[0].toUpperCase()) || '?' %>
-            </div>
-        <% } %>
-
-        <div class="dropdown">
-            <a href="javascript:void(0);" class="dropdown-toggle user-name"
-               id="userDropdownToggle"
-               style="font-size: 14px; color: #0e85ff; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                <strong><%= userFullName || '' %></strong>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end account"
-                style="border-radius: 12px; box-shadow: 0 8px 25px rgba(14, 133, 255, 0.15); padding: 8px; background: white; min-width: 200px;">
-                <li>
-                    <a class="dropdown-item" href="page-profile2.html"
-                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
-                        <i class="fa fa-user" style="color: #0e85ff; font-size: 12px;"></i> My Profile
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
-                        <i class="fa fa-exchange-alt" style="color: #0e85ff; font-size: 12px;"></i> Switch Client
-                    </a>
-                    <div class="client-user-selector" style="padding: 8px 12px;">
-                        <select class="clientSelect form-select"
-                                style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
-                                onclick="event.stopPropagation();"
-                                onfocus="event.stopPropagation();"
-                                onblur="event.stopPropagation();">
-                            <option value="">Select Client</option>
-                        </select>
-                        <select class="userSelect form-select mt-2" disabled
-                                style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
-                                onclick="event.stopPropagation();"
-                                onfocus="event.stopPropagation();"
-                                onblur="event.stopPropagation();">
-                            <option value="">Self (No User)</option>
-                        </select>
+                    <!-- Welcome Message -->
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <div style="font-size: 14px; color: #6b7280;">Welcome</div>
+                        <strong style="font-size: 16px; color: #1e293b;">
+                            <%= companyName || '' %>
+                        </strong>
                     </div>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="javascript:void(0);"
-                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
-                        <i class="fa fa-cog" style="color: #0e85ff; font-size: 12px;"></i> Settings
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider" style="margin: 8px 0; border-color: #e5e7eb;"></li>
-                <li id="sidebar-logout">
-                    <a class="dropdown-item" href="/logout"
-                       style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #dc2626; font-weight: 500;">
-                        <i class="fa fa-power-off" style="color: #dc2626; font-size: 12px;"></i> Logout
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
 
-    <!-- Stats Section -->
-    <div style="background: #f8fafc; border-radius: 8px; padding: 12px;">
-        <ul class="row list-unstyled" style="margin: 0;">
-            <li class="col-4 text-center">
-                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Sales</div>
-                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">500</div>
-            </li>
-            <li class="col-4 text-center">
-                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Order</div>
-                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">920</div>
-            </li>
-            <li class="col-4 text-center">
-                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">Revenue</div>
-                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">₹50K</div>
-            </li>
-        </ul>
-    </div>
-</div>
+                    <!-- Profile Photo + Name with Dropdown -->
+                    <div
+                        style="display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                        <% if (userLogoPath) { %>
+                            <img src="<%= userLogoPath %>" class="rounded-circle user-photo"
+                                alt="<%= userFullName || 'User' %>"
+                                style="width: 48px; height: 48px; border: 2px solid #0e85ff; object-fit: cover;">
+                            <% } else { %>
+                                <div class="rounded-circle user-photo d-flex align-items-center justify-content-center bg-secondary text-white"
+                                    style="width: 48px; height: 48px;">
+                                    <%= (userFullName && userFullName[0].toUpperCase()) || '?' %>
+                                </div>
+                                <% } %>
+
+                                    <div class="dropdown">
+                                        <a href="javascript:void(0);" class="dropdown-toggle user-name"
+                                            id="userDropdownToggle"
+                                            style="font-size: 14px; color: #0e85ff; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                                            <strong>
+                                                <%= userFullName || '' %>
+                                            </strong>
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end account"
+                                            style="border-radius: 12px; box-shadow: 0 8px 25px rgba(14, 133, 255, 0.15); padding: 8px; background: white; min-width: 200px;">
+                                            <li>
+                                                <a class="dropdown-item" href="page-profile2.html"
+                                                    style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                                                    <i class="fa fa-user" style="color: #0e85ff; font-size: 12px;"></i>
+                                                    My Profile
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="javascript:void(0);"
+                                                    style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                                                    <i class="fa fa-exchange-alt"
+                                                        style="color: #0e85ff; font-size: 12px;"></i> Switch Client
+                                                </a>
+                                                <div class="client-user-selector" style="padding: 8px 12px;">
+                                                    <select class="clientSelect form-select"
+                                                        style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
+                                                        onclick="event.stopPropagation();"
+                                                        onfocus="event.stopPropagation();"
+                                                        onblur="event.stopPropagation();">
+                                                        <option value="">Select Client</option>
+                                                    </select>
+                                                    <select class="userSelect form-select mt-2" disabled
+                                                        style="font-size: 10px; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; background: #f9fafb; z-index: 9999; position: relative;"
+                                                        onclick="event.stopPropagation();"
+                                                        onfocus="event.stopPropagation();"
+                                                        onblur="event.stopPropagation();">
+                                                        <option value="">Self (No User)</option>
+                                                    </select>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="javascript:void(0);"
+                                                    style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 500;">
+                                                    <i class="fa fa-cog" style="color: #0e85ff; font-size: 12px;"></i>
+                                                    Settings
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider"
+                                                    style="margin: 8px 0; border-color: #e5e7eb;">
+                                            </li>
+                                            <li id="sidebar-logout">
+                                                <a class="dropdown-item" href="/logout"
+                                                    style="font-size: 14px; padding: 10px 12px; border-radius: 8px; margin: 2px 0; display: flex; align-items: center; gap: 8px; color: #dc2626; font-weight: 500;">
+                                                    <i class="fa fa-power-off"
+                                                        style="color: #dc2626; font-size: 12px;"></i> Logout
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 12px;">
+                        <ul class="row list-unstyled" style="margin: 0;">
+                            <li class="col-4 text-center">
+                                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">
+                                    Sales</div>
+                                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">500</div>
+                            </li>
+                            <li class="col-4 text-center">
+                                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">
+                                    Order</div>
+                                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">920</div>
+                            </li>
+                            <li class="col-4 text-center">
+                                <div style="font-size: 14px; color: #6b7280; font-weight: 500; margin-bottom: 4px;">
+                                    Revenue</div>
+                                <div style="font-size: 14px; color: #0e85ff; font-weight: 600;">₹50K</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs"
@@ -302,13 +321,14 @@
                                         <i class="fa fa-shopping-bag"></i>
                                         <span>Order Management</span>
                                     </a>
-                                    
-                                    <ul >
-                                           <a href="/all-data" class="has-arrow" class="role-allowed admin-only" style="display: none;">
-                                                        <i class="fa fa-shopping-cart"></i>
-                                                        <span>All Data</span>
-                                                    </a>
-                                             
+
+                                    <ul>
+                                        <a href="/all-data" class="has-arrow" class="role-allowed admin-only"
+                                            style="display: none;">
+                                            <i class="fa fa-shopping-cart"></i>
+                                            <span>All Data</span>
+                                        </a>
+
                                         <!-- Pre-Dispatch Submenu -->
                                         <li>
                                             <a href="#Pre-Dispatch" class="has-arrow">
@@ -393,37 +413,43 @@
                                         <span>System Setting</span>
                                     </a>
                                     <ul>
-                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/forwarder-onboarding"> Forwarder Onboarding</a></li>
-                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/forwarder-list">Forwarder List</a></li>
-                                        <li data-role-name="aggregator" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/aggrigator-onboarding">Aggrigator Onboarding</a></li>
-                                        <li data-role-name="aggregator" class="role-allowed admin-only" style="display: none;"><a href="/aggrigator-list">
+                                        <li data-role-name="forwarder" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/forwarder-onboarding"> Forwarder
+                                                Onboarding</a></li>
+                                        <li data-role-name="forwarder" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/forwarder-list">Forwarder List</a></li>
+                                        <li data-role-name="aggregator" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/aggrigator-onboarding">Aggrigator
+                                                Onboarding</a></li>
+                                        <li data-role-name="aggregator" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/aggrigator-list">
                                                 Aggrigator List</a></li>
-                                        <li  ><a href="/package">
+                                        <li><a href="/package">
                                                 Package</a></li>
 
-                                        <li data-role-name="tracking" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/tracking-master">Tracking Master</a></li>
-                                        <li data-role-name="client" class="role-allowed admin-only" style="display: none;"><a href="/client-onboarding">
+                                        <li data-role-name="tracking" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/tracking-master">Tracking Master</a></li>
+                                        <li data-role-name="client" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/client-onboarding">
                                                 Client Onboarding</a></li>
-                                        <li data-role-name="client" class="role-allowed admin-only" style="display: none;"><a href="/client-list"> Client
+                                        <li data-role-name="client" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/client-list"> Client
                                                 List</a></li>
                                         <li data-role-name="warehouse" class="role-allowed"><a
                                                 href="/warehouse">Warehouse</a></li>
                                         <li data-role-name="reports" class="role-allowed"><a href="/master-docket">
                                                 Docket Master</a></li>
-                                        <li class="ecom-only" style="display: none;"><a href="/ecom/shop-integration"> Eshop Integration</a></li>
-                                        <li data-role-name="forwarder" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/courier-settings">Courier Settings</a></li>
-                                        <li data-role-name="pincode" class="role-allowed admin-only" style="display: none;"><a
-                                                href="/master-pincode   ">Pincode Master</a></li>
+                                        <li class="ecom-only" style="display: none;"><a href="/ecom/shop-integration">
+                                                Eshop Integration</a></li>
+                                        <li data-role-name="forwarder" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/courier-settings">Courier Settings</a></li>
+                                        <li data-role-name="pincode" class="role-allowed admin-only"
+                                            style="display: none;"><a href="/master-pincode   ">Pincode Master</a></li>
                                     </ul>
                                 </li>
 
                                 <!-- VAS Settings Section -->
-                                <li class="role-allowed admin-only" style="display: none;">
+                                <li >
                                     <a href="#charts" class="has-arrow">
                                         <i class="fa-solid fa-chalkboard-user"></i>
                                         <span>Vas Setting</span>
@@ -436,18 +462,18 @@
                                         <li data-role-name="auth-signup" class="role-allowed"><a
                                                 href="/signup">signup</a></li>
                                         <li data-role-name="kyc" class="role-allowed"><a href="/kyc"> kyc</a></li>
-                                            <li data-role-name="kyc" class="role-allowed"><a href="/kyc-list"> KYC
-                                                    List</a></li>
+                                        <li data-role-name="kyc" class="role-allowed"><a href="/kyc-list"> KYC
+                                                List</a></li>
 
-                                                <li data-role-name="misc" class="role-allowed"><a
-                                                        href="helpdesk">Helpdesk Support</a></li>
-                                                <li data-role-name="misc" class="role-allowed"><a
-                                                          href="view-support-tickets"> View Support Tickets</a></li>
+                                        <li data-role-name="misc" class="role-allowed"><a href="helpdesk">Helpdesk
+                                                Support</a></li>
+                                        <li data-role-name="misc" class="role-allowed"><a href="view-support-tickets">
+                                                View Support Tickets</a></li>
                                     </ul>
                                 </li>
 
                                 <!-- Management Section -->
-                                <li class="role-allowed admin-only" style="display: none;">
+                                <li>
                                     <a href="#management" class="has-arrow">
                                         <i class="fa fa-user-shield"></i>
                                         <span>Management</span>
@@ -461,36 +487,66 @@
                                                 href="/user-management"> User Management</a></li>
                                     </ul>
                                 </li>
-                                 <!-- Update Details Section -->
-                                <li class="role-allowed admin-only" style="display: none;">
-                                    <a href="/update-address-details">
-                                        <i class="fa fa-user-shield"></i>
-                                        <span>Update Address Details</span>
+                                <!-- Update Details Section -->
+                                <!-- Authentication Section -->
+                                <li>
+                                    <a href="#Authentication" class="has-arrow">
+                                        <i class="fa fa-lock"></i>
+                                        <span>Updated Address Details</span>
                                     </a>
-                                  
+                                    <ul>
+                                        <li>
+                                            <a href="/update-address-details-express">
+                                                <i class="fa fa-truck"></i>
+                                                <span>Update Address (Express)</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="/update-address-details-ecom">
+                                                <i class="fa fa-shopping-cart"></i>
+                                                <span>Update Address (Ecom)</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
                                 </li>
                                 <!-- NDR Section -->
-                                <li class="role-allowed admin-only" style="display: none;">
-                                    <a href="#forms" class="has-arrow">
+                                <li>
+                                    <a href="#NDR" class="has-arrow">
                                         <i class="fa fa-exclamation-triangle"></i>
                                         <span>NDR</span>
                                     </a>
                                     <ul>
-                                        <li data-role-name="role-management" class="role-allowed"><a href="/ndr-manager">NDR Manager</a></li>
+                                        <!--Post -NDR Submenu -->
+                                        <li>
+                                            <a href="#Post-NDR" class="has-arrow">
+                                                <i class="fa fa-clipboard-list"></i>
+                                                <span>Post-NDR</span>
+                                            </a>
+                                            <ul>
+                                                <li>
+                                                    <a href="/ndr-manager-ecom">
 
-                                        <!-- <li><a href="forms-advanced.html"> Advanced Elements</a></li>
-                                        <li><a href="forms-basic.html">Basic Elements</a></li>
-                                        <li><a href="forms-wizard.html">Form Wizard</a></li>
-                                        <li><a href="forms-dragdropupload.html">Drag & Drop Upload</a></li>
-                                        <li><a href="forms-cropping.html">Image Cropping</a></li>
-                                        <li><a href="forms-summernote.html"> Summernote</a></li>
-                                        <li><a href="forms-editors.html"> CKEditor</a></li>
-                                        <li><a href="forms-markdown.html"> Markdown</a></li> -->
+                                                        <span>Ecom NDR</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/ndr-manager-express">
+
+                                                        <span>Express NDR</span>
+                                                    </a>
+                                                </li>
+
+
+                                            </ul>
+                                        </li>
+
+
                                     </ul>
-
                                 </li>
+
                                 <!-- HelpDesk Section -->
-                                <li class="role-allowed admin-only" style="display: none;">
+                                <li>
                                     <a href="#Tables" class="has-arrow">
                                         <i class="fa fa-headset"></i>
                                         <span>HelpDesk</span>
@@ -518,23 +574,7 @@
                                     </ul>
                                 </li>
 
-                                <!-- Authentication Section -->
-                                <!-- <li>
-                                            <a href="#Authentication" class="has-arrow">
-                                                <i class="fa fa-lock"></i>
-                                                <span>Authentication</span>
-                                            </a>
-                                            <ul>
-                                                <li><a href="page-login.html">Login</a></li>
-                                                <li><a href="page-register.html">Register</a></li>
-                                                <li><a href="page-lockscreen.html">Lockscreen</a></li>
-                                                <li><a href="page-forgot-password.html">Forgot Password</a></li>
-                                                <li><a href="page-404.html">Page 404</a></li>
-                                                <li><a href="page-403.html">Page 403</a></li>
-                                                <li><a href="page-500.html">Page 500</a></li>
-                                                <li><a href="page-503.html">Page 503</a></li>
-                                            </ul>
-                                        </li> -->
+
 
                                 <!-- Extra Pages Section -->
                                 <!-- <li>
@@ -861,7 +901,7 @@
                 // Get user role from cookie
                 const userRole = getCookie('userRole');
                 console.log('User role from cookie:', userRole);
-                
+
                 // Show admin-only menu items only if user role is 1 (admin)
                 const adminOnlyItems = document.querySelectorAll('.admin-only');
                 adminOnlyItems.forEach(item => {
@@ -1113,24 +1153,24 @@
                     // Check if user has access to this segment
                     <% if (typeof user !== 'undefined' && user) { %>
                     const isAdmin = <%= user.selectedClientId === 1 %>;
-                    const segmentType = '<%= user.segmentType || "" %>';
-                    
-                    if (!isAdmin) {
-                        if (slug === 'express' && segmentType !== 'express' && segmentType !== 'both') {
-                            e.preventDefault();
-                            alert('You do not have access to Express segment');
-                            return;
+                        const segmentType = '<%= user.segmentType || "" %>';
+
+                        if (!isAdmin) {
+                            if (slug === 'express' && segmentType !== 'express' && segmentType !== 'both') {
+                                e.preventDefault();
+                                alert('You do not have access to Express segment');
+                                return;
+                            }
+                            if (slug === 'ecom' && segmentType !== 'ecom' && segmentType !== 'both') {
+                                e.preventDefault();
+                                alert('You do not have access to E-commerce segment');
+                                return;
+                            }
                         }
-                        if (slug === 'ecom' && segmentType !== 'ecom' && segmentType !== 'both') {
-                            e.preventDefault();
-                            alert('You do not have access to E-commerce segment');
-                            return;
-                        }
-                    }
                     <% } %>
 
-                    // Save and update
-                    localStorage.setItem('selectedSlug', slug);
+                        // Save and update
+                        localStorage.setItem('selectedSlug', slug);
                     document.cookie = `tenant=${slug}; path=/; max-age=${60 * 60 * 24 * 7}`;
 
                     document.querySelector('.tenant-name').textContent = tenantName;
@@ -1227,52 +1267,52 @@
     </script>
 
 
- <script>
-    // Injected data from server
-    const userId = <%= userId %>;
-    const assignedRoles = <%- JSON.stringify(assignedRoles) %>;
+    <script>
+        // Injected data from server
+        const userId = <%= userId %>;
+        const assignedRoles = <% - JSON.stringify(assignedRoles) %>;
 
-    function showTag() {
-        const Elements = document.getElementsByClassName('role-allowed');
-        const OuterLi = document.getElementsByClassName('outer-nav-item');
+        function showTag() {
+            const Elements = document.getElementsByClassName('role-allowed');
+            const OuterLi = document.getElementsByClassName('outer-nav-item');
 
-        // Show allowed role-based elements
-        Array.from(Elements).forEach((el) => {
-            if (userId == 1 || assignedRoles.includes(el.dataset.roleName)) {
-                el.classList.remove('role-allowed'); // becomes visible
-            }
-        });
-
-        // Show parent <li>s if any children are visible
-        Array.from(OuterLi).forEach((outer) => {
-            const visibleLis = Array.from(outer.querySelectorAll('li')).filter(li => {
-                const isVisible = window.getComputedStyle(li).display !== 'none';
-                const isHiddenByRole = li.classList.contains('role-allowed');
-                return isVisible && !isHiddenByRole;
+            // Show allowed role-based elements
+            Array.from(Elements).forEach((el) => {
+                if (userId == 1 || assignedRoles.includes(el.dataset.roleName)) {
+                    el.classList.remove('role-allowed'); // becomes visible
+                }
             });
 
-            outer.style.display = visibleLis.length > 0 ? 'block' : 'none';
+            // Show parent <li>s if any children are visible
+            Array.from(OuterLi).forEach((outer) => {
+                const visibleLis = Array.from(outer.querySelectorAll('li')).filter(li => {
+                    const isVisible = window.getComputedStyle(li).display !== 'none';
+                    const isHiddenByRole = li.classList.contains('role-allowed');
+                    return isVisible && !isHiddenByRole;
+                });
+
+                outer.style.display = visibleLis.length > 0 ? 'block' : 'none';
+            });
+        }
+
+        // Run once when DOM is loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            showTag();
         });
-    }
 
-    // Run once when DOM is loaded
-    window.addEventListener('DOMContentLoaded', () => {
-        showTag();
-    });
+        // 🧠 Auto-run showTag() if DOM changes (tabs loaded dynamically)
+        const observer = new MutationObserver((mutationsList, observer) => {
+            showTag();
+        });
 
-    // 🧠 Auto-run showTag() if DOM changes (tabs loaded dynamically)
-    const observer = new MutationObserver((mutationsList, observer) => {
-        showTag();
-    });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    // ✅ Optionally expose showTag() for manual triggering
-    window.refreshRoleTabs = showTag;
-</script>
+        // ✅ Optionally expose showTag() for manual triggering
+        window.refreshRoleTabs = showTag;
+    </script>
 
     <script>
         document.querySelectorAll('.client-user-selector').forEach(container => {
@@ -1317,72 +1357,72 @@
                 }
             }
 
-          /** -----------------------------
- *  Load Clients  (always pick first)
- * ----------------------------- */
-/** -----------------------------
- *  Load Clients (use cookie if exists, else pick first)
- * ----------------------------- */
- async function loadClients() {
-  try {
-    const res = await axios.get('/api/all-clients');
-    const clients = res.data.clients || [];
+            /** -----------------------------
+   *  Load Clients  (always pick first)
+   * ----------------------------- */
+            /** -----------------------------
+             *  Load Clients (use cookie if exists, else pick first)
+             * ----------------------------- */
+            async function loadClients() {
+                try {
+                    const res = await axios.get('/api/all-clients');
+                    const clients = res.data.clients || [];
 
-    clientSelect.innerHTML = ''; // clear previous
-    const selection = loadSelection(); // load from cookie
-    let selectedId = selection.selectedClientId || null;
+                    clientSelect.innerHTML = ''; // clear previous
+                    const selection = loadSelection(); // load from cookie
+                    let selectedId = selection.selectedClientId || null;
 
-    clients.forEach((client, index) => {
-      const option = document.createElement('option');
-      option.value = client.id;
-      
-      // Display company name if available, otherwise fall back to full_name
-      const displayName = client.company_name || client.full_name || `Client ${client.id}`;
-      option.textContent = displayName;
+                    clients.forEach((client, index) => {
+                        const option = document.createElement('option');
+                        option.value = client.id;
 
-      // Select saved client if found, otherwise select first
-      if (selectedId) {
-        if (String(client.id) === String(selectedId)) {
-          option.selected = true;
-        }
-      } else if (index === 0) {
-        option.selected = true;
-        selectedId = client.id; // set fallback
-      }
+                        // Display company name if available, otherwise fall back to full_name
+                        const displayName = client.company_name || client.full_name || `Client ${client.id}`;
+                        option.textContent = displayName;
 
-      clientSelect.appendChild(option);
-    });
+                        // Select saved client if found, otherwise select first
+                        if (selectedId) {
+                            if (String(client.id) === String(selectedId)) {
+                                option.selected = true;
+                            }
+                        } else if (index === 0) {
+                            option.selected = true;
+                            selectedId = client.id; // set fallback
+                        }
 
-    // If no clients, clear cookie
-    if (!clients.length) {
-      saveSelection(null, null);
-      return '';
-    }
+                        clientSelect.appendChild(option);
+                    });
 
-    // If cookie didn't exist, store the first client's ID
-    if (!selection.selectedClientId && selectedId) {
-      saveSelection(selectedId, null);
-    }
+                    // If no clients, clear cookie
+                    if (!clients.length) {
+                        saveSelection(null, null);
+                        return '';
+                    }
 
-    return selectedId || '';
-  } catch (err) {
-    console.error('Failed to fetch clients:', err);
-    return '';
-  }
-}
+                    // If cookie didn't exist, store the first client's ID
+                    if (!selection.selectedClientId && selectedId) {
+                        saveSelection(selectedId, null);
+                    }
 
-/** -----------------------------
- *  Init Component
- * ----------------------------- */
-(async function init() {
-  const selectedClientId = await loadClients(); // this will force-select first + save cookie
-  if (selectedClientId) {
-    await loadUsers(selectedClientId);
-  } else {
-    userSelect.innerHTML = '<option value="">Self (No User)</option>';
-    userSelect.disabled = true;
-  }
-})();
+                    return selectedId || '';
+                } catch (err) {
+                    console.error('Failed to fetch clients:', err);
+                    return '';
+                }
+            }
+
+            /** -----------------------------
+             *  Init Component
+             * ----------------------------- */
+            (async function init() {
+                const selectedClientId = await loadClients(); // this will force-select first + save cookie
+                if (selectedClientId) {
+                    await loadUsers(selectedClientId);
+                } else {
+                    userSelect.innerHTML = '<option value="">Self (No User)</option>';
+                    userSelect.disabled = true;
+                }
+            })();
             /** -----------------------------
              *  Load Users for Client
              * ----------------------------- */
@@ -1437,7 +1477,7 @@
 
                 if (!clientId) return;
                 await loadUsers(clientId);
-               
+
             });
 
             /** -----------------------------
@@ -1500,56 +1540,56 @@
 
     <!-- JavaScript to prevent dropdown from closing -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Prevent dropdown from closing when clicking on selectors
-        const clientSelect = document.querySelector('.clientSelect');
-        const userSelect = document.querySelector('.userSelect');
-        const clientUserSelector = document.querySelector('.client-user-selector');
-        
-        if (clientSelect) {
-            clientSelect.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            clientSelect.addEventListener('focus', function(e) {
-                e.stopPropagation();
-            });
-            
-            clientSelect.addEventListener('blur', function(e) {
-                e.stopPropagation();
-            });
-        }
-        
-        if (userSelect) {
-            userSelect.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            userSelect.addEventListener('focus', function(e) {
-                e.stopPropagation();
-            });
-            
-            userSelect.addEventListener('blur', function(e) {
-                e.stopPropagation();
-            });
-        }
-        
-        if (clientUserSelector) {
-            clientUserSelector.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        }
-        
-        // Prevent the parent dropdown from closing when interacting with selectors
-        const accountDropdown = document.querySelector('.dropdown-menu.account');
-        if (accountDropdown) {
-            accountDropdown.addEventListener('click', function(e) {
-                if (e.target.closest('.client-user-selector')) {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Prevent dropdown from closing when clicking on selectors
+            const clientSelect = document.querySelector('.clientSelect');
+            const userSelect = document.querySelector('.userSelect');
+            const clientUserSelector = document.querySelector('.client-user-selector');
+
+            if (clientSelect) {
+                clientSelect.addEventListener('click', function (e) {
                     e.stopPropagation();
-                }
-            });
-        }
-    });
+                });
+
+                clientSelect.addEventListener('focus', function (e) {
+                    e.stopPropagation();
+                });
+
+                clientSelect.addEventListener('blur', function (e) {
+                    e.stopPropagation();
+                });
+            }
+
+            if (userSelect) {
+                userSelect.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+
+                userSelect.addEventListener('focus', function (e) {
+                    e.stopPropagation();
+                });
+
+                userSelect.addEventListener('blur', function (e) {
+                    e.stopPropagation();
+                });
+            }
+
+            if (clientUserSelector) {
+                clientUserSelector.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+            }
+
+            // Prevent the parent dropdown from closing when interacting with selectors
+            const accountDropdown = document.querySelector('.dropdown-menu.account');
+            if (accountDropdown) {
+                accountDropdown.addEventListener('click', function (e) {
+                    if (e.target.closest('.client-user-selector')) {
+                        e.stopPropagation();
+                    }
+                });
+            }
+        });
     </script>
 
 </body>

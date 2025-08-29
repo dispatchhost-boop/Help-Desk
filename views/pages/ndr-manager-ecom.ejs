@@ -1171,125 +1171,151 @@
                         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
 
                         /* ===== Event delegation for table buttons ===== */
-                        document.addEventListener('click', function (e) {
-                            const t = e.target.closest('button'); if (!t) return;
+                     document.addEventListener('click', function (e) {
+  const t = e.target.closest('button'); 
+  if (!t) return;
 
-                            /* Product Details */
-                           if (t.classList.contains('view-product-details')) {
-  const ref = t.getAttribute('data-ref') || '';
-  const product = t.getAttribute('data-product') || '';
-  const price = t.getAttribute('data-price') || '';
-  const qty = t.getAttribute('data-qty') || '1';
+  /* Product Details */
+  if (t.classList.contains('view-product-details')) {
+    const ref = t.getAttribute('data-ref') || '';
+    const product = t.getAttribute('data-product') || '';
+    const price = t.getAttribute('data-price') || '';
+    const qty = t.getAttribute('data-qty') || '1';
 
-  document.getElementById('productOrderRef').textContent = '#' + ref;
-  document.getElementById('productName').textContent = product;
-  document.getElementById('productQuantity').textContent = qty;
-  document.getElementById('productPrice').textContent = price;
+    document.getElementById('productOrderRef').textContent = '#' + ref;
+    document.getElementById('productName').textContent = product;
+    document.getElementById('productQuantity').textContent = qty;
+    document.getElementById('productPrice').textContent = price;
 
-  openModal('productDetailsModal');
-}
-
-
-                            if (t.classList.contains('show-history')) {
-//   const orderId = parseInt(t.getAttribute('data-order-id'), 10);
-const orderId = order.order_id || orderMeta.orderid || order.id;
-
-
-  getNdrHistory(orderId).then(history => {
-    const body = document.getElementById('showHistoryBody');
-    let html = "";
-
-    // Escalations
-    history.escalations.forEach(e => {
-      html += `<p>🚩 Escalated (${new Date(e.createdAt).toLocaleDateString()}): ${e.reason} – ${e.remarks}</p>`;
-    });
-
-    // RTO
-    history.rtos.forEach(r => {
-      html += `<p>📦 RTO (${new Date(r.createdAt).toLocaleDateString()}): ${r.product}, ${r.payment_mode} – ${r.remarks}</p>`;
-    });
-
-    // Reattempts
-    history.reattempts.forEach(rt => {
-      html += `<p>🔄 Reattempt (${new Date(rt.createdAt).toLocaleDateString()}): ${rt.reason} – ${rt.remarks}</p>`;
-    });
-
-    if (!html) html = "<p>No history found for this order.</p>";
-
-    body.innerHTML = html;
-    openModal('showHistoryModal');
-  });
-}
-
-
-                            /* Reattempt */
-              if (t.classList.contains('reattempt-btn')) {
-  const reason = t.getAttribute('data-reason') || '';
-  const phone = t.getAttribute('data-phone') || '';
-  const address = t.getAttribute('data-address') || '';
-  const orderId = t.getAttribute('data-order-id');  
-
-  // ✅ Save orderId in the modal for submit
-  document.getElementById('reattemptModal').setAttribute('data-order-id', orderId);
-
-  // Update the reason text span
-  document.querySelector('#reattemptModal .reason-text').textContent = reason;
-
-  // Update phone input
-  document.getElementById('phone').value = phone;
-
-  // Parse address and update address fields
-  const addressParts = address.split(', ');
-  if (addressParts.length >= 4) {
-    document.getElementById('address1').value = addressParts[0] || '';
-    document.getElementById('address2').value = addressParts[1] || '';
-    document.getElementById('city').value = addressParts[2] || '';
-    document.getElementById('state').value = addressParts[3] || '';
-    document.getElementById('pinCode').value = addressParts[4] || '';
+    openModal('productDetailsModal');
   }
 
-  // Set reattempt date to tomorrow
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById('reattemptedDate').value = tomorrow.toLocaleDateString('en-GB');
+  /* Show History - Improved */
+  if (t.classList.contains('show-history')) {
+    const orderId = t.getAttribute('data-order-id');
+    
+    getNdrHistory(orderId).then(history => {
+      const body = document.getElementById('showHistoryBody');
+      let html = "";
 
-  openModal('reattemptModal');
-}
+      console.log("History data:", history);
 
-                            /* RTO */
-                            if (t.classList.contains('rto-btn')) {
-                                const orderId = t.getAttribute('data-order-id'); 
-                                document.getElementById('rtoModal').setAttribute('data-order-id', orderId);
-                                const product = t.getAttribute('data-product') || '';
-                                const payment = t.getAttribute('data-payment') || '';
-                                const pending = t.getAttribute('data-pending') || '';
-                                document.getElementById('rtoProduct').textContent = product;
-                                document.getElementById('rtoPayment').textContent = payment;
-                                document.getElementById('rtoPending').textContent = (pending ? pending + ' days' : '—');
-                                 document.getElementById('reattemptModal').setAttribute('data-order-id', orderId);
-                                openModal('rtoModal');
-                            }
+      if (history && history.escalations) {
+        // Escalations
+        history.escalations.forEach(e => {
+          html += `<div class="history-item">
+            <div class="history-date">${new Date(e.createdAt || e.created_at).toLocaleDateString("en-GB")}</div>
+            <div class="history-status">🚩 Escalated: ${e.reason || ''} – ${e.remarks || 'No remarks'}</div>
+          </div>`;
+        });
 
-                            /* Escalate */
-                            if (t.classList.contains('escalate-btn')) {
+        // RTO
+        history.rtos.forEach(r => {
+          html += `<div class="history-item">
+            <div class="history-date">${new Date(r.createdAt || r.created_at).toLocaleDateString("en-GB")}</div>
+            <div class="history-status">📦 RTO: ${r.product || 'Unknown product'}, ${r.payment_mode || 'Unknown payment'} – ${r.remarks || 'No remarks'}</div>
+          </div>`;
+        });
+
+        // Reattempts
+        history.reattempts.forEach(rt => {
+          html += `<div class="history-item">
+            <div class="history-date">${new Date(rt.createdAt || rt.created_at).toLocaleDateString("en-GB")}</div>
+            <div class="history-status">🔄 Reattempt: ${rt.reason || ''} – ${rt.remarks || 'No remarks'}</div>
+          </div>`;
+        });
+
+      } else if (Array.isArray(history)) {
+        // Handle flat array format
+        history.forEach(item => {
+          html += `<div class="history-item">
+            <div class="history-date">${new Date(item.created_at).toLocaleDateString("en-GB")}</div>
+            <div class="history-status">${item.reason || 'No reason specified'}</div>
+          </div>`;
+        });
+      }
+
+      if (!html) {
+        html = `<div class="history-item">
+          <div class="history-status text-muted">No history found for this order.</div>
+        </div>`;
+      }
+
+      body.innerHTML = html;
+      openModal('showHistoryModal');
+    }).catch(error => {
+      console.error("Error fetching history:", error);
+      const body = document.getElementById('showHistoryBody');
+      body.innerHTML = `<div class="history-item">
+        <div class="history-status text-danger">Error loading history: ${error.message}</div>
+      </div>`;
+      openModal('showHistoryModal');
+    });
+  }
+
+  /* Reattempt */
+  if (t.classList.contains('reattempt-btn')) {
+    const reason = t.getAttribute('data-reason') || '';
+    const phone = t.getAttribute('data-phone') || '';
+    const address = t.getAttribute('data-address') || '';
+    const orderId = t.getAttribute('data-order-id');  
+
+    // Save orderId in modal
+    document.getElementById('reattemptModal').setAttribute('data-order-id', orderId);
+    document.querySelector('#reattemptModal .reason-text').textContent = reason;
+    document.getElementById('phone').value = phone;
+
+    // Parse address
+    const addressParts = address.split(', ');
+    if (addressParts.length >= 5) {
+      document.getElementById('address1').value = addressParts[0] || '';
+      document.getElementById('address2').value = addressParts[1] || '';
+      document.getElementById('city').value = addressParts[2] || '';
+      document.getElementById('state').value = addressParts[3] || '';
+      document.getElementById('pinCode').value = addressParts[4] || '';
+    }
+
+    // Default reattempt date = tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('reattemptedDate').value = tomorrow.toLocaleDateString('en-GB');
+
+    openModal('reattemptModal');
+  }
+
+  /* RTO */
+  if (t.classList.contains('rto-btn')) {
+    const orderId = t.getAttribute('data-order-id'); 
+    document.getElementById('rtoModal').setAttribute('data-order-id', orderId);
+
+    const product = t.getAttribute('data-product') || '';
+    const payment = t.getAttribute('data-payment') || '';
+    const pending = t.getAttribute('data-pending') || '';
+
+    document.getElementById('rtoProduct').textContent = product;
+    document.getElementById('rtoPayment').textContent = payment;
+    document.getElementById('rtoPending').textContent = (pending ? pending + ' days' : '—');
+
+    openModal('rtoModal');
+  }
+
+  /* Escalate */
+  if (t.classList.contains('escalate-btn')) {
     const reason = t.getAttribute('data-reason') || '';
     const orderId = t.getAttribute('data-order-id') || '—';
 
     document.getElementById('escalateReason').textContent = reason;
-    document.getElementById('escalateOrderId').textContent = orderId;  // <-- add this line
+    document.getElementById('escalateOrderId').textContent = orderId;
     openModal('escalateModal');
-}
+  }
 
-
-                            /* Escalate to Courier */
-                            if (t.classList.contains('escalate-to-courier-btn')) {
-                                openModal('escalateToCourierModal');
-                            }
-                        });
+  /* Escalate to Courier */
+  if (t.classList.contains('escalate-to-courier-btn')) {
+    openModal('escalateToCourierModal');
+  }
+});
 
                         /* ===== Submit buttons (demo alerts—replace with API calls) ===== */
-                        // Handle reattempt form submission
-                       // Handle reattempt form submission
 // Handle reattempt form submission
 document.addEventListener('submit', async function (e) {
   if (e.target.closest('#reattemptModal form')) {
@@ -1316,7 +1342,7 @@ document.addEventListener('submit', async function (e) {
 
     console.log("🚀 Sending payload:", payload);
 
-    const res = await fetch("http://localhost:5000/delivery-reattempt", {
+    const res = await fetch("http://localhost:5000/delivery-reattempt/ecom", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -1361,7 +1387,7 @@ document.getElementById('submitRto')?.addEventListener('click', async function (
   };
 
   try {
-    const res = await fetch("http://localhost:5000/rto-request", {
+    const res = await fetch("http://localhost:5000/rto-request/ecom", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -1439,19 +1465,28 @@ document.getElementById('submitEscalate')?.addEventListener('click', async funct
                     <script>
                         
 // === NDR History helper ===
-async function getNdrHistory(orderId, orderType="exp") {
+// === NDR History helper ===
+async function getNdrHistory(orderId, orderType = "exp") {
   try {
+    console.log("Fetching history for order:", orderId);
     const res = await fetch(`http://localhost:5000/ndr-history?order_id=${orderId}&order_type=${orderType}`);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
     const json = await res.json();
+    console.log("History API response:", json);
 
     if (json.ok) {
       return json.data; // array of {id, order_id, order_type, reason, created_at}
     } else {
+      console.warn("API returned not ok:", json);
       return [];
     }
   } catch (err) {
     console.error("❌ getNdrHistory error:", err);
-    return [];
+    throw err; // Re-throw to handle in the calling function
   }
 }
 
@@ -1619,7 +1654,7 @@ let allOrders = [];
 
 async function fetchNdrActionsAll() {
   try {
-    const res = await fetch("http://localhost:5000/ndr-actions");
+    const res = await fetch("http://localhost:5000/ndr-actions/ecom");
     const json = await res.json();
     if (json.ok && json.data) {
       ndrActions = json.data;
@@ -1673,72 +1708,199 @@ async function applyAttemptsCount() {
 }
 
 
+// Modify fetchOrderDetails to include updated address information
 async function fetchOrderDetails() {
-  try {
-    const res = await fetch("http://localhost:5000/api/get-order-details");
-    const json = await res.json();
+    try {
+        // Fetch both orders and updated customer details in parallel
+        const [ordersRes, updatedDetails] = await Promise.all([
+            fetch("http://localhost:5000/api/get-order-details/ecom"),
+            fetchUpdatedCustomerDetails()
+        ]);
+        
+        const ordersJson = await ordersRes.json();
+        
+        if (ordersJson.ok && Array.isArray(ordersJson.data)) {
+            allOrders = ordersJson.data;
+            
+            // Merge updated address information with orders
+            allOrders = allOrders.map(order => {
+                // Try both string and number comparison
+                const updatedDetail = updatedDetails.find(detail => 
+                    detail.order_id == order.order_id || // Loose comparison
+                    detail.order_id === order.order_id.toString() // String comparison
+                );
+                
+                if (updatedDetail) {
+                    console.log("Found updated address for order:", order.order_id, updatedDetail);
+                    return {
+                        ...order,
+                        updated_address: updatedDetail.updated_address,
+                        updated_pincode: updatedDetail.updated_pincode
+                    };
+                }
+                return order;
+            });
 
-    if (json.ok && Array.isArray(json.data)) {
-      allOrders = json.data;
+            console.log("Merged orders with updated addresses:", allOrders);
 
-      // Action Pending = Orders without any action
-      dscData["action-pending"] = allOrders.filter(o => {
-        const orderActs = ndrActions.escalations.filter(e => e.order_id === o.order_id)
-          .concat(ndrActions.rtos.filter(r => r.order_id === o.order_id))
-          .concat(ndrActions.reattempts.filter(rt => rt.order_id === o.order_id));
-        return orderActs.length === 0;
-      });
+            // Rest of the function remains the same...
+            // Action Pending = Orders without any action
+            dscData["action-pending"] = allOrders.filter(o => {
+                const orderActs = ndrActions.escalations.filter(e => e.order_id === o.order_id)
+                .concat(ndrActions.rtos.filter(r => r.order_id === o.order_id))
+                .concat(ndrActions.reattempts.filter(rt => rt.order_id === o.order_id));
+                return orderActs.length === 0;
+            });
 
-      // Action Taken = Orders with reattempt or RTO
-      dscData["action-taken"] = allOrders.filter(o => {
-        return ndrActions.reattempts.some(rt => rt.order_id === o.order_id) ||
-               ndrActions.rtos.some(r => r.order_id === o.order_id);
-      });
+            // Action Taken = Orders with reattempt or RTO
+            dscData["action-taken"] = allOrders.filter(o => {
+                return ndrActions.reattempts.some(rt => rt.order_id === o.order_id) ||
+                    ndrActions.rtos.some(r => r.order_id === o.order_id);
+            });
 
-      // Delivered
-      dscData["delivered"] = allOrders.filter(o => o.status?.toLowerCase() === "delivered");
+            // Delivered
+            dscData["delivered"] = allOrders.filter(o => o.status?.toLowerCase() === "delivered");
 
-      // RTO (merge from ndrActions.rtos also)
-      let rtoOrders = allOrders.filter(o => 
-        ndrActions.rtos.some(r => r.order_id === o.order_id)
-      );
+            // RTO (merge from ndrActions.rtos also)
+            let rtoOrders = allOrders.filter(o => 
+                ndrActions.rtos.some(r => r.order_id === o.order_id)
+            );
 
-      // 🔥 Add missing RTO-only orders (not in allOrders)
-      ndrActions.rtos.forEach(r => {
-        if (!rtoOrders.some(o => o.order_id === r.order_id)) {
-          rtoOrders.push({
-            order_id: r.order_id,
-            consignee: { first_name: "—", last_name: "", phone: "" },
-            client: {},
-            lr_info: [],
-            products: [],
-            order_meta: { payment_mode: "—" },
-            status: "RTO",
-            last_action: "RTO Initiated",
-            last_action_by: "System",
-            updated_at: r.createdAt
-          });
+            // Add missing RTO-only orders (not in allOrders)
+            ndrActions.rtos.forEach(r => {
+                if (!rtoOrders.some(o => o.order_id === r.order_id)) {
+                    rtoOrders.push({
+                        order_id: r.order_id,
+                        consignee: { first_name: "—", last_name: "", phone: "" },
+                        client: {},
+                        lr_info: [],
+                        products: [],
+                        order_meta: { payment_mode: "—" },
+                        status: "RTO",
+                        last_action: "RTO Initiated",
+                        last_action_by: "System",
+                        updated_at: r.createdAt
+                    });
+                }
+            });
+
+            dscData["rto"] = rtoOrders;
+
+            // All = Everything
+            dscData["all"] = allOrders;
+
+            renderTableRows("action-pending");
+        } else {
+            console.error("Invalid API response:", ordersJson);
+            renderEmptyState();
         }
-      });
-
-      dscData["rto"] = rtoOrders;
-
-      // All = Everything
-      dscData["all"] = allOrders;
-
-      renderTableRows("action-pending");
-    } else {
-      console.error("Invalid API response:", json);
-      renderEmptyState();
+    } catch (err) {
+        console.error("API fetch failed", err);
+        renderEmptyState();
     }
-  } catch (err) {
-    console.error("API fetch failed", err);
-    renderEmptyState();
-  }
 }
 
+async function fetchUpdatedCustomerDetails() {
+    try {
+        const response = await fetch('http://localhost:5000/api/customer/update-address/ecom');
+        const data = await response.json();
+        
+        if (data.ok && data.data) {
+            return data.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching updated customer details:', error);
+        return [];
+    }
+}
 
+// Modify fetchOrderDetails to include updated address information
+async function fetchOrderDetails() {
+    try {
+        // Fetch both orders and updated customer details in parallel
+        const [ordersRes, updatedDetails] = await Promise.all([
+            fetch("http://localhost:5000/api/get-order-details/ecom"),
+            fetchUpdatedCustomerDetails()
+        ]);
+        
+        const ordersJson = await ordersRes.json();
+        
+        if (ordersJson.ok && Array.isArray(ordersJson.data)) {
+            allOrders = ordersJson.data;
+            
+            // Merge updated address information with orders
+            allOrders = allOrders.map(order => {
+                const updatedDetail = updatedDetails.find(detail => 
+                    detail.order_id === order.order_id.toString()
+                );
+                
+                if (updatedDetail) {
+                    return {
+                        ...order,
+                        updated_address: updatedDetail.updated_address,
+                        updated_pincode: updatedDetail.updated_pincode
+                    };
+                }
+                return order;
+            });
 
+            // Rest of the function remains the same...
+            // Action Pending = Orders without any action
+            dscData["action-pending"] = allOrders.filter(o => {
+                const orderActs = ndrActions.escalations.filter(e => e.order_id === o.order_id)
+                .concat(ndrActions.rtos.filter(r => r.order_id === o.order_id))
+                .concat(ndrActions.reattempts.filter(rt => rt.order_id === o.order_id));
+                return orderActs.length === 0;
+            });
+
+            // Action Taken = Orders with reattempt or RTO
+            dscData["action-taken"] = allOrders.filter(o => {
+                return ndrActions.reattempts.some(rt => rt.order_id === o.order_id) ||
+                    ndrActions.rtos.some(r => r.order_id === o.order_id);
+            });
+
+            // Delivered
+            dscData["delivered"] = allOrders.filter(o => o.status?.toLowerCase() === "delivered");
+
+            // RTO (merge from ndrActions.rtos also)
+            let rtoOrders = allOrders.filter(o => 
+                ndrActions.rtos.some(r => r.order_id === o.order_id)
+            );
+
+            // Add missing RTO-only orders (not in allOrders)
+            ndrActions.rtos.forEach(r => {
+                if (!rtoOrders.some(o => o.order_id === r.order_id)) {
+                    rtoOrders.push({
+                        order_id: r.order_id,
+                        consignee: { first_name: "—", last_name: "", phone: "" },
+                        client: {},
+                        lr_info: [],
+                        products: [],
+                        order_meta: { payment_mode: "—" },
+                        status: "RTO",
+                        last_action: "RTO Initiated",
+                        last_action_by: "System",
+                        updated_at: r.createdAt
+                    });
+                }
+            });
+
+            dscData["rto"] = rtoOrders;
+
+            // All = Everything
+            dscData["all"] = allOrders;
+
+            renderTableRows("action-pending");
+        } else {
+            console.error("Invalid API response:", ordersJson);
+            renderEmptyState();
+        }
+    } catch (err) {
+        console.error("API fetch failed", err);
+        renderEmptyState();
+    }
+}
 
 
 
@@ -1746,7 +1908,7 @@ async function fetchOrderDetails() {
 
 async function fetchNdrActions(orderId) {
   try {
-    const res = await fetch("http://localhost:5000/ndr-actions");
+    const res = await fetch("http://localhost:5000/ndr-actions/ecom");
     const json = await res.json();
 
     if (json.ok && json.data) {
@@ -1890,8 +2052,12 @@ async function fetchNdrActions(orderId) {
                                             <th>COURIER</th>
                                             <th>NDR REASON</th>
                                             <th>CUSTOMER DETAILS</th>
+                                            <th>UPDATED CUSTOMER DETAILS</th>
+                                            <th>SELLER REMARKS</th>
                                             <th>PAYMENT MODE</th>
+
                                             <th>LAST UPDATED</th>
+                                            <th>LAST ACTION TAKEN</th>
                                             <th>LAST ACTION BY</th>
                                         </tr>
                                     `;
@@ -1958,10 +2124,13 @@ function rowToHTML(order, tabKey) {
       Show History
     </button>`;
 
+     const updatedAddr = order.updated_address
+        ? `<div><span class="fw-semibold text-success">✔ Verified:</span> ${esc(order.updated_address)} (${esc(order.updated_pincode || "")})</div>`
+        : `<div class="text-muted small">— not updated —</div>`;
   // --- Updated address (from WhatsApp verify) ---
-  const updatedAddr = order.updated_address
-    ? `<div><span class="fw-semibold text-success">✔ Verified:</span> ${esc(order.updated_address)} (${esc(order.updated_pincode || "")})</div>`
-    : `<div class="text-muted small">— not updated —</div>`;
+  // const updatedAddr = order.updated_address
+  //   ? `<div><span class="fw-semibold text-success">✔ Verified:</span> ${esc(order.updated_address)} (${esc(order.updated_pincode || "")})</div>`
+  //   : `<div class="text-muted small">— not updated —</div>`;
 
   // --- Common values ---
   const awb = lrList[0]?.lr_no || "—";
@@ -2035,22 +2204,33 @@ function rowToHTML(order, tabKey) {
   }
 
   /* ---------------- TAB: ACTION TAKEN ---------------- */
-  if (tabKey === "action-taken") {
-    return `
-      <tr data-order-id="${esc(orderId)}">
-        <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
-        <td>${esc(courier)}</td>
-      //  <td>${esc(order.ndrReason || lrList[0]?.ndr_reason || "—")}</td>
-       <td>${esc(order.ndrReason || "—")}</td>
-        <td>${esc(consignee.first_name)} ${esc(consignee.last_name)}<br><small>${esc(consignee.phone)}</small></td>
-        <td>${updatedAddr}</td>
-        <td>${esc(order.seller_remarks || "—")}</td>
-        <td>${paymentBadge}</td>
-        <td>${createdAt}</td>
-        <td>${esc(order.last_action || "Reattempt / RTO")}</td>
-        <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
-      </tr>`;
-  }
+if (tabKey === "action-taken") {
+  return `
+    <tr data-order-id="${esc(orderId)}">
+      <td>Shipment #${esc(orderId)}<br><small>AWB: ${esc(awb)}</small></td>
+      <td>${esc(courier)}</td>
+      <td>${esc(order.ndrReason || lrList[0]?.ndr_reason || "—")}</td>
+      
+      <!-- CUSTOMER DETAILS -->
+      <td>
+        ${esc(consignee.first_name)} ${esc(consignee.last_name)}<br>
+        <small>${esc(consignee.phone)}</small>
+      </td>
+      
+      <!-- UPDATED CUSTOMER DETAILS -->
+      <td>
+        ${order.updated_address 
+          ? `<div>${esc(order.updated_address)}</div><div class="small text-muted">${esc(order.updated_pincode || "")}</div>` 
+          : `<div class="text-muted small">— not updated —</div>`}
+      </td>
+      
+      <td>${esc(order.seller_remarks || "—")}</td>
+      <td>${paymentBadge}</td>
+      <td>${createdAt}</td>
+      <td>${esc(order.last_action || "Reattempt / RTO")}</td>
+      <td>${esc(order.last_action_by || "Dispatch Solution")}</td>
+    </tr>`;
+}
 
   /* ---------------- TAB: DELIVERED ---------------- */
   if (tabKey === "delivered") {
@@ -2308,7 +2488,6 @@ document.addEventListener("click", async function (e) {
   document.getElementById("showHistoryBody").innerHTML = html;
   openModal("showHistoryModal");
 });
-
 document.addEventListener('click', async function (e) {
   const btn = e.target.closest('.verify-address-btn');
   if (!btn) return;
@@ -2318,45 +2497,66 @@ document.addEventListener('click', async function (e) {
   const address = btn.getAttribute('data-address');
   const pincode = btn.getAttribute('data-pincode');
   const phone = btn.getAttribute('data-phone');
+  const email = btn.getAttribute('data-email') || "deepanshutomat7000@gmail.com"; // 👈 ensure email available
 
-  // Build payload
-  const payload = {
+  /* ---------------- 1) WhatsApp Payload ---------------- */
+  const whatsappPayload = {
     countryCode: "+91",
     phoneNumber: phone,
     type: "Template",
     template: {
-      name: "address_verification_07", // 👈 must match approved template
+      name: "address_verification_07",
       languageCode: "en",
-      bodyValues: [
-        name,
-        address,
-        pincode
-      ],
+      bodyValues: [name, address, pincode],
       buttonValues: {
-        "0": [orderId] // 👈 fills {{1}} in button URL
+        "0": [orderId]
       }
     }
   };
 
+  /* ---------------- 2) Email Payload ---------------- */
+  const emailPayload = {
+    name,
+    email,
+    phone,
+    address,
+    pincode,
+    order_id: orderId
+  };
+
   try {
-    const res = await fetch("http://localhost:5000/api/send-whatsapp", {
+    // Send WhatsApp
+    const waRes = await fetch("http://localhost:5000/api/send-whatsapp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(whatsappPayload)
     });
-    const json = await res.json();
+    const waJson = await waRes.json();
 
-   if (res.ok && (json.result || json.success || json.ok)) {
-  showToast("✅ WhatsApp verification sent!", "success");
-} else {
-  showToast("❌ Failed: " + (json.message || JSON.stringify(json)), "error");
-}
+    // Send Email
+    const mailRes = await fetch("http://localhost:5000/send-address-verification/ecom", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(emailPayload)
+    });
+    const mailJson = await mailRes.json();
+
+    // ✅ Combine results
+    if (
+      (waRes.ok && (waJson.result || waJson.success || waJson.ok)) &&
+      (mailRes.ok && mailJson.ok)
+    ) {
+      showToast("✅ WhatsApp & Email verification sent!", "success");
+      console.log("📧 Email response:", mailJson);
+    } else {
+      showToast("❌ Failed to send one or both verifications", "error");
+      console.error("WA:", waJson, "EMAIL:", mailJson);
+    }
   } catch (err) {
     console.error("❌ API error:", err);
     showToast("❌ Server error: " + err.message, "error");
   }
 });
-
 
 
 document.addEventListener("change", async function(e) {
