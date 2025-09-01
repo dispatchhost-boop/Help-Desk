@@ -2,13 +2,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config({ path: "./config.env" }); // ✅ load correct file
 
-// Debug ENV values
-console.log("DEBUG SMTP CREDENTIALS:", {
-  EMAIL_HOST: process.env.EMAIL_HOST,
-  EMAIL_PORT: process.env.EMAIL_PORT,
-  EMAIL_FROM: process.env.EMAIL_FROM,
-  EMAIL_PASS: process.env.EMAIL_PASS ? "LOADED ✅" : "MISSING ❌"
-});
+
 
 // Configure transporter
 const transporter = nodemailer.createTransport({

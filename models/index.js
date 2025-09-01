@@ -31,6 +31,7 @@ const ExpNdrReason = require('./ExpNdrReason')(sequelize, DataTypes);
 const EcomNdrReason = require('./EcomNdrReason')(sequelize, DataTypes);
 const NdrReason = require('./ndrReason')(sequelize, DataTypes);
 const UpdatedCustomerDetail = require('./UpdatedCustomerDetail')(sequelize, DataTypes);
+const Ibr = require('./ibr')(sequelize, DataTypes);
 
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
@@ -157,5 +158,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr
 };

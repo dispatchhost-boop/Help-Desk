@@ -1,3 +1,4 @@
+// routes\route.js
 const express = require('express');
 const route = express.Router();
 const { mySqlQury } = require('../middleware/db');
@@ -7,20 +8,22 @@ const path = require('path');
 const accessControlMiddleware = require('../middleware/accessControl');
 const userController = require('../controller/userController');
 const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require('../middleware/multer');
-route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
-require('../crone/crone.js')
 const axios = require('axios');
 require("dotenv").config({ path: "./config.env" });
 
 
 const { log } = require('console');
+const uploadIbr = require('../middleware/uploadIbr');
 
 
 
-route.post("/send-order-dispatched", userController.sendOrderDispatchedWhatsApp);
+route.post("/api/ibr", uploadIbr.fields([
+    { name: "screenshot", maxCount: 1 },
+    { name: "voice", maxCount: 1 },
+  ]),
+  userController.createIbr
+);
 
-route.post('/send-address-verification', addressController.sendAddressVerification);
-route.post('/send-address-verification/ecom', addressController.sendAddressVerificationecom);
 
 
 route.post('/api/customer/update-address', userController.postCustomerUpdate);
@@ -3043,24 +3046,24 @@ route.get('/view-support-tickets', (req, res) => {
   });
 });
 
-route.get('/ndr-manager-express', (req, res) => {
+route.get('/ndr-management-express', (req, res) => {
   // Assuming req.user.role or req.session.role contains the user's role
   // Adjust as per your authentication/session implementation
   const role = req.user?.role || req.session?.role || null;
 
-  res.render('pages/ndr-manager-express', {
+  res.render('pages/ndr-management-express', {
     bodyClass: 'profile-page',
     activePage: 'profile',
     title: 'Client List',
     role: role
   });
 });
-route.get('/ndr-manager-ecom', (req, res) => {
+route.get('/ndr-management-ecom', (req, res) => {
   // Assuming req.user.role or req.session.role contains the user's role
   // Adjust as per your authentication/session implementation
   const role = req.user?.role || req.session?.role || null;
 
-  res.render('pages/ndr-manager-ecom', {
+  res.render('pages/ndr-management-ecom', {
     bodyClass: 'profile-page',
     activePage: 'profile',
     title: 'Client List',

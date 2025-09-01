@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom  } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr} = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -14,7 +14,6 @@ const uuid = require('uuid');
 const { validateCustomerDetails, validateMultiOrderData, validateWarehouseData, validateForwarderForm1, validateAggregatorForm1,
   validateAggregatorForm3, validateAggregatorForm3Standard, validateClientOnboarding, validateClientSignIn, validateExpressCreateOrderData } = require('../middleware/validation');
 const { title } = require('process');
-// const axios = require('axios');
 const FormData = require('form-data');
 const csv = require('fast-csv');
 const fs = require('fs');
@@ -46,7 +45,7 @@ const {calculateAdditionalChargesForwarder, calculateAdditionalChargesForwarderE
 const calculateVolumetricWeight = require('../utility/calculateVolumetricWeight');
 const computeVolumetricWeight = require('../utility/computeVolumetricWeight');
 const unflattenSlabInputs = require('../services/unflattenSlabInputs');
-const socket = require('../routes/socket/socket.js'); // Import the io instance
+// const socket = require('../routes/socket/socket.js'); // Import the io instance
 const updateWalletAndTransaction = require('../services/updateWalletAndTransaction.js');
 const getValidDeliveryApiToken = require('../services/getValidDeliveryApiToken.js');
 const {findRateForwarder, findRateForwarderEcom} = require('../services/findRateForwarder.js');
@@ -58,6 +57,80 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+
+
+async function createIbr(req, res) {
+  try {
+    const { text } = req.body;
+
+    // Store relative paths
+    const screenshot = req.files?.screenshot?.[0]
+      ? path.join("uploads/ibr", req.files.screenshot[0].filename)
+      : null;
+
+    const voice = req.files?.voice?.[0]
+      ? path.join("uploads/ibr", req.files.voice[0].filename)
+      : null;
+
+    // Save to DB
+    const newIbr = await Ibr.create({
+      screenshot,
+      voice,
+      text,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      message: "IBR entry created",
+      data: newIbr,
+    });
+  } catch (err) {
+    console.error("❌ [createIbr] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+async function sendCodDeliveryNotification(req, res) {
+  try {
+    const payload = req.body;
+
+    // ✅ Basic validation
+    if (!payload || !payload.fullPhoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    // ✅ API Call to Interakt
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`, // from .env
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendCodDeliveryNotification] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
+
 
 
 
@@ -31288,7 +31361,6 @@ module.exports = {
   getManualLr,
   getTaggedApi,
   billclientdata,
-  apiGetOdaCharges,
   getAllOrders,
   orderDetailsOrderNumber,
   forwarderOnboarding,
@@ -31524,4 +31596,6 @@ module.exports = {
   createReattemptecom,
   createRtoecom,
   sendOrderDispatchedWhatsApp,
+  sendCodDeliveryNotification,
+  createIbr
 }
