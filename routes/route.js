@@ -13,6 +13,11 @@ const nodemailer = require("nodemailer");
 
 require("dotenv").config({ path: "./config.env" });
 
+route.post("/api/ndr-ecom/call", userController.ecomCall);
+
+
+route.post("/api/ndr-exp/call", userController.expCall);
+
 
 route.post(
   "/api/automation/customer-not-available",

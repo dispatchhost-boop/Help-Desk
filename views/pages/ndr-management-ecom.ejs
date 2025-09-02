@@ -948,61 +948,172 @@
                     </div>
 
 
-                    <!-- IBR Modal -->
+<!-- IBR Modal -->
 <div class="modal-overlay" id="ibrModal">
   <div class="modal-container">
     <div class="modal-header">
-      <h3 class="modal-title">Add IBR</h3>
+      <h3 class="modal-title">Call Log</h3>
       <button class="modal-close" data-close>&times;</button>
     </div>
+
     <div class="modal-body">
-      <form id="ibrForm" enctype="multipart/form-data">
-        <input type="hidden" id="ibrOrderId" name="order_id" />
+      <!-- 🔹 Client Info -->
+      <div id="clientInfoBox" class="mb-3 p-2 border rounded bg-light">
+        <p><strong>Name:</strong> <span id="clientName">—</span></p>
+        <p><strong>Company:</strong> <span id="clientCompany">—</span></p>
+        <p><strong>Phone:</strong> <span id="clientPhone">—</span></p>
+      </div>
 
+      <form id="ibrForm">
+        <input type="hidden" id="ibrOrderId" name="order_id" value="63" />
+
+        <!-- Step 1: Call connected or not -->
         <div class="form-group">
-          <label for="ibrScreenshot">Screenshot</label>
-          <input type="file" class="form-control" id="ibrScreenshot" name="screenshot" accept="image/*">
+          <label class="form-label">Was the call connected?</label>
+          <select class="form-control" id="callConnected" name="call_connected">
+            <option value="">-- Select --</option>
+            <option value="yes">Yes (Connected)</option>
+            <option value="no">No (Not Connected)</option>
+          </select>
         </div>
 
-        <div class="form-group">
-          <label for="ibrVoice">Voice Recording</label>
-          <input type="file" class="form-control" id="ibrVoice" name="voice" accept="audio/*">
+        <!-- If NOT connected -->
+        <div class="form-group" id="notConnectedOptions" style="display:none;">
+          <label class="form-label">Reason (Not Connected)</label>
+          <select class="form-control" id="notConnectedReason" name="not_connected_reason">
+            <option value="">-- Select Reason --</option>
+            <option value="switch_off">Switch Off</option>
+            <option value="not_attending">Not Attending Call</option>
+            <option value="wrong_number">Wrong Phone Number</option>
+          </select>
+         
         </div>
 
-        <div class="form-group">
-          <label for="ibrText">Text</label>
-          <textarea class="form-control" id="ibrText" name="text"></textarea>
+        <!-- If CONNECTED -->
+        <div class="form-group" id="connectedActions" style="display:none;">
+          <label class="form-label">Customer Response</label>
+          <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-success action-btn" data-action="reattempt">Reattempt</button>
+            <button type="button" class="btn btn-warning action-btn" data-action="rto">RTO</button>
+            <button type="button" class="btn btn-danger action-btn" data-action="escalate">Escalate</button>
+          </div>
         </div>
 
         <div class="modal-footer">
+           <!-- <div class="mt-2"> -->
+            <!-- <button type="button" id="notConnectedOkBtn" class="btn btn-outline-secondary">OK</button> -->
+             <button type="button" id="notConnectedOkBtn" class="btn btn-primary" style="display:none;">OK</button>
+          <!-- </div> -->
           <button type="button" class="btn btn-outline-secondary" data-close>CANCEL</button>
-          <button type="submit" class="btn btn-primary">SAVE</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<script>
+  const BASE_URL = "http://localhost:5000"; 
+  let currentClient = null;
 
-                    <!-- Show History Modal -->
-                    <div class="modal-overlay" id="showHistoryModal">
-                        <div class="modal-container">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Request History</h3>
-                                <button class="modal-close" data-close>&times;</button>
-                            </div>
-                            <div class="modal-body" id="showHistoryBody">
-                                <!-- filled by JS -->
-                            </div>
-                            <div class="modal-footer d-flex flex-row justify-content-between" style="padding: 18px;">
-                                <button class="btn btn-sm btn-primary me-2">Re-attempt</button>
-                                <button class="btn btn-sm btn-warning me-2">RTO</button>
-                                <button class="btn btn-sm btn-danger me-2">Escalate</button>
-                                <button class="btn  btn-info me-2">Escalate to Courier</button>
-                                <button class="btn btn-sm btn-outline-secondary" data-close>Close</button>
-                            </div>
-                        </div>
-                    </div>
+  // Load client info
+  async function loadClientInfo() {
+    try {
+      const res = await fetch(`${BASE_URL}/api/all-clients`);
+      const json = await res.json();
+      if (json.clients && json.clients.length > 0) {
+        currentClient = json.clients[0]; 
+        document.getElementById("clientName").textContent = currentClient.full_name || "—";
+        document.getElementById("clientCompany").textContent = currentClient.company_name || "—";
+        document.getElementById("clientPhone").textContent = currentClient.phone_no || "—";
+      }
+    } catch (err) {
+      console.error("❌ Failed to load client info:", err);
+    }
+  }
+
+  // Toggle UI
+document.getElementById("callConnected")?.addEventListener("change", function () {
+  const val = this.value;
+
+  // Show/hide sections
+  document.getElementById("notConnectedOptions").style.display = val === "no" ? "block" : "none";
+  document.getElementById("connectedActions").style.display = val === "yes" ? "block" : "none";
+
+  // ✅ Show OK button only if "Not Connected"
+  document.getElementById("notConnectedOkBtn").style.display = val === "no" ? "inline-block" : "none";
+});
+
+
+  // Save Call Log API
+  async function saveCallLog(payload) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/ndr-ecom/call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        alert("✅ Call log saved successfully");
+      } else {
+        alert("❌ Failed: " + json.error);
+      }
+    } catch (err) {
+      console.error("❌ API Error:", err);
+      alert("❌ Something went wrong");
+    }
+  }
+
+  // 🔹 Handle Not Connected OK Button
+  document.getElementById("notConnectedOkBtn")?.addEventListener("click", function () {
+    const reason = document.getElementById("notConnectedReason").value;
+    if (!reason) {
+      alert("⚠️ Please select a reason first");
+      return;
+    }
+
+    const payload = {
+      order_id: document.getElementById("ibrOrderId").value,
+      name: currentClient?.full_name,
+      phone_no: currentClient?.phone_no,
+      company_name: currentClient?.company_name,
+      call_connected: "no",
+      not_connected_reason: reason,
+    };
+    saveCallLog(payload);
+  });
+
+  // 🔹 Handle Connected Actions
+  document.querySelectorAll(".action-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const action = this.dataset.action;
+      const payload = {
+        order_id: document.getElementById("ibrOrderId").value,
+        name: currentClient?.full_name,
+        phone_no: currentClient?.phone_no,
+        company_name: currentClient?.company_name,
+        call_connected: "yes",
+        customer_response: action,
+      };
+      saveCallLog(payload);
+    });
+  });
+
+  // Load client info when modal is opened
+  document.addEventListener("click", function (e) {
+    if (e.target.closest(".open-ibr-modal")) {
+      loadClientInfo();
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
                     <!-- Reattempt Modal -->
                     <div class="modal-overlay" id="reattemptModal">
                         <div class="modal-container">
@@ -1397,12 +1508,13 @@ document.getElementById("ibrForm")?.addEventListener("submit", async function(e)
 
                         /* ===== Submit buttons (demo alerts—replace with API calls) ===== */
 // Handle reattempt form submission
+// Handle Reattempt form submission only
 document.addEventListener('submit', async function (e) {
   if (e.target.closest('#reattemptModal form')) {
     e.preventDefault();
 
     const modal = document.getElementById('reattemptModal');
-    const orderId = modal.getAttribute('data-order-id');  // ✅ use this, not hardcoded 26
+    const orderId = modal.getAttribute('data-order-id');
 
     const payload = {
       order_id: orderId,
@@ -1420,8 +1532,6 @@ document.addEventListener('submit', async function (e) {
       remarks: document.getElementById('remarks').value.trim()
     };
 
-    console.log("🚀 Sending payload:", payload);
-
     const res = await fetch("http://localhost:5000/delivery-reattempt/ecom", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1432,17 +1542,6 @@ document.addEventListener('submit', async function (e) {
     if (res.ok && json.ok) {
       showToast("✅ Reattempt raised successfully!", "success");
       closeAllModals();
-
-      // 🔄 Update only this row's attempts count
-      const rowCell = document.querySelector(
-        `tr[data-order-id="${orderId}"] td:nth-child(8)` // adjust index if needed
-      );
-      if (rowCell) {
-        let attemptsText = rowCell.querySelector("div").textContent;
-        let attempts = parseInt(attemptsText) || 0;
-        attempts++;
-        rowCell.querySelector("div").textContent = `${attempts} ${attempts === 1 ? "Attempt" : "Attempts"}`;
-      }
     } else {
       showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
     }
@@ -1450,14 +1549,14 @@ document.addEventListener('submit', async function (e) {
 });
 
 
+// Handle RTO form submission only
 document.getElementById('submitRto')?.addEventListener('click', async function () {
   const remarks = document.getElementById('rtoRemarks').value.trim();
   if (!remarks) return alert('Please enter remarks');
 
   const modal = document.getElementById('rtoModal');
-  const orderId = modal.getAttribute('data-order-id');  // ✅ dynamic order id
+  const orderId = modal.getAttribute('data-order-id');
 
-  // Build payload
   const payload = {
     order_id: orderId,
     product: document.getElementById('rtoProduct').textContent,
@@ -1466,27 +1565,21 @@ document.getElementById('submitRto')?.addEventListener('click', async function (
     remarks
   };
 
-  try {
-    const res = await fetch("http://localhost:5000/rto-request/ecom", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+  const res = await fetch("http://localhost:5000/rto-request/ecom", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
 
-    const json = await res.json();
-    if (res.ok && json.ok) {
-      showToast("✅ RTO request submitted!", "success");
-      closeAllModals();
-      document.getElementById('rtoRemarks').value = '';
-    } else {
-      showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
-    }
-  } catch (err) {
-    console.error("❌ RTO API call error:", err);
-    showToast("❌ Network/server error: " + err.message, "error");
+  const json = await res.json();
+  if (res.ok && json.ok) {
+    showToast("✅ RTO request submitted!", "success");
+    closeAllModals();
+    document.getElementById('rtoRemarks').value = '';
+  } else {
+    showToast("❌ Failed: " + (json.error || "Unknown error"), "error");
   }
 });
-
                         
                         
 document.getElementById('submitEscalate')?.addEventListener('click', async function () {
@@ -2283,7 +2376,7 @@ function rowToHTML(order, tabKey) {
         </td>
          <td>
         <button class="btn btn-xs btn-info open-ibr-modal" data-order-id="${esc(orderId)}">
-          Add IBR
+          CALL
         </button>
       </td>
 

@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr, AutomationFlow, EcomNdrReason, ExpNdrReason} = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr, AutomationFlow, EcomNdrReason, ExpNdrReason, Callecom, Callexp} = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -58,6 +58,129 @@ const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
 
+
+
+
+
+async function expCall(req, res) {
+  try {
+    const {
+      order_id,
+      name,
+      phone_no,
+      company_name,
+      call_connected,
+      not_connected_reason,
+      customer_response,
+    } = req.body;
+
+    if (!order_id || !call_connected) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id and call_connected are required",
+      });
+    }
+
+    // 🔹 Try to find existing log for this order
+    const [log, created] = await Callexp.findOrCreate({
+      where: { order_id },
+      defaults: {
+        name,
+        phone_no,
+        company_name: company_name || null,
+        call_connected,
+        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+        customer_response: call_connected === "yes" ? customer_response : null,
+      },
+    });
+
+    if (!created) {
+      await log.update({
+        name,
+        phone_no,
+        company_name: company_name || null,
+        call_connected,
+        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+        customer_response: call_connected === "yes" ? customer_response : null,
+      });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      message: "Express call log saved successfully",
+      data: log,
+    });
+  } catch (err) {
+    console.error("❌ [expCall] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+
+
+
+
+async function ecomCall(req, res) {
+  try {
+    const {
+      order_id,
+      name,
+      phone_no,
+      company_name,
+      call_connected,
+      not_connected_reason,
+      customer_response,
+    } = req.body;
+
+    if (!order_id || !call_connected) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id and call_connected are required",
+      });
+    }
+
+    // 🔹 Try to find existing log for this order
+    const [log, created] = await Callecom.findOrCreate({
+      where: { order_id },
+      defaults: {
+        name,
+        phone_no,
+        company_name: company_name || null,
+        call_connected,
+        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+        customer_response: call_connected === "yes" ? customer_response : null,
+      },
+    });
+
+    if (!created) {
+      await log.update({
+        name,
+        phone_no,
+        company_name: company_name || null,
+        call_connected,
+        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+        customer_response: call_connected === "yes" ? customer_response : null,
+      });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      message: "Call log saved successfully",
+      data: log,
+    });
+  } catch (err) {
+    console.error("❌ [ecomCall] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
 
 
 async function saveCustomerNotAvailable(req, res) {
@@ -31761,5 +31884,7 @@ module.exports = {
   createIbr,
    saveCustomerNotAvailable,
   getCustomerNotAvailable,
-  getNdrHistoryecom
+  getNdrHistoryecom,
+  ecomCall,
+  expCall
 }
