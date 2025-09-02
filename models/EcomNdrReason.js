@@ -10,9 +10,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false
   });
 
-  EcomNdrReason.associate = (models) => {
-    EcomNdrReason.belongsTo(models.EcomOrder, { foreignKey: "order_id", as: "order" });
-  };
-
   return EcomNdrReason;
 };

@@ -9,7 +9,170 @@ const accessControlMiddleware = require('../middleware/accessControl');
 const userController = require('../controller/userController');
 const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require('../middleware/multer');
 const axios = require('axios');
+const nodemailer = require("nodemailer");
+
 require("dotenv").config({ path: "./config.env" });
+
+
+route.post(
+  "/api/automation/customer-not-available",
+  auth, // if you want authentication
+  userController.saveCustomerNotAvailable
+);
+
+route.get(
+  "/api/automation/customer-not-available",
+  auth, // optional
+  userController.getCustomerNotAvailable
+);
+
+
+route.post('/api/customer/update-address', userController.postCustomerUpdate);
+
+
+
+
+
+const BASE_URL = "http://localhost:5000";
+
+// ✅ Hardcoded mail config
+const transporter = nodemailer.createTransport({
+  host: "smtp.hostinger.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "onboarding@dispatch.co.in",
+    pass: "Shabi@4020",
+  },
+});
+
+// 👉 Step 1: Send Initial Mail
+route.post("/send-initial", async (req, res) => {
+  try {
+    const { customerEmail, customerName, brandName, courier, awb } = req.body;
+
+    const mailOptions = {
+      from: "onboarding@dispatch.co.in",
+      to: customerEmail,
+      subject: `Delivery Attempt Failed - ${brandName}`,
+      html: `
+        Dear ${customerName},<br><br>
+        Your order from ${brandName} with ${courier} AWB# ${awb} is undelivered since you weren’t available.<br>
+        If it is not true, please 
+        <a href="${BASE_URL}/response?status=false&awb=${awb}&to=${customerEmail}">click False</a>,<br>
+        else 
+        <a href="${BASE_URL}/response?status=true&awb=${awb}&to=${customerEmail}">click True</a>.
+        <br><br>
+        Thanks,<br>
+        Team ${brandName}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ status: "sent", message: "Initial email sent" });
+  } catch (err) {
+    console.error("Error sending initial mail:", err);
+    res.status(500).json({ status: "error", message: err.message });
+  }
+});
+
+// 👉 Step 2: Handle Response (Chat UI)
+route.get("/response", async (req, res) => {
+  const { status, awb, to } = req.query;
+
+  let chatMessages = [
+    { from: "system", text: `Your order with AWB #${awb} could not be delivered.` },
+  ];
+
+  try {
+    if (status === "false") {
+      chatMessages.push({ from: "customer", text: "❌ No, I was available" });
+      chatMessages.push({ from: "system", text: "Sorry for the inconvenience, we’ll reattempt delivery soon." });
+
+      await transporter.sendMail({
+        from: "onboarding@dispatch.co.in",
+        to,
+        subject: "Delivery Feedback Received",
+        html: `Dear Customer,<br>Your order ${awb} will be delivered soon.<br><br>Team Brand`,
+      });
+    }
+
+    if (status === "true") {
+      chatMessages.push({ from: "customer", text: "✅ Yes, I was not available" });
+      chatMessages.push({ from: "system", text: "When should we redeliver?" });
+      chatMessages.push({
+        from: "options",
+        text: `
+          <a href="${BASE_URL}/reschedule?time=24&awb=${awb}&to=${to}">📦 Within 24 Hrs</a><br>
+          <a href="${BASE_URL}/reschedule?time=48&awb=${awb}&to=${to}">⏳ Within 48 Hrs</a><br>
+          <a href="${BASE_URL}/reschedule?time=72&awb=${awb}&to=${to}">📅 Within 72 Hrs</a>
+        `,
+      });
+
+      await transporter.sendMail({
+        from: "onboarding@dispatch.co.in",
+        to,
+        subject: "Reschedule Delivery",
+        html: `Dear Customer,<br>Please confirm when we can redeliver your order ${awb}.<br><br>Team Brand`,
+      });
+    }
+
+    res.send(renderChat(chatMessages));
+  } catch (err) {
+    console.error("Error handling response:", err);
+    res.status(500).send("Error processing response");
+  }
+});
+
+// 👉 Step 3: Handle Reschedule (Chat UI)
+route.get("/reschedule", async (req, res) => {
+  const { time, awb, to } = req.query;
+
+  let chatMessages = [
+    { from: "system", text: `Reschedule request for AWB #${awb}` },
+    { from: "customer", text: `I choose delivery within ${time} hrs` },
+    { from: "system", text: `✅ Great! Your order will be delivered within ${time} hrs.` },
+  ];
+
+  try {
+    await transporter.sendMail({
+      from: "onboarding@dispatch.co.in",
+      to,
+      subject: "Delivery Rescheduled",
+      html: `Dear Customer,<br>Your order ${awb} is rescheduled (${time} hrs).<br><br>Team Brand`,
+    });
+
+    res.send(renderChat(chatMessages));
+  } catch (err) {
+    console.error("Error sending reschedule confirmation:", err);
+    res.status(500).send("Error sending reschedule confirmation");
+  }
+});
+
+// helper to render chat UI
+function renderChat(messages) {
+  let bubbles = messages.map((m) => {
+    if (m.from === "customer")
+      return `<div class="bubble customer">${m.text}</div>`;
+    if (m.from === "options")
+      return `<div class="bubble system options">${m.text}</div>`;
+    return `<div class="bubble system">${m.text}</div>`;
+  });
+
+  return `
+    <html>
+    <head>
+      <title>Dispatch Chat</title>
+      <link rel="stylesheet" href="/chat.css">
+    </head>
+    <body>
+      <div class="chat-box">
+        ${bubbles.join("")}
+      </div>
+    </body>
+    </html>
+  `;
+}
 
 
 const { log } = require('console');
@@ -41,9 +204,14 @@ route.post("/api/send-whatsapp", userController.sendWhatsAppVerification);
 
 
 route.post("/update-undel-reason", userController.addNdrReason);
+route.get("/ndr-history/exp", userController.getNdrHistoryexp);
 route.get("/ndr-history", userController.getNdrHistory);
 
 
+
+
+
+route.get("/ndr-history/ecom", userController.getNdrHistoryecom);
 
 
 // ========== WHATSAPP ADDRESS VERIFICATION ========== //
@@ -125,8 +293,7 @@ route.get("/ndr-history", userController.getNdrHistory);
 
 
 
-route.post("/update-undel-reason", userController.addNdrReason);
-route.get("/ndr-history", userController.getNdrHistory);
+
 
 ///======================NDR ROUTES==================================///
 // route.post('/delivery-reattempt', userController.createReattempt);
@@ -3020,6 +3187,7 @@ route.get('/express/shipment-tracking', (req, res) => {
     role: role
   });
 });
+
 route.get('/helpdesk', (req, res) => {
   // Assuming req.user.role or req.session.role contains the user's role
   // Adjust as per your authentication/session implementation
@@ -3058,7 +3226,7 @@ route.get('/ndr-management-express', (req, res) => {
     role: role
   });
 });
-route.get('/ndr-management-ecom', (req, res) => {
+route.get('/ndr-managerment-ecom', (req, res) => {
   // Assuming req.user.role or req.session.role contains the user's role
   // Adjust as per your authentication/session implementation
   const role = req.user?.role || req.session?.role || null;
@@ -3094,6 +3262,41 @@ route.get('/update-address-details-ecom', auth, async (req, res) => {
   try {
     const role = req.user?.role || req.session?.role || null;
     res.render('pages/update-address-details-ecom', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+route.get('/customer-not-available', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/customer-not-available', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+
+route.get('/customer-not-available-exp', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/customer-not-available-exp', {
       title: 'Client Package Manager',
       bodyClass: 'profile-page',
       activePage: 'client-package',

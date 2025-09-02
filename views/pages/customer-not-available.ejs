@@ -1,0 +1,326 @@
+5<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .chat-preview {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f9f9f9;
+      max-height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    .chat-bubble {
+      padding: 10px 15px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+      max-width: 75%;
+      line-height: 1.5;
+      position: relative;
+      word-wrap: break-word;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .chat-bubble.visible { opacity: 1; transform: translateY(0); }
+    .chat-bubble.start { background: #e6f7ff; margin-right: auto; }
+    .chat-bubble.true { background: #d9f7be; margin-left: auto; }
+    .chat-bubble.false { background: #fff1f0; margin-left: auto; }
+    .chat-bubble.confirm { background: #f0f5ff; margin-right: auto; }
+    .play-button { margin: 10px 0; }
+  </style>
+</head>
+
+<body data-theme="light" class="font-nunito">
+  <div id="wrapper" class="theme-cyan">
+
+    <%- include('../partials/header') %>
+    <%- include('../partials/left-sidebar') %>
+    <%- include('../partials/right-iconbar') %>
+
+    <div id="main-content">
+      <div class="container-fluid">
+        <div class="block-header">
+          <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+              <h2>Automation Flow – Simulator</h2>
+              <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="fa fa-dashboard"></i></a></li>
+                <li class="breadcrumb-item active">Automation Flow</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow Preview -->
+        <div class="row">
+          <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+              <div class="header">
+                <h2>Customer Not Available</h2>
+                <button id="playConversation" class="btn btn-primary btn-sm play-button">
+                  ▶ Start Chat
+                </button>
+              </div>
+              <div class="body">
+                <div class="chat-preview" id="chatPreview"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  let flowData = null;
+  let ndrOrders = []; // final enriched orders with reason "Customer Not Available"
+
+  // Replace placeholders
+// Fixed replacePlaceholders function
+// Fixed replacePlaceholders function
+function replacePlaceholders(text, order = null) {
+  if (!text) return "";
+  let replaced = text;
+
+  if (!order) return replaced;
+
+  // Handle customer name
+  if (order.order && order.order.consignee) {
+    const firstName = order.order.consignee.first_name || "";
+    const lastName = order.order.consignee.last_name || "";
+    const customerName = `${firstName} ${lastName}`.trim();
+    replaced = replaced.replace(/{{customerName}}/g, customerName);
+  } else {
+    replaced = replaced.replace(/{{customerName}}/g, "Customer");
+  }
+
+  // Handle brand name
+  if (order.order && order.order.client && order.order.client.company_name) {
+    replaced = replaced.replace(/{{brandName}}/g, order.order.client.company_name);
+  } else {
+    replaced = replaced.replace(/{{brandName}}/g, "Brand");
+  }
+
+  // Handle order details
+  if (order.order) {
+    replaced = replaced
+      .replace(/{{orderId}}/g, order.order.id ||  "0000")
+      .replace(/{{orderNo}}/g, order.order.id || "ORD-0000")
+      .replace(/{{orderValue}}/g, order.order.grand_total || "0.00");
+  }
+
+  // Handle AWB number and courier name
+  let awbNo = "AWB123";
+  let courierName = "Courier";
+  
+  if (order.order && order.order.ecom_lrs && order.order.ecom_lrs.length > 0) {
+    // Get the first ecom_lrs entry
+    const ecomLr = order.order.ecom_lrs[0];
+    awbNo = ecomLr.lr_no || awbNo;
+    courierName = ecomLr.tagged_api || courierName;
+  }
+  
+  replaced = replaced
+    .replace(/{{awbNo}}/g, awbNo)
+    .replace(/{{courierName}}/g, courierName);
+
+  return replaced;
+}
+  function appendBubble(type, text, order = null) {
+    const chat = document.getElementById("chatPreview");
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble " + type;
+    bubble.innerText = replacePlaceholders(text.trim(), order);
+    chat.appendChild(bubble);
+
+    setTimeout(() => bubble.classList.add("visible"), 50);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function appendOptions() {
+    const chat = document.getElementById("chatPreview");
+    const optionsDiv = document.createElement("div");
+    optionsDiv.className = "mt-2";
+
+    const btnTrue = document.createElement("button");
+    btnTrue.className = "btn btn-sm btn-success me-2";
+    btnTrue.innerText = "✅ True";
+    btnTrue.onclick = () => handleChoice("true");
+
+    const btnFalse = document.createElement("button");
+    btnFalse.className = "btn btn-sm btn-danger";
+    btnFalse.innerText = "❌ False";
+    btnFalse.onclick = () => handleChoice("false");
+
+    optionsDiv.appendChild(btnTrue);
+    optionsDiv.appendChild(btnFalse);
+    chat.appendChild(optionsDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function appendTimeOptions(order = null) {
+  const chat = document.getElementById("chatPreview");
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "mt-2";
+
+  ["24 Hrs", "48 Hrs", "72 Hrs"].forEach(time => {
+    const btn = document.createElement("button");
+    btn.className = "btn btn-sm btn-info me-2";
+    btn.innerText = time;
+    btn.onclick = () => {
+      const confirmMsg = `Dear {{customerName}}, thanks for the confirmation. 
+Your Order {{orderNo}} will be delivered within ${time}. 
+Thanks, Team {{brandName}}`;
+      appendBubble("confirm", confirmMsg, order);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  chat.appendChild(optionsDiv);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+
+
+
+
+function handleChoice(choice, order = null) {
+  if (choice === "true" && flowData?.true_msg) {
+    appendBubble("true", flowData.true_msg, order);
+
+    // ⬇️ show reattempt options
+    setTimeout(() => appendTimeOptions(order), 1000);
+
+  } else if (choice === "false" && flowData?.false_msg) {
+    appendBubble("false", flowData.false_msg, order);
+    if (flowData.confirm_msg && flowData.confirm_msg.trim() !== "") {
+      setTimeout(() => appendBubble("confirm", flowData.confirm_msg, order), 1000);
+    }
+  }
+}
+
+
+function startSimulation() {
+  const chat = document.getElementById("chatPreview");
+  chat.innerHTML = ""; // reset
+
+  if (ndrOrders.length === 0) {
+    appendBubble("start", "No orders found with reason: Customer Not Available");
+    return;
+  }
+
+  // Process orders one by one with proper sequencing
+  let currentIndex = 0;
+  
+  function processNextOrder() {
+    if (currentIndex >= ndrOrders.length) return;
+    
+    const order = ndrOrders[currentIndex];
+    currentIndex++;
+    
+    const startMsg = `Dear {{customerName}}.
+Your order (Order ID: {{orderId}}) from {{brandName}} with {{courierName}} AWB#{{awbNo}} 
+is undelivered since you weren't available.
+If it is not true please click on "False".
+Else click "True".`;
+
+    appendBubble("start", startMsg, order);
+    
+    // Add options after a delay
+    setTimeout(() => {
+      appendOptions();
+      
+      // Add event listeners for the buttons
+      setTimeout(() => {
+        const btnTrue = document.querySelector(".btn-success");
+        const btnFalse = document.querySelector(".btn-danger");
+        
+        if (btnTrue && btnFalse) {
+          // Remove existing event listeners
+          btnTrue.onclick = null;
+          btnFalse.onclick = null;
+          
+          // Add new event listeners
+          btnTrue.onclick = () => {
+            handleChoice("true", order);
+            // Process next order after a delay
+            setTimeout(processNextOrder, 2000);
+          };
+          
+          btnFalse.onclick = () => {
+            handleChoice("false", order);
+            // Process next order after a delay
+            setTimeout(processNextOrder, 2000);
+          };
+        }
+      }, 100);
+    }, 1000);
+  }
+  
+  // Start processing the first order
+  processNextOrder();
+}
+
+// Updated handleChoice function to accept order parameter
+function handleChoice(choice, order = null) {
+  if (choice === "true" && flowData?.true_msg) {
+    appendBubble("true", flowData.true_msg, order);
+
+    // show reattempt options (24/48/72 hrs)
+    setTimeout(() => appendTimeOptions(order), 1000);
+
+  } else if (choice === "false" && flowData?.false_msg) {
+    appendBubble("false", flowData.false_msg, order);
+    if (flowData.confirm_msg && flowData.confirm_msg.trim() !== "") {
+      setTimeout(() => appendBubble("confirm", flowData.confirm_msg, order), 1000);
+    }
+  }
+}
+
+
+  async function loadFlow() {
+    const { data } = await axios.get("/api/automation/customer-not-available");
+    if (data.success || data.ok) flowData = data.data;
+  }
+
+async function loadNdrOrders() {
+  try {
+    const ndrRes = await axios.get("http://localhost:5000/ndr-history/ecom");
+    if (ndrRes.data.ok) {
+      const ndrData = ndrRes.data.data || [];
+      ndrOrders = ndrData.filter(item =>
+        item.reason && item.reason.toLowerCase().includes("customer not available")
+      );
+    } else {
+      console.error("API response not OK:", ndrRes.data);
+      ndrOrders = [];
+    }
+  } catch (error) {
+    console.error("Error loading NDR orders:", error);
+    ndrOrders = [];
+  }
+}
+  $(document).ready(async function () {
+    await loadFlow();
+    await loadNdrOrders();
+    $("#playConversation").on("click", startSimulation);
+  });
+</script>
+
+
+      <%- include('../partials/footer') %>
+    </div>
+  </div>
+
+  <script src="/assets/bundles/mainscripts.bundle.js"></script>
+</body>
+</html>

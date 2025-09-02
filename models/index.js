@@ -32,6 +32,7 @@ const EcomNdrReason = require('./EcomNdrReason')(sequelize, DataTypes);
 const NdrReason = require('./ndrReason')(sequelize, DataTypes);
 const UpdatedCustomerDetail = require('./UpdatedCustomerDetail')(sequelize, DataTypes);
 const Ibr = require('./ibr')(sequelize, DataTypes);
+const AutomationFlow = require('./automationFlow')(sequelize, DataTypes);
 
 // ---- Associations ----
 Category.associate?.({ SubCategory, SubCategoryAddField, SubCategoryMandatoryField });
@@ -147,6 +148,40 @@ Admin.hasMany(EcomOrders, {
   as: 'ecom_orders'
 });
 
+EcomNdrReason.associate = (models) => {
+  EcomNdrReason.belongsTo(models.EcomOrder, { foreignKey: "order_id", as: "order" });
+};
+
+
+EcomNdrReason.belongsTo(EcomOrders, {
+  foreignKey: "order_id",
+  targetKey: "id",
+  as: "order"
+});
+EcomOrders.hasMany(EcomNdrReason, {
+  foreignKey: "order_id",
+  sourceKey: "id",
+  as: "ndr_reasons"
+});
+
+
+
+
+ExpNdrReason.associate = (models) => {
+  ExpNdrReason.belongsTo(models.ExpOrders, { foreignKey: "order_id", as: "order" });
+};
+
+ExpNdrReason.belongsTo(ExpOrders, {
+  foreignKey: "order_id",
+  targetKey: "id",
+  as: "order"
+});
+
+ExpOrders.hasMany(ExpNdrReason, {
+  foreignKey: "order_id",
+  sourceKey: "id",
+  as: "ndr_reasons"
+});
 /**
  * ======================
  * EXPORT MODELS
@@ -158,5 +193,5 @@ module.exports = {
   Ticket, SupportTicket,
   ExpOrders, ExpLR, ExpProductDetails, ConsigneeDetails,
   EcomOrders, EcomLR, EcomProductDetails, EcomConsigneeDetails,
-  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr
+  Admin,TblDeliveryReattempts,TblRtoRequests, TblEscalation, ExpNdrReason, EcomNdrReason, NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr, AutomationFlow
 };

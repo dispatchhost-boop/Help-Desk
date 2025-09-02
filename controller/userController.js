@@ -1,5 +1,5 @@
 // const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
-const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr} = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr, AutomationFlow, EcomNdrReason, ExpNdrReason} = require('../models/index.js');
 
 
 const { mySqlQury } = require('../middleware/db');
@@ -57,6 +57,62 @@ const sequelize = require('../config/sequelize.js');
 const supportService = require('../services/supportService');
 const TicketModel = require('../models/Ticket');
 const { DataTypes } = require('sequelize'); 
+
+
+
+async function saveCustomerNotAvailable(req, res) {
+  try {
+    const { start_msg, true_msg, false_msg, confirm_msg, time_options } = req.body;
+
+    const [flow, created] = await AutomationFlow.findOrCreate({
+      where: { flow_name: "customer_not_available" },
+      defaults: { start_msg, true_msg, false_msg, confirm_msg, time_options },
+    });
+
+    if (!created) {
+      await flow.update({ start_msg, true_msg, false_msg, confirm_msg, time_options });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      message: "Automation flow saved successfully",
+      data: flow,
+    });
+  } catch (err) {
+    console.error("❌ [saveCustomerNotAvailable] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+// Fetch Flow
+async function getCustomerNotAvailable(req, res) {
+  try {
+    const flow = await AutomationFlow.findOne({
+      where: { flow_name: "customer_not_available" },
+    });
+
+    if (!flow) {
+      return res.status(404).json({
+        ok: false,
+        message: "Flow not found",
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      data: flow,
+    });
+  } catch (err) {
+    console.error("❌ [getCustomerNotAvailable] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
 
 
 
@@ -409,7 +465,7 @@ async function addNdrReason(req, res) {
   }
 }
 
-// Fetch history for one order
+
 async function getNdrHistory(req, res) {
   try {
     const { order_id } = req.query;
@@ -429,6 +485,110 @@ async function getNdrHistory(req, res) {
     });
   } catch (err) {
     console.error("❌ [getNdrHistory] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+// async function getNdrHistoryexp(req, res) {
+//   try {
+//     const { order_id } = req.query;
+
+//     let where = {};
+//     if (order_id) {
+//       // If user passes order_id → filter, else return all
+//       where.order_id = order_id;
+//     }
+
+//     const history = await EcomNdrReason.findAll({
+//       where,
+//       order: [["created_at", "DESC"]],
+//     });
+
+//     return res.json({
+//       ok: true,
+//       data: history,
+//     });
+//   } catch (err) {
+//     console.error("❌ [getNdrHistory] Error:", err);
+//     return res.status(500).json({ ok: false, error: err.message });
+//   }
+// }
+
+
+
+// controllers/userController.js (or wherever you keep it)
+async function getNdrHistoryexp(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    const whereClause = {};
+    if (order_id) {
+      whereClause.order_id = order_id;
+    }
+
+    const history = await ExpNdrReason.findAll({
+      where: whereClause,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: ExpOrders,
+          as: "order",   // must match ExpNdrReason.belongsTo(ExpOrders, { as: "order" })
+          include: [
+            { model: ConsigneeDetails, as: "consignee" },  
+            { model: ExpLR, as: "exp_lrs" },               
+            { model: ExpProductDetails, as: "products" },  
+            { model: Admin, as: "client" }                  
+          ]
+        }
+      ]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistoryexp] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
+async function getNdrHistoryecom(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    let whereClause = {};
+    if (order_id) {
+      whereClause.order_id = order_id;
+    }
+
+    const history = await EcomNdrReason.findAll({
+      where: whereClause,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: EcomOrders,
+          as: "order",
+          include: [
+            { model: EcomConsigneeDetails, as: "consignee" },
+            { model: EcomLR, as: "ecom_lrs" },
+            { model: EcomProductDetails, as: "products" },
+            { model: Admin, as: "client" }
+          ]
+        }
+      ]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistoryecom] Error:", err);
     return res.status(500).json({ ok: false, error: err.message });
   }
 }
@@ -31587,6 +31747,7 @@ module.exports = {
    getNdrActions,
   addNdrReason,
   getNdrHistory,
+  getNdrHistoryexp,
   sendWhatsAppVerification,
   postCustomerUpdate,
   getCustomerUpdates,
@@ -31597,5 +31758,8 @@ module.exports = {
   createRtoecom,
   sendOrderDispatchedWhatsApp,
   sendCodDeliveryNotification,
-  createIbr
+  createIbr,
+   saveCustomerNotAvailable,
+  getCustomerNotAvailable,
+  getNdrHistoryecom
 }
