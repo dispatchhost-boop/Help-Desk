@@ -1,98 +1,1033 @@
+<!-- ===== Footer & floating Help Center button ===== -->
 <style>
-   footer {
-    padding: 0 30px;
-    /* padding-bottom: 15px; */
-    position: absolute;
-    right: 0;
-}
+  footer { padding: 0 30px; position: absolute; right: 0; }
+  .footer-fixed-bottom {
+    position: fixed; bottom: 0; left: 280px; width: calc(100% - 330px);
+    background: #ffffff; transition: all 0.3s ease-in-out; z-index: 99;
+  }
+  .footer-fixed-bottom .container-fluid { max-width: 1140px; margin: 0 auto; }
+  .layout-fullwidth .footer-fixed-bottom { left: 0; width: calc(100% - 50px); }
+  .right_icon_toggle.layout-fullwidth .footer-fixed-bottom { width: 100%; }
 
-    .footer-fixed-bottom {
-        position: fixed;
-        bottom: 0;
-        left: 280px;
-        width: calc(100% - 330px);
-       
-        background: #ffffff;
-      
-        transition: all 0.3s ease-in-out;
-        z-index: 99;
-    }
-
-    .footer-fixed-bottom .container-fluid {
-        max-width: 1140px;
-        margin: 0 auto;
-    }
-
-    /* Full width layout styles */
-    .layout-fullwidth .footer-fixed-bottom {
-        left: 0;
-        width: calc(100% - 50px);
-    }
-
-    .right_icon_toggle.layout-fullwidth .footer-fixed-bottom {
-        width: 100%;
-    }
-
-    /* Responsive styles */
-    @media (max-width: 991px) {
-        .footer-fixed-bottom {
-            left: 0;
-            width: 100%;
-        }
-    }
+  /* Floating button */
+  .help-center-btn {
+    position: fixed; bottom: 20px; right: 20px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; font-size: 14px; cursor: pointer;
+    border-radius: 50px; background-color: #333; color: #fff;
+    border: 2px solid #e74c3c; box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    z-index: 100;
+  }
+  .help-center-btn i { color: #e74c3c; }
+  @media (max-width: 991px){ .footer-fixed-bottom{ left:0; width:100%; } .help-center-btn{ bottom:70px; } }
 </style>
-  
-  <!-- Fixed Footer -->
-  <footer class="footer-fixed-bottom">
-    <div class="container-fluid px-4">
-      <div class="row align-items-center" style="min-height: 48px;">
-        <div class="col-md-6 col-12 text-md-start text-center mb-2 mb-md-0">
-          <span>© 2025 Ashrey Logistic Solutions LLP.</span>
+
+<footer class="footer-fixed-bottom">
+  <div class="container-fluid px-4">
+    <div class="row align-items-center" style="min-height:48px;">
+      <div class="col-md-6 col-12 text-md-start text-center mb-2 mb-md-0">
+        <span>© 2025 Ashrey Logistic Solutions LLP.</span>
+      </div>
+      <div class="col-md-6 col-12 text-md-end text-center">
+        <span>Crafted with</span> <i class="fas fa-heart text-danger"></i>
+        <span class="ms-2">by Team Dispatch Solutions</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button id="helpCenterBtn" class="help-center-btn">
+  <i class="fas fa-circle-question"></i><span>Help Center</span>
+</button>
+
+<!-- ===== Help Center Modal (Right-side sheet) ===== -->
+<div id="helpCenterModal" class="modal fade" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Help Center</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Top actions -->
+      <div class="hc-actions mb-3">
+  <a class="hc-action" id="hcGoKB" href="/knowledge-base">
+    <i class="fas fa-book-open"></i><span>View knowledge base</span>
+  </a>
+
+  <a class="hc-action" id="hcGoTickets" href="/view-support-tickets">
+    <i class="fas fa-ticket-alt"></i><span>View support tickets</span>
+  </a>
+</div>
+
+
+        <!-- HOME -->
+        <div id="hcHome">
+          <div class="hc-card hc-card-support mb-3">
+            <div class="hc-card-title">Need more support?</div>
+            <div class="hc-card-sub">Get quick help by raising a ticket</div>
+            <button type="button" class="btn btn-light hc-cta" id="hcGoRaise">Raise a ticket</button>
+          </div>
+
+          <div class="hc-card">
+            <div class="hc-card-title d-flex align-items-center gap-2">
+              <i class="far fa-calendar"></i> Schedule a training session
+            </div>
+            <div class="hc-card-sub">
+              Get a personalized walkthrough to learn how to create orders, manage pickups,
+              resolve exceptions, and more on Dispatch Solutiions.
+            </div>
+            <a href="#" class="hc-link">Schedule now</a>
+          </div>
         </div>
-        <div class="col-md-6 col-12 text-md-end text-center">
-          <span>Crafted with</span>
-          <i class="fas fa-heart text-danger"></i>
-          <span class="ms-2">by Team Dispatch Solutions</span>
+
+        <!-- Raise Ticket view (injected) -->
+        <div id="raise-ticket" class="d-none"></div>
+
+        <!-- View Tickets placeholder -->
+        <div id="view-tickets" class="d-none">
+          <div class="text-center py-5">
+            <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No support tickets found</p>
+            <p>You can raise a new ticket using the “Raise a ticket” button above</p>
+          </div>
         </div>
       </div>
     </div>
-  </footer>
+  </div>
+</div>
+
+<!-- ===== Visual polish for the right-side modal & landing ===== -->
+<style>
+  :root{
+    --hc-primary:#e74c3c; --hc-primary-600:#d74435; --hc-primary-50:#fdecea;
+    --hc-text:#1f2937; --hc-muted:#64748b; --hc-border:#e6e8ee; --hc-bg:#f7f8fb;
+  }
+  #helpCenterModal .modal-dialog{ margin:0 0 0 auto; max-width:560px; height:100vh; }
+  #helpCenterModal .modal-content{ height:100%; border:0; border-radius:16px 0 0 16px; box-shadow:0 10px 30px rgba(2,6,23,.15); }
+  #helpCenterModal .modal-header{ position:sticky; top:0; z-index:3; background:#fff; border-bottom:1px solid #eef0f3; }
+  #helpCenterModal .modal-title{ font-weight:700; color:#111827; }
+  #helpCenterModal .modal-body{ background:#f7f8fb; padding:16px; overflow:auto; }
+
+  .hc-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+  .hc-action{
+    display:flex; align-items:center; gap:10px; flex:1 1 240px;
+    background:#111827; color:#fff; padding:12px 14px; border:none; border-radius:12px; font-weight:600;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .hc-action i{ font-size:16px; opacity:.9; }
+  .hc-action:hover{ transform:translateY(-1px); opacity:.95; }
+
+  .hc-card{ background:#fff; border:1px solid var(--hc-border); border-radius:12px; padding:14px 16px; }
+  .hc-card-support{ background:#eef2ff; border-color:#e0e7ff; }
+  .hc-card-title{ font-weight:700; color:#111827; }
+  .hc-card-sub{ color:#6b7280; margin-top:4px; }
+  .hc-cta{ margin-top:12px; border-radius:10px; font-weight:600; border:1px solid #d1d5db; background:#fff; }
+  .hc-link{ display:inline-block; margin-top:10px; font-weight:600; color:#3b82f6; text-decoration:none; }
+  .hc-link:hover{ text-decoration:underline; }
+
+  #raise-ticket, #view-tickets{
+    background:#fff; border:1px solid var(--hc-border); border-radius:12px; padding:16px; margin-top:12px;
+  }
+
+  /* Pills */
+  .list-group{ display:block; }
+  .list-group-item{ padding:0; border:0; background:transparent; }
+  .hc-pill-check{ display:block; margin:10px 0; }
+  .hc-pill-check .form-check-input{ position:absolute; opacity:0; pointer-events:none; }
+  .hc-pill-check .form-check-label{
+    display:block; width:100%; max-width:360px;
+    padding:14px 16px; background:#fff; color:#374151;
+    border:1px solid var(--hc-border); border-radius:22px; line-height:1.25; font-weight:600; font-size:0.94rem;
+    box-shadow:0 1px 2px rgba(16,24,40,.05); transition: border-color .15s, background .15s, transform .15s;
+    word-wrap:break-word;
+  }
+  .hc-pill-check .form-check-label:hover{ border-color:#dcdfe6; transform:translateY(-1px); }
+  .hc-pill-check .form-check-input:checked + .form-check-label{
+    background: rgba(231,76,60,.06); border-color: var(--hc-primary); color: var(--hc-primary-600);
+  }
+
+  .hc-chip-check{ display:inline-block; margin:6px 8px 6px 0; }
+  .hc-chip-check .form-check-input{ position:absolute; opacity:0; pointer-events:none; }
+  .hc-chip-check .form-check-label{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px;
+    border:1px solid var(--hc-border); border-radius:999px; background:#fff; color:#1f2937;
+    font-weight:600; font-size:.85rem; transition:all .15s ease-in-out; cursor:pointer; user-select:none;
+    box-shadow:0 1px 0 rgba(2,6,23,.02);
+  }
+  .hc-chip-check .form-check-input:checked + .form-check-label{
+    background:var(--hc-primary-50); border-color:var(--hc-primary); color:var(--hc-primary-600);
+  }
+
+  #subCategoriesContainer, #dynamicFieldsContainer{
+    background:#fff; border:1px solid var(--hc-border); border-radius:12px; padding:12px; margin-top:12px;
+  }
+  .form-control{ border-radius:10px; border-color:#dfe3ea; }
+  .form-control:focus{ border-color:var(--hc-primary); box-shadow:0 0 0 .2rem rgba(231,76,60,.15); }
+
+  .ticket-actionbar{
+    position:sticky; bottom:0; z-index:2; background:#fff;
+    padding-top:10px; margin-top:10px; border-top:1px solid var(--hc-border);
+    display:flex; justify-content:end; align-items:center; gap:8px;
+  }
+  #submitTicketBtn{
+    background:var(--hc-primary); border-color:var(--hc-primary);
+    border-radius:10px; padding:10px 16px; font-weight:600;
+  }
+  #submitTicketBtn:hover{ background:var(--hc-primary-600); border-color:var(--hc-primary-600); }
+
+  #currentDateTime{ display:none !important; }
+
+  @media (max-width:575.98px){
+    #helpCenterModal .modal-dialog{ max-width:100%; }
+    #helpCenterModal .modal-content{ border-radius:0; }
+    .hc-action{ flex:1 1 100%; }
+    #submitTicketBtn{ width:100%; }
+    .hc-pill-check .form-check-label{ max-width:100%; }
+  }
+
+  /* LR calendar */
+  .lr-tools { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .lr-quick { display:flex; gap:8px; flex-wrap:wrap; }
+  .lr-quick .btn { border-radius: 999px; padding:6px 12px; }
+  .lr-range { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .lr-select { min-height: 140px; }
+  .small-muted { font-size:.825rem; color:#6b7280; }
+
+  /* Count badges */
+  .lr-counts{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .lr-badge{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+    border:1px solid var(--hc-border); background:#fff; font-weight:600; font-size:.82rem; color:#374151;
+  }
+
+  /* CC chips */
+  .cc-chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+    border:1px solid var(--hc-border); background:#f8fafc; margin:4px 6px 0 0; font-size:.85rem; }
+  .cc-chip button{ border:none; background:transparent; cursor:pointer; font-weight:700; }
+</style>
+
+<!--
+  Recommended: put these in <head> so front-end can read your env.
+  <meta name="api-base-url" content="<%= process.env.BASE_URL %>">
+  <meta name="email-from"   content="<%= process.env.EMAIL_FROM %>">
+-->
+
+<script>
+(function(){
+  if (window.__helpCenterWired) return; // prevent double-binding
+  window.__helpCenterWired = true;
+
+  // ---- Config from meta (with safe fallbacks to .env) ----
+  const API_BASE =
+    document.querySelector('meta[name="api-base-url"]')?.content ||
+    'http://localhost:5000';
+
+  const EMAIL_FROM_DEFAULT =
+    document.querySelector('meta[name="email-from"]')?.content ||
+    'onboarding@dispatch.co.in';
+
+  // ==== Mappings & helpers for Courier names ====
+  const TAGGED_TO_COURIER = {
+    delhivery: 'Delhivery',
+    dtdc: 'DTDC',
+    xpressbees: 'XpressBees',
+    ecom: 'Ecom Express',
+    ecomexpress: 'Ecom Express',
+    bluedart: 'Blue Dart',
+    blue_dart: 'Blue Dart',
+    shadowfax: 'Shadowfax',
+    smartr: 'Smartr Logistics',
+    safexpress: 'Safexpress',
+    ekart: 'Ekart Logistics',
+    amazon: 'Amazon Shipping'
+  };
+  function mapTaggedApiToCourier(tag) {
+    if (!tag) return '';
+    const key = String(tag).toLowerCase();
+    return TAGGED_TO_COURIER[key] || tag;
+  }
+  function normalizeCourierName(it = {}) {
+    return it.courier_name || it.courier || it.courier_partner || it.courierPartner ||
+           mapTaggedApiToCourier(it.tagged_api || it.taggedApi || it.api_tag) || '';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const helpCenterBtn   = document.getElementById('helpCenterBtn');
+    const modalEl         = document.getElementById('helpCenterModal');
+    const modal           = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    // ===== Clients & user email/phone =====
+    let clientsCache = null;        // [{ id, full_name, company_name, email, country_code, phone_no }]
+    let ensuredClientId = null;
+    let loggedInEmail = null;       // from clients API
+    let ccEmails = [];              // UI-maintained list
+
+    const fallbackCategoryData = { category_list: [] };
+    let categoryData = null;
+
+    // LR -> metadata map (courier/tag) for email
+    let lrMetaByNo = {};            // { 'LR123': { courier_name, tagged_api, raw } }
+
+    /* ---- Views ---- */
+    const showHome = () => {
+      document.getElementById('hcHome').classList.remove('d-none');
+      document.getElementById('raise-ticket').classList.add('d-none');
+      document.getElementById('view-tickets').classList.add('d-none');
+    };
+    const showTickets = () => {
+      document.getElementById('hcHome').classList.add('d-none');
+      document.getElementById('raise-ticket').classList.add('d-none');
+      document.getElementById('view-tickets').classList.remove('d-none');
+    };
+
+    const showRaiseTicket = async () => {
+      const container = document.getElementById('raise-ticket');
+      document.getElementById('hcHome').classList.add('d-none');
+      document.getElementById('view-tickets').classList.add('d-none');
+      container.classList.remove('d-none');
+
+      container.innerHTML = `
+        <div class="text-center py-4">
+          <div class="spinner-border" role="status"></div>
+          <p class="mt-2">Loading help categories...</p>
+        </div>`;
+
+      try {
+        if (!categoryData) categoryData = await fetchCategories();
+      } catch (e) {
+        console.warn('Categories API failed, using fallback categories.');
+        categoryData = fallbackCategoryData;
+      }
+
+      container.innerHTML = `
+        <h4 class="mb-3">Help us understand your issue</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-uppercase text-muted mb-2">SHIPMENT ISSUE</h6>
+            <div class="list-group list-group-flush" id="hcShipmentList"></div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-uppercase text-muted mb-2">OTHER ISSUE</h6>
+            <div class="list-group list-group-flush" id="hcOtherList"></div>
+          </div>
+        </div>
+
+        <div id="subCategoriesContainer" class="mt-4" style="display:none;">
+          <h5 class="mb-3">Select Sub-Category</h5>
+          <div class="list-group list-group-flush" id="subCategoriesList"></div>
+        </div>
+
+        <div id="dynamicFieldsContainer" class="mt-4" style="display:none;"></div>
+
+        <div class="form-group mt-4">
+          <label for="issueDescription">Description</label>
+          <textarea class="form-control" id="issueDescription" rows="3" placeholder="Please describe your issue in detail"></textarea>
+        </div>
+
+        <div class="ticket-actionbar">
+          <div class="me-auto d-flex align-items-center gap-3 flex-wrap">
+            <!-- Email notification toggle -->
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="emailNotifChk">
+              <label class="form-check-label" for="emailNotifChk">Email notifications</label>
+            </div>
+            <a href="#" class="text-primary small me-2" id="addCcToggle">Add more CC emails</a>
+            <a href="#" class="text-primary small" id="resetCategories">Reset Categories</a>
+          </div>
+          <button id="submitTicketBtn" class="btn btn-primary ms-3">Submit Ticket</button>
+        </div>
+
+        <!-- CC Emails UI (hidden by default) -->
+        <div id="ccEmailsWrap" class="d-none mt-2">
+          <label class="form-label mb-1">CC Emails</label>
+          <div class="input-group">
+            <input id="ccEmailInput" type="email" class="form-control" placeholder="person@example.com">
+            <button id="addCcBtn" type="button" class="btn btn-outline-secondary">Add</button>
+          </div>
+          <div id="ccChips" class="mt-2"></div>
+          <div class="small-muted mt-1">Tip: Add one by one. We’ll always CC ${EMAIL_FROM_DEFAULT}.</div>
+        </div>
+      `;
+
+      populateCategories(categoryData);
+
+      // Prefetch clients + pick single client's email/phone if only one
+      await ensureClientId();
+      if (ensuredClientId) {
+        loggedInEmail = getClientEmailById(ensuredClientId);
+      }
+    };
+
+    /* ---- APIs ---- */
+    async function fetchCategories() {
+      const res = await axios.get(`${API_BASE}/support/categories?raised_from=ucp`);
+      return res.data;
+    }
+
+    async function fetchAllClients() {
+      if (clientsCache) return clientsCache;
+      const res = await axios.get(`${API_BASE}/api/all-clients`);
+      clientsCache = Array.isArray(res.data?.clients) ? res.data.clients : [];
+      return clientsCache;
+    }
+
+    /* ---- Client helpers ---- */
+    function getClientById(clientId) {
+      if (!clientsCache) return null;
+      return clientsCache.find(x => String(x.id) === String(clientId)) || null;
+    }
+    function getClientEmailById(clientId) {
+      return getClientById(clientId)?.email || null;
+    }
+
+    async function ensureClientId() {
+      let cid = localStorage.getItem('clientId') ||
+                localStorage.getItem('client_id') ||
+                localStorage.getItem('selectedClientId');
+
+      const list = await fetchAllClients(); // ensure cache is filled
+
+      if (cid) {
+        ensuredClientId = cid;
+        return cid;
+      }
+
+      if (!list.length) { ensuredClientId = null; return null; }
+
+      if (list.length === 1) {
+        ensuredClientId = String(list[0].id);
+        localStorage.setItem('clientId', ensuredClientId);
+        return ensuredClientId;
+      }
+      ensuredClientId = null; // multi-client → user will choose in LR UI
+      return null;
+    }
+
+    /* ---- Category rendering ---- */
+    function populateCategories(data) {
+      const shipmentIssues = [
+        "Reattempt or Delay in delivery / consignee pickup / return",
+        "Firstmile / Seller Pickup related issues",
+        "Shipment not delivered (need POD) / Fake remark",
+        "Self collect / drop",
+        "Damage / Missing / Mismatch",
+        "Update shipment details",
+        "Cancel delivery / pickup",
+        "Claims / Finance (disputes, remittance, bank details, etc.)",
+        "Protect VAS",
+        "Channel integration",
+        "Behaviour complaint against staff",
+        "Others"
+      ];
+      const otherIssues = ["Tech Support","Account"];
+
+      const shipCol  = document.getElementById('hcShipmentList');
+      const otherCol = document.getElementById('hcOtherList');
+      shipCol.innerHTML = ''; otherCol.innerHTML = '';
+
+      (data.category_list || []).forEach(category => {
+        const col = shipmentIssues.includes(category.name) ? shipCol :
+                    otherIssues.includes(category.name) ? otherCol : null;
+        if (!col) return;
+
+        const id = `cat_${category.name.replace(/\s+/g,'_')}`;
+        const item = document.createElement('div');
+        item.className = 'list-group-item border-0 px-0';
+        item.innerHTML = `
+          <div class="form-check hc-pill-check">
+            <input class="form-check-input category-radio" type="radio" name="issueCategory" id="${id}" value="${category.name}">
+            <label class="form-check-label" for="${id}">${category.name}</label>
+          </div>`;
+        col.appendChild(item);
+      });
+    }
+
+    /* ========= LR Calendar + Dropdown ========= */
+    function fmtDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+    function startOfWeek(d) {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = (day === 0 ? -6 : 1) - day; // Monday
+      date.setDate(date.getDate() + diff);
+      return date;
+    }
+    function endOfWeek(d) {
+      const s = startOfWeek(d);
+      const e = new Date(s);
+      e.setDate(s.getDate() + 6);
+      return e;
+    }
+
+    async function fetchLrNos(clientId) {
+      const url = `${API_BASE}/api/clients/${clientId}/lr-nos?limit=10000&offset=0`;
+      const res = await axios.get(url);
+      const body = res.data || {};
+      const items = Array.isArray(body?.data) ? body.data : [];
+      const counts = body?.counts || { ecom: 0, exp: 0, total: items.length };
+      const pagination = body?.pagination || { limit: 0, offset: 0, returned: items.length };
+      return { items, counts, pagination };
+    }
+
+    function filterByDate(items, from, to) {
+      if (!from && !to) return items;
+      const fromTs = from ? new Date(from + 'T00:00:00').getTime() : null;
+      const toTs   = to   ? new Date(to   + 'T23:59:59').getTime() : null;
+      return items.filter(it => {
+        const raw = it.created_at || it.createdAt || it.date || it.updated_at || '';
+        const ts = raw ? new Date(raw).getTime() : null;
+        if (!ts) return true;
+        if (fromTs && ts < fromTs) return false;
+        if (toTs && ts > toTs) return false;
+        return true;
+      });
+    }
+
+    function buildLrUI(fieldsContainer, clients, preselectedId) {
+      const hasMultiple = Array.isArray(clients) && clients.length > 1;
+
+      fieldsContainer.insertAdjacentHTML('beforeend', `
+        <div class="form-group">
+          <label class="mb-1">AWB / LR Selection</label>
+          <div class="small-muted mb-2">
+            Choose a date range to fetch LR numbers (or click “All” to see everything).
+          </div>
+
+          <div class="lr-tools">
+            ${hasMultiple ? `
+            <div>
+              <label for="clientSelector" class="form-label mb-1">Client</label>
+              <select id="clientSelector" class="form-select">
+                ${clients.map(c => `
+                  <option value="${c.id}" ${String(c.id)===String(preselectedId)?'selected':''}>
+                    ${c.company_name || c.full_name || ('Client #' + c.id)}
+                  </option>`).join('')}
+              </select>
+            </div>
+            ` : ''}
+
+            <div class="lr-quick">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-range="today">Today</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-range="this_week">This Week</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-range="last_7">Last 7 Days</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-range="last_30">Last 30 Days</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-range="all">All</button>
+            </div>
+
+            <div class="lr-range">
+              <div>
+                <label for="lr_from_date" class="form-label mb-1">From</label>
+                <input id="lr_from_date" type="date" class="form-control" />
+              </div>
+              <div>
+                <label for="lr_to_date" class="form-label mb-1">To</label>
+                <input id="lr_to_date" type="date" class="form-control" />
+              </div>
+            </div>
+
+            <div class="lr-counts" id="lrCounts" style="display:none;">
+              <span class="lr-badge" id="lrCountTotal">Total: 0</span>
+              <span class="lr-badge" id="lrCountEcom">Ecom: 0</span>
+              <span class="lr-badge" id="lrCountExp">Express: 0</span>
+            </div>
+
+            <div>
+              <label for="lrDropdown" class="form-label mb-1">LR Numbers</label>
+              <select id="lrDropdown" class="form-select lr-select" multiple></select>
+              <div class="small-muted mt-1">Tip: Hold Ctrl (Cmd on Mac) to select multiple.</div>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    async function loadAndRenderLrDropdown() {
+      const selector = document.getElementById('clientSelector');
+      let clientId = selector ? selector.value : (ensuredClientId ||
+        localStorage.getItem('clientId') || localStorage.getItem('client_id') || localStorage.getItem('selectedClientId'));
+
+      if (!clientId) {
+        window.toastr && toastr.error('No client selected or found.');
+        return;
+      }
+      localStorage.setItem('clientId', String(clientId));
+
+      // Refresh the email for the selected client directly from clientsCache
+      const selClient = getClientById(clientId);
+      loggedInEmail = selClient?.email || loggedInEmail;
+
+      const from = document.getElementById('lr_from_date').value || null;
+      const to   = document.getElementById('lr_to_date').value   || null;
+
+      const dropdown = document.getElementById('lrDropdown');
+      const countsBar = document.getElementById('lrCounts');
+      const elTotal = document.getElementById('lrCountTotal');
+      const elEcom  = document.getElementById('lrCountEcom');
+      const elExp   = document.getElementById('lrCountExp');
+
+      dropdown.innerHTML = `<option disabled>Loading...</option>`;
+
+      try {
+        const { items, counts } = await fetchLrNos(clientId);
+
+        if (countsBar && elTotal && elEcom && elExp) {
+          countsBar.style.display = 'flex';
+          elTotal.textContent = `Total: ${counts.total ?? items.length}`;
+          elEcom.textContent  = `Ecom: ${counts.ecom ?? 0}`;
+          elExp.textContent   = `Express: ${counts.exp ?? 0}`;
+        }
+
+        const filtered = filterByDate(items, from, to);
+        dropdown.innerHTML = '';
+        const unique = new Set();
+        lrMetaByNo = {}; // reset before fill
+
+        filtered.forEach(it => {
+          const lr = it.lr_no || it.awb_no || it.waybill || it.LR || it.AWB || '';
+          if (!lr || unique.has(lr)) return;
+          unique.add(lr);
+
+          // Capture courier/tag meta for each LR (for email payload later)
+          lrMetaByNo[lr] = {
+            courier_name: normalizeCourierName(it),
+            tagged_api: it.tagged_api || it.taggedApi || it.api_tag || '',
+            raw: it
+          };
+
+          const op = document.createElement('option');
+          op.value = lr;
+          op.textContent = lr; // ONLY LR NUMBER in UI
+          dropdown.appendChild(op);
+        });
+
+        if (!dropdown.options.length) {
+          const op = document.createElement('option');
+          op.disabled = true;
+          op.textContent = 'No LR numbers found for selected range.';
+          dropdown.appendChild(op);
+        }
+      } catch (err) {
+        console.error(err);
+        window.toastr && toastr.error('Failed to load LR numbers.');
+        dropdown.innerHTML = `<option disabled>Failed to load LR numbers</option>`;
+      }
+    }
+
+    function wireLrEvents() {
+      const setRange = (from, to) => {
+        const fromEl = document.getElementById('lr_from_date');
+        const toEl   = document.getElementById('lr_to_date');
+        fromEl.value = from || '';
+        toEl.value   = to   || '';
+      };
+
+      const quick = document.querySelectorAll('.lr-quick [data-range]');
+      quick.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const now = new Date();
+
+          const fmt = d => fmtDate(d);
+          const sow = d => startOfWeek(d);
+          const eow = d => { const e = endOfWeek(d); return e; };
+
+          if (btn.dataset.range === 'today') {
+            const t = fmt(now); setRange(t, t);
+          } else if (btn.dataset.range === 'this_week') {
+            setRange(fmt(sow(now)), fmt(eow(now)));
+          } else if (btn.dataset.range === 'last_7') {
+            const s = new Date(now); s.setDate(now.getDate() - 6); setRange(fmt(s), fmt(now));
+          } else if (btn.dataset.range === 'last_30') {
+            const s = new Date(now); s.setDate(now.getDate() - 29); setRange(fmt(s), fmt(now));
+          } else if (btn.dataset.range === 'all') {
+            setRange('', '');
+          }
+          loadAndRenderLrDropdown();
+        });
+      });
+
+      const fromEl = document.getElementById('lr_from_date');
+      const toEl   = document.getElementById('lr_to_date');
+      fromEl.addEventListener('change', loadAndRenderLrDropdown);
+      toEl.addEventListener('change', loadAndRenderLrDropdown);
+
+      const selector = document.getElementById('clientSelector');
+      if (selector) {
+        selector.addEventListener('change', async () => {
+          localStorage.setItem('clientId', String(selector.value));
+          // refresh email for the new client immediately
+          const sc = getClientById(selector.value);
+          loggedInEmail = sc?.email || loggedInEmail;
+          loadAndRenderLrDropdown();
+        });
+      }
+    }
+
+    /* ---- Dynamic fields ---- */
+    async function showDynamicFields(category, subCategoryObj) {
+      const fieldsContainer = document.getElementById('dynamicFieldsContainer');
+      const mainDescription = document.getElementById('issueDescription');
+
+      fieldsContainer.innerHTML = '';
+      fieldsContainer.style.display = 'none';
+
+      const subCategory = (typeof subCategoryObj === 'string')
+        ? (category.sub_category_list || []).find(sc => (sc.name || category.name) === subCategoryObj) || null
+        : subCategoryObj;
+
+      fieldsContainer.style.display = 'block';
+
+      const mand = (subCategory?.mandatory_fields || []).map(f => String(f).toLowerCase());
+      const adds = subCategory?.add_fields || [];
+
+      // Calendar + LR dropdown
+      if (mand.includes('waybill number') || adds.includes('bulk_awb') || adds.includes('list_awb')) {
+        await ensureClientId();
+        const clientList = await fetchAllClients();
+        buildLrUI(fieldsContainer, clientList, ensuredClientId);
+
+        // set email for selected (or single) client
+        if (ensuredClientId) {
+          loggedInEmail = getClientEmailById(ensuredClientId) || loggedInEmail;
+        }
+
+        wireLrEvents();
+        loadAndRenderLrDropdown();
+      }
+
+      // Other extras (skip list_awb/bulk_awb – derived from dropdown)
+      const extrasMap = {
+        'PUR ID': {label:'PUR ID', placeholder:'Enter PUR ID'},
+        'list_awb': {label:'List of AWBs', placeholder:'Comma separated AWBs'},
+      };
+      adds.forEach(f => {
+        const lower = String(f).toLowerCase();
+        if (lower === 'bulk_awb' || lower === 'list_awb') return;
+        const def = extrasMap[f] || {label:f, placeholder:`Enter ${f}`};
+        const id = `field_${String(f).replace(/\s+/g,'_')}`;
+        fieldsContainer.insertAdjacentHTML('beforeend', `
+          <div class="form-group">
+            <label for="${id}">${def.label}</label>
+            <input type="text" class="form-control" id="${id}" placeholder="${def.placeholder}">
+          </div>
+        `);
+      });
+
+      // Other mandatory text fields (excluding waybill number & description)
+      (subCategory?.mandatory_fields || []).forEach(field => {
+        const lower = String(field).toLowerCase();
+        if (lower === 'waybill number' || lower === 'description') return;
+        const id = `field_${String(field).replace(/\s+/g,'_')}`;
+        fieldsContainer.insertAdjacentHTML('beforeend', `
+          <div class="form-group">
+            <label for="${id}">${field}</label>
+            <input type="text" class="form-control" id="${id}" required>
+          </div>
+        `);
+      });
+
+      // Description required?
+      mainDescription.required = mand.includes('description');
+    }
+
+    /* ---- Email CC helpers ---- */
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+    const isValidEmail = (e) => emailRegex.test(String(e||'').trim());
+
+    function renderCcChips() {
+      const wrap = document.getElementById('ccChips');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      ccEmails.forEach((mail, idx) => {
+        const chip = document.createElement('span');
+        chip.className = 'cc-chip';
+        chip.innerHTML = `${mail} <button type="button" data-idx="${idx}" aria-label="Remove CC">&times;</button>`;
+        wrap.appendChild(chip);
+      });
+    }
+
+    function clearAllInputs() {
+      // clear category selections
+      document.querySelectorAll('.category-radio').forEach(r => r.checked = false);
+      const subC = document.getElementById('subCategoriesContainer');
+      const subL = document.getElementById('subCategoriesList');
+      const dyn  = document.getElementById('dynamicFieldsContainer');
+      if (subC) subC.style.display = 'none';
+      if (subL) subL.innerHTML = '';
+      if (dyn) { dyn.style.display = 'none'; dyn.innerHTML=''; }
+
+      // clear description
+      const desc = document.getElementById('issueDescription');
+      if (desc) desc.value = '';
+
+      // clear email options
+      const emailChk = document.getElementById('emailNotifChk');
+      const ccWrap   = document.getElementById('ccEmailsWrap');
+      const ccIn     = document.getElementById('ccEmailInput');
+      if (emailChk) emailChk.checked = false;
+      if (ccWrap) ccWrap.classList.add('d-none');
+      if (ccIn) ccIn.value = '';
+      ccEmails = [];
+      renderCcChips();
+    }
+
+    /* ---- Event delegation (bind once) ---- */
+    helpCenterBtn.addEventListener('click', () => { modal.show(); showHome(); });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'hcGoRaise')  showRaiseTicket();
+      if (e.target.id === 'hcGoTickets') showTickets();
+      if (e.target.id === 'hcGoKB') window.open('#', '_blank');
+    });
+
+    // Category / Subcategory selection
+    document.getElementById('helpCenterModal').addEventListener('change', function(e){
+      // Category picked
+      if (e.target.classList.contains('category-radio')) {
+        const selectedCategoryName = e.target.value;
+        const subContainer = document.getElementById('subCategoriesContainer');
+        const subList = document.getElementById('subCategoriesList');
+        const dyn = document.getElementById('dynamicFieldsContainer');
+        if (!categoryData) return;
+
+        subList.innerHTML = '';
+        subContainer.style.display = 'none';
+        dyn.style.display = 'none';
+        dyn.innerHTML = '';
+
+        const category = categoryData.category_list.find(cat => cat.name === selectedCategoryName);
+        const rawList = Array.isArray(category?.sub_category_list) ? category.sub_category_list : [];
+        const displayable = rawList.filter(sc => (sc.name || '').trim().length > 0);
+
+        // === NEW: If no valid subcategory names (0 or only an empty one), hide the UI and auto-continue ===
+        if (displayable.length === 0) {
+          // Keep a hidden value for submit
+          subList.innerHTML = `<input type="hidden" name="subCategory" value="${category.name}">`;
+          // If there was a single empty subcat object, pass it; else pass the category name
+          const fallback = rawList[0] || category.name;
+          showDynamicFields(category, fallback);
+          return;
+        }
+
+        // Otherwise, show list to pick
+        subContainer.style.display = 'block';
+        displayable.forEach(subCat => {
+          const value = subCat.name;
+          const id = `subCat_${value.replace(/\s+/g,'_')}`;
+          const item = document.createElement('div');
+          item.className = 'list-group-item border-0 px-0';
+          item.innerHTML = `
+            <div class="form-check hc-chip-check">
+              <input class="form-check-input subcategory-radio" type="radio" name="subCategory" id="${id}" value="${value}">
+              <label class="form-check-label" for="${id}">${value}</label>
+            </div>
+          `;
+          subList.appendChild(item);
+        });
+      }
+
+      // Subcategory picked
+      if (e.target.classList.contains('subcategory-radio')) {
+        const categoryName = document.querySelector('.category-radio:checked')?.value;
+        const subValue = e.target.value;
+        if (!categoryName || !categoryData) return;
+        const category = categoryData.category_list.find(cat => cat.name === categoryName);
+        const subCategory = (category?.sub_category_list || []).find(sc => (sc.name || category.name) === subValue);
+        if (subCategory) showDynamicFields(category, subCategory);
+      }
+    });
+
+    // Click handlers (Reset / Email / CC / Submit)
+    document.getElementById('helpCenterModal').addEventListener('click', async function(e){
+      // Toggle CC wrap link
+      if (e.target && e.target.id === 'addCcToggle') {
+        e.preventDefault();
+        const wrap = document.getElementById('ccEmailsWrap');
+        if (wrap) wrap.classList.toggle('d-none');
+      }
+
+      // Add CC button
+      if (e.target && e.target.id === 'addCcBtn') {
+        const input = document.getElementById('ccEmailInput');
+        const email = (input?.value || '').trim();
+        if (!email) return;
+        if (!isValidEmail(email)) {
+          window.toastr && toastr.error('Please enter a valid email');
+          return;
+        }
+        if (!ccEmails.includes(email)) {
+          ccEmails.push(email);
+          renderCcChips();
+        }
+        input.value = '';
+      }
+
+      // Remove CC via chip
+      if (e.target && e.target.closest && e.target.closest('.cc-chip') && e.target.dataset.idx !== undefined) {
+        const idx = Number(e.target.dataset.idx);
+        if (!Number.isNaN(idx)) {
+          ccEmails.splice(idx, 1);
+          renderCcChips();
+        }
+      }
+
+      // Reset
+      if (e.target && e.target.id === 'resetCategories') {
+        e.preventDefault();
+        clearAllInputs();
+      }
+
+      // Submit
+      if (e.target && e.target.id === 'submitTicketBtn') {
+        const btn = e.target;
+        const originalText = btn.textContent;
+        try {
+          btn.disabled = true; btn.textContent = 'Submitting...';
+
+          const category = document.querySelector('.category-radio:checked')?.value;
+          const sub_category = document.querySelector('.subcategory-radio:checked')?.value ||
+                               document.querySelector('input[name="subCategory"][type="hidden"]')?.value ||
+                               null;
+          const description = document.getElementById('issueDescription')?.value || '';
+
+          // selected LR(s)
+          const lrSel = document.getElementById('lrDropdown');
+          const selectedLRs = lrSel
+            ? Array.from(lrSel.selectedOptions).map(o => o.value).filter(Boolean)
+            : [];
+
+          if (!category || !sub_category || !description) {
+            window.toastr && toastr.error('Please fill all required fields');
+            return;
+          }
+          if (!selectedLRs.length) {
+            window.toastr && toastr.error('Please select at least one LR number');
+            return;
+          }
+
+          // If email notifications enabled, use client's email from /api/all-clients
+          const emailEnabled = document.getElementById('emailNotifChk')?.checked || false;
+          let toEmails = [];
+          let selectedClientIdForEmail = null;
+
+          // Determine current client ID (if selector exists or from localStorage)
+          selectedClientIdForEmail = document.getElementById('clientSelector')?.value ||
+                                     ensuredClientId ||
+                                     localStorage.getItem('clientId') ||
+                                     localStorage.getItem('client_id') ||
+                                     localStorage.getItem('selectedClientId');
+
+          const selectedClientObj = selectedClientIdForEmail ? getClientById(selectedClientIdForEmail) : null;
+
+          if (emailEnabled) {
+            const clientEmail = selectedClientObj?.email || (loggedInEmail || null);
+            if (clientEmail && isValidEmail(clientEmail)) {
+              toEmails = [clientEmail]; // SEND TO CLIENT EMAIL from /api/all-clients
+            }
+          }
+
+          // Build LR→Courier map for all selected LRs (for email context)
+          const lrCouriersMap = {};
+          selectedLRs.forEach(lr => {
+            const m = lrMetaByNo[lr] || {};
+            lrCouriersMap[lr] = m.courier_name || mapTaggedApiToCourier(m.tagged_api) || '';
+          });
+
+          const firstLR = selectedLRs[0] || '';
+          const firstMeta = lrMetaByNo[firstLR] || {};
+
+          // Build payload
+          const payload = {
+            awb_or_lr_no: firstLR,
+            category,
+            sub_category,
+            description,
+            additional_fields: {
+              waybill_number: firstLR,
+              list_awb: selectedLRs,
+
+              // === NEW: prefer Courier name in email/template ===
+              courier_name: firstMeta.courier_name || mapTaggedApiToCourier(firstMeta.tagged_api) || '',
+              tagged_api: firstMeta.tagged_api || '',
+
+              // === NEW: include client phone (with country code) ===
+              client_phone_country_code: selectedClientObj?.country_code || '',
+              client_phone_number: selectedClientObj?.phone_no || '',
+              client_phone_full: [selectedClientObj?.country_code, selectedClientObj?.phone_no].filter(Boolean).join(' ').trim(),
+
+              // Optional: whole map if you want to show multiple LRs with their couriers
+              lr_couriers_map: lrCouriersMap
+            }
+          };
+
+          // Optional notify block (always CC EMAIL_FROM; fallback to EMAIL_FROM if no client email)
+          if (emailEnabled) {
+            const ccSet = new Set([...(ccEmails || []), EMAIL_FROM_DEFAULT]);
+            const ccFinal = Array.from(ccSet).filter(isValidEmail);
+
+            if (!toEmails.length && isValidEmail(EMAIL_FROM_DEFAULT)) {
+              toEmails = [EMAIL_FROM_DEFAULT]; // fallback so you still get the mail
+            }
+
+            payload.notify = {
+              enabled: true,
+              to: toEmails,
+              cc: ccFinal
+            };
+          }
+
+          // Append any extra dynamic fields under additional_fields
+          document.querySelectorAll('#dynamicFieldsContainer input[type="text"], #dynamicFieldsContainer textarea')
+            .forEach(input => {
+              const key = input.id.replace('field_', '');
+              const val = input.value?.trim();
+              if (val) payload.additional_fields[key] = val;
+            });
+
+          const res = await axios.post(`${API_BASE}/api/support/tickets`, payload);
+
+          if (res?.data?.success) {
+            window.toastr && toastr.success(`Ticket created: ${res.data.ticket_id}`);
+          } else {
+            window.toastr && toastr.info('Submitted, but response did not confirm success.');
+          }
+
+          // Close and reset
+          modal.hide();
+          clearAllInputs();
+        } catch (error) {
+          console.error('Error submitting ticket:', error);
+          const msg = error.response?.data?.message || error.response?.data?.error || 'Failed to submit ticket.';
+          window.toastr && toastr.error(msg);
+        } finally {
+          btn.disabled = false; btn.textContent = originalText;
+        }
+      }
+    });
+
+    // LR UI bootstrapping happens when a subcategory requiring LR is chosen
+    helpCenterBtn.addEventListener('click', () => { modal.show(); showHome(); });
+  });
+})();
+</script>
+
+
+      
+
   
+    
 
-<!-- JavaScript Dependencies -->
-<!-- <script src="/assets/bundles/libscripts.bundle.js"></script> -->
+<!-- Vendor scripts -->
 <script src="/assets/bundles/vendorscripts.bundle.js"></script>
-
-<!-- Axios -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-
-<!-- Vendor JS -->
 <script src="/assets/vendor/toastr/toastr.js"></script>
 <script src="/assets/bundles/c3.bundle.js"></script>
 <script src="/assets/vendor/sweetalert/sweetalert.min.js"></script>
-
-<!-- Main Application JS -->
 <script src="/assets/bundles/mainscripts.bundle.js"></script>
 <script src="/assets/js/index.js"></script>
 <script src="/assets/js/pages/ui/dialogs.js"></script>
-<!-- <script>
-// Fetch API token from /get-api-token and make it available globally
-window.apiToken = null;
-$.ajax({
-    url: '/get-api-token',
-    method: 'GET',
-    dataType: 'json',
-    success: function(data) {
-        if (data && data.token) {
-            window.apiToken = data.token;
-            console.log('API token fetched:', window.apiToken);
-        } else {
-            console.warn('Token not found in /get-api-token response:', data);
-        }
-    },
-    error: function(xhr, status, error) {
-        console.error('Failed to fetch API token:', error);
-    }
-});
-</script> -->

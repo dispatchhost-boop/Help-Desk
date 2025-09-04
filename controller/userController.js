@@ -1,6 +1,10 @@
+// const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails , ExpConsigneeDetails , ExpOrders, ExpLR, ExpProductDetails, Admin, ConsigneeDetails, EcomLR } = require('../models/index.js');
+const { Category,SubCategory, SubCategoryAddField, SubCategoryMandatoryField, EcomLR, ExpLR, Admin, SupportTicket,UnprocessedOrder, ExpProductDetails, ExpOrders, ConsigneeDetails, ExpConsigneeDetails, EcomOrders, EcomProductDetails, EcomConsigneeDetails, TblDeliveryReattempts,TblRtoRequests, TblEscalation,  NdrReason, UpdatedCustomerDetail, TblEscalationEcom, TblRtoRequestsecom, TblDeliveryReattemptsEcom, Ibr, AutomationFlow, EcomNdrReason, ExpNdrReason, Callecom, Callexp} = require('../models/index.js');
+
 
 const { mySqlQury } = require('../middleware/db');
 const jwt = require('jsonwebtoken');
+const { Op, Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const access = require('../middleware/access');
 const axios = require('axios');
@@ -10,12 +14,11 @@ const uuid = require('uuid');
 const { validateCustomerDetails, validateMultiOrderData, validateWarehouseData, validateForwarderForm1, validateAggregatorForm1,
   validateAggregatorForm3, validateAggregatorForm3Standard, validateClientOnboarding, validateClientSignIn, validateExpressCreateOrderData } = require('../middleware/validation');
 const { title } = require('process');
-// const axios = require('axios');
 const FormData = require('form-data');
 const csv = require('fast-csv');
 const fs = require('fs');
 const xlsx = require('xlsx');
-const { Console } = require('console');
+const { Console, log } = require('console');
 const { CONNREFUSED } = require('dns');
 const moment = require('moment');
 
@@ -42,7 +45,7 @@ const {calculateAdditionalChargesForwarder, calculateAdditionalChargesForwarderE
 const calculateVolumetricWeight = require('../utility/calculateVolumetricWeight');
 const computeVolumetricWeight = require('../utility/computeVolumetricWeight');
 const unflattenSlabInputs = require('../services/unflattenSlabInputs');
-const socket = require('../routes/socket/socket.js'); // Import the io instance
+// const socket = require('../routes/socket/socket.js'); // Import the io instance
 const updateWalletAndTransaction = require('../services/updateWalletAndTransaction.js');
 const getValidDeliveryApiToken = require('../services/getValidDeliveryApiToken.js');
 const {findRateForwarder, findRateForwarderEcom} = require('../services/findRateForwarder.js');
@@ -50,8 +53,1720 @@ const {findRateAggrigator, findRateAggrigatorEcom} = require('../services/findRa
 const fetchExpressBeesToken = require('../services/fetchExpressBeesToken.js');
 const checkServiceability = require('../services/checkServiceability.js');
 const calculateAdditionalCharges = require('../services/calculateAdditionalCharges.js');
+const sequelize = require('../config/sequelize.js');
+const supportService = require('../services/supportService');
+const TicketModel = require('../models/Ticket');
+const { DataTypes } = require('sequelize'); 
 
 
+
+
+async function getOrderCallCountecom(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id is required",
+      });
+    }
+
+    // 🔹 Count rows with this order_id
+    const count = await Callecom.count({
+      where: { order_id },
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: "Call count fetched successfully",
+      order_id,
+      count,
+    });
+  } catch (err) {
+    console.error("❌ [getOrderCallCountecom] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+async function getOrderCallCountexp(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id is required",
+      });
+    }
+
+    // 🔹 Count rows with this order_id
+    const count = await Callexp.count({
+      where: { order_id },
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: "Call count fetched successfully",
+      order_id,
+      count,
+    });
+  } catch (err) {
+    console.error("❌ [getOrderCallCountecom] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+async function expCall(req, res) {
+  try {
+    const {
+      order_id,
+      name,
+      phone_no,
+      company_name,
+      call_connected,
+      not_connected_reason,
+      customer_response,
+    } = req.body;
+
+    if (!order_id || !call_connected) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id and call_connected are required",
+      });
+    }
+
+    // 🔹 Always create a new row (no findOrCreate)
+    const log = await Callexp.create({
+      order_id,
+      name,
+      phone_no,
+      company_name: company_name || null,
+      call_connected,
+      not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+      customer_response: call_connected === "yes" ? customer_response : null,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      message: "Express call log saved successfully",
+      data: log,
+    });
+  } catch (err) {
+    console.error("❌ [expCall] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+async function ecomCall(req, res) {
+  try {
+    const {
+      order_id,
+      name,
+      phone_no,
+      company_name,
+      call_connected,
+      not_connected_reason,
+      customer_response,
+    } = req.body;
+
+    if (!order_id || !call_connected) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id and call_connected are required",
+      });
+    }
+
+    // 🔹 Always create new row (no findOrCreate)
+    const log = await Callecom.create({
+      order_id,
+      name,
+      phone_no,
+      company_name: company_name || null,
+      call_connected,
+      not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+      customer_response: call_connected === "yes" ? customer_response : null,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      message: "New call log saved successfully",
+      data: log,
+    });
+  } catch (err) {
+    console.error("❌ [ecomCall] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+async function saveCustomerNotAvailable(req, res) {
+  try {
+    const { start_msg, true_msg, false_msg, confirm_msg, time_options } = req.body;
+
+    const [flow, created] = await AutomationFlow.findOrCreate({
+      where: { flow_name: "customer_not_available" },
+      defaults: { start_msg, true_msg, false_msg, confirm_msg, time_options },
+    });
+
+    if (!created) {
+      await flow.update({ start_msg, true_msg, false_msg, confirm_msg, time_options });
+    }
+
+    return res.status(201).json({
+      ok: true,
+      message: "Automation flow saved successfully",
+      data: flow,
+    });
+  } catch (err) {
+    console.error("❌ [saveCustomerNotAvailable] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+// Fetch Flow
+async function getCustomerNotAvailable(req, res) {
+  try {
+    const flow = await AutomationFlow.findOne({
+      where: { flow_name: "customer_not_available" },
+    });
+
+    if (!flow) {
+      return res.status(404).json({
+        ok: false,
+        message: "Flow not found",
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      data: flow,
+    });
+  } catch (err) {
+    console.error("❌ [getCustomerNotAvailable] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+
+async function createIbr(req, res) {
+  try {
+    const { text } = req.body;
+
+    // Store relative paths
+    const screenshot = req.files?.screenshot?.[0]
+      ? path.join("uploads/ibr", req.files.screenshot[0].filename)
+      : null;
+
+    const voice = req.files?.voice?.[0]
+      ? path.join("uploads/ibr", req.files.voice[0].filename)
+      : null;
+
+    // Save to DB
+    const newIbr = await Ibr.create({
+      screenshot,
+      voice,
+      text,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      message: "IBR entry created",
+      data: newIbr,
+    });
+  } catch (err) {
+    console.error("❌ [createIbr] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+async function sendCodDeliveryNotification(req, res) {
+  try {
+    const payload = req.body;
+
+    // ✅ Basic validation
+    if (!payload || !payload.fullPhoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    // ✅ API Call to Interakt
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`, // from .env
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendCodDeliveryNotification] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
+
+
+
+
+
+
+
+
+async function sendOrderDispatchedWhatsApp(req, res) {
+  try {
+    const payload = req.body;
+
+    // ✅ Basic validation
+    if (!payload || !payload.fullPhoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    // ✅ API Call to Interakt
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          // "Authorization": `Basic ${process.env.INTERAKT_API_KEY}`, // your API key from .env
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`,
+
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendOrderDispatchedWhatsApp] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
+
+
+
+const getCustomerUpdates = async (req, res) => {
+  try {
+    const updates = await UpdatedCustomerDetail.findAll({
+      order: [['created_at', 'DESC']] // latest first
+    });
+
+    res.status(200).json({
+      ok: true,
+      total: updates.length,
+      data: updates
+    });
+  } catch (error) {
+    console.error('Error fetching customer updates:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
+const postCustomerUpdate = async (req, res) => {
+  try {
+    const {
+      order_id,
+      name,
+      email,
+      phone,
+      status,
+      address_line1,
+      address_line2,
+      landmark,
+      country,
+      state,
+      city,
+      pincode
+    } = req.body;
+
+    // Validate required fields
+    if (!order_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'order_id is required' 
+      });
+    }
+
+    // Update address in tbl_exp_consignee_details
+    let updateData = {};
+    
+    // Split name into first and last name (if provided)
+    if (name) {
+      const nameParts = name.trim().split(' ');
+      updateData.first_name = nameParts[0] || '';
+      updateData.last_name = nameParts.slice(1).join(' ') || '';
+    }
+    
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    
+    // Update address fields
+    if (address_line1) updateData.address_line1 = address_line1;
+    if (address_line2) updateData.address_line2 = address_line2;
+    if (landmark) updateData.landmark = landmark;
+    if (country) updateData.country = country;
+    if (state) updateData.state = state;
+    if (city) updateData.city = city;
+    if (pincode) updateData.pincode = pincode;
+
+    // Check if any data was provided to update
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'No update data provided' 
+      });
+    }
+
+    // Update the record in tbl_exp_consignee_details
+    const [affectedRows] = await ConsigneeDetails.update(updateData, {
+      where: { order_id: order_id }
+    });
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Order not found' 
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Customer address updated successfully',
+      data: {
+        order_id,
+        ...updateData
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating customer address:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Internal server error',
+      message: error.message 
+    });
+  }
+};
+
+
+const postCustomerUpdateEcom = async (req, res) => {
+  try {
+    const {
+      order_id,
+      name,
+      email,
+      phone,
+      status,
+      address_line1,
+      address_line2,
+      landmark,
+      country,
+      state,
+      city,
+      pincode
+    } = req.body;
+
+    // Validate required fields
+    if (!order_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'order_id is required' 
+      });
+    }
+
+    // Update address in tbl_exp_consignee_details
+    let updateData = {};
+    
+    // Split name into first and last name (if provided)
+    if (name) {
+      const nameParts = name.trim().split(' ');
+      updateData.first_name = nameParts[0] || '';
+      updateData.last_name = nameParts.slice(1).join(' ') || '';
+    }
+    
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    
+    // Update address fields
+    if (address_line1) updateData.address_line1 = address_line1;
+    if (address_line2) updateData.address_line2 = address_line2;
+    if (landmark) updateData.landmark = landmark;
+    if (country) updateData.country = country;
+    if (state) updateData.state = state;
+    if (city) updateData.city = city;
+    if (pincode) updateData.pincode = pincode;
+
+    // Check if any data was provided to update
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'No update data provided' 
+      });
+    }
+
+    // Update the record in tbl_exp_consignee_details
+    const [affectedRows] = await EcomConsigneeDetails.update(updateData, {
+      where: { order_id: order_id }
+    });
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Order not found' 
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Customer address updated successfully',
+      data: {
+        order_id,
+        ...updateData
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating customer address:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Internal server error',
+      message: error.message 
+    });
+  }
+};
+
+
+
+async function sendWhatsAppVerification(req, res) {
+  try {
+    const payload = req.body;
+
+    if (!payload || !payload.phoneNumber || !payload.template?.name) {
+      return res.status(400).json({ ok: false, error: "Missing required fields" });
+    }
+
+    const response = await axios.post(
+      "https://api.interakt.ai/v1/public/message/",
+      payload,
+      {
+        headers: {
+          "Authorization": `Basic ${process.env.WHATS_APP_API}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return res.json({ ok: true, data: response.data });
+  } catch (err) {
+    console.error("❌ [sendWhatsAppVerification] Error:", err.response?.data || err.message);
+    return res.status(500).json({ ok: false, error: err.response?.data || err.message });
+  }
+}
+
+
+async function addNdrReason(req, res) {
+  try {
+    const { order_id, reason } = req.body;
+
+    if (!order_id || !reason) {
+      return res.status(400).json({ ok: false, error: "Missing fields" });
+    }
+
+    const newReason = await NdrReason.create({
+      order_id,
+      reason
+    });
+
+    return res.json({ ok: true, data: newReason });
+  } catch (err) {
+    console.error("❌ [addNdrReason] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function getNdrHistory(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({ ok: false, error: "Missing fields" });
+    }
+
+    const history = await NdrReason.findAll({
+      where: { order_id},
+      order: [["created_at", "DESC"]]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistory] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+async function getNdrHistoryexp(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    const whereClause = {};
+    if (order_id) {
+      whereClause.order_id = order_id;
+    }
+
+    const history = await ExpNdrReason.findAll({
+      where: whereClause,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: ExpOrders,
+          as: "order",   // must match ExpNdrReason.belongsTo(ExpOrders, { as: "order" })
+          include: [
+            { model: ConsigneeDetails, as: "consignee" },  
+            { model: ExpLR, as: "exp_lrs" },               
+            { model: ExpProductDetails, as: "products" },  
+            { model: Admin, as: "client" }                  
+          ]
+        }
+      ]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistoryexp] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
+async function getNdrHistoryecom(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    let whereClause = {};
+    if (order_id) {
+      whereClause.order_id = order_id;
+    }
+
+    const history = await EcomNdrReason.findAll({
+      where: whereClause,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: EcomOrders,
+          as: "order",
+          include: [
+            { model: EcomConsigneeDetails, as: "consignee" },
+            { model: EcomLR, as: "ecom_lrs" },
+            { model: EcomProductDetails, as: "products" },
+            { model: Admin, as: "client" }
+          ]
+        }
+      ]
+    });
+
+    return res.json({
+      ok: true,
+      data: history
+    });
+  } catch (err) {
+    console.error("❌ [getNdrHistoryecom] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+async function getNdrActionsecom(req, res) {
+  try {
+
+    const [escalations, rtos, reattempts] = await Promise.all([
+      TblEscalationEcom.findAll({ order: [["created_at", "DESC"]] }),
+      TblRtoRequestsecom.findAll({ order: [["created_at", "DESC"]] }),
+      TblDeliveryReattemptsEcom.findAll({ order: [["created_at", "DESC"]] }),
+    ]);
+
+
+    return res.json({
+      ok: true,
+      data: {
+        escalations,
+        rtos,
+        reattempts,
+      },
+    });
+  } catch (err) {
+    console.error("❌ [getNdrActions] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function getNdrActions(req, res) {
+  try {
+
+    const [escalations, rtos, reattempts] = await Promise.all([
+      TblEscalation.findAll({ order: [["created_at", "DESC"]] }),
+      TblRtoRequests.findAll({ order: [["created_at", "DESC"]] }),
+      TblDeliveryReattempts.findAll({ order: [["created_at", "DESC"]] }),
+    ]);
+
+
+    return res.json({
+      ok: true,
+      data: {
+        escalations,
+        rtos,
+        reattempts,
+      },
+    });
+  } catch (err) {
+    console.error("❌ [getNdrActions] Error:", err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function createEscalation(req, res) {
+  try {
+   
+
+    const { order_id, reason, remarks } = req.body;
+
+    if (!order_id || !reason || !remarks) {
+      return res.status(400).json({ ok: false, error: "order_id, reason and remarks are required" });
+    }
+
+    const newEscalation = await TblEscalation.create({
+      order_id,
+      reason,
+      remarks
+    });
+
+
+    return res.json({ ok: true, data: newEscalation });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function createRto(req, res) {
+  try {
+    
+
+    const { order_id, product, payment_mode, pending_days, remarks } = req.body;
+
+    if (!remarks) {
+      return res.status(400).json({ ok: false, error: "Remarks are required" });
+    }
+
+    const newRto = await TblRtoRequests.create({
+      order_id,
+      product,
+      payment_mode,
+      pending_since: pending_days,
+      remarks
+    });
+
+    return res.json({ ok: true, data: newRto });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function createRtoecom(req, res) {
+  try {
+    
+
+    const { order_id, product, payment_mode, pending_days, remarks } = req.body;
+
+    if (!remarks) {
+      return res.status(400).json({ ok: false, error: "Remarks are required" });
+    }
+
+    const newRto = await TblRtoRequestsecom.create({
+      order_id,
+      product,
+      payment_mode,
+      pending_since: pending_days,
+      remarks
+    });
+
+    return res.json({ ok: true, data: newRto });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
+
+async function createReattempt(req, res) {
+  try {
+   
+
+    // 1) Extract payload
+    const {
+      order_id,
+      reason,
+      reason_incorrect,    // frontend boolean
+      request_reattempt,   // frontend boolean
+      reattempted_date,
+      phone,
+      landmark,
+      address1,
+      address2,
+      city,
+      state,
+      pin_code,
+      remarks
+    } = req.body;
+
+  
+    // 2) Save to DB (map fields to DB column names)
+    const newReattempt = await TblDeliveryReattempts.create({
+      order_id,
+      reason,
+      is_reason_incorrect: reason_incorrect ? 1 : 0,
+      request_for_reattempt: request_reattempt ? 1 : 0,
+      reattempted_date,
+      phone,
+      landmark,
+      address_line1: address1,
+      address_line2: address2,
+      city,
+      state,
+      pincode: pin_code,
+      remarks
+    });
+
+    // 3) Response
+    return res.json({ ok: true, data: newReattempt });
+
+  } catch (err) {
+    // 4) Error Handling
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+async function createReattemptecom(req, res) {
+  try {
+   
+
+    // 1) Extract payload
+    const {
+      order_id,
+      reason,
+      reason_incorrect,    // frontend boolean
+      request_reattempt,   // frontend boolean
+      reattempted_date,
+      phone,
+      landmark,
+      address1,
+      address2,
+      city,
+      state,
+      pin_code,
+      remarks
+    } = req.body;
+
+  
+    // 2) Save to DB (map fields to DB column names)
+    const newReattempt = await TblDeliveryReattemptsEcom.create({
+      order_id,
+      reason,
+      is_reason_incorrect: reason_incorrect ? 1 : 0,
+      request_for_reattempt: request_reattempt ? 1 : 0,
+      reattempted_date,
+      phone,
+      landmark,
+      address_line1: address1,
+      address_line2: address2,
+      city,
+      state,
+      pincode: pin_code,
+      remarks
+    });
+
+    // 3) Response
+    return res.json({ ok: true, data: newReattempt });
+
+  } catch (err) {
+    // 4) Error Handling
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+
+
+
+
+async function getAllOrderDetailsecom(req, res) {
+  try {
+    // Fetch EXPRESS Orders with status = 9 (NDR status)
+    // const expressOrders = await ExpOrders.findAll({
+    //   include: [
+    //     { 
+    //       model: ExpLR, 
+    //       as: 'exp_lrs',
+    //       where: { status: 9 },
+    //       required: true
+    //     },
+    //     { model: ExpProductDetails, as: 'products' },
+    //     { model: ConsigneeDetails, as: 'consignee' },
+    //     { model: Admin, as: 'client' }
+    //   ]
+    // });
+
+    // Fetch ECOM Orders with status = 9 (NDR status)
+    const ecomOrders = await EcomOrders.findAll({
+      include: [
+        { 
+          model: EcomLR, 
+          as: 'ecom_lrs',
+          where: { status: 9 },
+          required: true
+        },
+        { model: EcomProductDetails, as: 'products' },
+        { model: EcomConsigneeDetails, as: 'consignee' },
+        { model: Admin, as: 'client' }
+      ]
+    });
+
+    // Format Payload with NDR reasons
+    const payload = [
+      // ...expressOrders.map(order => ({
+      //   type: 'express',
+      //   id: order.id,
+      //   order_id: order.id,
+      //   status: 'ndr', // Add status field for frontend filtering
+      //   order_meta: {
+      //     id: order.id,
+      //     ref_number: order.ref_number,
+      //     payment_mode: order.payment_mode,
+      //     box_qty: order.box_qty,
+      //     total_qty: order.total_qty,
+      //     grand_total: order.grand_total
+      //   },
+      //   products: order.products || [],
+      //   lr_info: order.exp_lrs.map(lr => ({
+      //     ...lr.toJSON(),
+      //     ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+      //   })),
+      //   client: order.client || null,
+      //   consignee: order.consignee || null,
+      //   created_at: order.created_at,
+      //   // Add fields expected by frontend
+      //   seller_remarks: order.seller_remarks || '',
+      //   last_action: order.last_action || '',
+      //   last_action_by: order.last_action_by || '',
+      //   updated_address: order.updated_address || '',
+      //   updated_pincode: order.updated_pincode || ''
+      // })),
+
+
+      ...ecomOrders.map(order => ({
+        type: 'ecom',
+        id: order.id,
+        order_id: order.id,
+        status: 'ndr', // Add status field
+        order_meta: {
+          id: order.id,
+          ref_number: order.ref_number,
+          payment_mode: order.payment_mode,
+          box_qty: order.box_qty,
+          total_qty: order.total_qty,
+          grand_total: order.grand_total
+        },
+        products: order.products || [],
+        lr_info: order.ecom_lrs.map(lr => ({
+          ...lr.toJSON(),
+          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+        })),
+        client: order.client || null,
+        consignee: order.consignee || null,
+        created_at: order.created_at,
+        // Add fields expected by frontend
+        seller_remarks: order.seller_remarks || '',
+        last_action: order.last_action || '',
+        last_action_by: order.last_action_by || '',
+        updated_address: order.updated_address || '',
+        updated_pincode: order.updated_pincode || ''
+      }))
+    ];
+
+    return res.json({ ok: true, total: payload.length, data: payload });
+
+  } catch (err) {
+    console.error('❌ [getAllOrderDetails] Error:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+async function getAllOrderDetails(req, res) {
+  try {
+    // Fetch EXPRESS Orders with status = 9 (NDR status)
+    const expressOrders = await ExpOrders.findAll({
+      include: [
+        { 
+          model: ExpLR, 
+          as: 'exp_lrs',
+          where: { status: 9 },
+          required: true
+        },
+        { model: ExpProductDetails, as: 'products' },
+        { model: ConsigneeDetails, as: 'consignee' },
+        { model: Admin, as: 'client' }
+      ]
+    });
+
+    // Fetch ECOM Orders with status = 9 (NDR status)
+    // const ecomOrders = await EcomOrders.findAll({
+    //   include: [
+    //     { 
+    //       model: EcomLR, 
+    //       as: 'ecom_lrs',
+    //       where: { status: 9 },
+    //       required: true
+    //     },
+    //     { model: EcomProductDetails, as: 'products' },
+    //     { model: EcomConsigneeDetails, as: 'consignee' },
+    //     { model: Admin, as: 'client' }
+    //   ]
+    // });
+
+    // Format Payload with NDR reasons
+    const payload = [
+      ...expressOrders.map(order => ({
+        type: 'express',
+        id: order.id,
+        order_id: order.id,
+        status: 'ndr', // Add status field for frontend filtering
+        order_meta: {
+          id: order.id,
+          ref_number: order.ref_number,
+          payment_mode: order.payment_mode,
+          box_qty: order.box_qty,
+          total_qty: order.total_qty,
+          grand_total: order.grand_total
+        },
+        products: order.products || [],
+        lr_info: order.exp_lrs.map(lr => ({
+          ...lr.toJSON(),
+          ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+        })),
+        client: order.client || null,
+        consignee: order.consignee || null,
+        created_at: order.created_at,
+        // Add fields expected by frontend
+        seller_remarks: order.seller_remarks || '',
+        last_action: order.last_action || '',
+        last_action_by: order.last_action_by || '',
+        updated_address: order.updated_address || '',
+        updated_pincode: order.updated_pincode || ''
+      })),
+      // ...ecomOrders.map(order => ({
+      //   type: 'ecom',
+      //   id: order.id,
+      //   order_id: order.id,
+      //   status: 'ndr', // Add status field
+      //   order_meta: {
+      //     id: order.id,
+      //     ref_number: order.ref_number,
+      //     payment_mode: order.payment_mode,
+      //     box_qty: order.box_qty,
+      //     total_qty: order.total_qty,
+      //     grand_total: order.grand_total
+      //   },
+      //   products: order.products || [],
+      //   lr_info: order.ecom_lrs.map(lr => ({
+      //     ...lr.toJSON(),
+      //     ndr_reason: lr.ndr_reason || 'Unknown reason' // Add NDR reason
+      //   })),
+      //   client: order.client || null,
+      //   consignee: order.consignee || null,
+      //   created_at: order.created_at,
+      //   // Add fields expected by frontend
+      //   seller_remarks: order.seller_remarks || '',
+      //   last_action: order.last_action || '',
+      //   last_action_by: order.last_action_by || '',
+      //   updated_address: order.updated_address || '',
+      //   updated_pincode: order.updated_pincode || ''
+      // }))
+    ];
+
+    return res.json({ ok: true, total: payload.length, data: payload });
+
+  } catch (err) {
+    console.error('❌ [getAllOrderDetails] Error:', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+}
+
+
+
+async function getSupportTicketsWithAdmins(req, res) {
+  try {
+    // ---- Ticket query params ----
+    const limit  = parseInt(req.query.limit, 10)  || 50;   // tickets page size
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const q = (req.query.q || '').trim();
+    const status = (req.query.status || '').trim();
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
+    const endDate   = req.query.endDate   ? new Date(req.query.endDate)   : null;
+
+    // ---- Admin sub-call params ----
+    const adminLimit = parseInt(req.query.admin_limit, 10) || 20; // per-client admins page size
+    const adminsEndpointBase =
+      process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+    // ---- Build ticket WHERE ----
+    const ticketWhere = {};
+    if (q) {
+      ticketWhere[Op.or] = [
+        { ticket_id:        { [Op.like]: `%${q}%` } },
+        { lr_no:            { [Op.like]: `%${q}%` } },
+        { awb_or_lr_no:     { [Op.like]: `%${q}%` } },
+        { category:         { [Op.like]: `%${q}%` } },
+        { sub_category:     { [Op.like]: `%${q}%` } },
+        { description:      { [Op.like]: `%${q}%` } },
+        { shipment_status:  { [Op.like]: `%${q}%` } },
+        { pickup_zone:      { [Op.like]: `%${q}%` } },
+        { destination_zone: { [Op.like]: `%${q}%` } },
+      ];
+    }
+    if (status) ticketWhere.status = status;
+    if (startDate || endDate) {
+      ticketWhere.created_at = {};
+      if (startDate) ticketWhere.created_at[Op.gte] = startDate;
+      if (endDate)   ticketWhere.created_at[Op.lte] = endDate;
+    }
+
+    // ---- Fetch tickets (paged) ----
+    const tickets = await SupportTicket.findAndCountAll({
+      where: ticketWhere,
+      order: [['created_at', 'DESC']],
+      limit,
+      offset
+    });
+
+    // ---- Distinct client_ids across ALL matching tickets (not limited by pagination) ----
+    const allClientIdsResult = await SupportTicket.findAll({
+      attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('client_id')), 'client_id']],
+      where: ticketWhere,
+      raw: true
+    });
+    const distinctClientIds = allClientIdsResult
+      .map(r => r.client_id)
+      .filter(v => v !== null && v !== undefined && String(v).trim() !== '' && Number(v) !== 0)
+      .map(v => String(v).trim());
+
+    // If no clients found, respond with tickets only
+    if (!distinctClientIds.length) {
+      return res.json({
+        ok: true,
+        client_ids: [],
+        tickets: {
+          total: tickets.count,
+          returned: tickets.rows.length,
+          limit,
+          offset,
+          data: tickets.rows,
+        },
+        admins_by_client: {},
+      });
+    }
+
+    // ---- Call existing admins API for each client_id ----
+    const authHeader = req.headers.authorization || '';
+    const adminCalls = distinctClientIds.map(clientId =>
+      axios.get(
+        `${adminsEndpointBase}/api/clients/${encodeURIComponent(clientId)}/admins`,
+        {
+          params: { is_active: 1, limit: adminLimit },
+          headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+        }
+      )
+      .then(r => ({ client_id: clientId, payload: r.data }))
+      .catch(err => ({
+        client_id: clientId,
+        error: true,
+        message: err?.response?.data?.message || err.message || 'admins call failed'
+      }))
+    );
+
+    const adminsResults = await Promise.all(adminCalls);
+
+    const adminsByClient = {};
+    adminsResults.forEach(r => {
+      adminsByClient[r.client_id] = r.error ? { ok: false, error: r.message } : r.payload;
+    });
+
+    return res.json({
+      ok: true,
+      client_ids: distinctClientIds,
+      tickets: {
+        total: tickets.count,
+        returned: tickets.rows.length,
+        limit,
+        offset,
+        data: tickets.rows,
+      },
+      admins_by_client: adminsByClient
+    });
+  } catch (err) {
+    console.error('getSupportTicketsWithAdmins error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+
+
+async function updateSupportTicketStatus(req, res) {
+  try {
+    // ---- Params from URL ----
+    const ticketId = (req.params.ticketId || "").trim();
+    const newStatus = (req.params.status || "").trim();
+
+    if (!ticketId || !newStatus) {
+      return res.status(400).json({
+        ok: false,
+        message: "Both ticketId and status are required in the URL"
+      });
+    }
+
+    // ---- Find the ticket ----
+    const ticket = await SupportTicket.findOne({
+      where: { ticket_id: ticketId }
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        ok: false,
+        message: `Ticket not found for ID: ${ticketId}`
+      });
+    }
+
+    // ---- Update status ----
+    ticket.status = newStatus;
+    ticket.updated_at = new Date();
+
+    await ticket.save();
+
+    return res.json({
+      ok: true,
+      message: "Ticket status updated successfully",
+      ticket
+    });
+  } catch (err) {
+    console.error("updateSupportTicketStatus error:", err);
+    return res.status(500).json({
+      ok: false,
+      message: "Server error"
+    });
+  }
+}
+
+
+async function getAdminsByClientId(req, res) {
+  try {
+    const clientIdNum = parseInt(req.params.clientId, 10);
+    if (Number.isNaN(clientIdNum)) {
+      return res.status(400).json({ ok: false, message: 'Invalid clientId' });
+    }
+    const clientIdStr = String(clientIdNum);
+
+    const limit  = parseInt(req.query.limit, 10)  || 50;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const q = (req.query.q || '').trim();
+
+    // normalize is_active filter if provided
+    let isActiveFilter;
+    if (typeof req.query.is_active !== 'undefined') {
+      const v = String(req.query.is_active).toLowerCase();
+      isActiveFilter = (v === '1' || v === 'true') ? 1 : 0;
+    }
+
+    // ---- KEY CHANGE: expand where to cover id/client_id/parent_id, number OR string ----
+    const where = {
+      [Op.or]: [
+        { client_id: clientIdNum },
+        { client_id: clientIdStr },
+        { id: clientIdNum },
+        { parent_id: clientIdNum },
+      ],
+    };
+
+    if (typeof isActiveFilter !== 'undefined') where.is_active = isActiveFilter;
+
+    if (q) {
+      where[Op.and] = (where[Op.and] || []).concat({
+        [Op.or]: [
+          { first_name:   { [Op.like]: `%${q}%` } },
+          { last_name:    { [Op.like]: `%${q}%` } },
+          { email:        { [Op.like]: `%${q}%` } },
+          { company_name: { [Op.like]: `%${q}%` } },
+        ]
+      });
+    }
+
+    const { rows, count } = await Admin.findAndCountAll({
+      attributes: { exclude: ['password', 'verify_token'] },
+      where,
+      order: [['id', 'DESC']],
+      limit,
+      offset,
+    });
+
+    const data = rows.map(r => ({
+      ...r.toJSON(),
+      full_name: `${r.first_name || ''} ${r.last_name || ''}`.trim(),
+    }));
+
+    return res.json({
+      ok: true,
+      client_id: clientIdNum,
+      counts: { total: count, returned: data.length },
+      data,
+      pagination: { limit, offset, returned: data.length }
+    });
+  } catch (err) {
+    console.error('getAdminsByClientId error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+module.exports = { getAdminsByClientId };
+
+
+
+
+async function getClientLRNumbers(req, res) {
+  try {
+    const clientId = parseInt(req.params.clientId, 10);
+    if (Number.isNaN(clientId)) {
+      return res.status(400).json({ ok: false, message: 'Invalid clientId' });
+    }
+
+    const limit  = parseInt(req.query.limit, 10)  || 100;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    const [ecom, exp] = await Promise.all([
+      EcomLR.findAll({
+        attributes: ['lr_no', 'created_at'],
+        where: { client_id: clientId },
+        limit, offset,
+        order: [['id', 'DESC']],
+      }),
+      ExpLR.findAll({
+        attributes: ['lr_no', 'created_at'],
+        where: { client_id: clientId },
+        limit, offset,
+        order: [['id', 'DESC']],
+      }),
+    ]);
+
+    const data = [
+      ...ecom.map(r => ({ source: 'tbl_ecom_lr', lr_no: r.lr_no, created_at: r.created_at })),
+      ...exp.map(r => ({ source: 'tbl_exp_lr',  lr_no: r.lr_no, created_at: r.created_at })),
+    ];
+
+    return res.json({
+      ok: true,
+      client_id: clientId,
+      counts: { ecom: ecom.length, exp: exp.length, total: data.length },
+      data,
+      pagination: { limit, offset, returned: data.length }
+    });
+  } catch (err) {
+    console.error('getClientLRNumbers error:', err);
+    return res.status(500).json({ ok: false, message: 'Server error' });
+  }
+}
+
+
+
+// controllers/ticketController.js
+
+const Ticket = TicketModel(sequelize, DataTypes);
+
+const {
+  EMAIL_FROM = 'onboarding@dispatch.co.in',
+  EMAIL_HOST,
+  EMAIL_PORT,
+  EMAIL_PASS,
+} = process.env;
+
+/** Simple email sanity check */
+const isValidEmail = (e = '') =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(String(e).trim());
+
+/** Normalize, validate and dedupe email lists */
+function normalizeEmails(...lists) {
+  const out = new Set();
+  lists.flat().forEach((e) => {
+    if (typeof e === 'string' && isValidEmail(e)) out.add(e.trim());
+  });
+  return Array.from(out);
+}
+
+/** Create a nodemailer transporter if config exists */
+function getTransporter() {
+  if (!EMAIL_HOST || !EMAIL_PORT || !EMAIL_FROM || !EMAIL_PASS) return null;
+  const secure = String(EMAIL_PORT) === '465';
+  return nodemailer.createTransport({
+    host: EMAIL_HOST,
+    port: Number(EMAIL_PORT),
+    secure,
+    auth: { user: EMAIL_FROM, pass: EMAIL_PASS },
+  });
+}
+
+/** Attempt to send a basic email about the created ticket */
+async function sendTicketEmail({ to, cc, ticket, shipment, issue }) {
+  const transporter = getTransporter();
+  if (!transporter) return { sent: false, error: 'Mail transport not configured' };
+
+  const subject = `New Support Ticket ${ticket.ticket_id} – ${issue.category}/${issue.sub_category}`;
+  const text = [
+    `Ticket: ${ticket.ticket_id}`,
+    `LR: ${ticket.awb_or_lr_no}`,
+    `Category: ${issue.category}`,
+    `Sub-Category: ${issue.sub_category}`,
+    `Description: ${issue.description}`,
+    '',
+    `Client ID: ${shipment?.client_id ?? '-'}`,
+    `Tagged API: ${shipment?.tagged_api ?? '-'}`,
+    `Pickup Zone: ${shipment?.pickup_zone ?? '-'}`,
+    `Destination Zone: ${shipment?.destination_zone ?? '-'}`,
+  ].join('\n');
+
+  const html = `
+    <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;">
+      <h2>New Support Ticket: ${ticket.ticket_id}</h2>
+      <p><b>LR:</b> ${ticket.awb_or_lr_no}</p>
+      <p><b>Category:</b> ${issue.category} &nbsp; | &nbsp; <b>Sub-Category:</b> ${issue.sub_category}</p>
+      <p><b>Description:</b><br/>${(issue.description || '').replace(/\n/g, '<br/>')}</p>
+      <hr/>
+      <p><b>Client ID:</b> ${shipment?.client_id ?? '-'} &nbsp; | &nbsp;
+         <b>Courrier:</b> ${shipment?.tagged_api ?? '-'}</p>
+      <p><b>Pickup Zone:</b> ${shipment?.pickup_zone ?? '-'} &nbsp; | &nbsp;
+         <b>Destination Zone:</b> ${shipment?.destination_zone ?? '-'}</p>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: EMAIL_FROM,
+      to: to.length ? to.join(',') : undefined,
+      cc: cc.length ? cc.join(',') : undefined,
+      subject,
+      text,
+      html,
+    });
+    return { sent: true, error: null };
+  } catch (err) {
+    return { sent: false, error: err?.message || 'Unknown email error' };
+  }
+}
+
+async function createTicket(req, res) {
+  const transaction = await sequelize.transaction();
+  try {
+    const {
+      awb_or_lr_no,
+      category,
+      sub_category,
+      description,
+      additional_fields = {},
+      notify = {},
+    } = req.body;
+
+    // ---------- helpers ----------
+    const firstNonEmpty = (...vals) =>
+      vals.find(v => typeof v === 'string' && v.trim().length > 0) || null;
+
+    // Resolve a single LR with robust fallbacks
+    const resolvedLrFromBody = firstNonEmpty(
+      awb_or_lr_no,
+      additional_fields.lr_no,
+      additional_fields.waybill_number,
+      Array.isArray(additional_fields.list_awb) ? additional_fields.list_awb[0] : null
+    );
+
+    // ---- Resolve notify ----
+    const notifyEnabled = Boolean(notify.enabled);
+    // Ensure EMAIL_FROM is also in "to" as requested
+    let finalTo = normalizeEmails(notify.to || [], EMAIL_FROM);
+    let finalCc = normalizeEmails(notify.cc || []);
+
+    // remove any CC that is already in To
+    finalCc = finalCc.filter(e => !finalTo.includes(e));
+
+    // If for some reason To is still empty, fall back to EMAIL_FROM
+    if (!finalTo.length) finalTo = normalizeEmails(EMAIL_FROM);
+
+    // ---- Generate ticket id ----
+    const ticketId = `TKT-${new Date().toISOString().split('T')[0]}-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    // ---- Find shipment (try with the most reliable LR we have) ----
+    const lrForQuery = resolvedLrFromBody || awb_or_lr_no || '';
+    const [ecomLr, expLr, createLr] = await Promise.all([
+      sequelize.query(`SELECT * FROM tbl_ecom_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: lrForQuery },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+      sequelize.query(`SELECT * FROM tbl_exp_lr WHERE lr_no = :lrNo`, {
+        replacements: { lrNo: lrForQuery },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+      sequelize.query(`SELECT * FROM tbl_create_lr WHERE lr_No = :lrNo`, { // note: column name in your DB is 'lr_No'
+        replacements: { lrNo: lrForQuery },
+        type: sequelize.QueryTypes.SELECT,
+        transaction,
+      }),
+    ]);
+
+    const s = (ecomLr && ecomLr[0]) || (expLr && expLr[0]) || (createLr && createLr[0]);
+
+    if (!s) {
+      await transaction.rollback();
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+
+    // Single source of truth for LR going forward
+    const finalLrNo = firstNonEmpty(s.lr_no, resolvedLrFromBody);
+
+    // ---- Build response-friendly JSON blobs ----
+    const lrInfo = {
+      lr_no: finalLrNo, // ensure populated even if DB row had null
+      order_id: s.order_id,
+      client_id: s.client_id,
+      tagged_api: s.tagged_api,
+      aggregator_id: s.aggrigator_id,
+      forwarder_id: s.forwarder_id,
+      status: s.status,
+      eta: s.eta,
+      pickup_zone: s.pickup_zone,
+      destination_zone: s.destination_zone,
+      created_at: s.created_at,
+    };
+
+    const financial = {
+      insurance_type: s.insurance_type,
+      volumetric_weight: s.volumetric_weight,
+      chargeable_weight: s.chargable_weight,
+      base_rate: s.base_rate,
+      total_additional: s.total_additional,
+      total_gst: s.total_gst,
+      total_lr_charges: s.total_lr_charges,
+      billing_status: s.billing_status,
+    };
+
+    const weight = {
+      total_weight: `${s.chargable_weight || 0} kg`,
+      volumetric_weight: `${s.volumetric_weight || 0} kg`,
+    };
+
+    // ---- Create row with ALL flattened fields populated ----
+    const ticket = await Ticket.create(
+      {
+        ticket_id: ticketId,
+        awb_or_lr_no: finalLrNo, // <-- store resolved LR
+        category,
+        sub_category,
+        description,
+        status: 'Open',
+        additional_fields: {
+          ...additional_fields,
+          lr_no: finalLrNo, // ensure saved in JSON too
+          waybill_number: additional_fields.waybill_number || finalLrNo,
+        },
+
+        // flattened shipment columns
+        lr_no: finalLrNo,
+        order_id: s.order_id,
+        client_id: s.client_id,
+        tagged_api: s.tagged_api,
+        aggregator_id: s.aggrigator_id,
+        forwarder_id: s.forwarder_id,
+        shipment_status: s.status,
+        eta: s.eta,
+        pickup_zone: s.pickup_zone,
+        destination_zone: s.destination_zone,
+        shipment_created_at: s.created_at,
+
+        insurance_type: s.insurance_type,
+        volumetric_weight: s.volumetric_weight,
+        chargeable_weight: s.chargable_weight,
+        base_rate: s.base_rate,
+        total_additional: s.total_additional,
+        total_gst: s.total_gst,
+        total_lr_charges: s.total_lr_charges,
+        billing_status: s.billing_status,
+
+        shipment_details_raw: { ...lrInfo, ...financial },
+        weight_details_raw: weight,
+
+        // notify
+        notify_enabled: notifyEnabled,
+        notify_email_from: EMAIL_FROM,
+        notify_to: finalTo,
+        notify_cc: finalCc,
+        notify_sent: false,
+        notify_error: null,
+        notification_raw: notifyEnabled
+          ? { from: EMAIL_FROM, to: finalTo, cc: finalCc }
+          : null,
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
+
+    // ---- Send email after commit, then update notify_* flags ----
+    let emailResult = { sent: false, error: null };
+    if (notifyEnabled) {
+      try {
+        emailResult = await sendTicketEmail({
+          from: EMAIL_FROM,
+          to: finalTo,
+          cc: finalCc,
+
+          // IMPORTANT: include awb_or_lr_no here for templates that read ticket.awb_or_lr_no
+          ticket: { ticket_id: ticket.ticket_id, awb_or_lr_no: finalLrNo },
+
+          // Some templates read issue.additional_fields.*, so keep it intact with lr_no filled
+          issue: { category, sub_category, description, additional_fields: { ...additional_fields, lr_no: finalLrNo, waybill_number: additional_fields.waybill_number || finalLrNo } },
+
+          // Some templates read shipment.lr_no (flat); keep it here too
+          shipment: { ...lrInfo, lr_no: finalLrNo },
+
+          financial,
+          weight,
+        });
+
+        await Ticket.update(
+          { notify_sent: !!emailResult.sent, notify_error: emailResult.error || null },
+          { where: { ticket_id: ticket.ticket_id } }
+        );
+      } catch (err) {
+        emailResult = { sent: false, error: err.message || String(err) };
+        await Ticket.update(
+          { notify_sent: false, notify_error: emailResult.error },
+          { where: { ticket_id: ticket.ticket_id } }
+        );
+      }
+    }
+
+    // ---- API response ----
+    return res.status(201).json({
+      success: true,
+      ticket_id: ticket.ticket_id,
+      created_at: ticket.created_at,
+      shipment_details: {
+        lr_info: lrInfo,
+        financial_details: financial,
+        weight_details: weight,
+      },
+      issue_details: {
+        category,
+        sub_category,
+        description,
+        additional_fields: { ...additional_fields, lr_no: finalLrNo, waybill_number: additional_fields.waybill_number || finalLrNo },
+      },
+      notification: {
+        enabled: notifyEnabled,
+        email_from: EMAIL_FROM,
+        to: finalTo,
+        cc: finalCc,
+        sent: emailResult.sent,
+        error: emailResult.error,
+      },
+    });
+  } catch (error) {
+    try { await transaction.rollback(); } catch {}
+    return res.status(500).json({
+      error: 'userController--->userController.createTicket',
+      details: error.message,
+    });
+  }
+}
+
+
+
+
+
+
+
+async function getSupportCategories(req, res) {
+  try {
+    const { raised_from = 'ucp' } = req.query;
+
+    const response = await supportService.getSupportCategories(raised_from);
+
+    return res.json(response);
+  } catch (error) {
+    return res.status(500).json({
+      error: 'userController--->getSupportCategories',
+      details: error.message
+    });
+  }
+}
 const loginPage = (req, res, next) => {
   // console.log("req,post", req.body)
   res.render('pages/login', { title: 'Log In', layout: 'partials/layout-auth' })
@@ -28711,7 +30426,7 @@ const validateExpressBulkOrderData = (order, orderIndex) => {
   };
 };
 
-const `createOrderExpressBulk=async (req, res, next) => {
+const createOrderExpressBulk=async (req, res, next) => {
   console.log("req body",req.body)
   console.log("req files",req.files) // Check what files are uploaded
   
@@ -29905,7 +31620,6 @@ module.exports = {
   getManualLr,
   getTaggedApi,
   billclientdata,
-  apiGetOdaCharges,
   getAllOrders,
   orderDetailsOrderNumber,
   forwarderOnboarding,
@@ -30118,5 +31832,37 @@ module.exports = {
   helpdeskAgents,
   getAddressesEcom,
   apiPackageExpressRateList,
-  apiPackageEcomRateList
+  apiPackageEcomRateList,
+  getSupportCategories,
+  createTicket,
+  getClientLRNumbers,
+  getAdminsByClientId,
+  getSupportTicketsWithAdmins,
+  updateSupportTicketStatus,
+  getAllOrderDetails,
+   createReattempt,
+   createRto,
+   createEscalation,
+   getNdrActions,
+  addNdrReason,
+  getNdrHistory,
+  getNdrHistoryexp,
+  sendWhatsAppVerification,
+  postCustomerUpdate,
+  getCustomerUpdates,
+  getAllOrderDetailsecom,
+  getNdrActionsecom,
+  postCustomerUpdateEcom,
+  createReattemptecom,
+  createRtoecom,
+  sendOrderDispatchedWhatsApp,
+  sendCodDeliveryNotification,
+  createIbr,
+   saveCustomerNotAvailable,
+  getCustomerNotAvailable,
+  getNdrHistoryecom,
+  ecomCall,
+  expCall,
+  getOrderCallCountecom,
+  getOrderCallCountexp
 }

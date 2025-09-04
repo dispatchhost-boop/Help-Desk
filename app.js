@@ -12,6 +12,7 @@ const http = require('http');
 const route = require('./routes/route');
 const socket = require('./routes/socket/socket');
 const { conn } = require('./middleware/db'); // MySQL connection
+// const socket = require("socket.io");
 
 dotenv.config({ path: './config.env' });
 
@@ -37,6 +38,39 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'partials/layout-vertical');
+
+
+//Socket for helpdesk chat
+
+let onlineUsers = {};
+
+io.on("connection", (socket) => {
+  console.log("🔗 New client connected", socket.id);
+
+  // When user joins (after login)
+  socket.on("join", (userData) => {
+    onlineUsers[userData.id] = socket.id;
+    console.log(" User joined:", userData);
+  });
+  
+
+  socket.on("sendMessage", (data) => {
+    const { senderId, receiverId, message } = data;
+
+
+  if (onlineUsers[receiverId]) {
+      io.to(onlineUsers[receiverId]).emit("receiveMessage", data);
+}
+  });
+  socket.on("disconnect", () => {
+    console.log("❌ Client disconnected", socket.id);
+     for (let uid in onlineUsers) {
+      if (onlineUsers[uid] === socket.id) {
+        delete onlineUsers[uid];
+      }
+    }
+  });
+});
 
 
 // Static files
@@ -72,6 +106,7 @@ app.use((req, res, next) => {
       res.locals.userFullName = `${decoded.name || ''} ${decoded.last_name || ''}`;
       res.locals.name = decoded.name;
       res.locals.Rolename = decoded.roleName;
+      // res.locals.roleName = req.user.roleName; 
       res.locals.userLogoPath = decoded.logo_path;
      res.locals.companyName = decoded.company_name;
 
@@ -108,7 +143,7 @@ app.use((req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).redirect('/view/login');
+    return res.status(401).redirect('/view/login');                                                 
   }
 
   console.error("App Error:", err);
@@ -116,10 +151,10 @@ app.use((err, req, res, next) => {
     status: err.status || 'error',
     message: err.message || 'Something went wrong',
   });
-});
+}); 
 
 // Server Start
 const PORT = process.env.PORT || 8001;
-server.listen(PORT, () => {
+server.listen(PORT,"0.0.0.0", () => {
   console.log(`🚀 Server listening at http://localhost:${PORT}`);
 });

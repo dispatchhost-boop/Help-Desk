@@ -1,4 +1,4 @@
-
+// middleware\db.js
 // const express = require('express');
 // const mysql = require('mysql');
 
@@ -33,7 +33,7 @@ var conn = mysql.createPool({
     host     : 'localhost',
     user     : 'root',
     password : '',
-    database : 'dsnew9aug',
+    database : 'ds12aug',
     connectionLimit : 100
   });
 

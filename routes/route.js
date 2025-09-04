@@ -1,24 +1,366 @@
+// routes\route.js
 const express = require('express');
 const route = express.Router();
 const { mySqlQury } = require('../middleware/db');
 const {auth,ensureKYCApproved} = require('../middleware/auth')
+const addressController = require('../controller/addressController');
 const path = require('path');
 const accessControlMiddleware = require('../middleware/accessControl');
 const userController = require('../controller/userController');
 const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require('../middleware/multer');
-route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
-require('../crone/crone.js')
-const axios = require('axios')
+const axios = require('axios');
+const nodemailer = require("nodemailer");
+// route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
+// require('../crone/crone.js')
+
+route.get("/api/call-ecom/count", userController.getOrderCallCountecom);
+
+route.get("/api/call-exp/count", userController.getOrderCallCountexp);
+
+require("dotenv").config({ path: "./config.env" });
+
+route.post("/api/ndr-ecom/call", userController.ecomCall);
+
+
+route.post("/api/ndr-exp/call", userController.expCall);
+
+
+route.post(
+  "/api/automation/customer-not-available",
+  auth, // if you want authentication
+  userController.saveCustomerNotAvailable
+);
+
+route.get(
+  "/api/automation/customer-not-available",
+  auth, // optional
+  userController.getCustomerNotAvailable
+);
+
+
+route.post('/api/customer/update-address', userController.postCustomerUpdate);
+
+
+
+
+
+const BASE_URL = "http://localhost:5000";
+
+// ✅ Hardcoded mail config
+const transporter = nodemailer.createTransport({
+  host: "smtp.hostinger.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "onboarding@dispatch.co.in",
+    pass: "Shabi@4020",
+  },
+});
+
+// 👉 Step 1: Send Initial Mail
+route.post("/send-initial", async (req, res) => {
+  try {
+    const { customerEmail, customerName, brandName, courier, awb } = req.body;
+
+    const mailOptions = {
+      from: "onboarding@dispatch.co.in",
+      to: customerEmail,
+      subject: `Delivery Attempt Failed - ${brandName}`,
+      html: `
+        Dear ${customerName},<br><br>
+        Your order from ${brandName} with ${courier} AWB# ${awb} is undelivered since you weren’t available.<br>
+        If it is not true, please 
+        <a href="${BASE_URL}/response?status=false&awb=${awb}&to=${customerEmail}">click False</a>,<br>
+        else 
+        <a href="${BASE_URL}/response?status=true&awb=${awb}&to=${customerEmail}">click True</a>.
+        <br><br>
+        Thanks,<br>
+        Team ${brandName}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ status: "sent", message: "Initial email sent" });
+  } catch (err) {
+    console.error("Error sending initial mail:", err);
+    res.status(500).json({ status: "error", message: err.message });
+  }
+});
+
+// 👉 Step 2: Handle Response (Chat UI)
+route.get("/response", async (req, res) => {
+  const { status, awb, to } = req.query;
+
+  let chatMessages = [
+    { from: "system", text: `Your order with AWB #${awb} could not be delivered.` },
+  ];
+
+  try {
+    if (status === "false") {
+      chatMessages.push({ from: "customer", text: "❌ No, I was available" });
+      chatMessages.push({ from: "system", text: "Sorry for the inconvenience, we’ll reattempt delivery soon." });
+
+      await transporter.sendMail({
+        from: "onboarding@dispatch.co.in",
+        to,
+        subject: "Delivery Feedback Received",
+        html: `Dear Customer,<br>Your order ${awb} will be delivered soon.<br><br>Team Brand`,
+      });
+    }
+
+    if (status === "true") {
+      chatMessages.push({ from: "customer", text: "✅ Yes, I was not available" });
+      chatMessages.push({ from: "system", text: "When should we redeliver?" });
+      chatMessages.push({
+        from: "options",
+        text: `
+          <a href="${BASE_URL}/reschedule?time=24&awb=${awb}&to=${to}">📦 Within 24 Hrs</a><br>
+          <a href="${BASE_URL}/reschedule?time=48&awb=${awb}&to=${to}">⏳ Within 48 Hrs</a><br>
+          <a href="${BASE_URL}/reschedule?time=72&awb=${awb}&to=${to}">📅 Within 72 Hrs</a>
+        `,
+      });
+
+      await transporter.sendMail({
+        from: "onboarding@dispatch.co.in",
+        to,
+        subject: "Reschedule Delivery",
+        html: `Dear Customer,<br>Please confirm when we can redeliver your order ${awb}.<br><br>Team Brand`,
+      });
+    }
+
+    res.send(renderChat(chatMessages));
+  } catch (err) {
+    console.error("Error handling response:", err);
+    res.status(500).send("Error processing response");
+  }
+});
+
+// 👉 Step 3: Handle Reschedule (Chat UI)
+route.get("/reschedule", async (req, res) => {
+  const { time, awb, to } = req.query;
+
+  let chatMessages = [
+    { from: "system", text: `Reschedule request for AWB #${awb}` },
+    { from: "customer", text: `I choose delivery within ${time} hrs` },
+    { from: "system", text: `✅ Great! Your order will be delivered within ${time} hrs.` },
+  ];
+
+  try {
+    await transporter.sendMail({
+      from: "onboarding@dispatch.co.in",
+      to,
+      subject: "Delivery Rescheduled",
+      html: `Dear Customer,<br>Your order ${awb} is rescheduled (${time} hrs).<br><br>Team Brand`,
+    });
+
+    res.send(renderChat(chatMessages));
+  } catch (err) {
+    console.error("Error sending reschedule confirmation:", err);
+    res.status(500).send("Error sending reschedule confirmation");
+  }
+});
+
+// helper to render chat UI
+function renderChat(messages) {
+  let bubbles = messages.map((m) => {
+    if (m.from === "customer")
+      return `<div class="bubble customer">${m.text}</div>`;
+    if (m.from === "options")
+      return `<div class="bubble system options">${m.text}</div>`;
+    return `<div class="bubble system">${m.text}</div>`;
+  });
+
+  return `
+    <html>
+    <head>
+      <title>Dispatch Chat</title>
+      <link rel="stylesheet" href="/chat.css">
+    </head>
+    <body>
+      <div class="chat-box">
+        ${bubbles.join("")}
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+
+const { log } = require('console');
+const uploadIbr = require('../middleware/uploadIbr');
+
+
+
+route.post("/api/ibr", uploadIbr.fields([
+    { name: "screenshot", maxCount: 1 },
+    { name: "voice", maxCount: 1 },
+  ]),
+  userController.createIbr
+);
+
+
+
+route.post('/api/customer/update-address', userController.postCustomerUpdate);
+route.post('/api/customer/update-address/ecom', userController.postCustomerUpdateEcom);
+
+
+route.get('/api/customer/update-address', userController.getCustomerUpdates);
+route.get('/api/customer/update-address/ecom', userController.getCustomerUpdates);
+
+route.post("/api/send-whatsapp", userController.sendWhatsAppVerification);
+
+
+
+
+
+
+route.post("/update-undel-reason", userController.addNdrReason);
+route.get("/ndr-history/exp", userController.getNdrHistoryexp);
+route.get("/ndr-history", userController.getNdrHistory);
+
+
+
+
+
+route.get("/ndr-history/ecom", userController.getNdrHistoryecom);
+
+
+// ========== WHATSAPP ADDRESS VERIFICATION ========== //
+
+// route.post("/api/send-address-verification", async (req, res) => {
+//   try {
+//     const { order_id } = req.body;
+
+//     // 1. Fetch order details from DB
+//     const order = await mySqlQury(
+//       "SELECT order_id, consignee_name, consignee_phone, consignee_address, consignee_pincode FROM tbl_exp_orders WHERE order_id = ?",
+//       [order_id]
+//     );
+
+//     if (!order || order.length === 0) {
+//       return res.status(404).json({ success: false, message: "Order not found" });
+//     }
+
+//     const customer = order[0];
+
+//     // 2. Build payload for Interakt
+//     const payload = {
+//       countryCode: "+91",
+//       phoneNumber: customer.consignee_phone,
+//       type: "Template",
+//       template: {
+//         name: "address_verification", // must match approved template in Interakt
+//         languageCode: "en",
+//         bodyValues: [
+//           customer.consignee_name,
+//           customer.consignee_address,
+//           customer.consignee_pincode,
+//           `https://yourdomain.com/verify?order_id=${customer.order_id}`
+//         ]
+//       }
+//     };
+
+//     // 3. Call Interakt API
+//     const response = await axios.post(
+//       "https://api.interakt.ai/v1/public/message/",
+//       payload,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${process.env.WHATS_APP_API}`,
+//           "Content-Type": "application/json"
+//         }
+//       }
+//     );
+
+//     res.json({ success: true, data: response.data });
+//   } catch (err) {
+//     console.error("Error sending WhatsApp:", err.response?.data || err.message);
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });
+
+
+
+
+
+
+// route.post("/api/update-address", async (req, res) => {
+//   try {
+//     const { order_id, new_address, new_pincode } = req.body;
+
+//     await mySqlQury(
+//       "UPDATE tbl_exp_orders SET corrected_address = ?, corrected_pincode = ? WHERE order_id = ?",
+//       [new_address, new_pincode, order_id]
+//     );
+
+//     res.send("✅ Address updated successfully!");
+//   } catch (err) {
+//     console.error("Error updating address:", err.message);
+//     res.status(500).send("❌ Failed to update address");
+//   }
+// });
+
+
+
+
+
+
+
+///======================NDR ROUTES==================================///
+// route.post('/delivery-reattempt', userController.createReattempt);
+route.get("/ndr-actions", userController.getNdrActions);
+route.get("/ndr-actions/ecom", userController.getNdrActionsecom);
+
+route.post('/delivery-reattempt', userController.createReattempt);
+route.post('/delivery-reattempt/ecom', userController.createReattemptecom);
+
+
+route.post('/rto-request', userController.createRto);
+route.post('/rto-request/ecom', userController.createRtoecom);
+
+
+route.post('/escalation', userController.createEscalation);
+
+
+
+
+route.get('/api/get-order-details', userController.getAllOrderDetails);
+route.get('/api/get-order-details/ecom', userController.getAllOrderDetailsecom);
+
+
+
+
+
+
+
+
 
 // ======================
 // HELPDESK ROUTES
 // ======================
+
+// List admins for a given client_id
+
+// Update ticket status by ticketId and new status
+route.put('/api/support/tickets/:ticketId/status/:status', userController.updateSupportTicketStatus);
+
+route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
+route.get('/api/clients/:clientId/admins', userController.getAdminsByClientId);
+
+route.get('/api/clients/:clientId/lr-nos', userController.getClientLRNumbers);
+route.get('/support/categories', userController.getSupportCategories);
+route.post('/api/support/tickets', userController.createTicket);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
+// route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
+
+
+
+
 
 // ======================
 // AUTHENTICATION ROUTES
-// ======================
+// ======================      
 route.get('/', userController.loginPage)
 route.post('/', userController.loginAuth)
 route.get('/signup', userController.getSignup)
@@ -535,38 +877,64 @@ route.get('/ecom/create-order', auth, userController.getEcomCreateOrder)
 
 // /api/clients
 route.get('/api/all-clients', auth, async (req, res) => {
-  const { id: currentUserId, level } = req.user;
+  const { id: currentUserId } = req.user;
 
   try {
-    // Only client or allowed user can see sub-clients
     const query = `
       WITH RECURSIVE nested_users AS (
-          -- 1️⃣ Include itself first
-          SELECT id, parent_id, level, TRIM(CONCAT_WS(' ', first_name, NULLIF(last_name, ''))) AS full_name, company_name
-          FROM tbl_admin
-          WHERE id = ?
+        -- 1) seed with the current user
+        SELECT
+          id,
+          parent_id,
+          level,
+          CONCAT_WS(' ', NULLIF(first_name, ''), NULLIF(last_name, '')) AS full_name,
+          company_name,
+          email,
+          country_code,
+          phone_no
+        FROM tbl_admin
+        WHERE id = ?
 
-            UNION ALL
+        UNION ALL
 
-          -- 2️⃣ Include all nested children (level 2 and 3)
-          SELECT a.id, a.parent_id, a.level, CONCAT(a.first_name, ' ', a.last_name) AS full_name, a.company_name
-          FROM tbl_admin a
-          INNER JOIN nested_users nu ON a.parent_id = nu.id
-          WHERE a.level IN (2,3)
+        -- 2) include all descendants (levels 2 & 3)
+        SELECT
+          a.id,
+          a.parent_id,
+          a.level,
+          CONCAT_WS(' ', NULLIF(a.first_name, ''), NULLIF(a.last_name, '')) AS full_name,
+          a.company_name,
+          a.email,
+          a.country_code,
+          a.phone_no
+        FROM tbl_admin a
+        INNER JOIN nested_users nu ON a.parent_id = nu.id
+        WHERE a.level IN (2, 3)
       )
-      -- 3️⃣ Final selection
-      SELECT id, parent_id, level, full_name, company_name
-      FROM nested_users;
+      -- 3) final selection (dedup just in case) 
+      SELECT DISTINCT
+        id,
+        parent_id,
+        level,
+        full_name,
+        company_name,
+        email,
+        country_code,
+        phone_no
+      FROM nested_users
+      ORDER BY level, company_name, full_name;
     `;
 
     const clients = await mySqlQury(query, [currentUserId]);
-    console.log("clients data",clients)
+
     res.json({ clients });
   } catch (error) {
-    console.error("Error fetching clients:", error);
-    res.status(500).json({ error: "Failed to fetch clients" });
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
+
+
  
 // /api/clients/:clientId/users
 route.get('/api/clients/:clientId/users', auth, async (req, res) => {
@@ -2831,7 +3199,125 @@ route.get('/express/shipment-tracking', (req, res) => {
   });
 });
 
+route.get('/helpdesk', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
 
+  res.render('pages/helpdesk', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+
+route.get('/view-support-tickets', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/view-support-tickets', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+
+route.get('/ndr-management-express', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/ndr-management-express', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+route.get('/ndr-managerment-ecom', (req, res) => {
+  // Assuming req.user.role or req.session.role contains the user's role
+  // Adjust as per your authentication/session implementation
+  const role = req.user?.role || req.session?.role || null;
+
+  res.render('pages/ndr-management-ecom', {
+    bodyClass: 'profile-page',
+    activePage: 'profile',
+    title: 'Client List',
+    role: role
+  });
+});
+
+
+
+route.get('/update-address-details-express', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/update-address-details-express', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+route.get('/update-address-details-ecom', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/update-address-details-ecom', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+route.get('/customer-not-available', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/customer-not-available', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
+
+
+
+
+route.get('/customer-not-available-exp', auth, async (req, res) => {
+  try {
+    const role = req.user?.role || req.session?.role || null;
+    res.render('pages/customer-not-available-exp', {
+      title: 'Client Package Manager',
+      bodyClass: 'profile-page',
+      activePage: 'client-package',
+ 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading packages');
+  }
+});
 route.use('/', express.static(path.join(__dirname, './')))
 
 // Layout
@@ -2872,5 +3358,4 @@ route.get('/dark-topbar', (req, res, next) => {
   res.render('layouts/dark-topbar', { title: 'Metrica', layout: 'partials/layout-vertical2' })
 })
 
-
-module.exports = route;   
+module.exports = route;
