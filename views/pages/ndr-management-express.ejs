@@ -962,21 +962,21 @@
                     </div>
                     <!-- Show History Modal -->
                     <div class="modal-overlay" id="showHistoryModal">
-                        <div class="modal-container">
+                        <!-- <div class="modal-container">
                             <div class="modal-header">
                                 <h3 class="modal-title">Request History</h3>
                                 <button class="modal-close" data-close>&times;</button>
-                            </div>
+                            </div> -->
                             <div class="modal-body" id="showHistoryBody">
                                 <!-- filled by JS -->
                             </div>
-                            <div class="modal-footer d-flex flex-row justify-content-between" style="padding: 18px;">
+                            <!-- <div class="modal-footer d-flex flex-row justify-content-between" style="padding: 18px;">
                                 <button class="btn btn-sm btn-primary me-2">Re-attempt</button>
                                 <button class="btn btn-sm btn-warning me-2">RTO</button>
                                 <button class="btn btn-sm btn-danger me-2">Escalate</button>
                                 <button class="btn  btn-info me-2">Escalate to Courier</button>
                                 <button class="btn btn-sm btn-outline-secondary" data-close>Close</button>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
 
@@ -987,6 +987,9 @@
     <div class="modal-header">
       <h3 class="modal-title">Call Log</h3>
       <button class="modal-close" data-close>&times;</button>
+    </div>
+     <div id="callCountBox" class="mb-2 p-2 border rounded bg-light">
+      <p><strong>Call Attempts:</strong> <span id="callCount">0</span></p>
     </div>
 
     <div class="modal-body">
@@ -1035,7 +1038,8 @@
         <div class="modal-footer">
            <!-- <div class="mt-2"> -->
             <!-- <button type="button" id="notConnectedOkBtn" class="btn btn-outline-secondary">OK</button> -->
-             <button type="button" id="notConnectedOkBtn" class="btn btn-primary" style="display:none;">OK</button>
+             <!-- <button type="button" id="notConnectedOkBtn" class="btn btn-primary" style="display:none;">OK</button> -->
+             <button type="button" id="notConnectedOkBtn" class="btn btn-outline-secondary">OK</button>
           <!-- </div> -->
           <button type="button" class="btn btn-outline-secondary" data-close>CANCEL</button>
         </div>
@@ -1062,7 +1066,26 @@
     } catch (err) {
       console.error("❌ Failed to load client info:", err);
     }
+
+    const orderId = document.getElementById("ibrOrderId").value;
+    if (orderId) fetchCallCount(orderId);
   }
+
+   async function fetchCallCount(orderId) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/call-exp/count?order_id=${orderId}`);
+      const json = await res.json();
+      if (json.ok) {
+        document.getElementById("callCount").textContent = json.count;
+      } else {
+        document.getElementById("callCount").textContent = "0";
+      }
+    } catch (err) {
+      console.error("❌ Fetch Call Count Error:", err);
+      document.getElementById("callCount").textContent = "0";
+    }
+  }
+
 
   // Toggle UI
 document.getElementById("callConnected")?.addEventListener("change", function () {
@@ -1088,6 +1111,7 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
       const json = await res.json();
       if (json.ok) {
         alert("✅ Call log saved successfully");
+         fetchCallCount(payload.order_id);
       } else {
         alert("❌ Failed: " + json.error);
       }
@@ -1098,7 +1122,7 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
   }
 
   // 🔹 Handle Not Connected OK Button
-  document.getElementById("notConnectedOkBtn")?.addEventListener("click", function () {
+   document.getElementById("notConnectedOkBtn")?.addEventListener("click", function () {
     const reason = document.getElementById("notConnectedReason").value;
     if (!reason) {
       alert("⚠️ Please select a reason first");
@@ -1133,11 +1157,7 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
   });
 
   // Load client info when modal is opened
-  document.addEventListener("click", function (e) {
-    if (e.target.closest(".open-ibr-modal")) {
-      loadClientInfo();
-    }
-  });
+
 </script>
 
                     <!-- Reattempt Modal -->
@@ -1337,11 +1357,26 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
 document.addEventListener("click", function(e) {
   const btn = e.target.closest(".open-ibr-modal");
   if (!btn) return;
-
   const orderId = btn.getAttribute("data-order-id");
   document.getElementById("ibrOrderId").value = orderId;
   openModal("ibrModal");
 });
+
+
+// Open IBR modal + load client info
+document.addEventListener("click", async function(e) {
+  const btn = e.target.closest(".open-ibr-modal");
+  if (!btn) return;
+
+  const orderId = btn.getAttribute("data-order-id");
+  document.getElementById("ibrOrderId").value = orderId;
+
+  // 🔥 load client info before opening modal
+  await loadClientInfo();
+
+  openModal("ibrModal");
+});
+
 
 // Handle IBR form submit
 document.getElementById("ibrForm")?.addEventListener("submit", async function(e) {
@@ -2402,7 +2437,7 @@ function rowToHTML(order, tabKey) {
         </td>
          <td>
         <button class="btn btn-xs btn-info open-ibr-modal" data-order-id="${esc(orderId)}">
-          Add IBR
+          Call
         </button>
       </td>
       </tr>`;

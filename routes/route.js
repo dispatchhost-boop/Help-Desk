@@ -10,6 +10,12 @@ const userController = require('../controller/userController');
 const { uploadcv,clientdocs, uploadLR, uploadInvoice, upload,upload2 } = require('../middleware/multer');
 const axios = require('axios');
 const nodemailer = require("nodemailer");
+// route.get('/api/get-oda-charges',userController.apiGetOdaCharges) 
+// require('../crone/crone.js')
+
+route.get("/api/call-ecom/count", userController.getOrderCallCountecom);
+
+route.get("/api/call-exp/count", userController.getOrderCallCountexp);
 
 require("dotenv").config({ path: "./config.env" });
 
@@ -346,7 +352,7 @@ route.get('/support/categories', userController.getSupportCategories);
 route.post('/api/support/tickets', userController.createTicket);
 route.get('/helpdesk-reports', auth,userController.helpDeskReports)
 route.get('/helpdesk-agents', auth, userController.helpdeskAgents)
-route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
+// route.get('/api/support/overview', userController.getSupportTicketsWithAdmins);
 
 
 

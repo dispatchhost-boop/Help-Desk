@@ -61,6 +61,69 @@ const { DataTypes } = require('sequelize');
 
 
 
+async function getOrderCallCountecom(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id is required",
+      });
+    }
+
+    // 🔹 Count rows with this order_id
+    const count = await Callecom.count({
+      where: { order_id },
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: "Call count fetched successfully",
+      order_id,
+      count,
+    });
+  } catch (err) {
+    console.error("❌ [getOrderCallCountecom] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
+
+async function getOrderCallCountexp(req, res) {
+  try {
+    const { order_id } = req.query;
+
+    if (!order_id) {
+      return res.status(400).json({
+        ok: false,
+        error: "order_id is required",
+      });
+    }
+
+    // 🔹 Count rows with this order_id
+    const count = await Callexp.count({
+      where: { order_id },
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: "Call count fetched successfully",
+      order_id,
+      count,
+    });
+  } catch (err) {
+    console.error("❌ [getOrderCallCountecom] Error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Server error",
+    });
+  }
+}
+
 
 async function expCall(req, res) {
   try {
@@ -81,29 +144,16 @@ async function expCall(req, res) {
       });
     }
 
-    // 🔹 Try to find existing log for this order
-    const [log, created] = await Callexp.findOrCreate({
-      where: { order_id },
-      defaults: {
-        name,
-        phone_no,
-        company_name: company_name || null,
-        call_connected,
-        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
-        customer_response: call_connected === "yes" ? customer_response : null,
-      },
+    // 🔹 Always create a new row (no findOrCreate)
+    const log = await Callexp.create({
+      order_id,
+      name,
+      phone_no,
+      company_name: company_name || null,
+      call_connected,
+      not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+      customer_response: call_connected === "yes" ? customer_response : null,
     });
-
-    if (!created) {
-      await log.update({
-        name,
-        phone_no,
-        company_name: company_name || null,
-        call_connected,
-        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
-        customer_response: call_connected === "yes" ? customer_response : null,
-      });
-    }
 
     return res.status(201).json({
       ok: true,
@@ -118,10 +168,6 @@ async function expCall(req, res) {
     });
   }
 }
-
-
-
-
 
 
 
@@ -144,33 +190,20 @@ async function ecomCall(req, res) {
       });
     }
 
-    // 🔹 Try to find existing log for this order
-    const [log, created] = await Callecom.findOrCreate({
-      where: { order_id },
-      defaults: {
-        name,
-        phone_no,
-        company_name: company_name || null,
-        call_connected,
-        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
-        customer_response: call_connected === "yes" ? customer_response : null,
-      },
+    // 🔹 Always create new row (no findOrCreate)
+    const log = await Callecom.create({
+      order_id,
+      name,
+      phone_no,
+      company_name: company_name || null,
+      call_connected,
+      not_connected_reason: call_connected === "no" ? not_connected_reason : null,
+      customer_response: call_connected === "yes" ? customer_response : null,
     });
-
-    if (!created) {
-      await log.update({
-        name,
-        phone_no,
-        company_name: company_name || null,
-        call_connected,
-        not_connected_reason: call_connected === "no" ? not_connected_reason : null,
-        customer_response: call_connected === "yes" ? customer_response : null,
-      });
-    }
 
     return res.status(201).json({
       ok: true,
-      message: "Call log saved successfully",
+      message: "New call log saved successfully",
       data: log,
     });
   } catch (err) {
@@ -181,6 +214,7 @@ async function ecomCall(req, res) {
     });
   }
 }
+
 
 
 async function saveCustomerNotAvailable(req, res) {
@@ -612,35 +646,6 @@ async function getNdrHistory(req, res) {
   }
 }
 
-
-// async function getNdrHistoryexp(req, res) {
-//   try {
-//     const { order_id } = req.query;
-
-//     let where = {};
-//     if (order_id) {
-//       // If user passes order_id → filter, else return all
-//       where.order_id = order_id;
-//     }
-
-//     const history = await EcomNdrReason.findAll({
-//       where,
-//       order: [["created_at", "DESC"]],
-//     });
-
-//     return res.json({
-//       ok: true,
-//       data: history,
-//     });
-//   } catch (err) {
-//     console.error("❌ [getNdrHistory] Error:", err);
-//     return res.status(500).json({ ok: false, error: err.message });
-//   }
-// }
-
-
-
-// controllers/userController.js (or wherever you keep it)
 async function getNdrHistoryexp(req, res) {
   try {
     const { order_id } = req.query;
@@ -817,8 +822,6 @@ async function createRto(req, res) {
 }
 
 
-
-
 async function createRtoecom(req, res) {
   try {
     
@@ -896,9 +899,6 @@ async function createReattempt(req, res) {
 }
 
 
-
-
-
 async function createReattemptecom(req, res) {
   try {
    
@@ -946,10 +946,6 @@ async function createReattemptecom(req, res) {
     return res.status(500).json({ ok: false, error: err.message });
   }
 }
-
-
-
-
 
 
 
@@ -1058,10 +1054,6 @@ async function getAllOrderDetailsecom(req, res) {
     return res.status(500).json({ ok: false, error: err.message });
   }
 }
-
-
-
-
 
 async function getAllOrderDetails(req, res) {
   try {
@@ -1326,21 +1318,6 @@ async function updateSupportTicketStatus(req, res) {
     });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 async function getAdminsByClientId(req, res) {
@@ -1771,7 +1748,6 @@ async function createTicket(req, res) {
 }
 
 
-module.exports = { createTicket };
 
 
 
@@ -31886,5 +31862,7 @@ module.exports = {
   getCustomerNotAvailable,
   getNdrHistoryecom,
   ecomCall,
-  expCall
+  expCall,
+  getOrderCallCountecom,
+  getOrderCallCountexp
 }

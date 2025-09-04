@@ -956,6 +956,11 @@
       <button class="modal-close" data-close>&times;</button>
     </div>
 
+    <!-- Call Count -->
+    <div id="callCountBox" class="mb-2 p-2 border rounded bg-light">
+      <p><strong>Call Attempts:</strong> <span id="callCount">0</span></p>
+    </div>
+
     <div class="modal-body">
       <!-- 🔹 Client Info -->
       <div id="clientInfoBox" class="mb-3 p-2 border rounded bg-light">
@@ -986,7 +991,6 @@
             <option value="not_attending">Not Attending Call</option>
             <option value="wrong_number">Wrong Phone Number</option>
           </select>
-         
         </div>
 
         <!-- If CONNECTED -->
@@ -1000,10 +1004,7 @@
         </div>
 
         <div class="modal-footer">
-           <!-- <div class="mt-2"> -->
-            <!-- <button type="button" id="notConnectedOkBtn" class="btn btn-outline-secondary">OK</button> -->
-             <button type="button" id="notConnectedOkBtn" class="btn btn-primary" style="display:none;">OK</button>
-          <!-- </div> -->
+          <button type="button" id="notConnectedOkBtn" class="btn btn-primary" style="display:none;">OK</button>
           <button type="button" class="btn btn-outline-secondary" data-close>CANCEL</button>
         </div>
       </form>
@@ -1012,16 +1013,18 @@
 </div>
 
 <script>
-  const BASE_URL = "http://localhost:5000"; 
+  const BASE_URL = "http://localhost:5000";
   let currentClient = null;
 
-  // Load client info
+  // ===============================
+  // Load client info & call count
+  // ===============================
   async function loadClientInfo() {
     try {
       const res = await fetch(`${BASE_URL}/api/all-clients`);
       const json = await res.json();
       if (json.clients && json.clients.length > 0) {
-        currentClient = json.clients[0]; 
+        currentClient = json.clients[0];
         document.getElementById("clientName").textContent = currentClient.full_name || "—";
         document.getElementById("clientCompany").textContent = currentClient.company_name || "—";
         document.getElementById("clientPhone").textContent = currentClient.phone_no || "—";
@@ -1029,22 +1032,33 @@
     } catch (err) {
       console.error("❌ Failed to load client info:", err);
     }
+
+    // fetch call count for the order
+    const orderId = document.getElementById("ibrOrderId").value;
+    if (orderId) fetchCallCount(orderId);
   }
 
-  // Toggle UI
-document.getElementById("callConnected")?.addEventListener("change", function () {
-  const val = this.value;
+  // ===============================
+  // Fetch Call Count API
+  // ===============================
+  async function fetchCallCount(orderId) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/call-ecom/count?order_id=${orderId}`);
+      const json = await res.json();
+      if (json.ok) {
+        document.getElementById("callCount").textContent = json.count;
+      } else {
+        document.getElementById("callCount").textContent = "0";
+      }
+    } catch (err) {
+      console.error("❌ Fetch Call Count Error:", err);
+      document.getElementById("callCount").textContent = "0";
+    }
+  }
 
-  // Show/hide sections
-  document.getElementById("notConnectedOptions").style.display = val === "no" ? "block" : "none";
-  document.getElementById("connectedActions").style.display = val === "yes" ? "block" : "none";
-
-  // ✅ Show OK button only if "Not Connected"
-  document.getElementById("notConnectedOkBtn").style.display = val === "no" ? "inline-block" : "none";
-});
-
-
+  // ===============================
   // Save Call Log API
+  // ===============================
   async function saveCallLog(payload) {
     try {
       const res = await fetch(`${BASE_URL}/api/ndr-ecom/call`, {
@@ -1055,6 +1069,7 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
       const json = await res.json();
       if (json.ok) {
         alert("✅ Call log saved successfully");
+        fetchCallCount(payload.order_id); // 🔹 refresh call count
       } else {
         alert("❌ Failed: " + json.error);
       }
@@ -1064,7 +1079,20 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
     }
   }
 
-  // 🔹 Handle Not Connected OK Button
+  // ===============================
+  // Toggle UI based on call_connected
+  // ===============================
+  document.getElementById("callConnected")?.addEventListener("change", function () {
+    const val = this.value;
+
+    document.getElementById("notConnectedOptions").style.display = val === "no" ? "block" : "none";
+    document.getElementById("connectedActions").style.display = val === "yes" ? "block" : "none";
+    document.getElementById("notConnectedOkBtn").style.display = val === "no" ? "inline-block" : "none";
+  });
+
+  // ===============================
+  // Handle Not Connected OK Button
+  // ===============================
   document.getElementById("notConnectedOkBtn")?.addEventListener("click", function () {
     const reason = document.getElementById("notConnectedReason").value;
     if (!reason) {
@@ -1083,7 +1111,9 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
     saveCallLog(payload);
   });
 
-  // 🔹 Handle Connected Actions
+  // ===============================
+  // Handle Connected Actions
+  // ===============================
   document.querySelectorAll(".action-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
       const action = this.dataset.action;
@@ -1099,13 +1129,16 @@ document.getElementById("callConnected")?.addEventListener("change", function ()
     });
   });
 
-  // Load client info when modal is opened
+  // ===============================
+  // When modal opens → load info & count
+  // ===============================
   document.addEventListener("click", function (e) {
     if (e.target.closest(".open-ibr-modal")) {
       loadClientInfo();
     }
   });
 </script>
+
 
 
 
